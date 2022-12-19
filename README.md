@@ -78,7 +78,7 @@ pip3 install --upgrade -r requirements.txt
 
 ## Build
 
-To build the full software stack one needs to execute the following command in the `catkin_ws` folder or any of its subdirectories.
+To build the full software stack one needs to execute the following command in the `catkin_ws` folder or any of its subdirectories:
 
 ```bash
 # Go to workspace
@@ -89,7 +89,7 @@ catkin build
 
 ## Launch
 
-Before you launch any of the provided launch files remember to source the current workspace by typing 
+Before you launch any of the provided launch files remember to source the current workspace by typing:
 
 ```bash
 # Go to workspace
@@ -105,13 +105,13 @@ Now you can launch the software.
 
 ## How do I contribute
 
-To contribute changes to this repository go to the repository in your file system and create a new branch. Replace the placeholder `fix/my_dummy_branch` with a short but descriptive branch name.
+To contribute changes to this repository go to the repository in your file system and create a new branch. Replace the placeholder `fix/my_dummy_branch` with a short but descriptive branch name:
 
 ```bash
 git switch -c fix/my_dummy_branch
 ```
 
-Now commit your changes and push them.
+Now commit your changes and push them:
 
 ```bash
 # Run this once if the repo is new. It will save you an additional command when pushing new branches.
