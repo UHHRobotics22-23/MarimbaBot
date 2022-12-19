@@ -1,0 +1,13 @@
+name: CI
+
+on: [pull_request, workflow_dispatch]
+
+jobs:
+  main_ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: 'ros-industrial/industrial_ci@master'
+        env:
+          ROS_DISTRO: noetic
+          ROS_REPO: main
