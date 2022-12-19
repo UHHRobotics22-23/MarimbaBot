@@ -101,3 +101,25 @@ source devel/setup.bash
 Now you can launch the software. 
 
 #### Note: The main launch files need to be added if they are created.
+
+
+## How do I contribute
+
+To contribute changes to this repository go to the repository in your file system and create a new branch. Replace the placeholder `fix/my_dummy_branch` with a short but descriptive branch name.
+
+```bash
+git switch -c fix/my_dummy_branch
+```
+
+Now commit your changes and push them.
+
+```bash
+# Run this once if the repo is new. It will save you an additional command when pushing new branches.
+git config push.autoSetupRemote true
+
+# Now we can push our changes
+git push
+```
+
+Now you can [create a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request#creating-the-pull-request) for your branch and merge it (after it is approved) into the `main` branch using the GitHub website.
+
