@@ -27,7 +27,8 @@ mkdir -p catkin_ws/src
 
 # Clone repository into source folder
 cd catkin_ws/src
-git clone git@github.com:UHHRobotics22-23/robot_project 
+git clone git@github.com:UHHRobotics22-23/robot_project
+cd ..
 
 # Initilize workspace
 catkin init
