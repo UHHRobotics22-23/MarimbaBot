@@ -2,7 +2,11 @@
 <package format="2">
   <name>marimbabot_audio</name>
   <version>0.0.0</version>
-  <description>The marimbabot_audio package</description>
+  <description>
+  The marimbabot_audio package is designed to recognize and verify music notes with high accuracy.
+  It uses a variety of algorithms to detect and analyze musical notes, and provides feedback
+  on the accuracy of the notes that have been identified.
+  </description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->

@@ -2,7 +2,11 @@
 <package format="2">
   <name>marimbabot_planning</name>
   <version>0.0.0</version>
-  <description>The marimbabot_planning package</description>
+  <description>
+  The marimbabot_planning package is used planning part of the MarimbaBot.
+  It provides a comprehensive set of tools to create, analyze and simulate motion plans for the robot.
+  The package is a necessary part of the robot and is required to ensure the robot is able to move accurately and safely.
+  </description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->

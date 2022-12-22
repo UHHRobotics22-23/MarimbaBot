@@ -2,7 +2,10 @@
 <package format="2">
   <name>marimbabot_vision</name>
   <version>0.0.0</version>
-  <description>The marimbabot_vision package</description>
+  <description>
+  The marimbabot_vision package is designed to help MarimbaBot recognize notes and to understand how to behave in its environment.
+  This package is designed to be an invaluable part of the robot's operation, allowing it to accurately and efficiently respond to its environment.
+  </description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
