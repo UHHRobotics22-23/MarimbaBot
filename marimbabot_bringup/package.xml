@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>marimbabot_bringup</name>
+  <version>0.0.0</version>
+  <description>
+  The marimbabot_bringup package is a software package designed for use with the Marimbabot robotic system.
+  It provides a launch file that automatically starts up the nodes required for the robot to function.
+  The package includes the launch file and all necessary scripts, drivers, and configuration files.
+  The launch file automatically starts up the packages associated with the Marimbabot such as the marimbabot_audio,
+  marimbabot_vision, and marimbabot_planning.
+  The Bringup Package provides a comprehensive and streamlined way to get the Marimbabot up and running with minimal effort.
+   </description>
+
+  <maintainer email="root@todo.todo">root</maintainer>
+
+  <license>Apache License Version 2.0</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_export_depend>rospy</build_export_depend>
+  <build_export_depend>std_msgs</build_export_depend>
+  <exec_depend>rospy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+</package>
