@@ -122,11 +122,13 @@ val_dataloader = DataLoader(val_dataset, batch_size=config['val_batch_sizes'][0]
 
 # Create pytorch lightning module
 class DonutModelPLModule(pl.LightningModule):
-    def __init__(self, config, pre_processor, model):
+    def __init__(self, config, pre_processor, model, train_dataloader, val_dataloader):
         super().__init__()
         self.config = config
         self.pre_processor = pre_processor
         self.model = model
+        self.train_dataloader_ref = train_dataloader
+        self.val_dataloader_ref = val_dataloader
 
     def training_step(self, batch, batch_idx):
         pixel_values, labels, _ = batch
@@ -194,13 +196,13 @@ class DonutModelPLModule(pl.LightningModule):
         return torch.optim.Adam(self.parameters(), lr=self.config.get("lr"))
 
     def train_dataloader(self):
-        return train_dataloader
+        return self.train_dataloader_ref
 
     def val_dataloader(self):
-        return val_dataloader
+        return self.val_dataloader_ref
 
 # Instantiate pytorch lightning module
-model_module = DonutModelPLModule(config, pre_processor, model)
+model_module = DonutModelPLModule(config, pre_processor, model, train_dataloader, val_dataloader)
 
 # Instantiate pytorch lightning trainer
 trainer = pl.Trainer(
