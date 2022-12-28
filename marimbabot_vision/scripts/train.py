@@ -217,4 +217,4 @@ trainer.fit(model_module)
 
 # Save the model and tokenizer
 model.save_pretrained("./model")
-pre_processor.tokenizer.save_pretrained("./model")
+pre_processor.save_pretrained("./model")
