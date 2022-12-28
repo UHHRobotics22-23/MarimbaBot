@@ -7,7 +7,8 @@ from abjad import LilyPondFile, Staff, Voice
 from abjad.persist import as_png
 from numpy.random import choice
 
-NUM_SAMPLES = 5000
+NUM_SAMPLES = 10000
+NUM_WORKER = 24
 OUTPUT_DIR = "data"
 
 def note_sampler():
@@ -37,8 +38,7 @@ def generate_sample(i):
         f.write(string)
 
 if __name__ == "__main__":
-    ids = range(NUM_SAMPLES)
-    # Call generate_sample on ids with tqdm and multiprocessing (24 workers)
-    with Pool(24) as pool:
-        tqdm.tqdm(pool.imap(generate_sample, ids), total=len(ids))
+    # Call generate_sample on ids with tqdm and multiprocessing (lilypond is single threaded)
+    with Pool(NUM_WORKER) as pool:
+        list(tqdm.tqdm(pool.imap(generate_sample, range(NUM_SAMPLES)), total=NUM_SAMPLES))
     
