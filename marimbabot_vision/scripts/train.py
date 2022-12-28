@@ -12,7 +12,7 @@ from transformers import (DonutProcessor, VisionEncoderDecoderConfig,
                           VisionEncoderDecoderModel)
 
 # Config
-config = {"max_epochs": 30,
+config = {"max_epochs": 300,
           "check_val_every_n_epoch": 1,
           "gradient_clip_val":1.0,
           "lr":1e-4,
