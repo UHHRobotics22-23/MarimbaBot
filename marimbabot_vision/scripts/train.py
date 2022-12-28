@@ -162,12 +162,13 @@ class DonutModelPLModule(pl.LightningModule):
         for pred, answer in zip(predictions, answers):
             answer = answer.replace(self.pre_processor.tokenizer.eos_token, "").replace(config['start_token'], "")
             pred = pred.replace(self.pre_processor.tokenizer.eos_token, "").replace(config['start_token'], "")
-            scores.append(edit_distance(pred, answer) / max(len(pred), len(answer)))
+            score = edit_distance(pred, answer) / max(len(pred), len(answer))
+            scores.append(score)
 
             if self.config.get("verbose", False) and len(scores) < 10:
                 print(f"Prediction: {pred}")
                 print(f"    Answer: {answer}")
-                print(f" Normed ED: {scores[0]}")
+                print(f" Normed ED: {score}")
 
         return scores
 
