@@ -12,7 +12,7 @@ from transformers import (DonutProcessor, VisionEncoderDecoderConfig,
                           VisionEncoderDecoderModel)
 
 # Config
-config = {"max_epochs": 500,
+config = {"max_epochs": 30,
           "check_val_every_n_epoch": 1,
           "gradient_clip_val":1.0,
           "lr":1e-4,
@@ -22,8 +22,8 @@ config = {"max_epochs": 500,
           "warmup_steps": 300,
           "result_path": "./result",
           "verbose": True,
-          "train_data_path": "data_easy/",
-          "val_data_path": "test_data_easy/",
+          "train_data_path": "data/",
+          "val_data_path": "test_data/",
           "max_length": 50,
           "image_size": [1280//4, 960//4],
           "start_token": "<s>",
@@ -32,9 +32,9 @@ config = {"max_epochs": 500,
 
 # Load base model
 
-config = VisionEncoderDecoderConfig.from_pretrained("nielsr/donut-base")
-config.encoder.image_size = config['image_size']
-config.decoder.max_length = config['max_length']
+ved_config = VisionEncoderDecoderConfig.from_pretrained("nielsr/donut-base")
+ved_config.encoder.image_size = config['image_size']
+ved_config.decoder.max_length = config['max_length']
 
 pre_processor = DonutProcessor.from_pretrained("nielsr/donut-base")
 
@@ -44,7 +44,7 @@ pre_processor.image_processor.size = config['image_size'][::-1]
 model = VisionEncoderDecoderModel.from_pretrained(
     "nielsr/donut-base", 
     ignore_mismatched_sizes=True, 
-    config=config)
+    config=ved_config)
 
 model.config.pad_token_id = pre_processor.tokenizer.pad_token_id
 model.config.decoder_start_token_id = pre_processor.tokenizer.convert_tokens_to_ids([config['start_token']])[0]
@@ -116,8 +116,8 @@ class NoteDataset(Dataset):
 train_dataset = NoteDataset(config['train_data_path'], max_length=config['max_length'], split="train", start_token=config['start_token'])
 val_dataset = NoteDataset(config['val_data_path'], max_length=config['max_length'], split="validation", start_token=config['start_token'])
 
-train_dataloader = DataLoader(train_dataset, batch_size=config['batch_size'][0], shuffle=True, num_workers=config['num_workers'])
-val_dataloader = DataLoader(val_dataset, batch_size=config['batch_size'][0], shuffle=False, num_workers=config['num_workers'])
+train_dataloader = DataLoader(train_dataset, batch_size=config['train_batch_sizes'][0], shuffle=True, num_workers=config['num_workers'])
+val_dataloader = DataLoader(val_dataset, batch_size=config['val_batch_sizes'][0], shuffle=False, num_workers=config['num_workers'])
 
 
 # Create pytorch lightning module
