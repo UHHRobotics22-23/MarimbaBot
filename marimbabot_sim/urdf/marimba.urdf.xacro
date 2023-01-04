@@ -1,0 +1,134 @@
+<?xml version="1.0" ?>
+<robot name="marimba" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<xacro:include filename="$(find marimbabot_sim)/urdf/utilities.xacro" />
+<xacro:include filename="$(find marimbabot_sim)/urdf/materials.xacro" />
+
+<!-- URDF/Gazebo model of a marimba.
+
+    2023.01.04 First version created
+-->
+
+<xacro:property name="bar_width" value="0.0323" />
+<xacro:property name="bar_height" value="0.0185" />
+
+<xacro:property name="bar_gap" value="0.001" />
+
+<xacro:property name="base_length" value="0.7" />
+<xacro:property name="base_width" value="0.1" />
+<xacro:property name="base_height" value="0.05" />
+
+<!-- The bars -->
+<xacro:macro name="bar" params="parent id pos length" >
+    <gazebo reference="${parent}/bar_${id}" >
+        <turnGravityOff>false</turnGravityOff>
+        <selfCollide>false</selfCollide>
+        <!-- TODO material -->
+        <!-- <material>chordophones/OakWood</material> -->
+        <mu1>50.0</mu1>
+        <mu2>50.0</mu2>
+        <kp>1000000.0</kp>
+        <kd>1.0</kd>
+    </gazebo>
+
+    <link name="${parent}/bar_${id}">
+    <xacro:default_inertia_mass_inertial  mass="0.03" inertial="0.01" />
+    <visual>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+            <box size="${length} ${bar_width} ${bar_height}"/>
+        </geometry>
+        <!-- TODO material -->
+        <!-- <material name="oak_wood" /> -->
+    </visual>
+    <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+            <box size="${bar_width} ${bar_height} ${length}"/>
+        </geometry>
+        <material name="blue" />
+    </collision>
+    </link>
+
+    <xacro:tams_fixedjoint name="${parent}/bar_${id}/fixedjoint" parent="${parent}" child="${parent}/bar_${id}" >
+        <origin xyz="${pos}" rpy="0 0 0" />
+    </xacro:tams_fixedjoint>
+</xacro:macro>
+
+
+<xacro:macro name="marimba" params="name">
+    <link name="${name}">
+        <default_inertial_with_mass mass="0.001" inertial="1" />
+    </link>
+
+    <gazebo reference="${name}" >
+        <turnGravityOff>false</turnGravityOff>
+        <selfCollide>false</selfCollide>
+        <!-- TODO material -->
+        <!--<material>Gazebo/Green</material>-->
+        <mu1>50.0</mu1>
+        <mu2>50.0</mu2>
+        <kp>1000000.0</kp>
+        <kd>1.0</kd>
+    </gazebo>
+
+    <gazebo>
+        <plugin filename="libgazebo_ros_control.so" name="${name}_gazebo_ros_control">
+            <!-- don't add the robotNamespace here unless you really want it -->
+            <!-- <robotNamespace>${name}/</robotNamespace> -->
+            <!-- <robotNamespace>/</robotNamespace> -->
+            <robotParam>robot_description</robotParam>
+            <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+            <legacyModeNS>true</legacyModeNS>
+            <!-- specify control period, default is to use the physics period -->
+            <!-- <controlPeriod>0.0333</controlPeriod> -->
+        </plugin>
+    </gazebo>
+
+    <gazebo reference="${name}/body">
+        <turnGravityOff>false</turnGravityOff>
+        <selfCollide>false</selfCollide>
+        <!-- TODO material -->
+        <!-- <material>chordophones/OakWood</material> -->
+        <mu1>50.0</mu1>
+        <mu2>50.0</mu2>
+        <kp>1000000.0</kp>
+        <kd>1.0</kd>
+    </gazebo>
+
+    <link name="${name}/body">
+        <inertial>
+            <mass value="7.5" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.2" ixy="0" ixz="0" iyy="0.2" iyz="0" izz="0.05" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <!-- <mesh filename="package://chordophones/meshes/guzheng-body.stl"  scale="0.001 0.001 0.001" /> -->
+                <box size="${base_length} ${base_width} ${base_height}"/>
+            </geometry>
+            <material name="red" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <box size="${base_length} ${base_width} ${base_height}"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <xacro:tams_fixedjoint name="${name}/body/fixedjoint" parent="${name}" child="${name}/body" >
+        <origin xyz="0 0 0" rpy="0 0 0" />
+    </xacro:tams_fixedjoint>
+
+    <!-- Bottom row -->
+    <xacro:bar parent="${name}" id="0" pos="0 3 1" length="0.32" />
+    <xacro:bar parent="${name}" id="1" pos="0 3 1" length="0.2" />
+
+</xacro:macro>
+
+<!-- TODO instantiate in standalone files -->
+<xacro:marimba name="marimba" />
+
+</robot>
