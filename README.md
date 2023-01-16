@@ -7,7 +7,7 @@ It is currently still "work in progress".
 
 The robot uses Ubuntu 20.04 and ROS noetic. 
 So make sure that it is installed on your system.
-Visit the [ROS Wiki](http://wiki.ros.org/noetic/Installation) for further details. For Python version 3.10 is used.
+Visit the [ROS Wiki](http://wiki.ros.org/noetic/Installation) for further details. For Python version 3.8 is used.
 
 Remember to source the ROS noetic installation in EACH terminal you use or add it once to your `.bashrc` file like this:
 
