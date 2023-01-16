@@ -1,4 +1,4 @@
-abjad==3.15
+abjad==3.4
 nltk==3.7
 numpy==1.23.3
 Pillow==9.4.0
