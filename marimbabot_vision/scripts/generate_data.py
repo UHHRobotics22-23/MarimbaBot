@@ -44,8 +44,11 @@ def generate_sample(i):
     """Generate a sample and save it to disk"""
     string, staff = generate_piece()
     os.makedirs(f"{OUTPUT_DIR}/{i}", exist_ok=True)
+    header_block = Block(name="header")
+    header_block.tagline = "#ff"
     lilypond_file = LilyPondFile(
         items=[
+            header_block,
             """#(set-default-paper-size "a8" 'landscape)""",
             "#(set-global-staff-size 16)",
             staff,
