@@ -50,8 +50,8 @@ def extend_staff(image, x_pos, y_pos, y_offset):
             draw_symbol(image, f'{HW_SYMBOLS_DIR}/extra', (x_pos, y+y_offset))
 
     # draw extra lines below staff for notes lower than d'
-    elif y_pos > 70:
-        for y in range(y_pos+20 if y_pos%10 else y_pos-5, 85, -10):
+    elif y_pos > 60:
+        for y in range(y_pos+30 if y_pos%10 else y_pos-5, 85, -10):
             draw_symbol(image, f'{HW_SYMBOLS_DIR}/extra', (x_pos, y+y_offset))
 
 def draw_staff(image, y_offset):
