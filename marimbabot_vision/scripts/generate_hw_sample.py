@@ -5,18 +5,17 @@ from PIL import Image, ImageDraw
 import re
 
 # generates handwritten music notation from text by selecting randomly from handwritten symbols
-# run like this: python generate_hw_sample.py <target dir>
-# example: python generate_hw_sample.py ./data/1/
-# <target dir> contains file 'staff_1.txt' which contains the lilypond text notation for this sample.
-# handwritten sample will be stored in <target dir> 
+# run like this: python generate_hw_sample.py <input dir> [optional: <output dir>]
+# example: python generate_hw_sample.py ./data/1/ ./hw_data/1/
+# <input dir> contains file 'staff_1.txt' which contains the lilypond text notation for this sample.
+# handwritten sample and text file will be stored in <input dir> if not specified, <output dir> otherwise.  
 
 HW_SYMBOLS_DIR = './hw_notation'
-#OUTPUT_DIR = './hw_data'
 SAMPLE_HEIGHT = 409
 SAMPLE_WIDTH = 583 # same dimensions as data generated with generate_data.py
 SYMBOL_DIST = 30
 
-head_positions = {'c': 130, 'd': 125, 'e': 120, 'f': 115, 'g': 110, 'a': 105, 'b': 100}
+head_positions = {'c': 130, 'd': 125, 'e': 120, 'f': 115, 'g': 110, 'a': 105, 'b': 100} # px distance from 0 to position of note head in first staff for octave=0
 
 def check_progress(image, x_pos, y_offset, duration_counter, duration):
     # check if end of page is reached
@@ -82,11 +81,12 @@ def generate_sample_image():
     draw_symbol(image, f'{HW_SYMBOLS_DIR}/time', (40+SYMBOL_DIST,50))
     return image
 
-def draw_piece(piece, outdir):
+def draw_piece(string, outdir):
     sample_im = generate_sample_image()
     x_pos = 40+2*SYMBOL_DIST
     y_offset = 0
     duration_counter = 0
+    piece = [(n[0], n.count('\''), int((re.findall(r'\d+', n)[0]))) for n in string.split()]
     for (note, octave, duration) in piece:
         x_pos, y_offset, duration_counter = check_progress(sample_im, x_pos, y_offset, duration_counter, duration)
         
@@ -100,12 +100,15 @@ def draw_piece(piece, outdir):
         x_pos += SYMBOL_DIST
         duration_counter += 1/duration
 
-    # os.makedirs(OUTPUT_DIR, exist_ok=True)
+    os.makedirs(outdir, exist_ok=True)
     sample_im.save(f'{outdir}/hw_1.png','PNG')
+    with open(f'{outdir}/staff_1.txt', 'w') as f:
+        f.write(string)
 
 if __name__ == "__main__":
-    sample_dir = sys.argv[1]
-    with open(f'{sample_dir}/staff_1.txt') as f:
+    input_dir = sys.argv[1]
+    output_dir = input_dir if len(sys.argv) < 3 else sys.argv[2]
+
+    with open(f'{input_dir}/staff_1.txt', 'r') as f:
         string = f.read()
-        piece = [(n[0], n.count('\''), int((re.findall(r'\d+', n)[0]))) for n in string.split()]
-        draw_piece(piece, sample_dir)
+    draw_piece(string, output_dir)
