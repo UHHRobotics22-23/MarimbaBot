@@ -21,6 +21,7 @@ def augment_sample(i):
     """Generate a augmentations for a given sample and save it to disk"""
     orig_img_path = f"{OUTPUT_DIR}/{i}/staff_1.png"
     orig_txt_path = f"{OUTPUT_DIR}/{i}/staff_1.txt"
+    orig_ly_path = f"{OUTPUT_DIR}/{i}/staff_1.ly"
     img = Image.open(orig_img_path)
 
     # set of simpler transformations
@@ -42,6 +43,7 @@ def augment_sample(i):
 
         Image.fromarray(new_img).save(orig_img_path.replace(".png", "") + f"_{key}.png")
         shutil.copy(orig_txt_path, orig_txt_path.replace(".txt", "") + f"_{key}.txt")
+        shutil.copy(orig_ly_path, orig_ly_path.replace(".ly", "") + f"_{key}.ly")
 
 if __name__ == "__main__":
     # Call generate_sample on ids with tqdm and multiprocessing (lilypond is single threaded)
