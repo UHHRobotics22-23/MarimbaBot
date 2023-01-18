@@ -9,7 +9,7 @@ import re
 # example: python generate_hw_sample.py "f16 g16 a16 b16 c'16 d'16 e'16 f'16 g'16 a'16 b'16 c''16 d''16 e''16 f''16 g''16 r1 r1 r2 r2 r4 r4 r8 r8 r8 r8 r16 r16 r16 r16 r4 r2 a''8 b''8 c'''8 d'''8 e'''8 f'''8 g'''8 a'''8 g'''4 f'''4 e'''4 d'''4 c'''2 b''2 a''2 g''2 f''2 e''2 d''2 c''2 b'1 a'1 g'1 f'1 e'1 d'1"
 
 HW_SYMBOLS_DIR = './hw_notation'
-OUTPUT_DIR = './hw_data'
+#OUTPUT_DIR = './hw_data'
 SAMPLE_HEIGHT = 409
 SAMPLE_WIDTH = 583 # same dimensions as data generated with generate_data.py
 SYMBOL_DIST = 30
@@ -80,7 +80,7 @@ def generate_sample_image():
     draw_symbol(image, f'{HW_SYMBOLS_DIR}/time', (40+SYMBOL_DIST,50))
     return image
 
-def draw_piece(piece):
+def draw_piece(piece, outdir):
     sample_im = generate_sample_image()
     x_pos = 40+2*SYMBOL_DIST
     y_offset = 0
@@ -98,9 +98,12 @@ def draw_piece(piece):
         x_pos += SYMBOL_DIST
         duration_counter += 1/duration
 
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    sample_im.save('%s/1.png'%(OUTPUT_DIR),'PNG')
+    # os.makedirs(OUTPUT_DIR, exist_ok=True)
+    sample_im.save(f'{outdir}/hw_1.png','PNG')
 
 if __name__ == "__main__":
-    piece = [(n[0], n.count('\''), int((re.findall(r'\d+', n)[0]))) for n in sys.argv[1].split()]
-    draw_piece(piece)
+    sample_dir = sys.argv[1]
+    with open(f'{sample_dir}/staff_1.txt') as f:
+        string = f.read()
+        piece = [(n[0], n.count('\''), int((re.findall(r'\d+', n)[0]))) for n in string.split()]
+        draw_piece(piece, sample_dir)
