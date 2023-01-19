@@ -6,17 +6,53 @@
 
 <!-- URDF/Gazebo model of a marimba.
 
+Changelog:
+    2023.01.19 Row of keys working
     2023.01.04 First version created
+
+TODO:
+    - names of key instead of integer id (use yaml to map?)
+    - add comments for properties
 -->
 
+
+<!-- Body bottom pos & dimensions -->
+<xacro:property name="body_bottom_pos" value="0 0 0" />
+<xacro:property name="body_bottom_length" value="0.7" />
+<xacro:property name="body_bottom_width" value="0.1" />
+<xacro:property name="body_bottom_height" value="0.05" />
+
+<!-- Body top pos & dimensions -->
+<xacro:property name="body_top_pos" value="${float(body_bottom_pos.split()[0]) - 0.1} ${float(body_bottom_pos.split()[1]) + 0.04} ${float(body_bottom_pos.split()[2]) + 0.1}" />
+<xacro:property name="body_top_length" value="0.5" />
+<xacro:property name="body_top_width" value="0.1" />
+<xacro:property name="body_top_height" value="0.05" />
+
+<!-- Bottom row of bars starting pos (center of leftmost bar) -->
+<xacro:property name="bottom_left_center_x" value="${body_bottom_pos.split()[0]}" />
+<xacro:property name="bottom_left_center_y" value="${float(body_bottom_pos.split()[1]) - body_bottom_length / 2}" />
+<xacro:property name="bottom_left_center_z" value="${float(body_bottom_pos.split()[1]) - body_bottom_height / 2 + 0.01}" />
+
+<!-- Top row of bars starting pos (center of leftmost bar) -->
+<xacro:property name="top_left_center_x" value="${body_top_pos.split()[0]}" />
+<xacro:property name="top_left_center_y" value="${float(body_top_pos.split()[1]) - body_top_length / 2}" />
+<xacro:property name="top_left_center_z" value="${float(body_top_pos.split()[1]) - body_top_height / 2 + 0.01}" />
+
+<!-- Number of bars (including "missing" ones in the top row) -->
+<xacro:property name="n_bars_bottom" value="22" />
+<xacro:property name="n_bars_top" value="20" />
+
+<!-- Bar dimensions -->
 <xacro:property name="bar_width" value="0.0323" />
 <xacro:property name="bar_height" value="0.0185" />
+<xacro:property name="bar_length_bottom_left" value="0.32" />
+<xacro:property name="bar_length_bottom_right" value="0.173" />
+<xacro:property name="bar_length_top_left" value="0.314" />
+<xacro:property name="bar_length_top_right" value="0.185" />
 
-<xacro:property name="bar_gap" value="0.001" />
+<!-- Gap between 2 consecutive bars -->
+<xacro:property name="bar_gap" value="0.005" />
 
-<xacro:property name="base_length" value="0.7" />
-<xacro:property name="base_width" value="0.1" />
-<xacro:property name="base_height" value="0.05" />
 
 <!-- The bars -->
 <xacro:macro name="bar" params="parent id pos length" >
@@ -40,6 +76,7 @@
         </geometry>
         <!-- TODO material -->
         <!-- <material name="oak_wood" /> -->
+        <material name="red" />
     </visual>
     <collision>
         <origin xyz="0 0 0" rpy="0 0 0" />
@@ -53,6 +90,17 @@
     <xacro:tams_fixedjoint name="${parent}/bar_${id}/fixedjoint" parent="${parent}" child="${parent}/bar_${id}" >
         <origin xyz="${pos}" rpy="0 0 0" />
     </xacro:tams_fixedjoint>
+</xacro:macro>
+
+
+<!-- Wrapper for a row of bars, computes the position and length based on fixed measurements -->
+<xacro:macro name="bar_in_row" params="parent id left_x left_y left_z length_diff bar_length_left n_bars mirror:=1" >
+    <xacro:bar
+        parent="${parent}"
+        id="${id}"
+        pos="${left_x + mirror * (id / n_bars) * length_diff/2} ${left_y + id * (bar_width + bar_gap)} ${left_z}"
+        length="${bar_length_left + (id / n_bars) * length_diff}"
+    />
 </xacro:macro>
 
 
@@ -85,7 +133,10 @@
         </plugin>
     </gazebo>
 
-    <gazebo reference="${name}/body">
+
+    <!-- Bottom body -->
+
+    <gazebo reference="${name}/body_bottom">
         <turnGravityOff>false</turnGravityOff>
         <selfCollide>false</selfCollide>
         <!-- TODO material -->
@@ -96,7 +147,7 @@
         <kd>1.0</kd>
     </gazebo>
 
-    <link name="${name}/body">
+    <link name="${name}/body_bottom">
         <inertial>
             <mass value="7.5" />
             <origin xyz="0 0 0" rpy="0 0 0" />
@@ -106,25 +157,113 @@
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
                 <!-- <mesh filename="package://chordophones/meshes/guzheng-body.stl"  scale="0.001 0.001 0.001" /> -->
-                <box size="${base_length} ${base_width} ${base_height}"/>
+                <box size="${body_bottom_width} ${body_bottom_length} ${body_bottom_height}"/>
             </geometry>
-            <material name="red" />
+            <material name="gray" />
         </visual>
         <collision>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <box size="${base_length} ${base_width} ${base_height}"/>
+                <box size="${body_bottom_width} ${body_bottom_length} ${body_bottom_height}"/>
             </geometry>
         </collision>
     </link>
 
-    <xacro:tams_fixedjoint name="${name}/body/fixedjoint" parent="${name}" child="${name}/body" >
+    <xacro:tams_fixedjoint name="${name}/body_bottom/fixedjoint" parent="${name}" child="${name}/body_bottom" >
         <origin xyz="0 0 0" rpy="0 0 0" />
     </xacro:tams_fixedjoint>
 
-    <!-- Bottom row -->
-    <xacro:bar parent="${name}" id="0" pos="0 3 1" length="0.32" />
-    <xacro:bar parent="${name}" id="1" pos="0 3 1" length="0.2" />
+
+    <!-- Top body -->
+
+    <gazebo reference="${name}/body_top">
+        <turnGravityOff>false</turnGravityOff>
+        <selfCollide>false</selfCollide>
+        <!-- TODO material -->
+        <!-- <material>chordophones/OakWood</material> -->
+        <mu1>50.0</mu1>
+        <mu2>50.0</mu2>
+        <kp>1000000.0</kp>
+        <kd>1.0</kd>
+    </gazebo>
+
+    <link name="${name}/body_top">
+        <inertial>
+            <mass value="7.5" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.2" ixy="0" ixz="0" iyy="0.2" iyz="0" izz="0.05" />
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <!-- <mesh filename="package://chordophones/meshes/guzheng-body.stl"  scale="0.001 0.001 0.001" /> -->
+                <box size="${body_top_width} ${body_top_length} ${body_top_height}"/>
+            </geometry>
+            <material name="gray" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <box size="${body_top_width} ${body_top_length} ${body_top_height}"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <xacro:tams_fixedjoint name="${name}/body_top/fixedjoint" parent="${name}" child="${name}/body_top" >
+        <origin xyz="0 0 0" rpy="0 0 0" />
+    </xacro:tams_fixedjoint>
+
+
+    <!-- Bottom row of bars -->
+    <xacro:property name="body_bottom_length_diff" value="${bar_length_bottom_right - bar_length_bottom_left}" />
+
+    <xacro:bar_in_row parent="${name}/body_bottom" id="0" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+    <xacro:bar_in_row parent="${name}/body_bottom" id="1" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+    <xacro:bar_in_row parent="${name}/body_bottom" id="2" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+    <xacro:bar_in_row parent="${name}/body_bottom" id="3" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+    <xacro:bar_in_row parent="${name}/body_bottom" id="4" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+    <xacro:bar_in_row parent="${name}/body_bottom" id="5" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+    <xacro:bar_in_row parent="${name}/body_bottom" id="6" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+    <xacro:bar_in_row parent="${name}/body_bottom" id="7" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+    <xacro:bar_in_row parent="${name}/body_bottom" id="8" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+    <xacro:bar_in_row parent="${name}/body_bottom" id="9" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+    <xacro:bar_in_row parent="${name}/body_bottom" id="10" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+    <xacro:bar_in_row parent="${name}/body_bottom" id="11" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+    <xacro:bar_in_row parent="${name}/body_bottom" id="12" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+    <xacro:bar_in_row parent="${name}/body_bottom" id="13" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+    <xacro:bar_in_row parent="${name}/body_bottom" id="14" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+    <xacro:bar_in_row parent="${name}/body_bottom" id="15" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+    <xacro:bar_in_row parent="${name}/body_bottom" id="16" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+    <xacro:bar_in_row parent="${name}/body_bottom" id="17" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+    <xacro:bar_in_row parent="${name}/body_bottom" id="18" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+    <xacro:bar_in_row parent="${name}/body_bottom" id="19" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+    <xacro:bar_in_row parent="${name}/body_bottom" id="20" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+    <xacro:bar_in_row parent="${name}/body_bottom" id="21" left_x="${bottom_left_center_x}" left_y="${bottom_left_center_y}" left_z="${bottom_left_center_z}" length_diff="${body_bottom_length_diff}" bar_length_left="${bar_length_bottom_left}" n_bars="${n_bars_bottom}" />
+
+
+    <!-- Top row of bars -->
+    <xacro:property name="body_top_length_diff" value="${bar_length_top_right - bar_length_top_left}" />
+
+    <xacro:bar_in_row parent="${name}/body_top" id="0" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" mirror="-1" />
+    <xacro:bar_in_row parent="${name}/body_top" id="1" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" mirror="-1" />
+    <!-- <xacro:bar_in_row parent="${name}/body_top" id="2" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" mirror="-1" /> -->
+    <xacro:bar_in_row parent="${name}/body_top" id="3" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" mirror="-1" />
+    <xacro:bar_in_row parent="${name}/body_top" id="4" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" mirror="-1" />
+    <xacro:bar_in_row parent="${name}/body_top" id="5" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" mirror="-1" />
+    <!-- <xacro:bar_in_row parent="${name}/body_top" id="6" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" mirror="-1" /> -->
+    <xacro:bar_in_row parent="${name}/body_top" id="7" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" mirror="-1" />
+    <xacro:bar_in_row parent="${name}/body_top" id="8" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" mirror="-1" />
+    <!-- <xacro:bar_in_row parent="${name}/body_top" id="9" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" mirror="-1" /> -->
+    <xacro:bar_in_row parent="${name}/body_top" id="10" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" mirror="-1" />
+    <xacro:bar_in_row parent="${name}/body_top" id="11" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" mirror="-1" />
+    <xacro:bar_in_row parent="${name}/body_top" id="12" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" mirror="-1" />
+    <!-- <xacro:bar_in_row parent="${name}/body_top" id="13" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" mirror="-1" /> -->
+    <xacro:bar_in_row parent="${name}/body_top" id="14" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" mirror="-1" />
+    <xacro:bar_in_row parent="${name}/body_top" id="15" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" mirror="-1" />
+    <!-- <xacro:bar_in_row parent="${name}/body_top" id="16" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" mirror="-1" /> -->
+    <xacro:bar_in_row parent="${name}/body_top" id="17" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" mirror="-1" />
+    <xacro:bar_in_row parent="${name}/body_top" id="18" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" mirror="-1" />
+    <xacro:bar_in_row parent="${name}/body_top" id="19" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" mirror="-1" />
 
 </xacro:macro>
 
