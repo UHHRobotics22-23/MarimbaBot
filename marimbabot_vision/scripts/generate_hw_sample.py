@@ -1,21 +1,24 @@
 import sys
 import os
+import tqdm
 from numpy.random import choice
 from PIL import Image, ImageDraw
 import re
 
-# generates handwritten music notation from text by selecting randomly from handwritten symbols
-# run like this: python generate_hw_sample.py <input dir> [optional: <output dir>]
-# example: python generate_hw_sample.py ./data/1/ ./hw_data/1/
-# <input dir> contains file 'staff_1.txt' which contains the lilypond text notation for this sample.
-# handwritten sample and text file will be stored in <input dir> if not specified, <output dir> otherwise.  
+# generates handwritten music notation by selecting randomly from handwritten symbols
+# iterates through WORKING_DIR and stores multiple handwritten images in each sample folder
 
-HW_SYMBOLS_DIR = './hw_notation'
+WORKING_DIR = 'data'
+
+HW_SYMBOLS_DIR = 'hw_notation'
+HW_NAME_PREFIX = 'staff_1_hw'
+
+IMAGES_PER_SAMPLE = 5
 SAMPLE_HEIGHT = 409
 SAMPLE_WIDTH = 583 # same dimensions as data generated with generate_data.py
 SYMBOL_DIST = 30
 
-head_positions = {'c': 130, 'd': 125, 'e': 120, 'f': 115, 'g': 110, 'a': 105, 'b': 100} # px distance from 0 to position of note head in first staff for octave=0
+head_positions = {'c': 130, 'd': 125, 'e': 120, 'f': 115, 'g': 110, 'a': 105, 'b': 100}
 
 def check_progress(image, x_pos, y_offset, duration_counter, duration):
     # check if end of page is reached
@@ -81,7 +84,7 @@ def generate_sample_image():
     draw_symbol(image, f'{HW_SYMBOLS_DIR}/time', (40+SYMBOL_DIST,50))
     return image
 
-def draw_piece(string, outdir):
+def draw_piece(string, outdir, name):
     sample_im = generate_sample_image()
     x_pos = 40+2*SYMBOL_DIST
     y_offset = 0
@@ -100,15 +103,12 @@ def draw_piece(string, outdir):
         x_pos += SYMBOL_DIST
         duration_counter += 1/duration
 
-    os.makedirs(outdir, exist_ok=True)
-    sample_im.save(f'{outdir}/hw_1.png','PNG')
-    with open(f'{outdir}/staff_1.txt', 'w') as f:
-        f.write(string)
+    sample_im.save(f'{outdir}/{HW_NAME_PREFIX}_{name}.png','PNG')
 
 if __name__ == "__main__":
-    input_dir = sys.argv[1]
-    output_dir = input_dir if len(sys.argv) < 3 else sys.argv[2]
-
-    with open(f'{input_dir}/staff_1.txt', 'r') as f:
-        string = f.read()
-    draw_piece(string, output_dir)
+    for sample_folder in tqdm.tqdm(sorted(os.listdir(WORKING_DIR), key= lambda x: int(x))):
+        sample_folder = os.path.join(WORKING_DIR, sample_folder)
+        with open(f'{sample_folder}/staff_1.txt', 'r') as f:
+            string = f.read()
+        for i in range(0, IMAGES_PER_SAMPLE):
+            draw_piece(string, sample_folder, i)
