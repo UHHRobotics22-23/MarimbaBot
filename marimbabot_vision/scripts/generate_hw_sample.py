@@ -62,6 +62,7 @@ def draw_staff(image, y_offset):
     draw = ImageDraw.Draw(image)
     for i in range(50, 100, 10):
         draw.line((30,i+y_offset, SAMPLE_WIDTH-30,i+y_offset), fill=(0, 0, 0, 255))
+    draw_symbol(image, f'{HW_SYMBOLS_DIR}/clef', (30,30+y_offset))
 
 def draw_symbol(image, symbol_path, position, is_flipped=False):
     symbol_file = choice(os.listdir(symbol_path))
@@ -80,7 +81,6 @@ def draw_note(image, position, is_flipped, duration):
 def generate_sample_image():
     image = Image.new('RGBA', (SAMPLE_WIDTH, SAMPLE_HEIGHT), (255, 255, 255, 255))
     draw_staff(image, 0)
-    draw_symbol(image, f'{HW_SYMBOLS_DIR}/clef', (30,30))
     draw_symbol(image, f'{HW_SYMBOLS_DIR}/time', (40+SYMBOL_DIST,50))
     return image
 
