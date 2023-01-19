@@ -44,14 +44,14 @@ def get_note_pose(note, octave):
     y_pos = head_pos if is_flipped else head_pos-30
     return y_pos, is_flipped 
 
-def extend_staff(image, x_pos, y_pos, y_offset):
+def extend_staff(image, x_pos, y_pos, y_offset, is_flipped):
     # draw extra lines above staff for notes higher than g''
     if y_pos < 40:
         for y in range(y_pos if y_pos%10 else y_pos+5, 45, 10):
             draw_symbol(image, f'{HW_SYMBOLS_DIR}/extra', (x_pos, y+y_offset))
 
     # draw extra lines below staff for notes lower than d'
-    elif y_pos > 60:
+    elif y_pos > 60 and not is_flipped:
         for y in range(y_pos+30 if y_pos%10 else y_pos-5, 85, -10):
             draw_symbol(image, f'{HW_SYMBOLS_DIR}/extra', (x_pos, y+y_offset))
 
@@ -94,7 +94,7 @@ def draw_piece(string, outdir):
             draw_symbol(sample_im, f'{HW_SYMBOLS_DIR}/rest/{duration}', (x_pos,50+y_offset))
         else:
             y_pos, is_flipped = get_note_pose(note, octave)
-            extend_staff(sample_im, x_pos, y_pos, y_offset)
+            extend_staff(sample_im, x_pos, y_pos, y_offset, is_flipped)
             draw_note(sample_im, (x_pos, y_pos+y_offset), is_flipped, duration)
             
         x_pos += SYMBOL_DIST
