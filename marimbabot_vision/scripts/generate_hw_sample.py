@@ -1,7 +1,7 @@
 import sys
 import os
 import tqdm
-from numpy.random import choice
+from numpy.random import choice, randint
 from PIL import Image, ImageDraw
 import re
 
@@ -16,28 +16,26 @@ HW_NAME_PREFIX = 'staff_1_hw'
 IMAGES_PER_SAMPLE = 5
 SAMPLE_HEIGHT = 409
 SAMPLE_WIDTH = 583 # same dimensions as data generated with generate_data.py
-SYMBOL_DIST = 30
+MIN_SYMBOL_DIST = 20
+MAX_SYMBOL_DIST = 50
 
 head_positions = {'c': 130, 'd': 125, 'e': 120, 'f': 115, 'g': 110, 'a': 105, 'b': 100}
 
-def check_progress(image, x_pos, y_offset, duration_counter, duration):
+def check_space(image, x_pos, y_offset):
     # check if end of page is reached
-    if x_pos > SAMPLE_WIDTH-60:
-        x_pos = 40
+    if x_pos > SAMPLE_WIDTH-40:
+        x_pos = 40 + randint(MIN_SYMBOL_DIST, MAX_SYMBOL_DIST)
         y_offset += 90
         draw_staff(image, y_offset)
+    return x_pos, y_offset
 
+def check_bar(image, x_pos, y_offset, duration_counter):
     # check if current bar is full
     if duration_counter == 1:
         draw_symbol(image, f'{HW_SYMBOLS_DIR}/bar', (x_pos,50+y_offset))
-        x_pos += SYMBOL_DIST
+        x_pos += randint(MIN_SYMBOL_DIST, MAX_SYMBOL_DIST)
         duration_counter = 0
-
-    # check if next duration is valid
-    elif duration_counter + 1/duration > 1:
-        print(f'given note sequence not match selected time signature!\ncurrent bar duration: {duration_counter}\nnext note duration: {duration}')
-        sys.exit()
-
+        x_pos, y_offset = check_space(image, x_pos, y_offset)
     return x_pos, y_offset, duration_counter
 
 def get_note_pose(note, octave):
@@ -81,18 +79,19 @@ def draw_note(image, position, is_flipped, duration):
 def generate_sample_image():
     image = Image.new('RGBA', (SAMPLE_WIDTH, SAMPLE_HEIGHT), (255, 255, 255, 255))
     draw_staff(image, 0)
-    draw_symbol(image, f'{HW_SYMBOLS_DIR}/time', (40+SYMBOL_DIST,50))
+    draw_symbol(image, f'{HW_SYMBOLS_DIR}/time', (70, 50))
     return image
 
 def draw_piece(string, outdir, name):
     sample_im = generate_sample_image()
-    x_pos = 40+2*SYMBOL_DIST
+    x_pos = 70 + randint(MIN_SYMBOL_DIST, MAX_SYMBOL_DIST) 
     y_offset = 0
     duration_counter = 0
     piece = [(n[0], n.count('\''), int((re.findall(r'\d+', n)[0]))) for n in string.split()]
     for (note, octave, duration) in piece:
-        x_pos, y_offset, duration_counter = check_progress(sample_im, x_pos, y_offset, duration_counter, duration)
-        
+        x_pos, y_offset = check_space(sample_im, x_pos, y_offset)
+        x_pos, y_offset, duration_counter = check_bar(sample_im, x_pos, y_offset, duration_counter)
+
         if note == 'r':
             draw_symbol(sample_im, f'{HW_SYMBOLS_DIR}/rest/{duration}', (x_pos,50+y_offset))
         else:
@@ -100,8 +99,9 @@ def draw_piece(string, outdir, name):
             extend_staff(sample_im, x_pos, y_pos, y_offset, is_flipped)
             draw_note(sample_im, (x_pos, y_pos+y_offset), is_flipped, duration)
             
-        x_pos += SYMBOL_DIST
+        x_pos += randint(MIN_SYMBOL_DIST, MAX_SYMBOL_DIST)
         duration_counter += 1/duration
+    draw_symbol(sample_im, f'{HW_SYMBOLS_DIR}/bar', (x_pos,50+y_offset))
 
     sample_im.save(f'{outdir}/{HW_NAME_PREFIX}_{name}.png','PNG')
 
