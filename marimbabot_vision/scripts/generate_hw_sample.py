@@ -1,4 +1,3 @@
-import sys
 import os
 import tqdm
 from numpy.random import choice, randint
