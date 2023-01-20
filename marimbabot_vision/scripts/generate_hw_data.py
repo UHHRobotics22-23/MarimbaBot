@@ -6,9 +6,9 @@ import re
 import shutil
 
 # generates handwritten music notation by selecting randomly from handwritten symbols
-# iterates through the sample folders of DATA_DIR and creates a corresponding handwritten sample folder in OUTPUT_DIR
+# iterates through the sample folders of INPUT_DIR and creates a corresponding handwritten sample folder in OUTPUT_DIR
 
-DATA_DIR = 'data'
+INPUT_DIR = 'data'
 OUTPUT_DIR = 'data_hw'
 
 HW_SYMBOLS_DIR = 'hw_notation'
@@ -105,11 +105,11 @@ def draw_piece(string, sample_name):
 
     os.makedirs(f'{OUTPUT_DIR}/{sample_name}', exist_ok=True)    
     sample_im.save(f'{OUTPUT_DIR}/{sample_name}/{NAME_PREFIX}.png','PNG')
-    shutil.copyfile(f'{DATA_DIR}/{sample_name}/{NAME_PREFIX}.txt', f'{OUTPUT_DIR}/{sample_name}/{NAME_PREFIX}.txt')
-    shutil.copyfile(f'{DATA_DIR}/{sample_name}/{NAME_PREFIX}.ly', f'{OUTPUT_DIR}/{sample_name}/{NAME_PREFIX}.ly')
+    shutil.copyfile(f'{INPUT_DIR}/{sample_name}/{NAME_PREFIX}.txt', f'{OUTPUT_DIR}/{sample_name}/{NAME_PREFIX}.txt')
+    shutil.copyfile(f'{INPUT_DIR}/{sample_name}/{NAME_PREFIX}.ly', f'{OUTPUT_DIR}/{sample_name}/{NAME_PREFIX}.ly')
 
 if __name__ == "__main__":
-    for n in tqdm.tqdm(sorted(os.listdir(DATA_DIR), key= lambda x: int(x))):
-        with open(f'{DATA_DIR}/{n}/staff_1.txt', 'r') as f:
+    for n in tqdm.tqdm(sorted(os.listdir(INPUT_DIR), key= lambda x: int(x))):
+        with open(f'{INPUT_DIR}/{n}/staff_1.txt', 'r') as f:
             string = f.read()
         draw_piece(string, n)
