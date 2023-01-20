@@ -3,16 +3,17 @@ import tqdm
 from numpy.random import choice, randint
 from PIL import Image, ImageDraw
 import re
+import shutil
 
 # generates handwritten music notation by selecting randomly from handwritten symbols
-# iterates through WORKING_DIR and stores multiple handwritten images in each sample folder
+# iterates through the sample folders of DATA_DIR and creates a corresponding handwritten sample folder in OUTPUT_DIR
 
-WORKING_DIR = 'data'
+DATA_DIR = 'data'
+OUTPUT_DIR = 'data_hw'
 
 HW_SYMBOLS_DIR = 'hw_notation'
-HW_NAME_PREFIX = 'staff_1_hw'
+NAME_PREFIX = 'staff_1'
 
-IMAGES_PER_SAMPLE = 5
 SAMPLE_HEIGHT = 409
 SAMPLE_WIDTH = 583 # same dimensions as data generated with generate_data.py
 MIN_SYMBOL_DIST = 20
@@ -22,7 +23,7 @@ head_positions = {'c': 130, 'd': 125, 'e': 120, 'f': 115, 'g': 110, 'a': 105, 'b
 
 def check_space(image, x_pos, y_offset):
     # check if end of page is reached
-    if x_pos > SAMPLE_WIDTH-40:
+    if x_pos > SAMPLE_WIDTH-50:
         x_pos = 40 + randint(MIN_SYMBOL_DIST, MAX_SYMBOL_DIST)
         y_offset += 90
         draw_staff(image, y_offset)
@@ -81,7 +82,7 @@ def generate_sample_image():
     draw_symbol(image, f'{HW_SYMBOLS_DIR}/time', (70, 50))
     return image
 
-def draw_piece(string, outdir, name):
+def draw_piece(string, sample_name):
     sample_im = generate_sample_image()
     x_pos = 70 + randint(MIN_SYMBOL_DIST, MAX_SYMBOL_DIST) 
     y_offset = 0
@@ -102,12 +103,13 @@ def draw_piece(string, outdir, name):
         duration_counter += 1/duration
     draw_symbol(sample_im, f'{HW_SYMBOLS_DIR}/bar', (x_pos,50+y_offset))
 
-    sample_im.save(f'{outdir}/{HW_NAME_PREFIX}_{name}.png','PNG')
+    os.makedirs(f'{OUTPUT_DIR}/{sample_name}', exist_ok=True)    
+    sample_im.save(f'{OUTPUT_DIR}/{sample_name}/{NAME_PREFIX}.png','PNG')
+    shutil.copyfile(f'{DATA_DIR}/{sample_name}/{NAME_PREFIX}.txt', f'{OUTPUT_DIR}/{sample_name}/{NAME_PREFIX}.txt')
+    shutil.copyfile(f'{DATA_DIR}/{sample_name}/{NAME_PREFIX}.ly', f'{OUTPUT_DIR}/{sample_name}/{NAME_PREFIX}.ly')
 
 if __name__ == "__main__":
-    for sample_folder in tqdm.tqdm(sorted(os.listdir(WORKING_DIR), key= lambda x: int(x))):
-        sample_folder = os.path.join(WORKING_DIR, sample_folder)
-        with open(f'{sample_folder}/staff_1.txt', 'r') as f:
+    for n in tqdm.tqdm(sorted(os.listdir(DATA_DIR), key= lambda x: int(x))):
+        with open(f'{DATA_DIR}/{n}/staff_1.txt', 'r') as f:
             string = f.read()
-        for i in range(0, IMAGES_PER_SAMPLE):
-            draw_piece(string, sample_folder, i)
+        draw_piece(string, n)
