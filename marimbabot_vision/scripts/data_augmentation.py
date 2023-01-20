@@ -26,16 +26,17 @@ def augment_sample(i):
 
     # set of simpler transformations
     transformations = dict({
-        "random_gamma": [A.RandomGamma(always_apply=True)], 
-        "random_contrast": [A.RandomBrightnessContrast(always_apply=True)],
         "blur": [A.Blur(blur_limit=15, always_apply=True)],
-        "median_blur" : [A.MedianBlur(blur_limit=15, always_apply=True)],
-        "glass_blur": [A.GlassBlur(always_apply=True)],
+        "median_blur" : [A.MedianBlur(blur_limit=5, always_apply=True)],
+        "glass_blur": [A.GlassBlur(sigma=0.4,always_apply=True)],
         "zoom_blur": [A.ZoomBlur(always_apply=True)],
-        "image_compression": [A.ImageCompression(quality_lower=20 ,always_apply=True)],
-        "downscale": [A.Downscale(scale_min=0.5, scale_max=0.5, always_apply=True, interpolation=cv2.INTER_NEAREST)],
+        "image_compression": [A.ImageCompression(quality_lower=60, quality_upper=60 ,always_apply=True)],
+        "downscale": [A.Downscale(scale_min=0.4, scale_max=0.4, always_apply=True, interpolation=cv2.INTER_NEAREST)],
         "rotate_3": [A.Rotate(limit=[3,3], always_apply=True)],
-        "rotate_6": [A.Rotate(limit=[6,6], always_apply=True)]
+        "rotate_6": [A.Rotate(limit=[6,6], always_apply=True)],
+        "translate_x_16": [A.Affine(translate_px={"x":16})],
+        "translate_y_16": [A.Affine(translate_px={"y":16})],
+        "translate_x_y_15": [A.Affine(translate_px={"y":15, "x":15})],
         })
 
     for key in transformations.keys():
