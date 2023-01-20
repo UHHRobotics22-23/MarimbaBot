@@ -109,7 +109,7 @@ def draw_piece(string, sample_name):
     shutil.copyfile(f'{INPUT_DIR}/{sample_name}/{NAME_PREFIX}.ly', f'{OUTPUT_DIR}/{sample_name}/{NAME_PREFIX}.ly')
 
 if __name__ == "__main__":
-    for n in tqdm.tqdm(sorted(os.listdir(INPUT_DIR), key= lambda x: int(x))):
+    for n in tqdm.tqdm(os.listdir(INPUT_DIR)):
         with open(f'{INPUT_DIR}/{n}/staff_1.txt', 'r') as f:
             string = f.read()
         draw_piece(string, n)
