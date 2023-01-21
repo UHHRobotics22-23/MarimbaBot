@@ -8,7 +8,7 @@ import albumentations as A
 import numpy as np
 import cv2
 
-def apply_transforms(img, transforms = [A.RGBShift()]):
+def apply_transforms(img, transforms):
     """apply given transformations"""
     transform = A.Compose(transforms)
        
@@ -17,7 +17,7 @@ def apply_transforms(img, transforms = [A.RGBShift()]):
 
     return transformed_image
 
-def augment_sample(i):
+def augment_sample(i, amount = 2):
     """Generate a augmentations for a given sample and save it to disk"""
     orig_img_path = f"{OUTPUT_DIR}/{i}/staff_1.png"
     orig_txt_path = f"{OUTPUT_DIR}/{i}/staff_1.txt"
@@ -25,28 +25,20 @@ def augment_sample(i):
     img = Image.open(orig_img_path)
 
     # set of simpler transformations
-    transformations = dict({
-        "blur": [A.Blur(blur_limit=15, always_apply=True)],
-        "median_blur" : [A.MedianBlur(blur_limit=5, always_apply=True)],
-        "glass_blur": [A.GlassBlur(sigma=0.4,always_apply=True)],
-        "zoom_blur": [A.ZoomBlur(always_apply=True)],
-        "image_compression": [A.ImageCompression(quality_lower=60, quality_upper=60 ,always_apply=True)],
-        "downscale": [A.Downscale(scale_min=0.4, scale_max=0.4, always_apply=True, interpolation=cv2.INTER_NEAREST)],
-        "rotate_3": [A.Rotate(limit=[3,3], always_apply=True)],
-        "rotate_6": [A.Rotate(limit=[6,6], always_apply=True)],
-        "translate_x_16": [A.Affine(translate_px={"x":16})],
-        "translate_y_16": [A.Affine(translate_px={"y":16})],
-        "translate_x_y_15": [A.Affine(translate_px={"y":15, "x":15})],
-        })
+    transformations = [ 
+        A.MedianBlur(blur_limit=5,), A.ZoomBlur(max_factor=1.1), \
+        A.Downscale(scale_min=0.6, scale_max=0.99, interpolation=cv2.INTER_NEAREST), \
+        A.Affine(translate_px={"y":10, "x":10}, rotate=[-3,3]) 
+        ]
 
-    for key in transformations.keys():
-        new_img = apply_transforms(img, transforms=transformations[key])
+    for i in range(amount):
+        new_img = apply_transforms(img, transformations)
 
-        Image.fromarray(new_img).save(orig_img_path.replace(".png", "") + f"_{key}.png")
-        shutil.copy(orig_txt_path, orig_txt_path.replace(".txt", "") + f"_{key}.txt")
-        shutil.copy(orig_ly_path, orig_ly_path.replace(".ly", "") + f"_{key}.ly")
+        Image.fromarray(new_img).save(orig_img_path.replace(".png", "") + f"_augment{i}.png")
+        shutil.copy(orig_txt_path, orig_txt_path.replace(".txt", "") + f"_augment{i}.txt")
+        shutil.copy(orig_ly_path, orig_ly_path.replace(".ly", "") + f"_augment{i}.ly")
 
 if __name__ == "__main__":
-    # Call generate_sample on ids with tqdm and multiprocessing (lilypond is single threaded)
+    # Call generate_sample on ids with tqdm and multiprocessing
     with Pool(NUM_WORKER) as pool:
         list(tqdm.tqdm(pool.imap(augment_sample, range(NUM_SAMPLES)), total=NUM_SAMPLES))
