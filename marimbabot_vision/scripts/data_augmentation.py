@@ -33,7 +33,6 @@ def augment_sample(i, amount = 1):
         A.Downscale(scale_min=0.6, scale_max=0.99, interpolation=cv2.INTER_NEAREST), \
         A.Affine(translate_px={"y":10, "x":10}, rotate=[-3,3]) 
         ]
-
     
     augmented_path = f"{AUGMENT_OUTPUT_DIR}/{i}"
     os.makedirs(augmented_path, exist_ok=True)
