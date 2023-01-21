@@ -7,43 +7,47 @@ import pytorch_lightning as pl
 import torch
 from nltk import edit_distance
 from PIL import Image
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import ConcatDataset, DataLoader, Dataset
+from tqdm import tqdm
 from transformers import (DonutProcessor, VisionEncoderDecoderConfig,
                           VisionEncoderDecoderModel)
 
 # Config
-config = {"max_epochs": 300,
-          "check_val_every_n_epoch": 1,
-          "gradient_clip_val":1.0,
-          "lr":1e-4,
-          "train_batch_sizes": [8],
-          "val_batch_sizes": [8],
-          "num_nodes": 1,
-          "warmup_steps": 300,
-          "result_path": "./result",
-          "verbose": True,
-          "train_data_path": "data/",
-          "val_data_path": "test_data/",
-          "max_length": 70,
-          "image_size": [583, 409],
-          "start_token": "<s>",
-          "num_workers": 24,
-          }
+config = {
+    "max_epochs": 50,
+    "check_val_every_n_epoch": 1,
+    "gradient_clip_val":1.0,
+    "lr":1e-5,
+    "train_batch_sizes": [8],
+    "val_batch_sizes": [8],
+    "num_nodes": 1,
+    "warmup_steps": 300,
+    "result_path": "./result",
+    "verbose": True,
+    "train_data_paths": ["data/"],
+    "val_data_paths": ["test_data/"],
+    "max_length": 70,
+    "image_size": [583, 409],
+    "start_token": "<s>",
+    "num_workers": 24,
+    "base_model": "nielsr/donut-base",
+    "output_model": "./model_1"
+}
 
 # Load base model
 
-ved_config = VisionEncoderDecoderConfig.from_pretrained("nielsr/donut-base")
+ved_config = VisionEncoderDecoderConfig.from_pretrained(config['base_model'])
 ved_config.encoder.image_size = config['image_size']
 ved_config.decoder.max_length = config['max_length']
 
-pre_processor = DonutProcessor.from_pretrained("nielsr/donut-base")
+pre_processor = DonutProcessor.from_pretrained(config['base_model'])
 
 pre_processor.image_processor.do_align_long_axis = False
 pre_processor.image_processor.size = config['image_size'][::-1]
 
 model = VisionEncoderDecoderModel.from_pretrained(
-    "nielsr/donut-base", 
-    ignore_mismatched_sizes=True, 
+    config['base_model'],
+    ignore_mismatched_sizes=True,
     config=ved_config)
 
 model.config.pad_token_id = pre_processor.tokenizer.pad_token_id
@@ -71,7 +75,7 @@ class NoteDataset(Dataset):
         self.dataset_length = len(self.dataset_lilypond_files)
 
         self.gt_token_sequences = []
-        for sample in self.dataset_lilypond_files:
+        for sample in tqdm(self.dataset_lilypond_files):
             with open(sample, 'r') as f:
                 ground_truth = f.read()
             self.gt_token_sequences.append(
@@ -84,14 +88,17 @@ class NoteDataset(Dataset):
         newly_added_num = pre_processor.tokenizer.add_tokens(list_of_tokens)
         if newly_added_num > 0:
             model.decoder.resize_token_embeddings(len(pre_processor.tokenizer))
-    
+
     def __len__(self) -> int:
         return self.dataset_length
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         sample = self.dataset_lilypond_files[idx]
-        
-        image = Image.open(glob.glob(f"{os.path.dirname(sample)}/*.png")[0])
+
+        image = Image.open(glob.glob(f"{os.path.dirname(sample)}/*.png")[0]).convert('RGB')
+
+        if image.size[0] > image.size[1]:
+            image = image.transpose(Image.Transpose.ROTATE_90)
 
         pixel_values = pre_processor(image, random_padding=self.split == "train", return_tensors="pt").pixel_values
         pixel_values = pixel_values.squeeze()
@@ -111,10 +118,21 @@ class NoteDataset(Dataset):
         labels[labels == pre_processor.tokenizer.pad_token_id] = self.ignore_id
         return pixel_values, labels, target_sequence
 
-# Instantiate dataset and dataloader
+# Instantiate datasets and dataloaders
 
-train_dataset = NoteDataset(config['train_data_path'], max_length=config['max_length'], split="train", start_token=config['start_token'])
-val_dataset = NoteDataset(config['val_data_path'], max_length=config['max_length'], split="validation", start_token=config['start_token'])
+train_dataset = ConcatDataset([
+    NoteDataset(
+        path,
+        max_length=config['max_length'],
+        split="train",
+        start_token=config['start_token']) for path in config['train_data_paths']])
+
+val_dataset = ConcatDataset([
+    NoteDataset(
+        path,
+        max_length=config['max_length'],
+        split="validation",
+        start_token=config['start_token']) for path in config['val_data_paths']])
 
 train_dataloader = DataLoader(train_dataset, batch_size=config['train_batch_sizes'][0], shuffle=True, num_workers=config['num_workers'])
 val_dataloader = DataLoader(val_dataset, batch_size=config['val_batch_sizes'][0], shuffle=False, num_workers=config['num_workers'])
@@ -132,7 +150,7 @@ class DonutModelPLModule(pl.LightningModule):
 
     def training_step(self, batch, batch_idx):
         pixel_values, labels, _ = batch
-        
+
         outputs = self.model(pixel_values, labels=labels)
         loss = outputs.loss
         self.log_dict({"train_loss": loss}, sync_dist=True)
@@ -143,7 +161,7 @@ class DonutModelPLModule(pl.LightningModule):
         batch_size = pixel_values.shape[0]
         # we feed the prompt to the model
         decoder_input_ids = torch.full((batch_size, 1), self.model.config.decoder_start_token_id, device=self.device)
-        
+
         outputs = self.model.generate(pixel_values,
                                    decoder_input_ids=decoder_input_ids,
                                    max_length=config['max_length'],
@@ -154,7 +172,7 @@ class DonutModelPLModule(pl.LightningModule):
                                    num_beams=1,
                                    bad_words_ids=[[self.pre_processor.tokenizer.unk_token_id]],
                                    return_dict_in_generate=True,)
-    
+
         predictions = []
         for seq in self.pre_processor.tokenizer.batch_decode(outputs.sequences):
             seq = seq.replace(self.pre_processor.tokenizer.eos_token, "").replace(self.pre_processor.tokenizer.pad_token, "")
@@ -219,5 +237,5 @@ trainer = pl.Trainer(
 trainer.fit(model_module)
 
 # Save the model and tokenizer
-model.save_pretrained("./model")
-pre_processor.save_pretrained("./model")
+model.save_pretrained(config['output_model'])
+pre_processor.save_pretrained(config['output_model'])
