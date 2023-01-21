@@ -2,6 +2,7 @@ import os
 import tqdm
 from numpy.random import choice, randint
 from PIL import Image, ImageDraw
+from multiprocessing import Pool
 import re
 import shutil
 
@@ -66,7 +67,7 @@ def draw_symbol(image, symbol_path, position, is_flipped=False):
     symbol_file = choice(os.listdir(symbol_path))
     symbol_im = Image.open(f'{symbol_path}/{symbol_file}')
     if is_flipped:
-        symbol_im = symbol_im.transpose(Image.ROTATE_180)
+        symbol_im = symbol_im.transpose(Image.Transpose.ROTATE_180)
     image.paste(symbol_im, position, symbol_im)
 
 def draw_note(image, position, is_flipped, duration):
@@ -108,8 +109,13 @@ def draw_piece(string, sample_name):
     shutil.copyfile(f'{INPUT_DIR}/{sample_name}/{NAME_PREFIX}.txt', f'{OUTPUT_DIR}/{sample_name}/{NAME_PREFIX}.txt')
     shutil.copyfile(f'{INPUT_DIR}/{sample_name}/{NAME_PREFIX}.ly', f'{OUTPUT_DIR}/{sample_name}/{NAME_PREFIX}.ly')
 
+def render(sample):
+    with open(f'{INPUT_DIR}/{sample}/staff_1.txt', 'r') as f:
+        string = f.read()
+    draw_piece(string, sample)
+
+
 if __name__ == "__main__":
-    for n in tqdm.tqdm(os.listdir(INPUT_DIR)):
-        with open(f'{INPUT_DIR}/{n}/staff_1.txt', 'r') as f:
-            string = f.read()
-        draw_piece(string, n)
+
+    with Pool(32) as pool:
+        list(tqdm.tqdm(pool.imap(render, os.listdir(INPUT_DIR)), total=len(os.listdir(INPUT_DIR))))
