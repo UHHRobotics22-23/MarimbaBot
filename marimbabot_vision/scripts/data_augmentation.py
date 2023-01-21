@@ -2,11 +2,14 @@ from generate_data import NUM_SAMPLES, NUM_WORKER, OUTPUT_DIR
 from multiprocessing import Pool
 from PIL import Image
 
+import os
 import tqdm
 import shutil
 import albumentations as A
 import numpy as np
 import cv2
+
+AUGMENT_OUTPUT_DIR = "data_augmented"
 
 def apply_transforms(img, transforms):
     """apply given transformations"""
@@ -17,7 +20,7 @@ def apply_transforms(img, transforms):
 
     return transformed_image
 
-def augment_sample(i, amount = 2):
+def augment_sample(i, amount = 1):
     """Generate a augmentations for a given sample and save it to disk"""
     orig_img_path = f"{OUTPUT_DIR}/{i}/staff_1.png"
     orig_txt_path = f"{OUTPUT_DIR}/{i}/staff_1.txt"
@@ -31,12 +34,16 @@ def augment_sample(i, amount = 2):
         A.Affine(translate_px={"y":10, "x":10}, rotate=[-3,3]) 
         ]
 
+    
+    augmented_path = f"{AUGMENT_OUTPUT_DIR}/{i}"
+    os.makedirs(augmented_path, exist_ok=True)
+
     for i in range(amount):
         new_img = apply_transforms(img, transformations)
 
-        Image.fromarray(new_img).save(orig_img_path.replace(".png", "") + f"_augment{i}.png")
-        shutil.copy(orig_txt_path, orig_txt_path.replace(".txt", "") + f"_augment{i}.txt")
-        shutil.copy(orig_ly_path, orig_ly_path.replace(".ly", "") + f"_augment{i}.ly")
+        Image.fromarray(new_img).save(os.path.join(augmented_path, f"staff_1_augment_{i}.png"))
+        shutil.copy(orig_txt_path, os.path.join(augmented_path, f"staff_1_augment_{i}.txt"))
+        shutil.copy(orig_ly_path, os.path.join(augmented_path, f"staff_1_augment_{i}.ly"))
 
 if __name__ == "__main__":
     # Call generate_sample on ids with tqdm and multiprocessing
