@@ -9,8 +9,8 @@ import shutil
 # generates handwritten music notation by selecting randomly from handwritten symbols
 # iterates through the sample folders of INPUT_DIR and creates a corresponding handwritten sample folder in OUTPUT_DIR
 
-INPUT_DIR = 'data'
-OUTPUT_DIR = 'data_hw'
+
+NUM_WORKER = 32
 
 HW_SYMBOLS_DIR = 'hw_notation'
 NAME_PREFIX = 'staff_1'
@@ -117,5 +117,5 @@ def render(sample):
 
 if __name__ == "__main__":
 
-    with Pool(32) as pool:
+    with Pool(NUM_WORKER) as pool:
         list(tqdm.tqdm(pool.imap(render, os.listdir(INPUT_DIR)), total=len(os.listdir(INPUT_DIR))))
