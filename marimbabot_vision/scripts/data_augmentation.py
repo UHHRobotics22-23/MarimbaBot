@@ -1,4 +1,4 @@
-from generate_data import NUM_SAMPLES, NUM_WORKER, OUTPUT_DIR
+from generate_data import NUM_WORKER, OUTPUT_DIR
 from multiprocessing import Pool
 from PIL import Image
 
@@ -29,22 +29,28 @@ def augment_sample(i, amount = 1):
 
     # set of simpler transformations
     transformations = [ 
-        A.MedianBlur(blur_limit=5,), A.ZoomBlur(max_factor=1.1), \
-        A.Downscale(scale_min=0.6, scale_max=0.99, interpolation=cv2.INTER_NEAREST), \
-        A.Affine(translate_px={"y":10, "x":10}, rotate=[-3,3]) 
+        A.Affine(translate_px={"y":10, "x":10}, scale=[0.3, 1.0], rotate=[-3,3], mode=1, always_apply=True),
+        A.Perspective(always_apply=True),
+        A.RandomBrightnessContrast(),
+        A.RandomShadow(shadow_roi=(0, 0, 1, 1), num_shadows_upper=4, shadow_dimension=8),
+        A.RandomSunFlare(flare_roi=(0, 0, 1, 1), src_radius=100),
+        A.PixelDropout(),
+        A.RGBShift(),
+        A.MedianBlur(blur_limit=3,),
+        A.ZoomBlur(max_factor=1.03),
+        A.Downscale(scale_min=0.6, scale_max=0.99, interpolation=cv2.INTER_NEAREST),
         ]
     
     augmented_path = f"{AUGMENT_OUTPUT_DIR}/{i}"
     os.makedirs(augmented_path, exist_ok=True)
 
-    for i in range(amount):
-        new_img = apply_transforms(img, transformations)
+    new_img = apply_transforms(img, transformations)
 
-        Image.fromarray(new_img).save(os.path.join(augmented_path, f"staff_1_augment_{i}.png"))
-        shutil.copy(orig_txt_path, os.path.join(augmented_path, f"staff_1_augment_{i}.txt"))
-        shutil.copy(orig_ly_path, os.path.join(augmented_path, f"staff_1_augment_{i}.ly"))
+    Image.fromarray(new_img).save(os.path.join(augmented_path, f"staff_1.png"))
+    shutil.copy(orig_txt_path, os.path.join(augmented_path, f"staff_1.txt"))
+    shutil.copy(orig_ly_path, os.path.join(augmented_path, f"staff_1.ly"))
 
 if __name__ == "__main__":
     # Call generate_sample on ids with tqdm and multiprocessing
     with Pool(NUM_WORKER) as pool:
-        list(tqdm.tqdm(pool.imap(augment_sample, range(NUM_SAMPLES)), total=NUM_SAMPLES))
+        list(tqdm.tqdm(pool.imap(augment_sample, os.listdir(OUTPUT_DIR)), total=len(os.listdir(OUTPUT_DIR))))
