@@ -51,6 +51,6 @@ def augment_sample(i, amount = 1):
     shutil.copy(orig_ly_path, os.path.join(augmented_path, f"staff_1.ly"))
 
 if __name__ == "__main__":
-    # Call generate_sample on ids with tqdm and multiprocessing
+    # Call augment_sample on ids with tqdm and multiprocessing
     with Pool(NUM_WORKER) as pool:
         list(tqdm.tqdm(pool.imap(augment_sample, os.listdir(OUTPUT_DIR)), total=len(os.listdir(OUTPUT_DIR))))
