@@ -1,20 +1,20 @@
-from generate_data import NUM_WORKER, OUTPUT_DIR
-from multiprocessing import Pool
-from PIL import Image
-
 import os
-import tqdm
 import shutil
+from multiprocessing import Pool
+
 import albumentations as A
-import numpy as np
 import cv2
+import numpy as np
+import tqdm
+from generate_data import NUM_WORKER, OUTPUT_DIR
+from PIL import Image
 
 AUGMENT_OUTPUT_DIR = "data_augmented"
 
 def apply_transforms(img, transforms):
     """apply given transformations"""
     transform = A.Compose(transforms)
-       
+
     transformed = transform(image=np.asarray(img))
     transformed_image = transformed["image"]
 
@@ -28,7 +28,7 @@ def augment_sample(i, amount = 1):
     img = Image.open(orig_img_path)
 
     # set of simpler transformations
-    transformations = [ 
+    transformations = [
         A.Affine(translate_px={"y":10, "x":10}, scale=[0.3, 1.0], rotate=[-3,3], mode=1, always_apply=True),
         A.Perspective(always_apply=True),
         A.RandomBrightnessContrast(),
@@ -40,7 +40,7 @@ def augment_sample(i, amount = 1):
         A.ZoomBlur(max_factor=1.03),
         A.Downscale(scale_min=0.6, scale_max=0.99, interpolation=cv2.INTER_NEAREST),
         ]
-    
+
     augmented_path = f"{AUGMENT_OUTPUT_DIR}/{i}"
     os.makedirs(augmented_path, exist_ok=True)
 
