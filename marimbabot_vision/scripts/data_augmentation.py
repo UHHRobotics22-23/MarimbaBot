@@ -4,10 +4,8 @@ from multiprocessing import Pool
 
 import albumentations as A
 import cv2
-import numpy as np
 import tqdm
 from generate_data import NUM_WORKER, OUTPUT_DIR
-from PIL import Image
 
 AUGMENT_OUTPUT_DIR = "data_augmented"
 
@@ -15,17 +13,17 @@ def apply_transforms(img, transforms):
     """apply given transformations"""
     transform = A.Compose(transforms)
 
-    transformed = transform(image=np.asarray(img))
+    transformed = transform(image=img)
     transformed_image = transformed["image"]
 
     return transformed_image
 
-def augment_sample(i, amount = 1):
+def augment_sample(i):
     """Generate a augmentations for a given sample and save it to disk"""
     orig_img_path = f"{OUTPUT_DIR}/{i}/staff_1.png"
     orig_txt_path = f"{OUTPUT_DIR}/{i}/staff_1.txt"
     orig_ly_path = f"{OUTPUT_DIR}/{i}/staff_1.ly"
-    img = Image.open(orig_img_path)
+    img = cv2.imread(orig_img_path)
 
     # set of simpler transformations
     transformations = [
@@ -46,7 +44,7 @@ def augment_sample(i, amount = 1):
 
     new_img = apply_transforms(img, transformations)
 
-    Image.fromarray(new_img).save(os.path.join(augmented_path, f"staff_1.png"))
+    cv2.imwrite(os.path.join(augmented_path, f"staff_1.png"), new_img)
     shutil.copy(orig_txt_path, os.path.join(augmented_path, f"staff_1.txt"))
     shutil.copy(orig_ly_path, os.path.join(augmented_path, f"staff_1.ly"))
 
