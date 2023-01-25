@@ -1,4 +1,5 @@
 abjad==3.4
+albumentations==1.3.0
 nltk==3.7
 numpy==1.23.3
 Pillow==9.4.0

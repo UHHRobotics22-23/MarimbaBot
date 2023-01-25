@@ -1,6 +1,8 @@
 *.pyc
 __pycache__/
+
 marimbabot_vision/scripts/data*
 marimbabot_vision/scripts/test_data*
+
 marimbabot_vision/scripts/lightning_logs/
 marimbabot_vision/scripts/model*
