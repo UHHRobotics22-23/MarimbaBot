@@ -1,0 +1,26 @@
+<!-- old launch file for audio_to_spectrum package support -->
+<launch>
+  <!-- nodes to provide spectrum and spectrogram image -->
+
+  <node name="audio_to_spectrum" pkg="audio_to_spectrogram" type="audio_to_spectrum.py">
+    <remap from="~audio" to="audio" />
+    <remap from="~spectrum" to="spectrum" />
+    <remap from="~spectrum_filtered" to="spectrum_filtered" />
+
+    <param name="n_channel" value="1" />
+    <param name="mic_sampling_rate" value="44100" />
+    <param name="bitdepth" value="16" />
+
+    <param name="fft_exec_rate" value="50" />
+    <param name="fft_sampling_period" value="0.3" />
+    <param name="low_cut_freq" value="50.0" />
+    <param name="high_cut_freq" value="10000.0" />
+  </node>
+  <node name="plot_spectrogram" pkg="audio_to_spectrogram" type="spectrum_to_spectrogram.py">
+    <remap from="~spectrum" to="spectrum_filtered" />
+    <remap from="~spectrogram" to="spectrogram" />
+    <param name="image_height" value="500" />
+    <param name="image_width" value="300" />
+    <param name="spectrogram_period" value="5" />
+  </node>
+</launch>
