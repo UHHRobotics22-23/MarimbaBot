@@ -8,7 +8,7 @@ from abjad import Block, LilyPondFile, Staff, Voice
 from abjad.persist import as_png
 from numpy.random import choice
 
-NUM_SAMPLES = 1000
+NUM_SAMPLES = 10000
 NUM_WORKER = 24
 OUTPUT_DIR = "data"
 MIN_DURATION = 16 # 1/16th note
