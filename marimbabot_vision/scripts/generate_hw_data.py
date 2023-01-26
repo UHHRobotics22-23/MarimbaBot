@@ -1,10 +1,13 @@
+import argparse
 import os
+import re
+import shutil
+from multiprocessing import Pool
+
 import tqdm
 from numpy.random import choice, randint
 from PIL import Image, ImageDraw
-from multiprocessing import Pool
-import re
-import shutil
+
 from generate_data import OUTPUT_DIR as INPUT_DIR
 
 # generates handwritten music notation by selecting randomly from handwritten symbols
@@ -118,6 +121,15 @@ def render(sample):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Hand-written data generation.")
+    parser.add_argument("--HW_SYMBOLS_DIR", type=str, required=False, help="Folder for the generated data.", default=HW_SYMBOLS_DIR)
+    parser.add_argument("--NUM_WORKER", type=int, required=False, help="Amount of workers that are used to generate the data.", default=NUM_WORKER)
+    parser.add_argument("--NAME_PREFIX", type=str, required=False, default=NAME_PREFIX)
+
+    args = parser.parse_args()
+    HW_SYMBOLS_DIR = args.HW_SYMBOLS_DIR
+    NUM_WORKER = args.NUM_WORKER
+    NAME_PREFIX = args.NAME_PREFIX
 
     with Pool(NUM_WORKER) as pool:
         list(tqdm.tqdm(pool.imap(render, os.listdir(INPUT_DIR)), total=len(os.listdir(INPUT_DIR))))
