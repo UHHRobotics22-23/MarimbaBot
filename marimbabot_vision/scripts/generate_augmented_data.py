@@ -1,3 +1,4 @@
+import argparse
 import os
 import shutil
 from multiprocessing import Pool
@@ -5,6 +6,7 @@ from multiprocessing import Pool
 import albumentations as A
 import cv2
 import tqdm
+
 from generate_data import NUM_WORKER, OUTPUT_DIR
 
 AUGMENT_OUTPUT_DIR = "data_augmented"
@@ -47,6 +49,12 @@ def augment_sample(i):
     shutil.copy(orig_ly_path, os.path.join(augmented_path, f"staff_1.ly"))
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Artificial data generation.")
+    parser.add_argument("--NUM_WORKER", type=int, required=False, help="Amount of workers that are used to generate the data.", default=NUM_WORKER)
+
+    args = parser.parse_args()
+    NUM_WORKER = args.NUM_WORKER
+
     # Call augment_sample on ids with tqdm and multiprocessing
     with Pool(NUM_WORKER) as pool:
         list(tqdm.tqdm(pool.imap(augment_sample, os.listdir(OUTPUT_DIR)), total=len(os.listdir(OUTPUT_DIR))))
