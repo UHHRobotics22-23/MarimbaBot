@@ -1,5 +1,6 @@
 import os
 import random
+import argparse
 from multiprocessing import Pool
 
 import tqdm
@@ -7,7 +8,7 @@ from abjad import LilyPondFile, Staff, Voice, Block
 from abjad.persist import as_png
 from numpy.random import choice
 
-NUM_SAMPLES = 10000
+NUM_SAMPLES = 1000
 NUM_WORKER = 24
 OUTPUT_DIR = "data"
 MIN_DURATION = 16 # 1/16th note
@@ -59,6 +60,11 @@ def generate_sample(i):
         f.write(string)
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Artificial data generation.")
+    parser.add_argument("amount", metavar="N", type=int, help="Amount of data to be generated.", default=NUM_SAMPLES)
+    args = parser.parse_args()
+    NUM_SAMPLES = args.amount
+
     # Call generate_sample on ids with tqdm and multiprocessing (lilypond is single threaded)
     with Pool(NUM_WORKER) as pool:
         list(tqdm.tqdm(pool.imap(generate_sample, range(NUM_SAMPLES)), total=NUM_SAMPLES))
