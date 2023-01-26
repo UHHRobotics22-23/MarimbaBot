@@ -1,10 +1,8 @@
 #include <iostream>
-#include "std_msgs/String.h"
-#include "ros/ros.h"
+#include <ros/ros.h>
 #include <moveit/move_group_interface/move_group_interface.h>
-#include <moveit/planning_scene_interface/planning_scene_interface.h>
-#include <moveit_visual_tools/moveit_visual_tools.h>
-#include <moveit_msgs/CollisionObject.h>
+#include <tf2_ros/transform_listener.h>
+#include <geometry_msgs/TransformStamped.h>
 
 
 int main(int argc, char **argv)
@@ -14,30 +12,38 @@ int main(int argc, char **argv)
     ros::AsyncSpinner spinner(1);
     spinner.start();
 
-    static const std::string PLANNING_GROUP = "marimba_arm";
+    static const std::string PLANNING_GROUP = "arm_with_tcp";
     moveit::planning_interface::MoveGroupInterface move_group_interface(PLANNING_GROUP);
 
     const moveit::core::JointModelGroup* joint_model_group =
         move_group_interface.getCurrentState()->getJointModelGroup(PLANNING_GROUP);
 
 
+    tf2_ros::Buffer tfBuffer;
+    tf2_ros::TransformListener tfListener(tfBuffer);
+    ros::Duration(1).sleep();
+
+    geometry_msgs::TransformStamped transformStamped;
+    try{
+        transformStamped = tfBuffer.lookupTransform("world", "diana_gripper/tcp", ros::Time(0));
+    }
+    catch (tf2::TransformException &ex) {
+      ROS_ERROR("%s",ex.what());
+      return 1;
+    }
+
     geometry_msgs::Pose target_pose;
-    target_pose.position.x = 0.3;
-    target_pose.position.y = 0.2;
-    target_pose.position.z = 0.4;
-    target_pose.orientation.y = sqrt(2)/2;
-    target_pose.orientation.w = sqrt(2)/2;
-    move_group.setPoseTarget(target_pose);
-    ROS_INFO_NAMED("move_to_pose", "Setting the target position to x=%g, y=%g, z=%g",target_pose.position.x, target_pose.position.y, target_pose.position.z);
+    target_pose.position.x = transformStamped.transform.translation.x+0.05;
+    target_pose.position.y = transformStamped.transform.translation.y+0.05;
+    target_pose.position.z = transformStamped.transform.translation.z+0.05;
+    target_pose.orientation.x = transformStamped.transform.rotation.x;
+    target_pose.orientation.y = transformStamped.transform.rotation.y;
+    target_pose.orientation.z = transformStamped.transform.rotation.z;
+    target_pose.orientation.w = transformStamped.transform.rotation.w;
 
-    moveit::planning_interface::PlanningSceneInterface planning_scene_interface;
-    bool success = (move_group.plan(my_plan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+    move_group_interface.setPoseTarget(target_pose);
 
-    while (true) {
-        move_group_interface.setNamedTarget("home");
-        move_group_interface.move();
-        //move_group_interface.setNamedTarget("pose1");
-        //move_group_interface.move();
-        }
+    ROS_INFO_NAMED("move_to_pose", "target position is set x=%g, y=%g, z=%g",target_pose.position.x, target_pose.position.y, target_pose.position.z);
+    move_group_interface.move();
     return 0;
 }
