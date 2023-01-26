@@ -125,11 +125,16 @@ if __name__ == "__main__":
     parser.add_argument("--HW_SYMBOLS_DIR", type=str, required=False, help="Folder for the generated data.", default=HW_SYMBOLS_DIR)
     parser.add_argument("--NUM_WORKER", type=int, required=False, help="Amount of workers that are used to generate the data.", default=NUM_WORKER)
     parser.add_argument("--NAME_PREFIX", type=str, required=False, default=NAME_PREFIX)
+    parser.add_argument("--MIN_SYMBOL_DIST", type=int, required=False, help="Minimum distance between notes.", default=MIN_SYMBOL_DIST)
+    parser.add_argument("--MAX_SYMBOL_DIST", type=int, required=False, help="Maximum distance between notes.", default=MAX_SYMBOL_DIST)
 
     args = parser.parse_args()
     HW_SYMBOLS_DIR = args.HW_SYMBOLS_DIR
     NUM_WORKER = args.NUM_WORKER
     NAME_PREFIX = args.NAME_PREFIX
+    MIN_SYMBOL_DIST = args.MIN_SYMBOL_DIST
+    MAX_SYMBOL_DIST = args.MAX_SYMBOL_DIST
+
 
     with Pool(NUM_WORKER) as pool:
         list(tqdm.tqdm(pool.imap(render, os.listdir(INPUT_DIR)), total=len(os.listdir(INPUT_DIR))))
