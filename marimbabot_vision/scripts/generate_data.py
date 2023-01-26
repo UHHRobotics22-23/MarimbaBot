@@ -63,13 +63,11 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Artificial data generation.")
     parser.add_argument("NUM_SAMPLES", metavar="N", type=int, help="Amount of data to be generated.", default=NUM_SAMPLES)
     parser.add_argument("--NUM_WORKER", type=int, required=False, help="Amount of workers that are used to generate the data.", default=NUM_WORKER)
-    parser.add_argument("--OUTPUT_DIR", type=str, required=False, help="Folder for the generated data.", default=OUTPUT_DIR)
     parser.add_argument("--MIN_DURATION", type=int, required=False, help="Minimum duration for a note, e.g. 16 for 1/16th note.", default=MIN_DURATION)
 
     args = parser.parse_args()
     NUM_SAMPLES = args.NUM_SAMPLES
     NUM_WORKER = args.NUM_WORKER
-    OUTPUT_DIR = args.OUTPUT_DIR
     MIN_DURATION = args.MIN_DURATION
 
     # Call generate_sample on ids with tqdm and multiprocessing (lilypond is single threaded)
