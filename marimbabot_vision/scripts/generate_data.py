@@ -1,10 +1,10 @@
+import argparse
 import os
 import random
-import argparse
 from multiprocessing import Pool
 
 import tqdm
-from abjad import LilyPondFile, Staff, Voice, Block
+from abjad import Block, LilyPondFile, Staff, Voice
 from abjad.persist import as_png
 from numpy.random import choice
 
