@@ -12,6 +12,7 @@ Changelog:
     2023.01.04 First version created
 
 TODO:
+    - fix angle of body boxes (using reference image)
     - names of key instead of integer id (use yaml to map?)
     - prismatic joints instead of fixed ones for the bars
 -->
