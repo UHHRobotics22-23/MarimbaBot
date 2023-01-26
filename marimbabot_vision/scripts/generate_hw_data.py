@@ -5,6 +5,7 @@ from PIL import Image, ImageDraw
 from multiprocessing import Pool
 import re
 import shutil
+from generate_data import OUTPUT_DIR as INPUT_DIR
 
 # generates handwritten music notation by selecting randomly from handwritten symbols
 # iterates through the sample folders of INPUT_DIR and creates a corresponding handwritten sample folder in OUTPUT_DIR
@@ -14,6 +15,7 @@ NUM_WORKER = 32
 
 HW_SYMBOLS_DIR = 'hw_notation'
 NAME_PREFIX = 'staff_1'
+OUTPUT_DIR = 'data_hw'
 
 SAMPLE_HEIGHT = 409
 SAMPLE_WIDTH = 583 # same dimensions as data generated with generate_data.py
