@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="play" default="false" />
+    <node name="audio_capture" pkg="audio_capture" type="audio_capture" output="screen">
+        <!-- arecord - -list-devices for `Scarlett 2i2 USB`, e.g., hw:4,0 -->
+        <param name="device" value="" />
+        <param name="format" value="wave" />
+        <param name="channels" value="1" />
+        <param name="depth" value="16" />
+        <param name="sample_rate" value="44100" />
+    </node>
+    <include if="$(arg play)" file="$(dirname)/play_audio_topic.launch" />
+    
+    <node name="onset_detector" pkg="marimbabot_audio" type="detect_onset.py" output="screen" />
+</launch>
