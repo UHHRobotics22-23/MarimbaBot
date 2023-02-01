@@ -17,7 +17,7 @@ def main(sample):
         os.makedirs(real_sample_folder, exist_ok=True)
         copyfile(os.path.join(sample_folder, f'{NAME_PREFIX}.txt'), os.path.join(real_sample_folder, f'{NAME_PREFIX}.txt'))
         copyfile(os.path.join(sample_folder, f'{NAME_PREFIX}.ly'), os.path.join(real_sample_folder, f'{NAME_PREFIX}.ly'))
-        copyfile(os.path.join(sample_folder, real_im), os.path.join(real_sample_folder, real_im))
+        copyfile(os.path.join(sample_folder, real_im), os.path.join(real_sample_folder, f'{NAME_PREFIX}.png'))
         # os.remove(os.path.join(sample_folder, real_im)) # !!! only after whiteboard data collection is finished !!!
 
 if __name__ == "__main__":
