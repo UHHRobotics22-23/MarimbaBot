@@ -2,7 +2,7 @@
 
 import rospy
 import cv_bridge
-
+import pretty_midi
 
 from audio_common_msgs.msg import AudioDataStamped, AudioInfo
 from sensor_msgs.msg import Image
@@ -32,6 +32,12 @@ class OnsetDetector:
             bytes(data)
             ),
             dtype=float)
+    
+    def hz_to_note(self,hz):
+        return pretty_midi.note_number_to_name(pretty_midi.hz_to_note_number(hz))
+    
+    def note_to_hz(self,note):
+        return pretty_midi.note_number_to_hz(pretty_midi.note_name_to_number(note))
 
     def check_audio_format(self):
         """
@@ -71,14 +77,19 @@ class OnsetDetector:
         # self.fmax_note = "C6"
         # self.semitones = 62
 
-        # guzheng
-        self.fmin_note = "C2"
-        self.fmax_note = "C8"
-        self.semitones = 84
+        # # guzheng
+        # self.fmin_note = "C2"
+        # self.fmax_note = "C8"
+        # self.semitones = 84
+
+        # marimba
+        self.fmin_note = "C4"  # 60
+        self.fmax_note = "C7"  # 96
+        self.semitones = 15
 
         # convert the western notation to the corresponding frequency
-        self.fmin = librosa.note_to_hz(self.fmin_note)
-        self.fmax = librosa.note_to_hz(self.fmax_note)
+        self.fmin = self.note_to_hz(self.fmin_note)
+        self.fmax = self.note_to_hz(self.fmax_note)
 
         # self.cmap = plt.get_cmap("gist_rainbow").copy()
         hsv = plt.get_cmap("hsv")
@@ -224,13 +235,13 @@ class OnsetDetector:
         if len(thresholded_freq) > 0:
             buckets = {}
             for f, c in zip(thresholded_freq, thresholded_confidence):
-                note = librosa.hz_to_note(f)
+                note = self.hz_to_note(f)
                 buckets[note] = buckets.get(note, []) + [c]
 
             def add_confidence(note):
                 return reduce(lambda x, y: x + y, buckets.get(note))
             winner = max(buckets, key=lambda a: add_confidence(a))
-            winner_freq = librosa.note_to_hz(winner)
+            winner_freq = self.note_to_hz(winner)
             rospy.loginfo(f"found frequency {winner} ({winner_freq})")
             return winner_freq, max(buckets[winner])
         else:
@@ -360,9 +371,9 @@ class OnsetDetector:
             no = NoteOnset()
             no.header.stamp = t
             if fundamental_frequency != 0.0:
-                no.note = librosa.hz_to_note(fundamental_frequency)
+                no.note = pretty_midi.note_number_to_name(pretty_midi.hz_to_note_number(fundamental_frequency))
                 no.confidence = confidence
-            self.pub_onset.publish(no)
+                self.pub_onset.publish(no)
 
         if len(onsets_cqt) == 0:
             rospy.logdebug("found no onsets")
@@ -390,3 +401,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

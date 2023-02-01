@@ -100,6 +100,7 @@ def play_midi(midi_file):
 
 
 if __name__ == '__main__':
+	manual_defined_midi()
 	# all_freq = []
 	# for pitch in ['C','D','E','F','G']:
 	# 	for octive in ['4','5','6']:
@@ -108,10 +109,16 @@ if __name__ == '__main__':
 	# 		print(f"name:{note_name}  freq:{freq}")
 	# 		all_freq.append(freq)
 	# librosa.cqt()
-	midi_file = '/home/wang/workspace/sound2midi/src/music_perception/playground/out.mid'
-	pm = pretty_midi.PrettyMIDI(midi_file)
-	pm.instruments[0].program = pretty_midi.instrument_name_to_program("Marimba")
-	plt.figure(figsize=(8, 4))
-	plot_marimba_roll(pm)
-	plt.show()
-	play_midi(midi_file)
+	# midi_file = '/home/wang/workspace/sound2midi/src/music_perception/playground/out.mid'
+	# pm = pretty_midi.PrettyMIDI(midi_file)
+	# pm.instruments[0].program = pretty_midi.instrument_name_to_program("Marimba")
+	# plt.figure(figsize=(8, 4))
+	# plot_marimba_roll(pm)
+	# plt.show()
+	# play_midi(midi_file)
+
+
+	# for n in range(100):
+	# 	name = pretty_midi.note_number_to_name(note_number=n)
+	# 	freq = pretty_midi.note_number_to_hz(n)
+	# 	print(f"id:{n}, name:{name}  hz:{freq}")

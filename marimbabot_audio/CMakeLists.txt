@@ -34,6 +34,7 @@ catkin_install_python(
 PROGRAMS
   scripts/detect_onset.py
   scripts/dump_audio.py
+  scripts/note2midi.py
 DESTINATION
   ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
