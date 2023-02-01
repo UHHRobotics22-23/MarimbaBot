@@ -24,14 +24,14 @@ def bar_sampler():
         """Randomly subdivides a list of durations into smaller durations"""
         prop = 1/3
         new_durations = []
-        for duration in durations: 
+        for duration in durations:
             if duration < MIN_DURATION and random.random() > prop:
                 new_durations.extend(sample_duration([duration * 2, duration * 2], level + 1))
             else:
                 new_durations.append(duration)
         return new_durations
 
-    return ' '.join([note_sampler(str(duration)) for duration in sample_duration([1,])]) 
+    return ' '.join([note_sampler(str(duration)) for duration in sample_duration([1,])])
 
 def generate_piece(num_bars=3):
     """Generate a piece of music"""
@@ -62,4 +62,3 @@ if __name__ == "__main__":
     # Call generate_sample on ids with tqdm and multiprocessing (lilypond is single threaded)
     with Pool(NUM_WORKER) as pool:
         list(tqdm.tqdm(pool.imap(generate_sample, range(NUM_SAMPLES)), total=NUM_SAMPLES))
-  
