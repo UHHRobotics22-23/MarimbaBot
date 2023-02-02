@@ -1,4 +1,3 @@
-
 #!/bin/bash
 
 python generate_data.py 10000
