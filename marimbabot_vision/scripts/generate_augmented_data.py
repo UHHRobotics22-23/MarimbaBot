@@ -3,12 +3,14 @@
 import argparse
 import os
 import shutil
+from functools import partial
 from multiprocessing import Pool
 
 import albumentations as A
 import cv2
 import tqdm
 
+# use import for default value
 from generate_data import NUM_WORKER, OUTPUT_DIR as INPUT_DIR
 
 AUGMENT_OUTPUT_DIR = "data_augmented"
@@ -33,14 +35,14 @@ def apply_transforms(img, transforms):
 
     return transformed_image
 
-def augment_sample(i):
+def augment_sample(i, args):
     """Generate a augmentations for a given sample and save it to disk"""
-    orig_img_path = f"{INPUT_DIR}/{i}/staff_1.png"
-    orig_txt_path = f"{INPUT_DIR}/{i}/staff_1.txt"
-    orig_ly_path = f"{INPUT_DIR}/{i}/staff_1.ly"
+    orig_img_path = f"{args.input_dir}/{i}/staff_1.png"
+    orig_txt_path = f"{args.input_dir}/{i}/staff_1.txt"
+    orig_ly_path = f"{args.input_dir}/{i}/staff_1.ly"
     img = cv2.imread(orig_img_path)
 
-    augmented_path = f"{AUGMENT_OUTPUT_DIR}/{i}"
+    augmented_path = f"{args.augment_output_dir}/{i}"
     os.makedirs(augmented_path, exist_ok=True)
 
     new_img = apply_transforms(img, TRANSFORMATIONS)
@@ -56,10 +58,8 @@ if __name__ == "__main__":
     parser.add_argument("--augment_output_dir", type=str, required=False, help="Folder for the generated data.", default=AUGMENT_OUTPUT_DIR)
 
     args = parser.parse_args()
-    NUM_WORKER = args.num_worker
-    INPUT_DIR = args.input_dir
-    AUGMENT_OUTPUT_DIR = args.augment_output_dir
 
     # Call augment_sample on ids with tqdm and multiprocessing
-    with Pool(NUM_WORKER) as pool:
-        list(tqdm.tqdm(pool.imap(augment_sample, os.listdir(INPUT_DIR)), total=len(os.listdir(INPUT_DIR))))
+    with Pool(args.num_worker) as pool:
+        list(tqdm.tqdm(pool.imap(partial(augment_sample, args=args), os.listdir(args.input_dir)), total=len(os.listdir(args.input_dir))))
+    
