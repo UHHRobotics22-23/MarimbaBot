@@ -32,10 +32,17 @@ class OnsetDetector:
             bytes(data)
             ),
             dtype=float)
-    
+
+
     def hz_to_note(self,hz):
         return pretty_midi.note_number_to_name(pretty_midi.hz_to_note_number(hz))
     
+    def note_to_pm_id(self,note_name):
+        return pretty_midi.note_name_to_number(note_name)
+    
+    def pm_id_to_note(self, pm_id):
+        return pretty_midi.note_number_to_name(pm_id)
+
     def note_to_hz(self,note):
         return pretty_midi.note_number_to_hz(pretty_midi.note_name_to_number(note))
 
@@ -84,7 +91,9 @@ class OnsetDetector:
 
         # marimba
         self.fmin_note = "C4"  # C4 60
+        self.fmin_note_id = self.note_to_pm_id(self.fmin_note)
         self.fmax_note = "C7"  # C7 96
+        self.fmax_note_id = self.note_to_pm_id(self.fmax_note)
         self.semitones = 36+24 # 36 for 4-6 octives, 24 for overtones for two octives
 
         # convert the western notation to the corresponding frequency
@@ -164,15 +173,26 @@ class OnsetDetector:
         # visualization
         self.spectrogram = None
         self.previous_onsets = []
+        self.onsets_times = []
+        self.previous_onsets_times = []
+        self.previous_winners = []
 
-    def update_spectrogram(self, spec, onsets):
+    def winner_to_idx(self,winner_name):
+        '''
+            convert the winner note name to the index in the spectrum.
+        '''
+        return self.note_to_pm_id(winner_name)-self.fmin_note_id
+
+    def update_spectrogram(self, spec, onsets_times, winners):
         if self.pub_spectrogram.get_num_connections() == 0:
             self.spectrogram = None
             return
+        
+        # print(f"onsets len:{len(onsets_times)}   winners:{len(winners)}")
 
         # throw away overlap
         spec = spec[:, self.overlap_hops:-self.overlap_hops]
-        onsets = [o - self.window_overlap_t for o in onsets]
+        
 
         log_spec = np.log(spec)
 
@@ -196,16 +216,23 @@ class OnsetDetector:
         #     dtype=np.uint8)
 
         heatmap = cv2.applyColorMap(spectrogram, cv2.COLORMAP_JET)
+        
         LINECOLOR = [255, 0, 255]
-        for o in self.previous_onsets:
-            heatmap[:, int(o * self.sr / self.hop_length)][:] = LINECOLOR
-        for o in onsets:
-            heatmap[
-                :,
-                int(self.window / self.hop_length +
-                    o * self.sr / self.hop_length)
-            ][:] = LINECOLOR
-        self.previous_onsets = onsets
+        for t in self.previous_onsets_times:
+            heatmap[:, t][:] = LINECOLOR
+        for t in onsets_times:
+            heatmap[:,t][:] = LINECOLOR
+        self.previous_onsets_times = [onset_time - int(self.window / self.hop_length) for onset_time in onsets_times]
+        
+
+        # ONSETCOLOR = [0,0,0]
+        for winner in winners:
+            heatmap[winner, :][:] = LINECOLOR
+
+        for winner in self.previous_winners:
+            heatmap[winner, :][:] = LINECOLOR
+
+        self.previous_winners = winners
 
         self.pub_spectrogram.publish(
             self.cv_bridge.cv2_to_imgmsg(heatmap, "bgr8")
@@ -242,10 +269,11 @@ class OnsetDetector:
                 return reduce(lambda x, y: x + y, buckets.get(note))
             winner = max(buckets, key=lambda a: add_confidence(a))
             winner_freq = self.note_to_hz(winner)
+            winner_idx = self.winner_to_idx(winner)
             rospy.loginfo(f"found frequency {winner} ({winner_freq})")
-            return winner_freq, max(buckets[winner])
+            return winner_freq, max(buckets[winner]), winner_idx
         else:
-            return 0.0, 0.0
+            return 0.0, 0.0, None
 
     def color_from_freq(self, freq):
         if freq > 0.0:
@@ -281,6 +309,41 @@ class OnsetDetector:
                 n_bins=self.semitones,
             )
         )
+
+    def onsets_to_time_in_spec(self,onsets):
+        onsets = [o - self.window_overlap_t for o in onsets]
+        return [int(self.window / self.hop_length + onset * self.sr / self.hop_length) for onset in onsets]
+       
+    def extract_duration(self,cqt, onsets_times, winner_idxs):
+        durations = []
+        intensities = []
+        cqt_len = 173
+        assert len(onsets_times) == len(winner_idxs)
+        for idx in range(len(onsets_times)):
+            winner_idx = winner_idxs[idx]
+            intensity_threshold_ratio = 0.4
+            xs = [winner_idx-1, winner_idx,winner_idx+1]
+            y_start = onsets_times[idx]
+            init_intensity = np.mean(cqt[xs,y_start:y_start+2])
+            
+            m = 1
+            while True:
+                this_intensity = np.mean(cqt[xs,y_start+m])
+                print(f"{this_intensity/init_intensity:.4f}")
+                if (this_intensity/init_intensity < intensity_threshold_ratio) or (m+y_start >= cqt_len-1):
+                    mean_intensity = np.mean(cqt[xs,y_start:y_start+m])
+                    duration = m*self.hop_length/self.sr
+                    durations.append(duration)
+                    intensities.append(mean_intensity)
+                    break
+                m+=1
+        return durations, intensities
+            
+        
+
+
+
+
 
     def audio_cb(self, msg):
         now = msg.header.stamp
@@ -329,13 +392,15 @@ class OnsetDetector:
         # constant q transform with 96 half-tones from C2
         # in theory we only need notes from D2-D6, but in practice tuning
         # is often too low and harmonics are needed above D6
-        cqt = self.cqt()
+        cqt = self.cqt()  # cqt ndarrary  (60,173)
 
-        self.publish_cqt(cqt)
+        self.publish_cqt(cqt)  
 
+        # (,173)
         onset_env_cqt = librosa.onset.onset_strength(
             sr=self.sr, S=librosa.amplitude_to_db(cqt, ref=np.max)
         )
+
         onsets_cqt_raw = librosa.onset.onset_detect(
             y=self.buffer,
             sr=self.sr,
@@ -360,12 +425,18 @@ class OnsetDetector:
             if in_window(o)
         ]
 
-        self.update_spectrogram(cqt, onsets_cqt)
+
+
+        winners = []
+        winner_onsets_cqt = []
 
         # publish events and plot visualization
         for o in onsets_cqt:
-            fundamental_frequency, confidence = \
+            fundamental_frequency, confidence, winner = \
                 self.fundamental_frequency_for_onset(o)
+            if winner is not None:
+                winners.append(winner)
+                winner_onsets_cqt.append(o)
             t = self.buffer_time + rospy.Duration(o)
 
             no = NoteOnset()
@@ -374,6 +445,14 @@ class OnsetDetector:
                 no.note = pretty_midi.note_number_to_name(pretty_midi.hz_to_note_number(fundamental_frequency))
                 no.confidence = confidence
                 self.pub_onset.publish(no)
+
+        onsets_times = self.onsets_to_time_in_spec(winner_onsets_cqt)
+        self.update_spectrogram(cqt, onsets_times,winners)
+        durations, intensities = self.extract_duration(cqt,onsets_times,winners)
+        for idx,winner in enumerate(winners):
+            rospy.loginfo(f"music note detected: {self.pm_id_to_note(winners[idx])} durations:{durations[idx]:.4f} intensities:{intensities[idx]:.4f}")
+        
+        
 
         if len(onsets_cqt) == 0:
             rospy.logdebug("found no onsets")
