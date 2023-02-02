@@ -126,7 +126,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Hand-written data generation.")
     parser.add_argument("--hw_symbols_dir", type=str, required=False, help="Folder for the generated data.", default=HW_SYMBOLS_DIR)
     parser.add_argument("--num_worker", type=int, required=False, help="Amount of workers that are used to generate the data.", default=NUM_WORKER)
-    parser.add_argument("--name_prefix", type=str, required=False, default=NAME_PREFIX)
+    parser.add_argument("--name_prefix", type=str, required=False, help="Name prefix for the generated output files.", default=NAME_PREFIX)
     parser.add_argument("--min_symbol_dist", type=int, required=False, help="Minimum distance between notes.", default=MIN_SYMBOL_DIST)
     parser.add_argument("--max_symbol_dist", type=int, required=False, help="Maximum distance between notes.", default=MAX_SYMBOL_DIST)
 
