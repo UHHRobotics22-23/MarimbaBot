@@ -13,7 +13,7 @@ from generate_data import NUM_WORKER, OUTPUT_DIR as INPUT_DIR
 
 AUGMENT_OUTPUT_DIR = "data_augmented"
 TRANSFORMATIONS = [
-    A.Affine(translate_px={"y":10, "x":10}, scale=[0.3, 1.0], rotate=[-3,3], mode=1, always_apply=True),
+    A.Affine(translate_px={"y":10, "x":10}, scale=[0.5, 1.0], rotate=[-3,3], mode=1, always_apply=True),
     A.Perspective(always_apply=True),
     A.RandomBrightnessContrast(),
     A.RandomShadow(shadow_roi=(0, 0, 1, 1), num_shadows_upper=4, shadow_dimension=8),
@@ -21,9 +21,8 @@ TRANSFORMATIONS = [
     A.PixelDropout(),
     A.RGBShift(),
     A.MedianBlur(blur_limit=3,),
-    A.ZoomBlur(max_factor=1.03),
-    A.Downscale(scale_min=0.6, scale_max=0.99, interpolation=cv2.INTER_NEAREST),
-    ]
+    A.ZoomBlur(max_factor=1.03)
+]
 
 def apply_transforms(img, transforms):
     """apply given transformations"""
