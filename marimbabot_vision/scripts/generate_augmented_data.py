@@ -12,7 +12,7 @@ import tqdm
 from generate_data import NUM_WORKER, OUTPUT_DIR as INPUT_DIR
 
 AUGMENT_OUTPUT_DIR = "data_augmented"
-transformations = [
+TRANSFORMATIONS = [
     A.Affine(translate_px={"y":10, "x":10}, scale=[0.3, 1.0], rotate=[-3,3], mode=1, always_apply=True),
     A.Perspective(always_apply=True),
     A.RandomBrightnessContrast(),
@@ -44,22 +44,22 @@ def augment_sample(i):
     augmented_path = f"{AUGMENT_OUTPUT_DIR}/{i}"
     os.makedirs(augmented_path, exist_ok=True)
 
-    new_img = apply_transforms(img, transformations)
+    new_img = apply_transforms(img, TRANSFORMATIONS)
 
     cv2.imwrite(os.path.join(augmented_path, f"staff_1.png"), new_img)
     shutil.copy(orig_txt_path, os.path.join(augmented_path, f"staff_1.txt"))
     shutil.copy(orig_ly_path, os.path.join(augmented_path, f"staff_1.ly"))
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Artificial data generation.")
-    parser.add_argument("--NUM_WORKER", type=int, required=False, help="Amount of workers that are used to generate the data.", default=NUM_WORKER)
-    parser.add_argument("--INPUT_DIR", type=str, required=False, help="Folder for the input data.", default=INPUT_DIR)
-    parser.add_argument("--AUGMENT_OUTPUT_DIR", type=str, required=False, help="Folder for the generated data.", default=AUGMENT_OUTPUT_DIR)
+    parser = argparse.ArgumentParser(description="Augmented data generation of input data.")
+    parser.add_argument("--num_worker", type=int, required=False, help="Amount of workers that are used to generate the data.", default=NUM_WORKER)
+    parser.add_argument("--input_dir", type=str, required=False, help="Folder for the input data.", default=INPUT_DIR)
+    parser.add_argument("--augment_output_dir", type=str, required=False, help="Folder for the generated data.", default=AUGMENT_OUTPUT_DIR)
 
     args = parser.parse_args()
-    NUM_WORKER = args.NUM_WORKER
-    INPUT_DIR = args.INPUT_DIR
-    AUGMENT_OUTPUT_DIR = args.AUGMENT_OUTPUT_DIR
+    NUM_WORKER = args.num_worker
+    INPUT_DIR = args.input_dir
+    AUGMENT_OUTPUT_DIR = args.augment_output_dir
 
     # Call augment_sample on ids with tqdm and multiprocessing
     with Pool(NUM_WORKER) as pool:
