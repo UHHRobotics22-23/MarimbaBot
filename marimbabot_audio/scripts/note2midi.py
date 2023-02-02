@@ -104,11 +104,11 @@ class Onset2Midi():
     def onset_event(self, msg: NoteOnset):
         
         # parse the msg
-        start_time = msg.header.stamp.secs  # the system second, not start from zero.
-        duration = msg.header.stamp.nsecs/1000000000  # convert the nano seconds to seconds.
+        start_time = msg.header.stamp.secs + msg.header.stamp.nsecs/1000000000  # the system second, not start from zero.
         seq_id = msg.header.seq
         note = msg.note
         confidence = msg.confidence
+        duration = 0.5
 
         # now = datetime.datetime.now()
         # if self.midi_last_save_time == 0:

@@ -83,9 +83,9 @@ class OnsetDetector:
         # self.semitones = 84
 
         # marimba
-        self.fmin_note = "C4"  # 60
-        self.fmax_note = "C7"  # 96
-        self.semitones = 15
+        self.fmin_note = "C4"  # C4 60
+        self.fmax_note = "C7"  # C7 96
+        self.semitones = 36+24 # 36 for 4-6 octives, 24 for overtones for two octives
 
         # convert the western notation to the corresponding frequency
         self.fmin = self.note_to_hz(self.fmin_note)
