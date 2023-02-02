@@ -31,21 +31,21 @@ MAX_SYMBOL_DIST = 50
 
 head_positions = {'c': 130, 'd': 125, 'e': 120, 'f': 115, 'g': 110, 'a': 105, 'b': 100}
 
-def check_space(image, x_pos, y_offset):
+def check_space(image, x_pos, y_offset, args):
     # check if end of page is reached
     if x_pos > SAMPLE_WIDTH-50:
         x_pos = 40 + randint(args.min_symbol_dist, args.max_symbol_dist)
         y_offset += 90
-        draw_staff(image, y_offset)
+        draw_staff(image, y_offset, args)
     return x_pos, y_offset
 
-def check_bar(image, x_pos, y_offset, duration_counter):
+def check_bar(image, x_pos, y_offset, duration_counter, args):
     # check if current bar is full
     if duration_counter == 1:
         draw_symbol(image, f'{args.hw_symbols_dir}/bar', (x_pos,50+y_offset))
         x_pos += randint(args.min_symbol_dist, args.max_symbol_dist)
         duration_counter = 0
-        x_pos, y_offset = check_space(image, x_pos, y_offset)
+        x_pos, y_offset = check_space(image, x_pos, y_offset, args)
     return x_pos, y_offset, duration_counter
 
 def get_note_pose(note, octave):
@@ -55,7 +55,7 @@ def get_note_pose(note, octave):
     y_pos = head_pos if is_flipped else head_pos-30
     return y_pos, is_flipped 
 
-def extend_staff(image, x_pos, y_pos, y_offset, is_flipped):
+def extend_staff(image, x_pos, y_pos, y_offset, is_flipped, args):
     # draw extra lines above staff for notes higher than g''
     if y_pos < 40:
         for y in range(y_pos if y_pos%10 else y_pos+5, 45, 10):
@@ -66,7 +66,7 @@ def extend_staff(image, x_pos, y_pos, y_offset, is_flipped):
         for y in range(y_pos+30 if y_pos%10 else y_pos-5, 85, -10):
             draw_symbol(image, f'{args.hw_symbols_dir}/extra', (x_pos, y+y_offset))
 
-def draw_staff(image, y_offset):
+def draw_staff(image, y_offset, args):
     draw = ImageDraw.Draw(image)
     for i in range(50, 100, 10):
         draw.line((30,i+y_offset, SAMPLE_WIDTH-30,i+y_offset), fill=(0, 0, 0, 255))
@@ -88,7 +88,7 @@ def draw_note(image, position, is_flipped, duration, args):
 
 def generate_sample_image(args):
     image = Image.new('RGBA', (SAMPLE_WIDTH, SAMPLE_HEIGHT), (255, 255, 255, 255))
-    draw_staff(image, 0)
+    draw_staff(image, 0, args)
     draw_symbol(image, f'{args.hw_symbols_dir}/time', (70, 50))
     return image
 
@@ -99,14 +99,14 @@ def draw_piece(string, sample_name, args):
     duration_counter = 0
     piece = [(n[0], n.count('\''), int((re.findall(r'\d+', n)[0]))) for n in string.split()]
     for (note, octave, duration) in piece:
-        x_pos, y_offset = check_space(sample_im, x_pos, y_offset)
-        x_pos, y_offset, duration_counter = check_bar(sample_im, x_pos, y_offset, duration_counter)
+        x_pos, y_offset = check_space(sample_im, x_pos, y_offset, args)
+        x_pos, y_offset, duration_counter = check_bar(sample_im, x_pos, y_offset, duration_counter, args)
 
         if note == 'r':
             draw_symbol(sample_im, f'{args.hw_symbols_dir}/rest/{duration}', (x_pos,50+y_offset))
         else:
             y_pos, is_flipped = get_note_pose(note, octave)
-            extend_staff(sample_im, x_pos, y_pos, y_offset, is_flipped)
+            extend_staff(sample_im, x_pos, y_pos, y_offset, is_flipped, args)
             draw_note(sample_im, (x_pos, y_pos+y_offset), is_flipped, duration, args)
             
         x_pos += randint(args.min_symbol_dist, args.max_symbol_dist)
