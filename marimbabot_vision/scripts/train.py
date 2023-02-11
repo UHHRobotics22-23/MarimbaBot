@@ -32,8 +32,9 @@ config = {
     "image_size": [583, 409],
     "start_token": "<s>",
     "num_workers": 24,
-    "base_model": "nielsr/donut-base",
-    "output_model": "./model_1"
+    "base_model": "./nielsr/donut-base",
+    "output_model": "./model_1",
+    "add_note_vocab": True
 }
 
 # Load base model
@@ -51,6 +52,22 @@ model = VisionEncoderDecoderModel.from_pretrained(
     config['base_model'],
     ignore_mismatched_sizes=True,
     config=ved_config)
+
+if config['add_note_vocab']:
+    note_vocab = []
+    notes = "cdefgab"
+    octaves = ["'", "''"]
+    durations = [1, 2, 4, 8, 16]
+    # Add note tokens
+    for note in notes:
+        for octave in octaves:
+            for duration in durations:
+                note_vocab.append(f"{note}{octave}{duration} ")
+    # Add rest tokens
+    for duration in durations:
+        note_vocab.append(f"r{duration} ")
+else:
+    note_vocab = []
 
 model.config.pad_token_id = pre_processor.tokenizer.pad_token_id
 model.config.decoder_start_token_id = pre_processor.tokenizer.convert_tokens_to_ids([config['start_token']])[0]
@@ -81,10 +98,10 @@ class NoteDataset(Dataset):
             with open(sample, 'r') as f:
                 ground_truth = f.read()
             self.gt_token_sequences.append(
-                    ground_truth + pre_processor.tokenizer.eos_token
+                    ground_truth + " " + pre_processor.tokenizer.eos_token
             )
 
-        self.add_tokens([self.start_token])
+        self.add_tokens(note_vocab + [self.start_token])
 
     def add_tokens(self, list_of_tokens: List[str]):
         newly_added_num = pre_processor.tokenizer.add_tokens(list_of_tokens)
@@ -182,9 +199,9 @@ class DonutModelPLModule(pl.LightningModule):
 
         scores = list()
         for pred, answer in zip(predictions, answers):
-            answer = answer.replace(self.pre_processor.tokenizer.eos_token, "").replace(config['start_token'], "")
-            pred = pred.replace(self.pre_processor.tokenizer.eos_token, "").replace(config['start_token'], "")
-            score = edit_distance(pred, answer) / max(len(pred), len(answer))
+            pred = pred.replace(self.pre_processor.tokenizer.eos_token, "")[3:]
+            answer = answer.replace(self.pre_processor.tokenizer.eos_token, "")[:len(pred)]
+            score = edit_distance(pred, answer)
             scores.append(score)
 
             if self.config.get("verbose", False) and len(scores) < 10:
@@ -241,3 +258,4 @@ trainer.fit(model_module)
 # Save the model and tokenizer
 model.save_pretrained(config['output_model'])
 pre_processor.save_pretrained(config['output_model'])
+ved_config.save_pretrained(config['output_model'])
