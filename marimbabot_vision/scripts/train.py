@@ -32,7 +32,7 @@ config = {
     "image_size": [583, 409],
     "start_token": "<s>",
     "num_workers": 24,
-    "base_model": "./nielsr/donut-base",
+    "base_model": "nielsr/donut-base",
     "output_model": "./model_1",
     "add_note_vocab": True
 }
