@@ -114,7 +114,7 @@ def draw_piece(string, sample_name, args):
     draw_symbol(sample_im, f'{args.hw_symbols_dir}/bar', (x_pos,50+y_offset))
 
     os.makedirs(f'{args.output_dir}/{sample_name}', exist_ok=True)    
-    sample_im.save(f'{args.output_dir}/{sample_name}/{args.name_prefix}.png','PNG')
+    sample_im.convert('RGB').save(f'{args.output_dir}/{sample_name}/{args.name_prefix}.png','PNG')
     shutil.copyfile(f'{args.input_dir}/{sample_name}/{args.name_prefix}.txt', f'{args.output_dir}/{sample_name}/{args.name_prefix}.txt')
     shutil.copyfile(f'{args.input_dir}/{sample_name}/{args.name_prefix}.ly', f'{args.output_dir}/{sample_name}/{args.name_prefix}.ly')
 

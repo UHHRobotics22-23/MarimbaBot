@@ -35,7 +35,7 @@ def bar_sampler():
                 new_durations.append(duration)
         return new_durations
 
-    return ' '.join([note_sampler(str(duration)) for duration in sample_duration([1,])]) 
+    return ' '.join([note_sampler(str(duration)) for duration in sample_duration([1,])])
 
 def generate_piece(num_bars=3):
     """Generate a piece of music"""
