@@ -5,6 +5,7 @@
 #include <geometry_msgs/TransformStamped.h>
 
 
+
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "marimba_move");
@@ -14,36 +15,41 @@ int main(int argc, char **argv)
 
     static const std::string PLANNING_GROUP = "arm_with_tcp";
     moveit::planning_interface::MoveGroupInterface move_group_interface(PLANNING_GROUP);
+    move_group_interface.setPlanningPipelineId("ompl");
+    move_group_interface.setPlannerId("PTP");
+    move_group_interface.setMaxVelocityScalingFactor(0.9);
+    move_group_interface.setMaxAccelerationScalingFactor(0.9);
 
     const moveit::core::JointModelGroup* joint_model_group =
         move_group_interface.getCurrentState()->getJointModelGroup(PLANNING_GROUP);
 
 
-    tf2_ros::Buffer tfBuffer;
-    tf2_ros::TransformListener tfListener(tfBuffer);
-    ros::Duration(1).sleep();
+    sensor_msgs::JointState down_joints;
+    down_joints.name = { "joint_1","joint_2","joint_3","joint_4","joint_5","joint_6","joint_7" };
+    down_joints.position = {-0.7426866173558437, 0.8284573456087861, -0.03405935646463343, 1.6107396571585018, 0.09181096521878239, 0.2238119037082843, 1.5289353330786188};
 
-    geometry_msgs::TransformStamped transformStamped;
-    try{
-        transformStamped = tfBuffer.lookupTransform("world", "diana_gripper/tcp", ros::Time(0));
-    }
-    catch (tf2::TransformException &ex) {
-      ROS_ERROR("%s",ex.what());
-      return 1;
-    }
+    sensor_msgs::JointState up_joints;
+    up_joints.name = { "joint_1","joint_2","joint_3","joint_4","joint_5","joint_6","joint_7" };
+    up_joints.position = {-0.7426866173558437, 0.8284573456087861, -0.03405935646463343, 1.7039409798026908, 0.09181096521878239, 0.890063508152813, 1.5289353330786188};
 
-    geometry_msgs::Pose target_pose;
-    target_pose.position.x = transformStamped.transform.translation.x+0.05;
-    target_pose.position.y = transformStamped.transform.translation.y+0.05;
-    target_pose.position.z = transformStamped.transform.translation.z+0.05;
-    target_pose.orientation.x = transformStamped.transform.rotation.x;
-    target_pose.orientation.y = transformStamped.transform.rotation.y;
-    target_pose.orientation.z = transformStamped.transform.rotation.z;
-    target_pose.orientation.w = transformStamped.transform.rotation.w;
 
-    move_group_interface.setPoseTarget(target_pose);
+    
+    moveit::planning_interface::MoveGroupInterface::Plan plan_anywhere_to_up, plan_up_to_down, plan_down_to_up;
+    move_group_interface.setJointValueTarget(up_joints);
+    move_group_interface.plan(plan_anywhere_to_up);
 
-    ROS_INFO_NAMED("move_to_pose", "target position is set x=%g, y=%g, z=%g",target_pose.position.x, target_pose.position.y, target_pose.position.z);
-    move_group_interface.move();
+
+    moveit_msgs::RobotState state_after_plan {plan_anywhere_to_up.start_state_};
+
+    state_after_plan.joint_state = up_joints;
+    move_group_interface.setStartState(state_after_plan);
+    move_group_interface.setJointValueTarget(down_joints);
+    move_group_interface.plan(plan_up_to_down);
+
+    state_after_plan.joint_state = down_joints;
+    move_group_interface.setStartState(state_after_plan);
+    move_group_interface.setJointValueTarget(up_joints);
+    move_group_interface.plan(plan_down_to_up);
+
     return 0;
 }
