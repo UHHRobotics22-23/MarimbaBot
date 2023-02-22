@@ -1,0 +1,8 @@
+<launch>
+<node name="cv_camera_node" pkg="cv_camera" type="cv_camera_node" respawn="true">
+     <rosparam>
+       cv_camera/device_id: 0
+     </rosparam>
+</node>
+
+</launch>
