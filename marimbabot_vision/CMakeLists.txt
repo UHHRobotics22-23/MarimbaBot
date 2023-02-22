@@ -9,6 +9,7 @@ project(marimbabot_vision)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   rospy
+  cv_camera
   std_msgs
 )
 
