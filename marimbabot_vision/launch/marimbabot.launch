@@ -4,5 +4,4 @@
        cv_camera/device_id: 0
      </rosparam>
 </node>
-
 </launch>
