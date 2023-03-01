@@ -86,6 +86,7 @@ To build the full software stack one needs to execute the following command in t
 cd catkin_ws
 
 catkin build
+# alternatively: catkin_make
 ```
 
 ## Launch
@@ -99,7 +100,12 @@ cd catkin_ws
 source devel/setup.bash
 ```
 
-Now you can launch the software. 
+Now you can launch the bringup package that brings up the launch file for each package:
+
+```bash
+roslaunch marimbabot_bringup marimbabot.launch
+```
+
 
 #### Note: The main launch files need to be added if they are created.
 
