@@ -1,3 +1,3 @@
 <launch>
-  <!-- TODO -->
+  <include file="$(find marimbabot_vision)/launch/marimbabot.launch"/>
 </launch>
