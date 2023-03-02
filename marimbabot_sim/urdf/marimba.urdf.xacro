@@ -88,8 +88,16 @@ TODO:
 <xacro:property name="side_length_right" value="0.32" />
 <xacro:property name="side_height" value="0.1" />
 <xacro:property name="side_offset" value="0.058" />
-<xacro:property name="side_left_pos" value="${(top_left_center_x + bottom_left_center_x) / 2} ${top_left_center_y - side_offset} ${bottom_left_center_z}" />
-<xacro:property name="side_right_pos" value="${float(side_left_pos.split()[0])} ${float(side_left_pos.split()[1]) + n_bars_bottom * (bar_width + bar_gap) - 1.5 * bar_gap + side_offset} ${float(side_left_pos.split()[2])}" />
+<xacro:property name="side_left_pos" value="
+    ${(top_left_center_x + bottom_left_center_x) / 2}
+    ${top_left_center_y - side_offset}
+    ${bottom_left_center_z}"
+/>
+<xacro:property name="side_right_pos" value="
+    ${float(side_left_pos.split()[0])}
+    ${float(side_left_pos.split()[1]) + n_bars_bottom * (bar_width + bar_gap) - 1.5 * bar_gap + side_offset}
+    ${float(side_left_pos.split()[2])}"
+/>
 
 
 <!-- The bar -->
