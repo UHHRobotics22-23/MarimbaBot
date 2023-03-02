@@ -2,7 +2,7 @@
 
 import rospy
 import torch
-from gi import CvBridge, CvBridgeError
+from cv_bridge import CvBridge, CvBridgeError
 from PIL import Image as PILImage
 from sensor_msgs.msg import Image as ROSImage
 from transformers import (DonutProcessor, VisionEncoderDecoderConfig,
