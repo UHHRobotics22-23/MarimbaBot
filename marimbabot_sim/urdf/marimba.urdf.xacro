@@ -56,7 +56,7 @@ TODO:
 -->
 <xacro:property name="body_top_bottom_disp_x" value="-0.18" />
 <xacro:property name="body_top_bottom_disp_y" value="-0.02" />
-<xacro:property name="body_top_bottom_disp_z" value="0.03" /> 
+<xacro:property name="body_top_bottom_disp_z" value="${0.0149 + bar_height}" /> 
 
 <!-- Body top pos & dimensions -->
 <xacro:property name="body_top_pos" value="
