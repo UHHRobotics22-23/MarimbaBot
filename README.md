@@ -86,7 +86,6 @@ To build the full software stack one needs to execute the following command in t
 cd catkin_ws
 
 catkin build
-# alternatively: catkin_make
 ```
 
 ## Launch
