@@ -103,6 +103,9 @@ Now you can launch the bringup package that brings up the launch file for each p
 
 ```bash
 roslaunch marimbabot_bringup marimbabot.launch
+
+# or launch a single package
+# roslaunch marimbabot_vision marimbabot.launch
 ```
 
 
