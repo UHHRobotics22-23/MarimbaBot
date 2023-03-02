@@ -15,8 +15,11 @@ Visualization Manager:
       Robot Description: robot_description
       Value: true
     - Class: rviz/TF
+      Enabled: true
+      Marker Alpha: 0.5
+      Marker Scale: 0.25
       Name: TF
-      Value: false
+      Value: true
   Global Options:
     Fixed Frame: base_link
     Frame Rate: 30
