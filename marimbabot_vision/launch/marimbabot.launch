@@ -3,5 +3,13 @@
      <rosparam>
        cv_camera/device_id: 0
      </rosparam>
+      <rosparam>
+       cv_camera/rate: 1
+     </rosparam>
+</node>
+<node name="vision_node" pkg="marimbabot_vision" type="vision_node.py">
+     <rosparam>
+       MODEL_PATH: "./model"
+     </rosparam>
 </node>
 </launch>
