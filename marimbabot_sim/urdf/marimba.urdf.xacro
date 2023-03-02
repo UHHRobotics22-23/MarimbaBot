@@ -6,11 +6,21 @@
 
 <!-- URDF/Gazebo model of a marimba.
 
+Coordinate system:
+
+From the point of view of the marimbist:
+    x: points towards you
+    y: points towards the right
+    z: points towards the ceiling, according to right hand rule
+
+
 Changelog:
     2023.03.02 Named and correctly positioned bar frames
+               Added side boxes
     2023.01.26 Complete model v1
     2023.01.19 Row of keys working
     2023.01.04 First version created
+
 
 TODO:
     - prismatic joints instead of fixed ones for the bars
@@ -71,6 +81,15 @@ TODO:
 <xacro:property name="top_left_center_x" value="${float(body_top_pos.split()[0]) + top_left_offset}" />
 <xacro:property name="top_left_center_y" value="${float(body_top_pos.split()[1]) - body_top_length / 2}" />
 <xacro:property name="top_left_center_z" value="${float(body_top_pos.split()[2]) + body_top_height / 2 + bar_height / 2}" />
+
+<!-- Side boxes (left being the longer side) -->
+<xacro:property name="side_width" value="0.05" />
+<xacro:property name="side_length_left" value="0.61" /> 
+<xacro:property name="side_length_right" value="0.32" />
+<xacro:property name="side_height" value="0.1" />
+<xacro:property name="side_offset" value="0.058" />
+<xacro:property name="side_left_pos" value="${(top_left_center_x + bottom_left_center_x) / 2} ${top_left_center_y - side_offset} ${bottom_left_center_z}" />
+<xacro:property name="side_right_pos" value="${float(side_left_pos.split()[0])} ${float(side_left_pos.split()[1]) + n_bars_bottom * (bar_width + bar_gap) - 1.5 * bar_gap + side_offset} ${float(side_left_pos.split()[2])}" />
 
 
 <!-- The bar -->
@@ -145,7 +164,7 @@ TODO:
         <plugin filename="libgazebo_ros_control.so" name="${name}_gazebo_ros_control">
             <!-- don't add the robotNamespace here unless you really want it -->
             <!-- <robotNamespace>${name}/</robotNamespace> -->
-            <!-- <robotNamespace>/</robotNamespace> -->
+            <!-- <robotNamespace>/</robotNamespaside_left_posce> -->
             <robotParam>robot_description</robotParam>
             <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
             <legacyModeNS>true</legacyModeNS>
@@ -231,6 +250,86 @@ TODO:
     </link>
 
     <xacro:tams_fixedjoint name="body_top/fixedjoint" parent="${name}" child="body_top" >
+        <origin xyz="0 0 0" rpy="0 0 0" />
+    </xacro:tams_fixedjoint>
+
+
+    <!-- Left side box -->
+
+    <gazebo reference="body_left">
+        <turnGravityOff>false</turnGravityOff>
+        <selfCollide>false</selfCollide>
+        <!-- TODO material -->
+        <!-- <material>chordophones/OakWood</material> -->
+        <mu1>50.0</mu1>
+        <mu2>50.0</mu2>
+        <kp>1000000.0</kp>
+        <kd>1.0</kd>
+    </gazebo>
+
+    <link name="body_left">
+        <inertial>
+            <mass value="7.5" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.2" ixy="0" ixz="0" iyy="0.2" iyz="0" izz="0.05" />
+        </inertial>
+        <visual>
+            <origin xyz="${side_left_pos}" rpy="0 0 1.57" />
+            <geometry>
+                <!-- <mesh filename="package://chordophones/meshes/guzheng-body.stl"  scale="0.001 0.001 0.001" /> -->
+                <box size="${side_width} ${side_length_left} ${side_height}"/>
+            </geometry>
+            <material name="gray" />
+        </visual>
+        <collision>
+            <origin xyz="${side_left_pos}" rpy="0 0 1.57" />
+            <geometry>
+                <box size="${side_width} ${side_length_left} ${side_height}"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <xacro:tams_fixedjoint name="body_left/fixedjoint" parent="${name}" child="body_left" >
+        <origin xyz="0 0 0" rpy="0 0 0" />
+    </xacro:tams_fixedjoint>
+
+
+    <!-- Right side box -->
+
+    <gazebo reference="body_right">
+        <turnGravityOff>false</turnGravityOff>
+        <selfCollide>false</selfCollide>
+        <!-- TODO material -->
+        <!-- <material>chordophones/OakWood</material> -->
+        <mu1>50.0</mu1>
+        <mu2>50.0</mu2>
+        <kp>1000000.0</kp>
+        <kd>1.0</kd>
+    </gazebo>
+
+    <link name="body_right">
+        <inertial>
+            <mass value="7.5" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="0.2" ixy="0" ixz="0" iyy="0.2" iyz="0" izz="0.05" />
+        </inertial>
+        <visual>
+            <origin xyz="${side_right_pos}" rpy="0 0 1.57" />
+            <geometry>
+                <!-- <mesh filename="package://chordophones/meshes/guzheng-body.stl"  scale="0.001 0.001 0.001" /> -->
+                <box size="${side_width} ${side_length_right} ${side_height}"/>
+            </geometry>
+            <material name="gray" />
+        </visual>
+        <collision>
+            <origin xyz="${side_right_pos}" rpy="0 0 1.57" />
+            <geometry>
+                <box size="${side_width} ${side_length_right} ${side_height}"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <xacro:tams_fixedjoint name="body_right/fixedjoint" parent="${name}" child="body_right" >
         <origin xyz="0 0 0" rpy="0 0 0" />
     </xacro:tams_fixedjoint>
 
