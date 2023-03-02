@@ -398,4 +398,11 @@ TODO:
 <!-- TODO instantiate in standalone files -->
 <xacro:marimba name="marimba" />
 
+<link name="world"/>
+<joint name="fixed" type="fixed">
+    <parent link="world"/>
+    <child link="marimba"/>
+    <origin xyz="0 0 0" rpy="0 0 0" />
+</joint>
+
 </robot>
