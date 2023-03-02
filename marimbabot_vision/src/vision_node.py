@@ -1,17 +1,17 @@
 #!/usr/bin/env python
 
-import numpy as np
 import rospy
 import torch
+from cv_bridge import CvBridge, CvBridgeError
 from PIL import Image as PILImage
 from sensor_msgs.msg import Image as ROSImage
-from std_msgs.msg import String
 from transformers import (DonutProcessor, VisionEncoderDecoderConfig,
                           VisionEncoderDecoderModel)
 
-def detect_notes(img_array: np.array, pre_processor: DonutProcessor, model: VisionEncoderDecoderModel):
+
+def detect_notes(open_cv_img, pre_processor: DonutProcessor, model: VisionEncoderDecoderModel):
     # Load image
-    image = PILImage.open(img_array).convert('RGB')
+    image = PILImage.fromarray(open_cv_img).convert('RGB')
 
     # Rotate image if needed
     if image.size[0] > image.size[1]:
@@ -53,12 +53,19 @@ def detect_notes(img_array: np.array, pre_processor: DonutProcessor, model: Visi
 
     rospy.loginfo(sequence)
 
-def callbackImage(data: ROSImage):    # TODO
-    # http://docs.ros.org/en/api/sensor_msgs/html/msg/Image.html
-    img_array = np.array(data.data).reshape((data.height, data.width))
-    detect_notes(img_array)
+def callbackImage(data: ROSImage):
+    rospy.logdebug("received img")
 
-    rospy.loginfo("received img")
+    # http://docs.ros.org/en/api/sensor_msgs/html/msg/Image.html
+    bridge = CvBridge()
+
+    try:
+      cv_image = bridge.imgmsg_to_cv2(data, encoding="passthrough")
+    except CvBridgeError as e:
+      rospy.loginfo(e)
+
+    detect_notes(cv_image)
+
     
 def listener(pre_processor, model):
     rospy.init_node('vision_receiver', anonymous=True)
