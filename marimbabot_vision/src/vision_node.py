@@ -2,7 +2,7 @@
 
 import rospy
 import torch
-from cv_bridge import CvBridge, CvBridgeError
+from gi import CvBridge, CvBridgeError
 from PIL import Image as PILImage
 from sensor_msgs.msg import Image as ROSImage
 from transformers import (DonutProcessor, VisionEncoderDecoderConfig,
@@ -41,15 +41,9 @@ def detect_notes(open_cv_img, pre_processor: DonutProcessor, model: VisionEncode
     )
 
     # Decode tokens
-    sequence = pre_processor.batch_decode(outputs.sequences)[0][4:]
+    sequence = pre_processor.batch_decode(outputs.sequences, skip_special_tokens=True)[0]
 
-    # Clean output sequence
-    strings_to_clear = [
-        pre_processor.tokenizer.eos_token,
-        pre_processor.tokenizer.pad_token]
-
-    for s in strings_to_clear:
-        sequence = sequence.replace(s, "")
+    print(sequence)
 
     rospy.loginfo(sequence)
 
