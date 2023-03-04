@@ -6,15 +6,6 @@ from shutil import copyfile
 
 import tqdm
 
-parser = argparse.ArgumentParser(
-                    prog = 'flatten_whiteboard_data.py',
-                    description = 'This script generates a separate dataset including one sample folder for each captured whiteboard picture. Each sample folder contains the correspoding .txt file, the .ly file and the .png file.')
-
-parser.add_argument('-o', '--outdir', type=str, required=True, help='The output directory for storing the whiteboard dataset')
-parser.add_argument('-i', '--indir', type=str, required=True, help='The input directory containing the captured whiteoard images')
-parser.add_argument('-p', '--prefix', type=str, default='staff_1', help='The prefix of the file names. Default: staff_1')
-parser.add_argument('-w', '--workers', type=int, default=30, help='The number of workers. Default: 30')
-
 def generate_sample_folder(sample):
 
     sample_folder = os.path.join(args.indir, sample)
@@ -27,7 +18,15 @@ def generate_sample_folder(sample):
         copyfile(os.path.join(sample_folder, real_im), os.path.join(real_sample_folder, f'{args.prefix}.png'))
 
 if __name__ == "__main__":
-    args = parser.parse_args()
+    parser = argparse.ArgumentParser(
+                        prog = 'flatten_whiteboard_data.py',
+                        description = 'This script generates a separate dataset including one sample folder for each captured whiteboard picture. Each sample folder contains the correspoding .txt file, the .ly file and the .png file.')
 
+    parser.add_argument('-o', '--outdir', type=str, required=True, help='The output directory for storing the whiteboard dataset')
+    parser.add_argument('-i', '--indir', type=str, required=True, help='The input directory containing the captured whiteoard images')
+    parser.add_argument('-p', '--prefix', type=str, default='staff_1', help='The prefix of the file names. Default: staff_1')
+    parser.add_argument('-w', '--workers', type=int, default=30, help='The number of workers. Default: 30')
+
+    args = parser.parse_args()
     with Pool(args.workers) as pool:
         list(tqdm.tqdm(pool.imap(generate_sample_folder, os.listdir(args.indir)), total=len(os.listdir(args.indir))))
