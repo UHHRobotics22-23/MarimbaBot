@@ -43,9 +43,7 @@ def detect_notes(open_cv_img, pre_processor: DonutProcessor, model: VisionEncode
     # Decode tokens
     sequence = pre_processor.batch_decode(outputs.sequences, skip_special_tokens=True)[0]
 
-    print(sequence)
-
-    rospy.loginfo(sequence)
+    rospy.logdebug(sequence)
 
 def callbackImage(data: ROSImage):
     rospy.logdebug("received img")
@@ -56,13 +54,13 @@ def callbackImage(data: ROSImage):
     try:
       cv_image = bridge.imgmsg_to_cv2(data, encoding="passthrough")
     except CvBridgeError as e:
-      rospy.loginfo(e)
+      rospy.logerror(e)
 
     detect_notes(cv_image)
 
     
 def listener(pre_processor, model):
-    rospy.init_node('vision_receiver', anonymous=True)
+    rospy.init_node('vision_receiver')
 
     rospy.Subscriber("cv_camera_node/image_raw", ROSImage, callbackImage, callback_args=(pre_processor, model))
 
