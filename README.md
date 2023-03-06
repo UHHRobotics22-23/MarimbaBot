@@ -101,7 +101,6 @@ source devel/setup.bash
 
 In order to run the whole project, launch the bringup package that brings up the launch file for each package:
 
-
 ```bash
 roslaunch marimbabot_bringup marimbabot.launch
 ```
