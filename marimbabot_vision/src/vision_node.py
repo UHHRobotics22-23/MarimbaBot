@@ -70,8 +70,8 @@ def listener(pre_processor, model):
 if __name__ == '__main__':
     MODEL = './model'
 
-if rospy.has_param('MODEL_PATH'):
-    MODEL = rospy.get_param("MODEL_PATH")
+    if rospy.has_param('MODEL_PATH'):
+        MODEL = rospy.get_param("MODEL_PATH")
 
     # Load base model
     ved_config = VisionEncoderDecoderConfig.from_pretrained(MODEL)
