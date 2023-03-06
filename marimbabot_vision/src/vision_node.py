@@ -45,18 +45,21 @@ def detect_notes(open_cv_img, pre_processor: DonutProcessor, model: VisionEncode
 
     rospy.logdebug(sequence)
 
-def callbackImage(data: ROSImage):
+def callbackImage(data: ROSImage, callback_args):
     rospy.logdebug("received img")
+
+    pre_processor = callback_args[0]
+    model = callback_args[1]
 
     # http://docs.ros.org/en/api/sensor_msgs/html/msg/Image.html
     bridge = CvBridge()
 
     try:
-      cv_image = bridge.imgmsg_to_cv2(data, encoding="passthrough")
+      cv_image = bridge.imgmsg_to_cv2(data)
     except CvBridgeError as e:
       rospy.logerror(e)
 
-    detect_notes(cv_image)
+    detect_notes(cv_image, pre_processor, model)
 
     
 def listener(pre_processor, model):
@@ -68,15 +71,15 @@ def listener(pre_processor, model):
     rospy.spin()
 
 if __name__ == '__main__':
-    MODEL = './model'
+    MODEL_PATH = './model'
 
     if rospy.has_param('MODEL_PATH'):
-        MODEL = rospy.get_param("MODEL_PATH")
+        MODEL_PATH = rospy.get_param("MODEL_PATH")
 
     # Load base model
-    ved_config = VisionEncoderDecoderConfig.from_pretrained(MODEL)
-    pre_processor = DonutProcessor.from_pretrained(MODEL)
-    model = VisionEncoderDecoderModel.from_pretrained(MODEL, ignore_mismatched_sizes=True, config=ved_config)
+    ved_config = VisionEncoderDecoderConfig.from_pretrained(MODEL_PATH)
+    pre_processor = DonutProcessor.from_pretrained(MODEL_PATH)
+    model = VisionEncoderDecoderModel.from_pretrained(MODEL_PATH, ignore_mismatched_sizes=True, config=ved_config)
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model.to(device)
