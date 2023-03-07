@@ -1,0 +1,15 @@
+<launch>
+<node name="cv_camera_node" pkg="cv_camera" type="cv_camera_node" respawn="true">
+     <rosparam>
+       device_id: 0
+     </rosparam>
+      <rosparam>
+       rate: 5
+     </rosparam>
+</node>
+<node name="vision_node" pkg="marimbabot_vision" type="vision_node.py">
+     <rosparam>
+       MODEL_PATH: "./model"
+     </rosparam>
+</node>
+</launch>
