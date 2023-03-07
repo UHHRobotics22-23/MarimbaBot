@@ -48,8 +48,7 @@ def detect_notes(open_cv_img, pre_processor: DonutProcessor, model: VisionEncode
 def callbackImage(data: ROSImage, callback_args):
     rospy.logdebug("received img")
 
-    pre_processor = callback_args[0]
-    model = callback_args[1]
+    pre_processor, model = callback_args
 
     # http://docs.ros.org/en/api/sensor_msgs/html/msg/Image.html
     bridge = CvBridge()
