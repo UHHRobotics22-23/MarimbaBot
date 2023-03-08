@@ -7,6 +7,7 @@ from PIL import Image as PILImage
 from sensor_msgs.msg import Image as ROSImage
 from transformers import (DonutProcessor, VisionEncoderDecoderConfig,
                           VisionEncoderDecoderModel)
+from std_msgs.msg import String
 
 
 def detect_notes(open_cv_img, pre_processor: DonutProcessor, model: VisionEncoderDecoderModel):
@@ -45,10 +46,12 @@ def detect_notes(open_cv_img, pre_processor: DonutProcessor, model: VisionEncode
 
     rospy.logdebug(sequence)
 
+    return sequence
+
 def callbackImage(data: ROSImage, callback_args):
     rospy.logdebug("received img")
 
-    pre_processor, model = callback_args
+    pre_processor, model, sentence_publisher = callback_args
 
     # http://docs.ros.org/en/api/sensor_msgs/html/msg/Image.html
     bridge = CvBridge()
@@ -58,13 +61,14 @@ def callbackImage(data: ROSImage, callback_args):
     except CvBridgeError as e:
       rospy.logerror(e)
 
-    detect_notes(cv_image, pre_processor, model)
+    sentence = detect_notes(cv_image, pre_processor, model)
+    sentence_publisher.publish(sentence)
 
     
-def listener(pre_processor, model):
+def listener(pre_processor, model, sentence_publisher):
     rospy.init_node('vision_receiver')
 
-    rospy.Subscriber("cv_camera_node/image_raw", ROSImage, callbackImage, callback_args=(pre_processor, model))
+    rospy.Subscriber("cv_camera_node/image_raw", ROSImage, callbackImage, callback_args=(pre_processor, model, sentence_publisher))
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
@@ -83,4 +87,5 @@ if __name__ == '__main__':
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model.to(device)
 
-    listener(pre_processor, model)
+    sentence_publisher = rospy.Publisher("recognized_sentence", String)
+    listener(pre_processor, model, sentence_publisher)
