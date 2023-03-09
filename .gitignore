@@ -9,3 +9,5 @@ marimbabot_vision/scripts/model*
 
 
 marimbabot_audio/playground
+marimbabot_audio/.idea
+marimbabot_audio/.vscode
