@@ -62,7 +62,7 @@ def callbackImage(data: ROSImage, callback_args):
 
     
 def listener(pre_processor, model):
-    rospy.init_node('vision_receiver')
+    rospy.init_node('vision_node')
 
     rospy.Subscriber("cv_camera_node/image_raw", ROSImage, callbackImage, callback_args=(pre_processor, model))
 
