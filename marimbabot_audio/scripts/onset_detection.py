@@ -1,13 +1,11 @@
 #!/usr/bin/env python
-import copy
-
-
 import cv_bridge
 import rospy
 from audio_common_msgs.msg import AudioDataStamped, AudioInfo
 from sensor_msgs.msg import Image
 from std_msgs.msg import Float32, ColorRGBA
 from marimbabot_audio.msg import NoteOnset, CQTStamped
+
 
 import pretty_midi
 import librosa

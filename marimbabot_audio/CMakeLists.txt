@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
 add_message_files(
 DIRECTORY
   msg
-FILES
+  FILES
   CQTStamped.msg
   NoteOnset.msg
 )
@@ -32,8 +32,7 @@ CATKIN_DEPENDS
 
 catkin_install_python(
 PROGRAMS
-  scripts/detect_onset.py
-  scripts/dump_audio.py
+  scripts/onset_detection.py
   scripts/note2midi.py
 DESTINATION
   ${CATKIN_PACKAGE_BIN_DESTINATION}
