@@ -239,16 +239,49 @@ int main(int argc, char **argv)
     moveit_msgs::RobotState start_state;
     moveit::core::robotStateToRobotStateMsg(*current_state, start_state);
 
-    // Hit the point
-    auto hit_plan = hit_point(
-        move_group_interface,
-        start_state,
-        pose
-        );
+    // Hit a sequence of points in cartesian space left and right of "pose"
 
-    // Print hit plan
+    // Define hit points
+    std::vector<geometry_msgs::PoseStamped> hit_points;
+    for (auto offset : {-0.2, -0.1, 0.0, 0.1, 0.2})
+    {
+        geometry_msgs::PoseStamped hit_point{pose};
+        hit_point.pose.position.y += offset;
+        hit_points.push_back(hit_point);
+    }
 
-    //auto plan = concatinated_plan({plan_anywhere_to_home, hit_plan});
+    // Define hit plan by mapping hit_point on hit_points
+    moveit::planning_interface::MoveGroupInterface::Plan hit_plan;
+
+    // Iterate over hit_points with index
+    for (auto i = 0; i < hit_points.size(); i++)
+    {
+        // Get hit_point
+        auto hit_point = hit_points[i];
+
+        // Decide if this is the first hit_point
+        if (i == 0)
+        {
+            // Calculate hit trajectory
+            hit_plan = hit_point(
+                move_group_interface,
+                start_state, // Use start_state from above
+                hit_point
+                );
+        }
+        else
+        {
+            // Calculate hit trajectory
+            auto hit_trajectory = hit_point(
+                move_group_interface,
+                get_robot_state_after_plan(hit_plan), // Use the end state of the previous hit_point plan
+                hit_point
+                );
+
+            // Concatinate trajectories
+            hit_plan = concatinated_plan({hit_plan, hit_trajectory});
+        }
+    }
 
     // Publish the plan for rviz
     ros::Publisher display_publisher = node_handle.advertise<moveit_msgs::DisplayTrajectory>("/move_group/display_planned_path", 1, true);
