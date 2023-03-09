@@ -14,7 +14,7 @@
 
 /**
  * @brief concatinates a vector of n plans (n>0) into one plan
- * 
+ *
  * @param plans
  * @return moveit::planning_interface::MoveGroupInterface::Plan
 **/
@@ -42,7 +42,7 @@ moveit::planning_interface::MoveGroupInterface::Plan concatinated_plan(std::vect
 
 /**
  * @brief get robot state after plan
- * 
+ *
  * @param  plan
  * @return moveit_msgs::RobotState
 **/
@@ -70,8 +70,74 @@ moveit_msgs::RobotState get_robot_state_after_plan(moveit::planning_interface::M
 
 
 /**
+ * @brief Plan to Pose
+ *
+ * @param  start_state
+ * @param  goal_pose
+ * @param  move_group_interface
+ * @return moveit::planning_interface::MoveGroupInterface::Plan
+ * @throws std::runtime_error
+ **/
+moveit::planning_interface::MoveGroupInterface::Plan plan_to_pose(
+    moveit::planning_interface::MoveGroupInterface& move_group_interface,
+    const moveit_msgs::RobotState& start_state,
+    geometry_msgs::PoseStamped goal_pose)
+{
+    // Initialize output plan
+    moveit::planning_interface::MoveGroupInterface::Plan plan;
+
+    // Create robot state
+    moveit::core::RobotState robot_state(move_group_interface.getRobotModel());
+    robot_state.setToDefaultValues();
+
+    // Set start state
+    move_group_interface.setStartState(start_state);
+
+    // Check if goal pose is in the same frame as the planning frame
+    assert(goal_pose.header.frame_id == move_group_interface.getPlanningFrame());
+
+    // Copy goal pose geometry_msgs::PoseStamped to tf2::Vector3 and tf2::Quaternion
+    tf2::Vector3 goal_position(
+        goal_pose.pose.position.x,
+        goal_pose.pose.position.y,
+        goal_pose.pose.position.z);
+    tf2::Quaternion goal_orientation(
+        goal_pose.pose.orientation.x,
+        goal_pose.pose.orientation.y,
+        goal_pose.pose.orientation.z,
+        goal_pose.pose.orientation.w);
+
+    // Use bio_ik to solve the inverse kinematics at the goal pose
+    bio_ik::BioIKKinematicsQueryOptions ik_options;
+    ik_options.replace = true;
+    ik_options.return_approximate_solution = false;
+    ik_options.goals.emplace_back(new bio_ik::PoseGoal("diana_gripper/tcp", goal_position, goal_orientation));
+    if(!robot_state.setFromIK(
+        move_group_interface.getRobotModel()->getJointModelGroup(move_group_interface.getName()),
+        approach_pose.pose /* this is ignored with replace = true */,
+        0.0,
+        moveit::core::GroupStateValidityCallbackFn(),
+        ik_options))
+    {
+        throw std::runtime_error("IK for approach pose failed");
+    }
+
+    // Plan to the goal pose (but in joint space)
+    move_group_interface.setJointValueTarget(robot_state);
+
+    // Plan
+    if(!move_group_interface.plan(plan))
+    {
+        throw std::runtime_error("Approach plan failed");
+    };
+
+    return plan;
+}
+
+
+/**
  * @brief hit a given point in cartesian space
- * 
+ *
  * @param start_state
  * @param move_group_interface
  * @param pose
@@ -79,11 +145,11 @@ moveit_msgs::RobotState get_robot_state_after_plan(moveit::planning_interface::M
 **/
 
 moveit::planning_interface::MoveGroupInterface::Plan hit_point(
-    moveit::planning_interface::MoveGroupInterface& move_group_interface, 
+    moveit::planning_interface::MoveGroupInterface& move_group_interface,
     const moveit_msgs::RobotState& start_state,
     geometry_msgs::PoseStamped pose)
 {
-    
+
     moveit::core::RobotState robot_state(move_group_interface.getRobotModel());
     robot_state.setToDefaultValues();
     moveit::core::robotStateMsgToRobotState(start_state, robot_state);
@@ -96,58 +162,18 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_point(
     geometry_msgs::PoseStamped retreat_pose{approach_pose};
 
     // Calculate approach trajectory
-    moveit::planning_interface::MoveGroupInterface::Plan approach_plan;
-    move_group_interface.setStartState(start_state);
+    auto approach_plan = plan_to_pose(move_group_interface, start_state, approach_pose);
 
-    assert(approach_pose.header.frame_id == move_group_interface.getPlanningFrame());
-    tf2::Vector3 approach_position(approach_pose.pose.position.x, approach_pose.pose.position.y, approach_pose.pose.position.z);
-    tf2::Quaternion approach_orientation(approach_pose.pose.orientation.x, approach_pose.pose.orientation.y, approach_pose.pose.orientation.z, approach_pose.pose.orientation.w);
-
-    bio_ik::BioIKKinematicsQueryOptions ik_options;
-    ik_options.replace = true;
-    ik_options.return_approximate_solution = false;
-    ik_options.goals.emplace_back(new bio_ik::PoseGoal("diana_gripper/tcp",approach_position,approach_orientation));
-    if(!robot_state.setFromIK(
-        move_group_interface.getRobotModel()->getJointModelGroup(move_group_interface.getName()),
-        approach_pose.pose /* this is ignored with replace = true */,
-        0.0,
-        moveit::core::GroupStateValidityCallbackFn(),
-        ik_options))
-    {
-        throw std::runtime_error("IK for approach pose failed");
-    }
-    move_group_interface.setJointValueTarget(robot_state);
-    if(!move_group_interface.plan(approach_plan))
-    {
-        throw std::runtime_error("Approach plan failed");
-    };
-    /*
     // Calculate down trajectory
-    moveit::planning_interface::MoveGroupInterface::Plan down_plan;
-    auto state_after_plan = get_robot_state_after_plan(approach_plan);
-    move_group_interface.setStartState(state_after_plan);
-    move_group_interface.setPoseTarget(pose);
-    if(!move_group_interface.plan(down_plan))
-    {
-        throw std::runtime_error("Down plan failed");
-    }
-
+    auto down_plan = plan_to_pose(move_group_interface, get_robot_state_after_plan(approach_plan), pose);
 
     // Calculate retreat trajectory
-    moveit::planning_interface::MoveGroupInterface::Plan retreat_plan;
-    state_after_plan = get_robot_state_after_plan(down_plan);
-    move_group_interface.setStartState(state_after_plan);
-    move_group_interface.setPoseTarget(retreat_pose);
-    if(!move_group_interface.plan(retreat_plan))
-    {
-        throw std::runtime_error("Retreat plan failed");
-    }
-    
+    auto retreat_plan = plan_to_pose(move_group_interface, get_robot_state_after_plan(down_plan), retreat_pose);
 
     // Concatinate trajectories
-    moveit::planning_interface::MoveGroupInterface::Plan plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
-    */
-    return approach_plan;
+    auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
+
+    return plan;
 }
 
 
@@ -188,12 +214,9 @@ int main(int argc, char **argv)
     //TODO : turn this into moveit group_state
     home_joints.name = { "joint_1","joint_2","joint_3","joint_4","joint_5","joint_6","joint_7" };
     home_joints.position = {-1.0764353166380913, 0.5625393633338827, 0.31906783564462415, 2.316970072925777, 0.042747545531845337, 1.0091591209316584, 1.4176498139743448};
-    
-    //moveit::planning_interface::MoveGroupInterface::Plan plan_anywhere_to_home;
+
     move_group_interface.setJointValueTarget(home_joints);
     move_group_interface.move();
-
-    //move_group_interface.plan(plan_anywhere_to_home);
 
     // Convert transform to pose
     geometry_msgs::PoseStamped pose;
@@ -211,7 +234,6 @@ int main(int argc, char **argv)
     // Print pose
     ROS_INFO_STREAM("Pose: " << pose);
 
-
     auto current_state = move_group_interface.getCurrentState();
     //convert to moveit message
     moveit_msgs::RobotState start_state;
@@ -225,7 +247,7 @@ int main(int argc, char **argv)
         );
 
     // Print hit plan
-    
+
     //auto plan = concatinated_plan({plan_anywhere_to_home, hit_plan});
 
     // Publish the plan for rviz
