@@ -19,8 +19,8 @@ This installation instruction has been currently verified only at the lab comput
 
 ## 3. Visualization of note onset detection in form of spectrum.
 1. Action current built ros package: `source devel/setup.bash`
-2. Start the sound capture node: `roslaunch music_perception microphone.launch`
-3. Open a new terminal and start the note onset detection node: `roslaunch music_perception detect_onset.launch` (don't forget to activate the python venv and source the `setup.bash` of both ros noetic and the ros package built before)
+rophone.launch`
+3. Open a new terminal, active the enviroment of venv and source the setup.bash of our package, then run `roslaunch marimbabot_audio run_all.launch`.
 4. To see the topic relationship: open new terminal and then `rqt_graph`
-5. To see the spectrum:  open rviz with `rviz`, and then add a display with type `image`, choose the topic `/spectrogram`, then you'll see something like heatmap, that is the spectrum, and you can play with it.
+5. To see the spectrum:  pen new terminal and then open rviz with command `rviz`, and then add a display with type `image`, choose the topic `/spectrogram`, then you'll see something like heatmap, that is the spectrum, and you can play with it.
 
