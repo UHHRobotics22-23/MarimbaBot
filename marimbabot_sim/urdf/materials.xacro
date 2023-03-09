@@ -49,9 +49,4 @@
     <color rgba="1.0 1.0 1.0 1.0"/>
   </material>
   
-<!-- 
-  <material name="koto_wood">
-    <texture filename="file://$(find chordophones)/Media/materials/textures/koto.jpg" />
-  </material> -->
-
 </robot>

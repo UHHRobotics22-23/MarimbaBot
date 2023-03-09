@@ -4,9 +4,7 @@
 
     <param name="robot_description" command="xacro '$(find marimbabot_sim)/urdf/marimba.urdf.xacro'" />
 
-    <!-- <node if="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" /> -->
-    <!-- <node unless="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" /> -->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
-    <node pkg="tf" type="static_transform_publisher" name="base_link" args="0 0 0 0 0 0 base_link marimba 100"/>
+    <node pkg="tf" type="static_transform_publisher" name="base_link" args="0 0 0 0 0 0 base_link marimba 30"/>
     <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
 </launch>
