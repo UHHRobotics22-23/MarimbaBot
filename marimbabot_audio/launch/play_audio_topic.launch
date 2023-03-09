@@ -1,8 +1,0 @@
-<launch>
-  <node name="audio_play" pkg="audio_play" type="audio_play">
-    <param name="format" value="wave" />
-    <param name="channels" value="1" />
-    <param name="depth" value="16" />
-    <param name="sample_rate" value="44100" />
-  </node>
-</launch>

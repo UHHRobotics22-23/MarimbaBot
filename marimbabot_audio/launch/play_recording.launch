@@ -1,5 +1,0 @@
-<launch>
-  <!-- This provides auxiliary nodes when running `rosbag play ...` already -->
-  <include file="$(dirname)/play_audio_topic.launch" />
-  <include file="$(dirname)/detect_onset.launch" />
-</launch>
