@@ -176,6 +176,42 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_point(
     return plan;
 }
 
+/**
+ * @brief Hit a sequence of points in cartesian space
+ *
+ * @param move_group_interface
+ * @param start_state
+ * @param poses
+ * @return moveit::planning_interface::MoveGroupInterface::Plan
+**/
+moveit::planning_interface::MoveGroupInterface::Plan hit_points(
+    moveit::planning_interface::MoveGroupInterface& move_group_interface,
+    const moveit_msgs::RobotState& start_state,
+    std::vector<geometry_msgs::PoseStamped> poses)
+{
+    // Assert that there is at least one hit_point with an nice error message
+    assert(poses.size() > 0 && "There must be at least one hit_point");
+
+    // Calculate hit trajectory
+    auto hit_plan = hit_point(
+        move_group_interface,
+        start_state,
+        poses.front();
+        );
+
+    // Call hit_points recursively for all remaining hit_points
+    if(poses.size() > 1)
+    {
+        auto remaining_hit_plan = hit_points(
+            move_group_interface,
+            get_robot_state_after_plan(hit_plan),
+            std::vector<geometry_msgs::PoseStamped>(poses.begin() + 1, poses.end())
+            );
+        hit_plan = concatinated_plan({hit_plan, remaining_hit_plan});
+    }
+
+    return hit_plan;
+}
 
 int main(int argc, char **argv)
 {
@@ -251,37 +287,7 @@ int main(int argc, char **argv)
     }
 
     // Define hit plan by mapping hit_point on hit_points
-    moveit::planning_interface::MoveGroupInterface::Plan hit_plan;
-
-    // Iterate over hit_points with index
-    for (auto i = 0; i < hit_points.size(); i++)
-    {
-        // Get hit_point
-        auto hit_point = hit_points[i];
-
-        // Decide if this is the first hit_point
-        if (i == 0)
-        {
-            // Calculate hit trajectory
-            hit_plan = hit_point(
-                move_group_interface,
-                start_state, // Use start_state from above
-                hit_point
-                );
-        }
-        else
-        {
-            // Calculate hit trajectory
-            auto hit_trajectory = hit_point(
-                move_group_interface,
-                get_robot_state_after_plan(hit_plan), // Use the end state of the previous hit_point plan
-                hit_point
-                );
-
-            // Concatinate trajectories
-            hit_plan = concatinated_plan({hit_plan, hit_trajectory});
-        }
-    }
+    auto hit_plan = hit_points(move_group_interface, start_state, hit_points);
 
     // Publish the plan for rviz
     ros::Publisher display_publisher = node_handle.advertise<moveit_msgs::DisplayTrajectory>("/move_group/display_planned_path", 1, true);
