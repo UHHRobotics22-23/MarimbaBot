@@ -114,7 +114,7 @@ moveit::planning_interface::MoveGroupInterface::Plan plan_to_pose(
     ik_options.goals.emplace_back(new bio_ik::PoseGoal("diana_gripper/tcp", goal_position, goal_orientation));
     if(!robot_state.setFromIK(
         move_group_interface.getRobotModel()->getJointModelGroup(move_group_interface.getName()),
-        pose.pose /* this is ignored with replace = true */,
+        goal_pose.pose /* this is ignored with replace = true */,
         0.0,
         moveit::core::GroupStateValidityCallbackFn(),
         ik_options))
