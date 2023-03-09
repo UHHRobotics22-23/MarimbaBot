@@ -196,7 +196,7 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_points(
     auto hit_plan = hit_point(
         move_group_interface,
         start_state,
-        poses.front();
+        poses.front()
         );
 
     // Call hit_points recursively for all remaining hit_points
