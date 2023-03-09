@@ -65,9 +65,10 @@ def callbackImage(data: ROSImage, callback_args):
     sentence_publisher.publish(sentence)
 
     
-def listener(pre_processor, model, sentence_publisher):
+def listener(pre_processor, model):
     rospy.init_node('vision_receiver')
 
+    sentence_publisher = rospy.Publisher("recognized_sentence", String)
     rospy.Subscriber("cv_camera_node/image_raw", ROSImage, callbackImage, callback_args=(pre_processor, model, sentence_publisher))
 
     # spin() simply keeps python from exiting until this node is stopped
@@ -87,5 +88,4 @@ if __name__ == '__main__':
     device = "cuda" if torch.cuda.is_available() else "cpu"
     model.to(device)
 
-    sentence_publisher = rospy.Publisher("recognized_sentence", String)
-    listener(pre_processor, model, sentence_publisher)
+    listener(pre_processor, model)
