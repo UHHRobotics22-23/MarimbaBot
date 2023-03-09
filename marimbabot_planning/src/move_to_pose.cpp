@@ -278,16 +278,15 @@ int main(int argc, char **argv)
     // Hit a sequence of points in cartesian space left and right of "pose"
 
     // Define hit points
-    std::vector<geometry_msgs::PoseStamped> hit_points;
+    std::vector<geometry_msgs::PoseStamped> hit_poses;
     for (auto offset : {-0.2, -0.1, 0.0, 0.1, 0.2})
     {
         geometry_msgs::PoseStamped hit_point{pose};
         hit_point.pose.position.y += offset;
-        hit_points.push_back(hit_point);
+        hit_poses.push_back(hit_point);
     }
 
-    // Define hit plan by mapping hit_point on hit_points
-    auto hit_plan = hit_points(move_group_interface, start_state, hit_points);
+    auto hit_plan = hit_points(move_group_interface, start_state, hit_poses);
 
     // Publish the plan for rviz
     ros::Publisher display_publisher = node_handle.advertise<moveit_msgs::DisplayTrajectory>("/move_group/display_planned_path", 1, true);
