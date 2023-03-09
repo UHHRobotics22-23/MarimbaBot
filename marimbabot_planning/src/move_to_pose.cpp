@@ -9,8 +9,8 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
-
-
+#include <moveit/robot_state/conversions.h>
+#include <bio_ik/bio_ik.h>
 
 /**
  * @brief concatinates a vector of n plans (n>0) into one plan
@@ -75,52 +75,79 @@ moveit_msgs::RobotState get_robot_state_after_plan(moveit::planning_interface::M
  * @param start_state
  * @param move_group_interface
  * @param pose
- * @param hit_rotation
  * @return moveit::planning_interface::MoveGroupInterface::Plan
 **/
+
 moveit::planning_interface::MoveGroupInterface::Plan hit_point(
     moveit::planning_interface::MoveGroupInterface& move_group_interface, 
     const moveit_msgs::RobotState& start_state,
-    geometry_msgs::PoseStamped pose,
-    double hit_rotation)
+    geometry_msgs::PoseStamped pose)
 {
+    
+    moveit::core::RobotState robot_state(move_group_interface.getRobotModel());
+    robot_state.setToDefaultValues();
+    moveit::core::robotStateMsgToRobotState(start_state, robot_state);
+
+
     // Calculate approach pose
     geometry_msgs::PoseStamped approach_pose{pose};
-  
-    // Convert euler angles to quaternion and rotate original quaternion
-    tf2::Quaternion q_tf, q_inp;
-    tf2::convert(approach_pose.pose.orientation, q_inp);
-    q_tf.setRPY(0, 0, hit_rotation);
-    q_tf = q_inp * q_tf;
-    q_tf.normalize();
-    tf2::convert(q_tf, approach_pose.pose.orientation);
-
+    approach_pose.pose.position.z += 0.02;
     // Calculate retreat pose
     geometry_msgs::PoseStamped retreat_pose{approach_pose};
 
     // Calculate approach trajectory
     moveit::planning_interface::MoveGroupInterface::Plan approach_plan;
     move_group_interface.setStartState(start_state);
-    move_group_interface.setPoseTarget(approach_pose);
-    move_group_interface.plan(approach_plan);
 
+    assert(approach_pose.header.frame_id == move_group_interface.getPlanningFrame());
+    tf2::Vector3 approach_position(approach_pose.pose.position.x, approach_pose.pose.position.y, approach_pose.pose.position.z);
+    tf2::Quaternion approach_orientation(approach_pose.pose.orientation.x, approach_pose.pose.orientation.y, approach_pose.pose.orientation.z, approach_pose.pose.orientation.w);
+
+    bio_ik::BioIKKinematicsQueryOptions ik_options;
+    ik_options.replace = true;
+    ik_options.return_approximate_solution = false;
+    ik_options.goals.emplace_back(new bio_ik::PoseGoal("diana_gripper/tcp",approach_position,approach_orientation));
+    if(!robot_state.setFromIK(
+        move_group_interface.getRobotModel()->getJointModelGroup(move_group_interface.getName()),
+        approach_pose.pose /* this is ignored with replace = true */,
+        0.0,
+        moveit::core::GroupStateValidityCallbackFn(),
+        ik_options))
+    {
+        throw std::runtime_error("IK for approach pose failed");
+    }
+    move_group_interface.setJointValueTarget(robot_state);
+    if(!move_group_interface.plan(approach_plan))
+    {
+        throw std::runtime_error("Approach plan failed");
+    };
+    /*
     // Calculate down trajectory
     moveit::planning_interface::MoveGroupInterface::Plan down_plan;
     auto state_after_plan = get_robot_state_after_plan(approach_plan);
     move_group_interface.setStartState(state_after_plan);
     move_group_interface.setPoseTarget(pose);
-    move_group_interface.plan(down_plan);
+    if(!move_group_interface.plan(down_plan))
+    {
+        throw std::runtime_error("Down plan failed");
+    }
+
 
     // Calculate retreat trajectory
     moveit::planning_interface::MoveGroupInterface::Plan retreat_plan;
     state_after_plan = get_robot_state_after_plan(down_plan);
     move_group_interface.setStartState(state_after_plan);
     move_group_interface.setPoseTarget(retreat_pose);
-    move_group_interface.plan(retreat_plan);
+    if(!move_group_interface.plan(retreat_plan))
+    {
+        throw std::runtime_error("Retreat plan failed");
+    }
+    
 
     // Concatinate trajectories
     moveit::planning_interface::MoveGroupInterface::Plan plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
-    return plan;
+    */
+    return approach_plan;
 }
 
 
@@ -141,35 +168,38 @@ int main(int argc, char **argv)
     move_group_interface.setPlannerId("PTP");
     move_group_interface.setMaxVelocityScalingFactor(0.1);
     move_group_interface.setMaxAccelerationScalingFactor(0.1);
+    move_group_interface.startStateMonitor();
 
     const moveit::core::JointModelGroup* joint_model_group =
-        move_group_interface.getCurrentState()->getJointModelGroup(PLANNING_GROUP);
-
-    sensor_msgs::JointState home_joints;
-    home_joints.name = { "joint_1","joint_2","joint_3","joint_4","joint_5","joint_6","joint_7" };
-    home_joints.position = {-1.0764353166380913, 0.5625393633338827, 0.31906783564462415, 2.316970072925777, 0.042747545531845337, 1.0091591209316584, 1.4176498139743448};
-    
-    moveit::planning_interface::MoveGroupInterface::Plan plan_anywhere_to_home;
-    move_group_interface.setJointValueTarget(home_joints);
-    move_group_interface.plan(plan_anywhere_to_home);
-
+        move_group_interface.getRobotModel()->getJointModelGroup(PLANNING_GROUP);
 
     // Lookup the world to tcp transform
     geometry_msgs::TransformStamped transformStamped;
     try
     {
-        transformStamped = tfBuffer.lookupTransform("base_link", "diana_gripper/tcp", ros::Time(0));
+        transformStamped = tfBuffer.lookupTransform("world", "diana_gripper/tcp", ros::Time(0));
     }
     catch (tf2::TransformException &ex)
     {
         ROS_WARN("%s",ex.what());
     }
 
+    sensor_msgs::JointState home_joints;
+    //TODO : turn this into moveit group_state
+    home_joints.name = { "joint_1","joint_2","joint_3","joint_4","joint_5","joint_6","joint_7" };
+    home_joints.position = {-1.0764353166380913, 0.5625393633338827, 0.31906783564462415, 2.316970072925777, 0.042747545531845337, 1.0091591209316584, 1.4176498139743448};
+    
+    //moveit::planning_interface::MoveGroupInterface::Plan plan_anywhere_to_home;
+    move_group_interface.setJointValueTarget(home_joints);
+    move_group_interface.move();
+
+    //move_group_interface.plan(plan_anywhere_to_home);
+
     // Convert transform to pose
     geometry_msgs::PoseStamped pose;
 
     pose.header.stamp = ros::Time::now();
-    pose.header.frame_id = "base_link";
+    pose.header.frame_id = transformStamped.header.frame_id;
     pose.pose.position.x = transformStamped.transform.translation.x;
     pose.pose.position.y = transformStamped.transform.translation.y;
     pose.pose.position.z = transformStamped.transform.translation.z;
@@ -181,28 +211,34 @@ int main(int argc, char **argv)
     // Print pose
     ROS_INFO_STREAM("Pose: " << pose);
 
+
+    auto current_state = move_group_interface.getCurrentState();
+    //convert to moveit message
+    moveit_msgs::RobotState start_state;
+    moveit::core::robotStateToRobotStateMsg(*current_state, start_state);
+
     // Hit the point
     auto hit_plan = hit_point(
         move_group_interface,
-        get_robot_state_after_plan(plan_anywhere_to_home),
-        pose,
-        0.1);
+        start_state,
+        pose
+        );
 
     // Print hit plan
     
-    auto plan = concatinated_plan({plan_anywhere_to_home, hit_plan});
+    //auto plan = concatinated_plan({plan_anywhere_to_home, hit_plan});
 
     // Publish the plan for rviz
     ros::Publisher display_publisher = node_handle.advertise<moveit_msgs::DisplayTrajectory>("/move_group/display_planned_path", 1, true);
     moveit_msgs::DisplayTrajectory display_trajectory;
     moveit_msgs::RobotTrajectory trajectory;
-    trajectory.joint_trajectory = plan.trajectory_.joint_trajectory;
-    display_trajectory.trajectory_start = plan.start_state_;
+    trajectory.joint_trajectory = hit_plan.trajectory_.joint_trajectory;
+    display_trajectory.trajectory_start = hit_plan.start_state_;
     display_trajectory.trajectory.push_back(trajectory);
     display_publisher.publish(display_trajectory);
 
     // Execute the plan
-    move_group_interface.execute(plan);
-    
+    //move_group_interface.execute(hit_plan);
+    ros::waitForShutdown();
     return 0;
 }
