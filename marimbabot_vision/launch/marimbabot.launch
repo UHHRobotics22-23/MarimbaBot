@@ -1,0 +1,8 @@
+<launch>
+<node name="cv_camera_node" pkg="cv_camera" type="cv_camera_node" respawn="true">
+    <rosparam command="load" file="$(find marimbabot_vision)/config/cv_camera.yaml"/>
+</node>
+<node name="vision_node" pkg="marimbabot_vision" type="vision_node.py">
+    <rosparam command="load" file="$(find marimbabot_vision)/config/cv_camera.yaml"/>
+</node>
+</launch>
