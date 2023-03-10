@@ -1,17 +1,18 @@
-#include <iostream>
-#include <ros/ros.h>
+#include <bio_ik/bio_ik.h>
+#include <boost/algorithm/string.hpp>
 #include <geometry_msgs/PoseStamped.h>
+#include <iostream>
 #include <moveit_msgs/DisplayTrajectory.h>
 #include <moveit_msgs/RobotState.h>
 #include <moveit_msgs/RobotTrajectory.h>
 #include <moveit/move_group_interface/move_group_interface.h>
+#include <moveit/robot_state/conversions.h>
+#include <regex>
+#include <ros/ros.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/transform_listener.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
-#include <moveit/robot_state/conversions.h>
-#include <bio_ik/bio_ik.h>
-#include <boost/algorithm/string.hpp>
 
 /**
  * @brief concatinates a vector of n plans (n>0) into one plan
@@ -218,12 +219,14 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_points(
 /**
  * @brief Convert lilypond sequence to cartesian poses and times
  *
+ * @param tf_buffer
  * @param planning_frame
  * @param lilypond
  * @param tempo (default: 120.0)
  * @return std::vector<std::pair<geometry_msgs::PoseStamped, double>>
  **/
 std::vector<std::pair<geometry_msgs::PoseStamped, double>> lilypond_to_cartesian(
+    std::shared_ptr<tf2_ros::Buffer> tf_buffer,
     const std::string& planning_frame,
     std::string lilypond,
     double tempo = 120.0)
@@ -252,7 +255,7 @@ std::vector<std::pair<geometry_msgs::PoseStamped, double>> lilypond_to_cartesian
             ROS_WARN_STREAM("Note '" << note << "' is not valid");
             continue;
         }
-        
+
         // Get the first letter
         std::string note_letter = note.substr(0, 1);
 
@@ -286,7 +289,7 @@ std::vector<std::pair<geometry_msgs::PoseStamped, double>> lilypond_to_cartesian
             geometry_msgs::TransformStamped transform;
             try
             {
-                transform = tfBuffer.lookupTransform(
+                transform = tf_buffer.lookupTransform(
                     planning_frame,  // The target frame
                     note_frame,  // The source frame
                     ros::Time(0),  // The time at which the transform is valid
