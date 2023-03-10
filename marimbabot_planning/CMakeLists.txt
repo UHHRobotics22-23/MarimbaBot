@@ -3,7 +3,6 @@ project(marimbabot_planning)
 
 find_package(catkin REQUIRED COMPONENTS
   bio_ik
-  boost
   geometry_msgs
   moveit_msgs
   moveit_ros_planning_interface
@@ -12,6 +11,11 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_geometry_msgs
   tf2_ros
   trajectory_msgs
+)
+
+find_package(
+  Boost
+  REQUIRED COMPONENTS algorithm
 )
 
 catkin_package()
