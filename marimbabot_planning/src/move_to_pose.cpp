@@ -289,7 +289,7 @@ std::vector<std::pair<geometry_msgs::PoseStamped, double>> lilypond_to_cartesian
             geometry_msgs::TransformStamped transform;
             try
             {
-                transform = tf_buffer.lookupTransform(
+                transform = tf_buffer->lookupTransform(
                     planning_frame,  // The target frame
                     note_frame,  // The source frame
                     ros::Time(0),  // The time at which the transform is valid
