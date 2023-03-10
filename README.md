@@ -99,10 +99,28 @@ cd catkin_ws
 source devel/setup.bash
 ```
 
-Now you can launch the software. 
+In order to run the whole project, launch the bringup package that brings up the launch file for each package:
 
-#### Note: The main launch files need to be added if they are created.
+```bash
+roslaunch marimbabot_bringup marimbabot.launch
+```
 
+
+#### Note for development: Add the main launch files to the bringup if they are created.
+
+## Launch single packages
+
+To launch a single package run this command each package: 
+
+```bash
+roslaunch marimbabot_audio marimbabot.launch
+# or
+roslaunch marimbabot_planning marimbabot.launch
+# or
+roslaunch marimbabot_vision marimbabot.launch
+```
+
+This comes handy for purposes like debugging or testing.
 
 ## How do I contribute
 

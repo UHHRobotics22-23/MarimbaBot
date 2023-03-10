@@ -2,6 +2,7 @@ abjad==3.4
 albumentations==1.3.0
 nltk==3.7
 numpy==1.23.3
+opencv-python==4.7.0.68
 Pillow==9.4.0
 pytorch_lightning==1.8.1
 torch==1.13.1
