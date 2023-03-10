@@ -282,19 +282,20 @@ std::vector<std::pair<geometry_msgs::PoseStamped, double>> lilypond_to_cartesian
             // Get the cartesian pose of the note
             geometry_msgs::PoseStamped pose;
             pose.header.frame_id = note_frame;  // The frame of the note
-            pose.header.stamp = ros::Time::now();  // The time at which the pose is valid
+            pose.header.stamp = ros::Time(0);  // Use the latest available transform
             pose.pose.orientation.w = 1.0;  // The orientation of the note
 
-            // Transform the pose to the planning frame
-            geometry_msgs::TransformStamped transform;
             try
             {
-                transform = tf_buffer->lookupTransform(
-                    planning_frame,  // The target frame
-                    note_frame,  // The source frame
-                    ros::Time(0),  // The time at which the transform is valid
-                    ros::Duration(1.0)  // The maximum time to wait for the transform
+                // Transform the pose to the planning frame
+                auto transformed_pose = tf_buffer->transform(
+                    pose,
+                    planning_frame,
+                    ros::Duration(1.0)
                     );
+
+                // Add the cartesian pose and time to the vector
+                hits.push_back(std::make_pair(transformed_pose, time));
             }
             catch (tf2::TransformException &ex)
             {
@@ -302,12 +303,6 @@ std::vector<std::pair<geometry_msgs::PoseStamped, double>> lilypond_to_cartesian
                 ROS_WARN("Skipping note %s", note.c_str());
                 continue;
             }
-
-            // Transform the pose to the planning frame
-            tf2::doTransform(pose, pose, transform);
-
-            // Add the cartesian pose and time to the vector
-            hits.push_back(std::make_pair(pose, time));
 
             // Increment the time
             time += duration;
