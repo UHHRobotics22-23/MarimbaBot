@@ -304,7 +304,7 @@ std::vector<std::pair<geometry_msgs::PoseStamped, double>> lilypond_to_cartesian
             }
 
             // Transform the pose to the planning frame
-            pose = tf2::doTransform(pose, pose, transform);
+            tf2::doTransform(pose, pose, transform);
 
             // Add the cartesian pose and time to the vector
             hits.push_back(std::make_pair(pose, time));
