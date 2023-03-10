@@ -1,0 +1,10 @@
+<launch>
+    <arg name="gui" default="true" />
+    <arg name="rvizconfig" default="$(find marimbabot_sim)/rviz/urdf.rviz" />
+
+    <param name="robot_description" command="xacro '$(find marimbabot_sim)/urdf/marimba.urdf.xacro'" />
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+    <node pkg="tf" type="static_transform_publisher" name="base_link" args="0 0 0 0 0 0 base_link marimba 30"/>
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+</launch>
