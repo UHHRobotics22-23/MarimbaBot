@@ -13,10 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   trajectory_msgs
 )
 
-find_package(
-  Boost
-  REQUIRED COMPONENTS algorithm
-)
+find_package(Boost REQUIRED)
 
 catkin_package()
 
