@@ -42,9 +42,6 @@ rosdep update
 # Install all dependencies needed by our repository
 rosdep install --from-paths src --ignore-src -r -y
 
-# create python venv
-python -m venv ~/venv_robot --system-site-packages
-
 # Install python dependencies
 pip3 install -r requirements.txt
 ```
@@ -102,15 +99,28 @@ cd catkin_ws
 source devel/setup.bash
 ```
 
-Now you can launch the software. 
+In order to run the whole project, launch the bringup package that brings up the launch file for each package:
 
-### Launch the audio nodes
-
-1.  `roslaunch marimbabot_audio run.launch`, 
-2.  Then several nodes will be stared, you can see a matplotlib-windows, it is a real time visualization of the midi format chart.
-3.  And you can run the `rviz` to visualize the audio spectrum by adding an image window and choose `spectrum` topic.
+```bash
+roslaunch marimbabot_bringup marimbabot.launch
+```
 
 
+#### Note for development: Add the main launch files to the bringup if they are created.
+
+## Launch single packages
+
+To launch a single package run this command each package: 
+
+```bash
+roslaunch marimbabot_audio marimbabot.launch
+# or
+roslaunch marimbabot_planning marimbabot.launch
+# or
+roslaunch marimbabot_vision marimbabot.launch
+```
+
+This comes handy for purposes like debugging or testing.
 
 ## How do I contribute
 
@@ -131,3 +141,4 @@ git push
 ```
 
 Now you can [create a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request#creating-the-pull-request) for your branch and merge it (after it is approved) into the `main` branch using the GitHub website.
+
