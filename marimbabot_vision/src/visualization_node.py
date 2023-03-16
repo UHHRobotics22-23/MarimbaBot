@@ -2,11 +2,12 @@
 
 import tempfile
 
+import cv2
 import numpy as np
 import rospy
 from abjad import Block, LilyPondFile
 from abjad.persist import as_png
-from PIL import Image as PILImage
+from cv_bridge import CvBridge
 from sensor_msgs.msg import Image as ROSImage
 from std_msgs.msg import String
 
@@ -30,24 +31,16 @@ def callbackVisionResults(sentence, args):
     as_png(lilypond_file, temp_.name, resolution=200)
 
     # read as PIL and convert to ROSImage
-    im = PILImage.open(temp_.name)
-    im = im.convert('RGB')
+    cv_image = cv2.imread(temp_.name)
+    bridge = CvBridge()
+    image_message = bridge.cv2_to_imgmsg(cv_image, encoding="passthrough")
 
-    msg = ROSImage()
-    msg.header.stamp = rospy.Time.now()
-    msg.height = im.height
-    msg.width = im.width
-    msg.encoding = "rgb8"
-    msg.is_bigendian = False
-    msg.step = 3 * im.width
-    msg.data = np.array(im).tobytes()
-
-    pub.publish(msg)
+    pub.publish(image_message)
 
 def listener():
     rospy.init_node('visualization_node')
 
-    pub = rospy.Publisher('detection_visualization')
+    pub = rospy.Publisher('detection_visualization', ROSImage)
     rospy.Subscriber("vision_node/recognized_sentence", String, callbackVisionResults, callback_args=(pub))
 
     # spin() simply keeps python from exiting until this node is stopped
