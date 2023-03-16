@@ -24,7 +24,8 @@ moveit::planning_interface::MoveGroupInterface::Plan concatinated_plan(std::vect
     assert(plans.size() > 0);
 
     moveit::planning_interface::MoveGroupInterface::Plan plan{plans[0]};
-    ros::Duration time_from_start{0};
+    ros::Duration time_from_start{1};
+    ros::Duration time_added{1};
     for (int i = 1; i < plans.size(); i++)
     {
         time_from_start += plans[i].trajectory_.joint_trajectory.points.back().time_from_start;
@@ -32,7 +33,7 @@ moveit::planning_interface::MoveGroupInterface::Plan concatinated_plan(std::vect
         {
             trajectory_msgs::JointTrajectoryPoint point;
             point = plans[i].trajectory_.joint_trajectory.points[j];
-            point.time_from_start += time_from_start;
+            point.time_from_start += (time_from_start+time_added);
             plan.trajectory_.joint_trajectory.points.push_back(point);
         }
     }
@@ -282,28 +283,17 @@ int main(int argc, char **argv)
     // Hit a sequence of points in cartesian space left and right of "pose"
 
     // Define hit points
-<<<<<<< Updated upstream
-    std::vector<geometry_msgs::PoseStamped> hit_poses;
-    for (auto offset : {-0.2, -0.1, 0.0, 0.1, 0.2})
-    {
-        geometry_msgs::PoseStamped hit_point{pose};
-        hit_point.pose.position.y += offset;
-        hit_poses.push_back(hit_point);
-    }
-
-    auto hit_plan = hit_points(move_group_interface, start_state, hit_poses);
-=======
     std::vector<geometry_msgs::PoseStamped> hit_point1;
-    for (auto offset : {/*-0.1, -0.05,*/ 0.0 , -0.05, -0.1, -0.05, 0.0, 0.1, 0.2, 0.3})
+    for (auto offset : {/*-0.1, -0.05,*/ 0.0 , -0.05, -0.1, -0.05, 0.0})
     {
         geometry_msgs::PoseStamped hit_point{pose};
         hit_point.pose.position.y += offset;
         hit_point1.push_back(hit_point);
+        ROS_INFO_STREAM("Pose point : " << hit_point);
     }
 
     // Define hit plan by mapping hit_point on hit_points
     auto hit_plan = hit_points(move_group_interface, start_state, hit_point1);
->>>>>>> Stashed changes
 
     // Publish the plan for rviz
     ros::Publisher display_publisher = node_handle.advertise<moveit_msgs::DisplayTrajectory>("/move_group/display_planned_path", 1, true);
@@ -313,9 +303,12 @@ int main(int argc, char **argv)
     display_trajectory.trajectory_start = hit_plan.start_state_;
     display_trajectory.trajectory.push_back(trajectory);
     display_publisher.publish(display_trajectory);
+    std::cout <<"joint tracjector "<< trajectory.joint_trajectory;
+    
 
     // Execute the plan
     move_group_interface.execute(hit_plan);
+    //move_group_interface.plan(hit_plan);
     ros::waitForShutdown();
     return 0;
 }
