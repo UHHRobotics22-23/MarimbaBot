@@ -85,9 +85,9 @@ class Onset2Midi():
             tcp_nodelay=True,
         )
 
-        self.pub_midi = rospy.Publisher(
-            "midi", Image, queue_size=1, tcp_nodelay=True
-        )
+        # self.pub_midi = rospy.Publisher(
+        #     "midi", Image, queue_size=1, tcp_nodelay=True
+        # )
         self._init_plot()
 
     def run(self):

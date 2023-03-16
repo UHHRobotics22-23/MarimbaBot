@@ -101,6 +101,12 @@ source devel/setup.bash
 
 Now you can launch the software. 
 
+### Launch the audio nodes
+
+1.  `roslaunch marimbabot_audio run.launch`, 
+2.  Then several nodes will be stared, you can see a matplotlib-windows, it is a real time visualization of the midi format chart.
+3.  And you can run the `rviz` to visualize the audio spectrum by adding an image window and choose `spectrum` topic.
+
 #### Note: The main launch files need to be added if they are created.
 
 
@@ -123,4 +129,3 @@ git push
 ```
 
 Now you can [create a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request#creating-the-pull-request) for your branch and merge it (after it is approved) into the `main` branch using the GitHub website.
-
