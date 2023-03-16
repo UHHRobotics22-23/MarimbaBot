@@ -42,6 +42,9 @@ rosdep update
 # Install all dependencies needed by our repository
 rosdep install --from-paths src --ignore-src -r -y
 
+# create python venv
+python -m venv ~/venv_robot --system-site-packages
+
 # Install python dependencies
 pip3 install -r requirements.txt
 ```
