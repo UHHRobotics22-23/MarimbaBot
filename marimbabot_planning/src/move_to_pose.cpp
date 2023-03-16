@@ -111,7 +111,7 @@ moveit::planning_interface::MoveGroupInterface::Plan plan_to_pose(
     bio_ik::BioIKKinematicsQueryOptions ik_options;
     ik_options.replace = true;
     ik_options.return_approximate_solution = false;
-    ik_options.goals.emplace_back(new bio_ik::PoseGoal("diana_gripper/tcp", goal_position, goal_orientation));
+    ik_options.goals.emplace_back(new bio_ik::PoseGoal("ft_fts_toolside", goal_position, goal_orientation));
     if(!robot_state.setFromIK(
         move_group_interface.getRobotModel()->getJointModelGroup(move_group_interface.getName()),
         goal_pose.pose /* this is ignored with replace = true */,
@@ -157,7 +157,7 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_point(
 
     // Calculate approach pose
     geometry_msgs::PoseStamped approach_pose{pose};
-    approach_pose.pose.position.z += 0.02;
+    approach_pose.pose.position.z += 0.05;
     // Calculate retreat pose
     geometry_msgs::PoseStamped retreat_pose{approach_pose};
 
@@ -224,7 +224,7 @@ int main(int argc, char **argv)
     tf2_ros::Buffer tfBuffer;
     tf2_ros::TransformListener tfListener(tfBuffer);
 
-    static const std::string PLANNING_GROUP = "arm_with_tcp";
+    static const std::string PLANNING_GROUP = "arm";
     moveit::planning_interface::MoveGroupInterface move_group_interface(PLANNING_GROUP);
     move_group_interface.setPlanningPipelineId("pilz_industrial_motion_planner");
     move_group_interface.setPlannerId("PTP");
@@ -235,24 +235,28 @@ int main(int argc, char **argv)
     const moveit::core::JointModelGroup* joint_model_group =
         move_group_interface.getRobotModel()->getJointModelGroup(PLANNING_GROUP);
 
+    sensor_msgs::JointState home_joints;
+    //TODO : turn this into moveit group_state
+    home_joints.name = { "ur5_elbow_joint","ur5_shoulder_lift_joint","ur5_shoulder_pan_joint","ur5_wrist_1_joint","ur5_wrist_2_joint","ur5_wrist_3_joint"};
+    home_joints.position = {-1.1387437025653284, -2.194897476826803, -1.5872224012957972, -1.1468852202044886, 1.6060603857040405, -0.010899368916646779};
+    // agile home
+    //home_joints.name = { "joint_1","joint_2","joint_3","joint_4","joint_5","joint_6","joint_7" };
+    //home_joints.position = {-1.0764353166380913, 0.5625393633338827, 0.31906783564462415, 2.316970072925777, 0.042747545531845337, 1.0091591209316584, 1.4176498139743448};
+
+    move_group_interface.setJointValueTarget(home_joints);
+    move_group_interface.move();
+    //ros::Duration(2).sleep();
+
     // Lookup the world to tcp transform
     geometry_msgs::TransformStamped transformStamped;
     try
     {
-        transformStamped = tfBuffer.lookupTransform("world", "diana_gripper/tcp", ros::Time(0));
+        transformStamped = tfBuffer.lookupTransform("world", "ft_fts_toolside", ros::Time(0));
     }
     catch (tf2::TransformException &ex)
     {
         ROS_WARN("%s",ex.what());
     }
-
-    sensor_msgs::JointState home_joints;
-    //TODO : turn this into moveit group_state
-    home_joints.name = { "joint_1","joint_2","joint_3","joint_4","joint_5","joint_6","joint_7" };
-    home_joints.position = {-1.0764353166380913, 0.5625393633338827, 0.31906783564462415, 2.316970072925777, 0.042747545531845337, 1.0091591209316584, 1.4176498139743448};
-
-    move_group_interface.setJointValueTarget(home_joints);
-    move_group_interface.move();
 
     // Convert transform to pose
     geometry_msgs::PoseStamped pose;
@@ -278,6 +282,7 @@ int main(int argc, char **argv)
     // Hit a sequence of points in cartesian space left and right of "pose"
 
     // Define hit points
+<<<<<<< Updated upstream
     std::vector<geometry_msgs::PoseStamped> hit_poses;
     for (auto offset : {-0.2, -0.1, 0.0, 0.1, 0.2})
     {
@@ -287,6 +292,18 @@ int main(int argc, char **argv)
     }
 
     auto hit_plan = hit_points(move_group_interface, start_state, hit_poses);
+=======
+    std::vector<geometry_msgs::PoseStamped> hit_point1;
+    for (auto offset : {/*-0.1, -0.05,*/ 0.0 , -0.05, -0.1, -0.05, 0.0, 0.1, 0.2, 0.3})
+    {
+        geometry_msgs::PoseStamped hit_point{pose};
+        hit_point.pose.position.y += offset;
+        hit_point1.push_back(hit_point);
+    }
+
+    // Define hit plan by mapping hit_point on hit_points
+    auto hit_plan = hit_points(move_group_interface, start_state, hit_point1);
+>>>>>>> Stashed changes
 
     // Publish the plan for rviz
     ros::Publisher display_publisher = node_handle.advertise<moveit_msgs::DisplayTrajectory>("/move_group/display_planned_path", 1, true);
@@ -298,7 +315,7 @@ int main(int argc, char **argv)
     display_publisher.publish(display_trajectory);
 
     // Execute the plan
-    //move_group_interface.execute(hit_plan);
+    move_group_interface.execute(hit_plan);
     ros::waitForShutdown();
     return 0;
 }
