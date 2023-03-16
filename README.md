@@ -110,7 +110,6 @@ Now you can launch the software.
 2.  Then several nodes will be stared, you can see a matplotlib-windows, it is a real time visualization of the midi format chart.
 3.  And you can run the `rviz` to visualize the audio spectrum by adding an image window and choose `spectrum` topic.
 
-#### Note: The main launch files need to be added if they are created.
 
 
 ## How do I contribute
