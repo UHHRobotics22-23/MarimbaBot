@@ -19,10 +19,6 @@ model.to(device)
 # Load image
 image = Image.open(INPUT_FILE).convert('RGB')
 
-# Rotate image if needed
-if image.size[0] > image.size[1]:
-    image = image.transpose(Image.Transpose.ROTATE_90)
-
 # Generate initial sequence
 decoder_input_ids = pre_processor.tokenizer(
     "<s>",
