@@ -14,10 +14,6 @@ def detect_notes(open_cv_img, pre_processor: DonutProcessor, model: VisionEncode
     # Load image
     image = PILImage.fromarray(open_cv_img).convert('RGB')
 
-    # Rotate image if needed
-    if image.size[0] > image.size[1]:
-        image = image.transpose(PILImage.Transpose.ROTATE_90)
-
     # Generate initial sequence
     decoder_input_ids = pre_processor.tokenizer(
         "<s>",
@@ -64,7 +60,7 @@ def callbackImage(data: ROSImage, callback_args):
     sentence = detect_notes(cv_image, pre_processor, model)
     sentence_publisher.publish(sentence)
 
-    
+
 def listener(pre_processor, model):
     rospy.init_node('vision_node')
 
