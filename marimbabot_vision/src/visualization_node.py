@@ -37,7 +37,7 @@ def callbackVisionResults(sentence, args):
     png_filename = str(temp_.name) + ".png"
 
     # read as PIL and convert to ROSImage
-    cv_image = cv2.imread(png_filename, cv2.IMREAD_UNCHANGED)
+    cv_image = cv2.rotate(cv2.imread(png_filename, cv2.IMREAD_UNCHANGED), cv2.ROTATE_90_CLOCKWISE)
     bridge = CvBridge()
     image_message = bridge.cv2_to_imgmsg(cv_image, encoding="passthrough")
 
