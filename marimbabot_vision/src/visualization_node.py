@@ -12,7 +12,7 @@ from sensor_msgs.msg import Image as ROSImage
 from std_msgs.msg import String
 
 
-def callbackVisionResults(sentence, args):
+def callback_vision_results(sentence, args):
     rospy.logdebug(f"Received sentence: {sentence.data}")
     pub = args
 
@@ -51,7 +51,7 @@ def listener():
     rospy.init_node('visualization_node')
 
     pub = rospy.Publisher('detection_visualization', ROSImage, queue_size=200)
-    rospy.Subscriber("vision_node/recognized_sentence", String, callbackVisionResults, callback_args=(pub))
+    rospy.Subscriber("vision_node/recognized_sentence", String, callback_vision_results, callback_args=(pub))
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
