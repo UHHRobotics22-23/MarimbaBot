@@ -75,7 +75,8 @@ def listener(pre_processor, model):
     rospy.spin()
 
 if __name__ == '__main__':
-    MODEL_PATH = './model'
+    # Load the latest model from https://huggingface.co/Flova/omr_transformer by default
+    MODEL_PATH = 'Flova/omr_transformer'
 
     if rospy.has_param('MODEL_PATH'):
         MODEL_PATH = rospy.get_param("MODEL_PATH")
