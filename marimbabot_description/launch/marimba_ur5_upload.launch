@@ -1,4 +1,4 @@
 <?xml version="1.0"?>
 <launch>
-  <param name="robot_description" command="xacro '$(find marimbabot_description)/urdf/ur5_marimba.urdf.xacro'" />
+  <param name="robot_description" command="xacro '$(find marimbabot_description)/urdf/tams_ur5_setup.urdf.xacro'" />
 </launch>

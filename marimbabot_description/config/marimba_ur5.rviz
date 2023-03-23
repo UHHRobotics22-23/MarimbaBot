@@ -1,27 +1,860 @@
 Panels:
   - Class: rviz/Displays
+    Help Height: 70
     Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /Global Options1
+        - /RobotModel1
+      Splitter Ratio: 0.5
+    Tree Height: 296
   - Class: rviz/Views
+    Expanded:
+      - /Current View1
     Name: Views
+    Splitter Ratio: 0.5
+Preferences:
+  PromptSaveOnExit: true
+Toolbars:
+  toolButtonStyle: 2
 Visualization Manager:
+  Class: ""
   Displays:
-    - Class: rviz/Grid
-      Name: Grid
-      Value: true
-    - Alpha: 0.8
-      Class: rviz/RobotModel
+    - Alpha: 0.5
+      Cell Size: 1
+      Class: rviz/Grid
+      Color: 160; 160; 164
       Enabled: true
+      Line Style:
+        Line Width: 0.029999999329447746
+        Value: Lines
+      Name: Grid
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 10
+      Reference Frame: <Fixed Frame>
+      Value: true
+    - Alpha: 1
+      Class: rviz/RobotModel
+      Collision Enabled: false
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        Link Tree Style: Links in Alphabetic Order
+        april_tag_ur5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_A#4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_A#5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_A#6:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_A4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_A5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_A6:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_B4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_B5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_B6:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_C#4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_C#5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_C#6:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_C4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_C5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_C6:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_C7:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_D#4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_D#5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_D#6:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_D4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_D5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_D6:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_E4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_E5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_E6:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_F#4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_F#5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_F#6:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_F4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_F5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_F6:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_G#4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_G#5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_G#6:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_G4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_G5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        bar_G6:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        body_bottom:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        body_left:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        body_right:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        body_top:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        cable_duct:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        clock:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        floor:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ft_adapter:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ft_fts_robotside:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ft_fts_toolside:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        ft_robotiq_ft_frame_id:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        map:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        marimba:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        plug_collision_model_link_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        plug_collision_model_link_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        plug_collision_model_link_3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        s_model_adapter:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        s_model_finger_1_link_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        s_model_finger_1_link_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        s_model_finger_1_link_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        s_model_finger_1_link_3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        s_model_finger_2_link_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        s_model_finger_2_link_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        s_model_finger_2_link_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        s_model_finger_2_link_3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        s_model_finger_middle_link_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        s_model_finger_middle_link_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        s_model_finger_middle_link_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        s_model_finger_middle_link_3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        s_model_palm:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        s_model_tool0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        shelf:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        side_wall:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        small_wall:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        table:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        table_tag:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        table_top:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        tool0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        turtlebot:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        turtlebot_holder:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        ur5_base:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        ur5_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ur5_ee_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ur5_forearm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ur5_mount:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ur5_mount_plate:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        ur5_shoulder_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ur5_tool0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        ur5_upper_arm_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ur5_wrist_1_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ur5_wrist_2_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        ur5_wrist_3_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wall:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        world:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
       Name: RobotModel
       Robot Description: robot_description
+      TF Prefix: ""
+      Update Interval: 0
       Value: true
+      Visual Enabled: true
     - Class: rviz/TF
       Enabled: true
+      Frame Timeout: 15
+      Frames:
+        All Enabled: true
+        april_tag_ur5:
+          Value: true
+        bar_A#4:
+          Value: true
+        bar_A#5:
+          Value: true
+        bar_A#6:
+          Value: true
+        bar_A4:
+          Value: true
+        bar_A5:
+          Value: true
+        bar_A6:
+          Value: true
+        bar_B4:
+          Value: true
+        bar_B5:
+          Value: true
+        bar_B6:
+          Value: true
+        bar_C#4:
+          Value: true
+        bar_C#5:
+          Value: true
+        bar_C#6:
+          Value: true
+        bar_C4:
+          Value: true
+        bar_C5:
+          Value: true
+        bar_C6:
+          Value: true
+        bar_C7:
+          Value: true
+        bar_D#4:
+          Value: true
+        bar_D#5:
+          Value: true
+        bar_D#6:
+          Value: true
+        bar_D4:
+          Value: true
+        bar_D5:
+          Value: true
+        bar_D6:
+          Value: true
+        bar_E4:
+          Value: true
+        bar_E5:
+          Value: true
+        bar_E6:
+          Value: true
+        bar_F#4:
+          Value: true
+        bar_F#5:
+          Value: true
+        bar_F#6:
+          Value: true
+        bar_F4:
+          Value: true
+        bar_F5:
+          Value: true
+        bar_F6:
+          Value: true
+        bar_G#4:
+          Value: true
+        bar_G#5:
+          Value: true
+        bar_G#6:
+          Value: true
+        bar_G4:
+          Value: true
+        bar_G5:
+          Value: true
+        bar_G6:
+          Value: true
+        body_bottom:
+          Value: true
+        body_left:
+          Value: true
+        body_right:
+          Value: true
+        body_top:
+          Value: true
+        cable_duct:
+          Value: true
+        clock:
+          Value: true
+        floor:
+          Value: true
+        ft_adapter:
+          Value: true
+        ft_fts_robotside:
+          Value: true
+        ft_fts_toolside:
+          Value: true
+        ft_robotiq_ft_frame_id:
+          Value: true
+        map:
+          Value: true
+        marimba:
+          Value: true
+        plug_collision_model_link_1:
+          Value: true
+        plug_collision_model_link_2:
+          Value: true
+        plug_collision_model_link_3:
+          Value: true
+        s_model_adapter:
+          Value: true
+        s_model_finger_1_link_0:
+          Value: true
+        s_model_finger_1_link_1:
+          Value: true
+        s_model_finger_1_link_2:
+          Value: true
+        s_model_finger_1_link_3:
+          Value: true
+        s_model_finger_2_link_0:
+          Value: true
+        s_model_finger_2_link_1:
+          Value: true
+        s_model_finger_2_link_2:
+          Value: true
+        s_model_finger_2_link_3:
+          Value: true
+        s_model_finger_middle_link_0:
+          Value: true
+        s_model_finger_middle_link_1:
+          Value: true
+        s_model_finger_middle_link_2:
+          Value: true
+        s_model_finger_middle_link_3:
+          Value: true
+        s_model_palm:
+          Value: true
+        s_model_tool0:
+          Value: true
+        shelf:
+          Value: true
+        side_wall:
+          Value: true
+        small_wall:
+          Value: true
+        table:
+          Value: true
+        table_tag:
+          Value: true
+        table_top:
+          Value: true
+        tool0:
+          Value: true
+        turtlebot:
+          Value: true
+        turtlebot_holder:
+          Value: true
+        ur5_base:
+          Value: true
+        ur5_base_link:
+          Value: true
+        ur5_ee_link:
+          Value: true
+        ur5_forearm_link:
+          Value: true
+        ur5_mount:
+          Value: true
+        ur5_mount_plate:
+          Value: true
+        ur5_shoulder_link:
+          Value: true
+        ur5_tool0:
+          Value: true
+        ur5_upper_arm_link:
+          Value: true
+        ur5_wrist_1_link:
+          Value: true
+        ur5_wrist_2_link:
+          Value: true
+        ur5_wrist_3_link:
+          Value: true
+        wall:
+          Value: true
+        world:
+          Value: true
       Marker Alpha: 0.5
       Marker Scale: 0.25
       Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: true
+      Tree:
+        world:
+          floor:
+            cable_duct:
+              {}
+            shelf:
+              {}
+            side_wall:
+              {}
+            small_wall:
+              {}
+            table:
+              table_top:
+                table_tag:
+                  {}
+            wall:
+              april_tag_ur5:
+                {}
+              clock:
+                {}
+              ur5_mount_plate:
+                ur5_mount:
+                  ur5_base_link:
+                    ur5_base:
+                      {}
+                    ur5_shoulder_link:
+                      ur5_upper_arm_link:
+                        ur5_forearm_link:
+                          ur5_wrist_1_link:
+                            ur5_wrist_2_link:
+                              ur5_wrist_3_link:
+                                ur5_ee_link:
+                                  ft_adapter:
+                                    {}
+                                  ft_fts_robotside:
+                                    ft_fts_toolside:
+                                      s_model_adapter:
+                                        {}
+                                      tool0:
+                                        s_model_palm:
+                                          s_model_finger_1_link_0:
+                                            s_model_finger_1_link_1:
+                                              s_model_finger_1_link_2:
+                                                s_model_finger_1_link_3:
+                                                  {}
+                                          s_model_finger_2_link_0:
+                                            s_model_finger_2_link_1:
+                                              s_model_finger_2_link_2:
+                                                s_model_finger_2_link_3:
+                                                  {}
+                                          s_model_finger_middle_link_0:
+                                            s_model_finger_middle_link_1:
+                                              s_model_finger_middle_link_2:
+                                                s_model_finger_middle_link_3:
+                                                  {}
+                                          s_model_tool0:
+                                            {}
+                                    ft_robotiq_ft_frame_id:
+                                      {}
+                                  plug_collision_model_link_1:
+                                    {}
+                                  plug_collision_model_link_2:
+                                    {}
+                                  plug_collision_model_link_3:
+                                    {}
+                                ur5_tool0:
+                                  {}
+          map:
+            {}
+          marimba:
+            body_bottom:
+              bar_A4:
+                {}
+              bar_A5:
+                {}
+              bar_A6:
+                {}
+              bar_B4:
+                {}
+              bar_B5:
+                {}
+              bar_B6:
+                {}
+              bar_C4:
+                {}
+              bar_C5:
+                {}
+              bar_C6:
+                {}
+              bar_C7:
+                {}
+              bar_D4:
+                {}
+              bar_D5:
+                {}
+              bar_D6:
+                {}
+              bar_E4:
+                {}
+              bar_E5:
+                {}
+              bar_E6:
+                {}
+              bar_F4:
+                {}
+              bar_F5:
+                {}
+              bar_F6:
+                {}
+              bar_G4:
+                {}
+              bar_G5:
+                {}
+              bar_G6:
+                {}
+            body_left:
+              {}
+            body_right:
+              {}
+            body_top:
+              bar_A#4:
+                {}
+              bar_A#5:
+                {}
+              bar_A#6:
+                {}
+              bar_C#4:
+                {}
+              bar_C#5:
+                {}
+              bar_C#6:
+                {}
+              bar_D#4:
+                {}
+              bar_D#5:
+                {}
+              bar_D#6:
+                {}
+              bar_F#4:
+                {}
+              bar_F#5:
+                {}
+              bar_F#6:
+                {}
+              bar_G#4:
+                {}
+              bar_G#5:
+                {}
+              bar_G#6:
+                {}
+          turtlebot:
+            turtlebot_holder:
+              {}
+      Update Interval: 0
       Value: true
+  Enabled: true
   Global Options:
-    Fixed Frame: base_link
+    Background Color: 48; 48; 48
+    Default Light: true
+    Fixed Frame: world
     Frame Rate: 30
   Name: root
   Tools:
@@ -30,11 +863,35 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.7
+      Distance: 3.797658920288086
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.05999999865889549
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
+      Field of View: 0.7853981852531433
+      Focal Point:
+        X: 0
+        Y: 0
+        Z: 0
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.05000000074505806
+      Invert Z Axis: false
       Name: Current View
-      Pitch: 0.33
-      Value: Orbit (rviz)
-      Yaw: 5.5
+      Near Clip Distance: 0.009999999776482582
+      Pitch: 0.5249998569488525
+      Target Frame: <Fixed Frame>
+      Yaw: 0.7068172693252563
+    Saved: ~
 Window Geometry:
+  Displays:
+    collapsed: false
   Height: 800
+  Hide Left Dock: false
+  Hide Right Dock: false
+  QMainWindow State: 000000ff00000000fd0000000100000000000001a8000002c6fc0200000002fb000000100044006900730070006c006100790073010000003d000001ab000000c900fffffffb0000000a0056006900650077007301000001ee00000115000000a400ffffff00000302000002c600000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Views:
+    collapsed: false
   Width: 1200
+  X: 200
+  Y: 155
