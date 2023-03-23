@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro"
-       name="tams_ur5_setup" > 
+       name="marimbabot_ur5" > 
   
   <!-- tams corner -->
   <xacro:include filename="$(find tams_ur5_setup_description)/urdf/tams_corner.urdf.xacro">
