@@ -200,60 +200,12 @@
         <joint name="ur5_wrist_2_joint" value="1.5708"/>
         <joint name="ur5_wrist_3_joint" value="0"/>
     </group_state>
-    <group_state name="blackjack_idle" group="arm">
-        <joint name="ur5_elbow_joint" value="-2.08471"/>
-        <joint name="ur5_shoulder_lift_joint" value="-1.77084"/>
-        <joint name="ur5_shoulder_pan_joint" value="-2.56327"/>
-        <joint name="ur5_wrist_1_joint" value="-0.855782"/>
-        <joint name="ur5_wrist_2_joint" value="1.57116"/>
-        <joint name="ur5_wrist_3_joint" value="-0.99299"/>
-    </group_state>
     <group_state name="extended" group="arm">
         <joint name="ur5_elbow_joint" value="0"/>
         <joint name="ur5_shoulder_lift_joint" value="-3.1413"/>
         <joint name="ur5_shoulder_pan_joint" value="-1.5708"/>
         <joint name="ur5_wrist_1_joint" value="0"/>
         <joint name="ur5_wrist_2_joint" value="1.5708"/>
-        <joint name="ur5_wrist_3_joint" value="0"/>
-    </group_state>
-    <group_state name="pour_default_2" group="arm">
-        <joint name="ur5_elbow_joint" value="2.217"/>
-        <joint name="ur5_shoulder_lift_joint" value="-0.66"/>
-        <joint name="ur5_shoulder_pan_joint" value="0"/>
-        <joint name="ur5_wrist_1_joint" value="-1.57"/>
-        <joint name="ur5_wrist_2_joint" value="0"/>
-        <joint name="ur5_wrist_3_joint" value="3.14"/>
-    </group_state>
-    <group_state name="pour_default" group="arm">
-        <joint name="ur5_elbow_joint" value="-2.3562"/>
-        <joint name="ur5_shoulder_lift_joint" value="-2.3562"/>
-        <joint name="ur5_shoulder_pan_joint" value="0"/>
-        <joint name="ur5_wrist_1_joint" value="1.5708"/>
-        <joint name="ur5_wrist_2_joint" value="0"/>
-        <joint name="ur5_wrist_3_joint" value="0"/>
-    </group_state>
-    <group_state name="start_grab_pose" group="arm">
-        <joint name="ur5_elbow_joint" value="-1.392"/>
-        <joint name="ur5_shoulder_lift_joint" value="-0.4279"/>
-        <joint name="ur5_shoulder_pan_joint" value="1.7597"/>
-        <joint name="ur5_wrist_1_joint" value="-1.3206"/>
-        <joint name="ur5_wrist_2_joint" value="1.3816"/>
-        <joint name="ur5_wrist_3_joint" value="1.57078"/>
-    </group_state>
-    <group_state name="gpd_starting_pose" group="arm">
-        <joint name="ur5_elbow_joint" value="-1.1056"/>
-        <joint name="ur5_shoulder_lift_joint" value="-1.8764"/>
-        <joint name="ur5_shoulder_pan_joint" value="-1.5707"/>
-        <joint name="ur5_wrist_1_joint" value="-1.7103"/>
-        <joint name="ur5_wrist_2_joint" value="1.5708"/>
-        <joint name="ur5_wrist_3_joint" value="0.0381"/>
-    </group_state>
-    <group_state name="ft_calib_start_pose" group="arm">
-        <joint name="ur5_elbow_joint" value="-1.57078"/>
-        <joint name="ur5_shoulder_lift_joint" value="-1.57078"/>
-        <joint name="ur5_shoulder_pan_joint" value="-1.57078"/>
-        <joint name="ur5_wrist_1_joint" value="0"/>
-        <joint name="ur5_wrist_2_joint" value="1.57078"/>
         <joint name="ur5_wrist_3_joint" value="0"/>
     </group_state>
     <group_state name="present_gripper" group="arm">
@@ -264,21 +216,13 @@
         <joint name="ur5_wrist_2_joint" value="1.57098"/>
         <joint name="ur5_wrist_3_joint" value="0"/>
     </group_state>
-    <group_state name="clothes_hanger" group="arm">
-        <joint name="ur5_elbow_joint" value="-0.516016"/>
-        <joint name="ur5_shoulder_lift_joint" value="-2.0983"/>
-        <joint name="ur5_shoulder_pan_joint" value="-1.57076"/>
-        <joint name="ur5_wrist_1_joint" value="-2.08686"/>
-        <joint name="ur5_wrist_2_joint" value="1.57098"/>
-        <joint name="ur5_wrist_3_joint" value="-3.141"/>
-    </group_state>
-    <group_state name="clothes_reach" group="arm">
-        <joint name="ur5_elbow_joint" value="0"/>
-        <joint name="ur5_shoulder_lift_joint" value="-2.52916"/>
-        <joint name="ur5_shoulder_pan_joint" value="-0.776928"/>
-        <joint name="ur5_wrist_1_joint" value="-2.17747"/>
-        <joint name="ur5_wrist_2_joint" value="1.571"/>
-        <joint name="ur5_wrist_3_joint" value="-3.141"/>
+    <group_state name="marimbabot_home" group="arm">
+        <joint name="ur5_elbow_joint" value="-1.60109"/>
+        <joint name="ur5_shoulder_lift_joint" value="-2.44563"/>
+        <joint name="ur5_shoulder_pan_joint" value="-1.59833"/>
+        <joint name="ur5_wrist_1_joint" value="-2.21256"/>
+        <joint name="ur5_wrist_2_joint" value="-1.63006"/>
+        <joint name="ur5_wrist_3_joint" value="-1.53808"/>
     </group_state>
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
     <end_effector name="gripper" parent_link="s_model_tool0" group="gripper" parent_group="arm"/>
@@ -1818,6 +1762,8 @@
     <disable_collisions link1="s_model_finger_1_link_1" link2="s_model_finger_2_link_3" reason="Never"/>
     <disable_collisions link1="s_model_finger_1_link_1" link2="s_model_finger_middle_link_0" reason="Never"/>
     <disable_collisions link1="s_model_finger_1_link_1" link2="s_model_finger_middle_link_1" reason="Never"/>
+    <disable_collisions link1="s_model_finger_1_link_1" link2="s_model_finger_middle_link_2" reason="User"/>
+    <disable_collisions link1="s_model_finger_1_link_1" link2="s_model_finger_middle_link_3" reason="User"/>
     <disable_collisions link1="s_model_finger_1_link_1" link2="s_model_palm" reason="Default"/>
     <disable_collisions link1="s_model_finger_1_link_1" link2="side_wall" reason="Default"/>
     <disable_collisions link1="s_model_finger_1_link_1" link2="ur5_ee_link" reason="Never"/>
@@ -1830,6 +1776,9 @@
     <disable_collisions link1="s_model_finger_1_link_2" link2="s_model_finger_2_link_2" reason="Never"/>
     <disable_collisions link1="s_model_finger_1_link_2" link2="s_model_finger_2_link_3" reason="Never"/>
     <disable_collisions link1="s_model_finger_1_link_2" link2="s_model_finger_middle_link_0" reason="Never"/>
+    <disable_collisions link1="s_model_finger_1_link_2" link2="s_model_finger_middle_link_1" reason="User"/>
+    <disable_collisions link1="s_model_finger_1_link_2" link2="s_model_finger_middle_link_2" reason="User"/>
+    <disable_collisions link1="s_model_finger_1_link_2" link2="s_model_finger_middle_link_3" reason="User"/>
     <disable_collisions link1="s_model_finger_1_link_2" link2="s_model_palm" reason="Never"/>
     <disable_collisions link1="s_model_finger_1_link_2" link2="side_wall" reason="Default"/>
     <disable_collisions link1="s_model_finger_1_link_2" link2="ur5_ee_link" reason="Never"/>
@@ -1838,7 +1787,13 @@
     <disable_collisions link1="s_model_finger_1_link_2" link2="ur5_wrist_3_link" reason="Never"/>
     <disable_collisions link1="s_model_finger_1_link_3" link2="s_model_finger_2_link_0" reason="Never"/>
     <disable_collisions link1="s_model_finger_1_link_3" link2="s_model_finger_2_link_1" reason="Never"/>
+    <disable_collisions link1="s_model_finger_1_link_3" link2="s_model_finger_2_link_2" reason="User"/>
+    <disable_collisions link1="s_model_finger_1_link_3" link2="s_model_finger_2_link_3" reason="User"/>
     <disable_collisions link1="s_model_finger_1_link_3" link2="s_model_finger_middle_link_0" reason="Never"/>
+    <disable_collisions link1="s_model_finger_1_link_3" link2="s_model_finger_middle_link_1" reason="User"/>
+    <disable_collisions link1="s_model_finger_1_link_3" link2="s_model_finger_middle_link_2" reason="User"/>
+    <disable_collisions link1="s_model_finger_1_link_3" link2="s_model_finger_middle_link_3" reason="User"/>
+    <disable_collisions link1="s_model_finger_1_link_3" link2="s_model_palm" reason="User"/>
     <disable_collisions link1="s_model_finger_1_link_3" link2="side_wall" reason="Default"/>
     <disable_collisions link1="s_model_finger_1_link_3" link2="ur5_ee_link" reason="Never"/>
     <disable_collisions link1="s_model_finger_1_link_3" link2="ur5_wrist_1_link" reason="Never"/>
@@ -1861,6 +1816,8 @@
     <disable_collisions link1="s_model_finger_2_link_1" link2="s_model_finger_2_link_3" reason="Never"/>
     <disable_collisions link1="s_model_finger_2_link_1" link2="s_model_finger_middle_link_0" reason="Never"/>
     <disable_collisions link1="s_model_finger_2_link_1" link2="s_model_finger_middle_link_1" reason="Never"/>
+    <disable_collisions link1="s_model_finger_2_link_1" link2="s_model_finger_middle_link_2" reason="User"/>
+    <disable_collisions link1="s_model_finger_2_link_1" link2="s_model_finger_middle_link_3" reason="User"/>
     <disable_collisions link1="s_model_finger_2_link_1" link2="s_model_palm" reason="Default"/>
     <disable_collisions link1="s_model_finger_2_link_1" link2="side_wall" reason="Default"/>
     <disable_collisions link1="s_model_finger_2_link_1" link2="ur5_ee_link" reason="Never"/>
@@ -1869,6 +1826,9 @@
     <disable_collisions link1="s_model_finger_2_link_1" link2="ur5_wrist_3_link" reason="Never"/>
     <disable_collisions link1="s_model_finger_2_link_2" link2="s_model_finger_2_link_3" reason="Adjacent"/>
     <disable_collisions link1="s_model_finger_2_link_2" link2="s_model_finger_middle_link_0" reason="Never"/>
+    <disable_collisions link1="s_model_finger_2_link_2" link2="s_model_finger_middle_link_1" reason="User"/>
+    <disable_collisions link1="s_model_finger_2_link_2" link2="s_model_finger_middle_link_2" reason="User"/>
+    <disable_collisions link1="s_model_finger_2_link_2" link2="s_model_finger_middle_link_3" reason="User"/>
     <disable_collisions link1="s_model_finger_2_link_2" link2="s_model_palm" reason="Never"/>
     <disable_collisions link1="s_model_finger_2_link_2" link2="side_wall" reason="Default"/>
     <disable_collisions link1="s_model_finger_2_link_2" link2="ur5_ee_link" reason="Never"/>
@@ -1876,6 +1836,10 @@
     <disable_collisions link1="s_model_finger_2_link_2" link2="ur5_wrist_2_link" reason="Never"/>
     <disable_collisions link1="s_model_finger_2_link_2" link2="ur5_wrist_3_link" reason="Never"/>
     <disable_collisions link1="s_model_finger_2_link_3" link2="s_model_finger_middle_link_0" reason="Never"/>
+    <disable_collisions link1="s_model_finger_2_link_3" link2="s_model_finger_middle_link_1" reason="User"/>
+    <disable_collisions link1="s_model_finger_2_link_3" link2="s_model_finger_middle_link_2" reason="User"/>
+    <disable_collisions link1="s_model_finger_2_link_3" link2="s_model_finger_middle_link_3" reason="User"/>
+    <disable_collisions link1="s_model_finger_2_link_3" link2="s_model_palm" reason="User"/>
     <disable_collisions link1="s_model_finger_2_link_3" link2="side_wall" reason="Default"/>
     <disable_collisions link1="s_model_finger_2_link_3" link2="ur5_ee_link" reason="Never"/>
     <disable_collisions link1="s_model_finger_2_link_3" link2="ur5_wrist_1_link" reason="Never"/>
@@ -1902,6 +1866,7 @@
     <disable_collisions link1="s_model_finger_middle_link_2" link2="ur5_wrist_1_link" reason="Never"/>
     <disable_collisions link1="s_model_finger_middle_link_2" link2="ur5_wrist_2_link" reason="Never"/>
     <disable_collisions link1="s_model_finger_middle_link_2" link2="ur5_wrist_3_link" reason="Never"/>
+    <disable_collisions link1="s_model_finger_middle_link_3" link2="s_model_palm" reason="User"/>
     <disable_collisions link1="s_model_finger_middle_link_3" link2="ur5_ee_link" reason="Never"/>
     <disable_collisions link1="s_model_finger_middle_link_3" link2="ur5_wrist_1_link" reason="Never"/>
     <disable_collisions link1="s_model_finger_middle_link_3" link2="ur5_wrist_2_link" reason="Never"/>
