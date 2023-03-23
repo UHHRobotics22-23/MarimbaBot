@@ -224,6 +224,14 @@
         <joint name="ur5_wrist_2_joint" value="-1.63006"/>
         <joint name="ur5_wrist_3_joint" value="-1.53808"/>
     </group_state>
+    <group_state name="marimbabot_home_strike" group="arm">
+        <joint name="ur5_elbow_joint" value="-1.678411"/>
+        <joint name="ur5_shoulder_lift_joint" value="-2.082301"/>
+        <joint name="ur5_shoulder_pan_joint" value="-1.66973"/>
+        <joint name="ur5_wrist_1_joint" value="-2.1537"/>
+        <joint name="ur5_wrist_2_joint" value="-1.71036"/>
+        <joint name="ur5_wrist_3_joint" value="-1.53674"/>
+    </group_state>
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
     <end_effector name="gripper" parent_link="s_model_tool0" group="gripper" parent_group="arm"/>
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
