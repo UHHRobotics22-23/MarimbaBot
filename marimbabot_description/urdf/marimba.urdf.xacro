@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
 <robot name="marimba" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-<xacro:include filename="$(find marimbabot_sim)/urdf/utilities.xacro" />
-<xacro:include filename="$(find marimbabot_sim)/urdf/materials.xacro" />
+<xacro:include filename="$(find marimbabot_description)/urdf/utilities.xacro" />
+<xacro:include filename="$(find marimbabot_description)/urdf/materials.xacro" />
 
 <!-- URDF/Gazebo model of a marimba.
 
