@@ -44,6 +44,9 @@ rosdep install --from-paths src --ignore-src -r -y
 
 # Install python dependencies
 pip3 install -r requirements.txt
+
+# Install lilypond dependencies that are necessary for visualization of the detected notes 
+sudo apt-get install lilypond 
 ```
 
 Now you should be ready to go.
