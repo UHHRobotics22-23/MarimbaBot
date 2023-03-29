@@ -6,7 +6,7 @@
 
   <maintainer email="yunlong.wang@studium.uni-hamburg.de">1wang</maintainer>
 
-  <license>BSD</license>
+  <license>Apache 2.0</license>
 
   <buildtool_depend>catkin</buildtool_depend>
 
