@@ -1,3 +1,4 @@
 <launch>
   <include file="$(find marimbabot_vision)/launch/marimbabot.launch"/>
+  <arg name="rvizconfig" default="/homeL/project2022/rviz2.rviz" />
 </launch>
