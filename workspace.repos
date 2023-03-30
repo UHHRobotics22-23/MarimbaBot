@@ -1,0 +1,49 @@
+repositories:
+  robot_project:
+    type: git
+    url: https://github.com/UHHRobotics22-23/robot_project.git
+    version: main
+  tams/camera_positioner:
+    type: git
+    url: https://github.com/TAMS-Group/camera_positioner.git
+    version: master
+  tams/robotiq_s_model_action_server:
+    type: git
+    url: https://github.com/TAMS-Group/robotiq_s_model_action_server.git
+    version: master
+  tams/tams_camera_config:
+    type: git
+    url: https://github.com/TAMS-Group/tams_camera_config.git
+    version: master
+  tams/tams_ur5_pick_place:
+    type: git
+    url: https://github.com/TAMS-Group/tams_ur5_pick_place.git
+    version: master
+  tams/tams_ur5_setup:
+    type: git
+    url: https://github.com/TAMS-Group/tams_ur5_setup.git
+    version: master
+  upstream/apriltag_lib:
+    type: git
+    url: https://github.com/AprilRobotics/apriltag
+    version: master
+  upstream/apriltag_ros:
+    type: git
+    url: https://github.com/AprilRobotics/apriltag_ros
+    version: master
+  upstream/bio_ik:
+    type: git
+    url: https://github.com/tams-group/bio_ik
+    version: master
+  upstream/robotiq:
+    type: git
+    url: https://github.com/TAMS-Group/robotiq.git
+    version: noetic-devel
+  upstream/rqt_joint_trajectory_plot:
+    type: git
+    url: https://github.com/tork-a/rqt_joint_trajectory_plot
+    version: master
+  upstream/universal_robot:
+    type: git
+    url: https://github.com/ros-industrial/universal_robot.git
+    version: melodic-devel
