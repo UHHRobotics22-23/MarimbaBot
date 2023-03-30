@@ -24,8 +24,7 @@ moveit::planning_interface::MoveGroupInterface::Plan concatinated_plan(std::vect
     assert(plans.size() > 0);
 
     moveit::planning_interface::MoveGroupInterface::Plan plan{plans[0]};
-    ros::Duration time_from_start{1};
-    ros::Duration time_added{1};
+    ros::Duration time_from_start{0};
     for (int i = 1; i < plans.size(); i++)
     {
         time_from_start += plans[i].trajectory_.joint_trajectory.points.back().time_from_start;
@@ -33,7 +32,7 @@ moveit::planning_interface::MoveGroupInterface::Plan concatinated_plan(std::vect
         {
             trajectory_msgs::JointTrajectoryPoint point;
             point = plans[i].trajectory_.joint_trajectory.points[j];
-            point.time_from_start += (time_from_start+time_added);
+            point.time_from_start += time_from_start;
             plan.trajectory_.joint_trajectory.points.push_back(point);
         }
     }
