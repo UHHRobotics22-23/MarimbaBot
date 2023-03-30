@@ -7,6 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          submodules: true
       - run: |
           # install vcs
           curl -s https://packagecloud.io/install/repositories/dirk-thomas/vcstool/script.deb.sh | sudo bash
@@ -14,8 +16,9 @@ jobs:
           sudo apt install -y python3-vcstool
           # import workspace.repos file
           cd ..
-          vcs import --skip-existing < robot_project/workspace.repos
+          vcs import --skip-existing --recursive < robot_project/workspace.repos
           cd robot_project
+        
       - uses: 'ros-industrial/industrial_ci@master'
         env:
           ROS_DISTRO: noetic

@@ -1,11 +1,11 @@
 # TAMS Master Project 2022/2023
 
-This repository contains the codebase for a [Marimba](https://en.wikipedia.org/wiki/Marimba) playing robot developed during the TAMS Master Project 2022/2023. 
+This repository contains the codebase for a [Marimba](https://en.wikipedia.org/wiki/Marimba) playing robot developed during the TAMS Master Project 2022/2023.
 It is currently still "work in progress".
 
-## Setup 
+## Setup
 
-The robot uses Ubuntu 20.04 and ROS noetic. 
+The robot uses Ubuntu 20.04 and ROS noetic.
 So make sure that it is installed on your system.
 Visit the [ROS Wiki](http://wiki.ros.org/noetic/Installation) for further details. For Python version 3.8 is used.
 
@@ -32,7 +32,7 @@ mkdir -p catkin_ws/src
 
 # Clone repository into source folder
 cd catkin_ws/src
-curl https://raw.githubusercontent.com/UHHRobotics22-23/robot_project/main/workspace.repos | vcs import
+curl https://raw.githubusercontent.com/UHHRobotics22-23/robot_project/main/workspace.repos | vcs import --recursive
 cd ..
 
 # Initialize workspace
@@ -118,7 +118,7 @@ roslaunch marimbabot_bringup marimbabot.launch
 
 ## Launch single packages
 
-To launch a single package run this command each package: 
+To launch a single package run this command each package:
 
 ```bash
 roslaunch marimbabot_audio marimbabot.launch
