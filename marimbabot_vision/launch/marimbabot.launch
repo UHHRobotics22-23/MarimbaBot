@@ -5,4 +5,6 @@
 <node name="vision_node" pkg="marimbabot_vision" type="vision_node.py">
     <rosparam command="load" file="$(find marimbabot_vision)/config/cv_camera.yaml"/>
 </node>
+<node name="visualization_node" pkg="marimbabot_vision" type="visualization_node.py">
+</node>
 </launch>
