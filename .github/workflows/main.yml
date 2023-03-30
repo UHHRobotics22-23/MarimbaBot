@@ -17,8 +17,9 @@ jobs:
           # import workspace.repos file
           cd ..
           vcs import --skip-existing --recursive < robot_project/workspace.repos
+          # copy everything for ros industrial-ci
+          cp -r * /root/target_ws/src
           cd robot_project
-        
       - uses: 'ros-industrial/industrial_ci@master'
         env:
           ROS_DISTRO: noetic
