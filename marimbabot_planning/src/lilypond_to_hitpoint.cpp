@@ -106,95 +106,109 @@ std::vector<std::tuple<geometry_msgs::PoseStamped, double, double>> lilypond_to_
     return hits;
 }
 
-void moveToPoseCallback(const std_msgs::String::ConstPtr& lilypond_sentence) {
-    ROS_DEBUG("moveToPoseCallback heard: [%s]", lilypond_sentence->data.c_str());
 
 
-    // Create tf2 listener
-    std::shared_ptr<tf2_ros::Buffer> tfBuffer = std::make_shared<tf2_ros::Buffer>();
-    tf2_ros::TransformListener tfListener(*tfBuffer);
+class SubscribeAndPublish
+{
+public: 
+    SubscribeAndPublish() {
+        //Topic you want to publish
+        hit_marker_pub = n_.advertise<visualization_msgs::Marker>("hit_marker", 1);
 
-    // Sleep to make sure the tf listener is ready and all publishers are connected
-    ros::Duration(1.0).sleep();
-
-    ROS_INFO("Starting marimba_move");
-
-    std::string lilypond_string = lilypond_sentence->data.c_str();
-
-    // Convert lilypond sequence to cartesian poses and times
-    auto hits = lilypond_to_cartesian(
-        tfBuffer,
-        "base_link",
-        lilypond_string
-        );
-
-    ROS_INFO("Converted lilypond sequence to cartesian poses and times");
-
-    // Loop over all hits and publish a marker at the correct time
-    double time = 0.0;
-
-    for(int i = 0; i < hits.size(); i++)
-    {
-        // Create a marker
-        visualization_msgs::Marker marker;
-        marker.header.frame_id = "base_link";
-        marker.header.stamp = ros::Time::now();
-        marker.ns = "marimba";
-        marker.id = 0;
-        // Show a downpointing gree arrow
-        marker.type = visualization_msgs::Marker::ARROW;
-        marker.action = visualization_msgs::Marker::ADD;
-        marker.pose.position = std::get<0>(hits[i]).pose.position;
-        // Offset the marker so it is not under the marimba
-        marker.pose.position.z += 0.1;
-        // Make it down pointing
-        marker.pose.orientation.x = 0.0;
-        marker.pose.orientation.y =  0.707;
-        marker.pose.orientation.z = 0.0;
-        marker.pose.orientation.w =  0.707;
-        marker.scale.x = 0.1;
-        marker.scale.y = 0.02;
-        marker.scale.z = 0.02;
-        marker.color.a = 1.0;
-        marker.color.r = 0.0;
-        marker.color.g = 1.0;
-        marker.color.b = 0.0;
-
-        // Add lifetime (duration of the note)
-        marker.lifetime = ros::Duration(std::get<2>(hits[i]));
-
-        // Publish the marker
-       // hit_marker_pub.publish(marker);
-
-        // Check if this is not the last one
-        if(i < hits.size() - 1)
-        {
-            // Get the time of the next hit
-            double next_time = std::get<1>(hits[i + 1]);
-
-            // Sleep until the next hit
-            ros::Duration(next_time - time).sleep();
-
-            // Update the time
-            time = next_time;
-        }
+        //Topic you want to subscribe
+        sub_ = n_.subscribe("vision_node/recognized_sentence", 1, &SubscribeAndPublish::moveToPoseCallback, this);
     }
 
-    ros::Duration(0.1).sleep();
-}
+    void moveToPoseCallback(const std_msgs::String::ConstPtr& lilypond_sentence) {
+        ROS_DEBUG("moveToPoseCallback heard: [%s]", lilypond_sentence->data.c_str());
+
+
+        // Create tf2 listener
+        std::shared_ptr<tf2_ros::Buffer> tfBuffer = std::make_shared<tf2_ros::Buffer>();
+        tf2_ros::TransformListener tfListener(*tfBuffer);
+
+        // Sleep to make sure the tf listener is ready and all publishers are connected
+        ros::Duration(1.0).sleep();
+
+        ROS_INFO("Starting marimba_move");
+
+        std::string lilypond_string = lilypond_sentence->data.c_str();
+
+        // Convert lilypond sequence to cartesian poses and times
+        auto hits = lilypond_to_cartesian(
+            tfBuffer,
+            "base_link",
+            lilypond_string
+            );
+
+        ROS_INFO("Converted lilypond sequence to cartesian poses and times");
+
+        // Loop over all hits and publish a marker at the correct time
+        double time = 0.0;
+
+        for(int i = 0; i < hits.size(); i++)
+        {
+            // Create a marker
+            visualization_msgs::Marker marker;
+            marker.header.frame_id = "base_link";
+            marker.header.stamp = ros::Time::now();
+            marker.ns = "marimba";
+            marker.id = 0;
+            // Show a downpointing gree arrow
+            marker.type = visualization_msgs::Marker::ARROW;
+            marker.action = visualization_msgs::Marker::ADD;
+            marker.pose.position = std::get<0>(hits[i]).pose.position;
+            // Offset the marker so it is not under the marimba
+            marker.pose.position.z += 0.1;
+            // Make it down pointing
+            marker.pose.orientation.x = 0.0;
+            marker.pose.orientation.y =  0.707;
+            marker.pose.orientation.z = 0.0;
+            marker.pose.orientation.w =  0.707;
+            marker.scale.x = 0.1;
+            marker.scale.y = 0.02;
+            marker.scale.z = 0.02;
+            marker.color.a = 1.0;
+            marker.color.r = 0.0;
+            marker.color.g = 1.0;
+            marker.color.b = 0.0;
+
+            // Add lifetime (duration of the note)
+            marker.lifetime = ros::Duration(std::get<2>(hits[i]));
+
+            // Publish the marker
+            hit_marker_pub.publish(marker);
+
+            // Check if this is not the last one
+            if(i < hits.size() - 1)
+            {
+                // Get the time of the next hit
+                double next_time = std::get<1>(hits[i + 1]);
+
+                // Sleep until the next hit
+                ros::Duration(next_time - time).sleep();
+
+                // Update the time
+                time = next_time;
+            }
+        }
+
+        ros::Duration(0.1).sleep();
+    }
+
+private:
+    ros::NodeHandle n_; 
+    ros::Publisher hit_marker_pub;
+    ros::Subscriber sub_;
+
+};
 
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "marimba_move_lilypond_input_viz");
-    ros::NodeHandle node_handle;
-    // ros::AsyncSpinner spinner(1);
-    // spinner.start();
 
-    // Create publisher for the hit marker
-    ros::Publisher hit_marker_pub = node_handle.advertise<visualization_msgs::Marker>("hit_marker", 1);
-
-    // Create subscriber for the recognized sentence
-    ros::Subscriber sub = node_handle.subscribe("vision_node/recognized_sentence", 1000, moveToPoseCallback);
+    // Create SubscribeAndPublish object
+    SubscribeAndPublish SAPObject;
     ros::spin();
 
 
