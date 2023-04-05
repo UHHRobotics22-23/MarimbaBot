@@ -7,6 +7,7 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <visualization_msgs/Marker.h>
+#include "std_msgs/String.h"
 
 
 /**
@@ -106,10 +107,8 @@ std::vector<std::tuple<geometry_msgs::PoseStamped, double, double>> lilypond_to_
 }
 
 void moveToPoseCallback(const std_msgs::String::ConstPtr& lilypond_sentence) {
-    ROS_DEBUG("moveToPoseCallback heard: [%s]", sentence->data.c_str());
+    ROS_DEBUG("moveToPoseCallback heard: [%s]", lilypond_sentence->data.c_str());
 
-    // Create publisher for the hit marker
-    ros::Publisher hit_marker_pub = node_handle.advertise<visualization_msgs::Marker>("hit_marker", 1);
 
     // Create tf2 listener
     std::shared_ptr<tf2_ros::Buffer> tfBuffer = std::make_shared<tf2_ros::Buffer>();
@@ -120,12 +119,13 @@ void moveToPoseCallback(const std_msgs::String::ConstPtr& lilypond_sentence) {
 
     ROS_INFO("Starting marimba_move");
 
+    std::string lilypond_string = lilypond_sentence->data.c_str();
 
     // Convert lilypond sequence to cartesian poses and times
     auto hits = lilypond_to_cartesian(
         tfBuffer,
         "base_link",
-        lilypond_sentence
+        lilypond_string
         );
 
     ROS_INFO("Converted lilypond sequence to cartesian poses and times");
@@ -164,7 +164,7 @@ void moveToPoseCallback(const std_msgs::String::ConstPtr& lilypond_sentence) {
         marker.lifetime = ros::Duration(std::get<2>(hits[i]));
 
         // Publish the marker
-        hit_marker_pub.publish(marker);
+       // hit_marker_pub.publish(marker);
 
         // Check if this is not the last one
         if(i < hits.size() - 1)
@@ -181,15 +181,17 @@ void moveToPoseCallback(const std_msgs::String::ConstPtr& lilypond_sentence) {
     }
 
     ros::Duration(0.1).sleep();
-
 }
 
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "marimba_move_lilypond_input_viz");
     ros::NodeHandle node_handle;
-    ros::AsyncSpinner spinner(1);
-    spinner.start();
+    // ros::AsyncSpinner spinner(1);
+    // spinner.start();
+
+    // Create publisher for the hit marker
+    ros::Publisher hit_marker_pub = node_handle.advertise<visualization_msgs::Marker>("hit_marker", 1);
 
     // Create subscriber for the recognized sentence
     ros::Subscriber sub = node_handle.subscribe("vision_node/recognized_sentence", 1000, moveToPoseCallback);
