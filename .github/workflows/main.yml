@@ -22,3 +22,4 @@ jobs:
         env:
           ROS_DISTRO: noetic
           ROS_REPO: main
+          AFTER_SETUP_TARGET_WORKSPACE: /root/target_ws/src/robot_project/load_vcs_workspace.sh
