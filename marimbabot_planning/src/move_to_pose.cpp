@@ -1,16 +1,16 @@
-#include <iostream>
-#include <ros/ros.h>
+#include <bio_ik/bio_ik.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <iostream>
 #include <moveit_msgs/DisplayTrajectory.h>
 #include <moveit_msgs/RobotState.h>
 #include <moveit_msgs/RobotTrajectory.h>
 #include <moveit/move_group_interface/move_group_interface.h>
+#include <moveit/robot_state/conversions.h>
+#include <ros/ros.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/transform_listener.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
-#include <moveit/robot_state/conversions.h>
-#include <bio_ik/bio_ik.h>
 
 /**
  * @brief concatinates a vector of n plans (n>0) into one plan
@@ -24,8 +24,7 @@ moveit::planning_interface::MoveGroupInterface::Plan concatinated_plan(std::vect
     assert(plans.size() > 0);
 
     moveit::planning_interface::MoveGroupInterface::Plan plan{plans[0]};
-    ros::Duration time_from_start{1};
-    ros::Duration time_added{1};
+    ros::Duration time_from_start{0};
     for (int i = 1; i < plans.size(); i++)
     {
         time_from_start += plans[i].trajectory_.joint_trajectory.points.back().time_from_start;
@@ -33,7 +32,7 @@ moveit::planning_interface::MoveGroupInterface::Plan concatinated_plan(std::vect
         {
             trajectory_msgs::JointTrajectoryPoint point;
             point = plans[i].trajectory_.joint_trajectory.points[j];
-            point.time_from_start += (time_from_start+time_added);
+            point.time_from_start += time_from_start;
             plan.trajectory_.joint_trajectory.points.push_back(point);
         }
     }
@@ -112,7 +111,9 @@ moveit::planning_interface::MoveGroupInterface::Plan plan_to_pose(
     bio_ik::BioIKKinematicsQueryOptions ik_options;
     ik_options.replace = true;
     ik_options.return_approximate_solution = false;
+
     ik_options.goals.emplace_back(new bio_ik::PoseGoal("ft_fts_toolside", goal_position, goal_orientation));
+    
     if(!robot_state.setFromIK(
         move_group_interface.getRobotModel()->getJointModelGroup(move_group_interface.getName()),
         goal_pose.pose /* this is ignored with replace = true */,
@@ -159,6 +160,7 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_point(
     // Calculate approach pose
     geometry_msgs::PoseStamped approach_pose{pose};
     approach_pose.pose.position.z += 0.05;
+    
     // Calculate retreat pose
     geometry_msgs::PoseStamped retreat_pose{approach_pose};
 
@@ -213,6 +215,43 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_points(
 
     return hit_plan;
 }
+
+
+/**
+ * @brief Slow down a trajectory to a given length. No speedup is possible.
+ *
+ * @param input_plan
+ * @param length
+ * @return moveit::planning_interface::MoveGroupInterface::Plan
+ **/
+
+moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
+    const moveit::planning_interface::MoveGroupInterface::Plan& input_plan,
+    double length)
+{
+    assert(input_plan.trajectory_.joint_trajectory.points.size() > 0 && "Input plan must have at least one point");
+
+    // Get the time from start of the last point
+    double original_length = input_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec();
+
+    // Assert that the input plan is shorter than the desired length
+    assert(original_length <= length && "Input plan must be shorter than the desired length");
+
+    // Calculate the scaling factor
+    double scaling_factor = length / original_length;
+
+    // Copy the input plan
+    moveit::planning_interface::MoveGroupInterface::Plan output_plan{input_plan};
+
+    // Scale the time stamps in a functional way
+    for(auto i = 0; i < output_plan.trajectory_.joint_trajectory.points.size(); i++)
+    {
+        output_plan.trajectory_.joint_trajectory.points[i].time_from_start *= scaling_factor;
+    }
+
+    return output_plan;
+}
+
 
 int main(int argc, char **argv)
 {
