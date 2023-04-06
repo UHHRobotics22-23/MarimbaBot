@@ -169,7 +169,7 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_point(
         approach_pose.pose.orientation.w);
     tf2::Quaternion rotation;
     // Approach angle in degrees
-    double approach_angle = 30.0;
+    double approach_angle = 20.0;
     // Convert to radians and set rotation
     rotation.setRPY(0.0, -approach_angle * M_PI / 180.0, 0.0);
     // Rotate approach orientation
