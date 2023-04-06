@@ -1,3 +1,0 @@
-[submodule "lib/audio_common"]
-	path = lib/audio_common
-	url = ../../ros-drivers/audio_common.git
