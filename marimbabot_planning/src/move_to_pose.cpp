@@ -24,10 +24,9 @@ moveit::planning_interface::MoveGroupInterface::Plan concatinated_plan(std::vect
     assert(plans.size() > 0);
 
     moveit::planning_interface::MoveGroupInterface::Plan plan{plans[0]};
-    ros::Duration time_from_start{0};
+    ros::Duration time_from_start{plans[0].trajectory_.joint_trajectory.points.back().time_from_start};
     for (int i = 1; i < plans.size(); i++)
     {
-        time_from_start += plans[i].trajectory_.joint_trajectory.points.back().time_from_start;
         for (int j = 1; j < plans[i].trajectory_.joint_trajectory.points.size(); j++)
         {
             trajectory_msgs::JointTrajectoryPoint point;
@@ -35,6 +34,7 @@ moveit::planning_interface::MoveGroupInterface::Plan concatinated_plan(std::vect
             point.time_from_start += time_from_start;
             plan.trajectory_.joint_trajectory.points.push_back(point);
         }
+        time_from_start += plans[i].trajectory_.joint_trajectory.points.back().time_from_start;
     }
     return plan;
 }
@@ -275,15 +275,7 @@ int main(int argc, char **argv)
     const moveit::core::JointModelGroup* joint_model_group =
         move_group_interface.getRobotModel()->getJointModelGroup(PLANNING_GROUP);
 
-    sensor_msgs::JointState home_joints;
-    //TODO : turn this into moveit group_state
-    home_joints.name = { "ur5_elbow_joint","ur5_shoulder_lift_joint","ur5_shoulder_pan_joint","ur5_wrist_1_joint","ur5_wrist_2_joint","ur5_wrist_3_joint"};
-    home_joints.position = {-1.1387437025653284, -2.194897476826803, -1.5872224012957972, -1.1468852202044886, 1.6060603857040405, -0.010899368916646779};
-    // agile home
-    //home_joints.name = { "joint_1","joint_2","joint_3","joint_4","joint_5","joint_6","joint_7" };
-    //home_joints.position = {-1.0764353166380913, 0.5625393633338827, 0.31906783564462415, 2.316970072925777, 0.042747545531845337, 1.0091591209316584, 1.4176498139743448};
-
-    move_group_interface.setJointValueTarget(home_joints);
+    move_group_interface.setNamedTarget("marimbabot_home");
     move_group_interface.move();
     //ros::Duration(2).sleep();
 
@@ -323,7 +315,7 @@ int main(int argc, char **argv)
 
     // Define hit points
     std::vector<geometry_msgs::PoseStamped> hit_point1;
-    for (auto offset : {/*-0.1, -0.05,*/ 0.0 , -0.05, -0.1, -0.05, 0.0})
+    for (auto offset : {-0.1, -0.05, 0.0, 0.05, 0.1})
     {
         geometry_msgs::PoseStamped hit_point{pose};
         hit_point.pose.position.y += offset;
