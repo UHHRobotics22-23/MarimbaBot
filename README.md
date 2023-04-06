@@ -46,7 +46,7 @@ rosdep install --from-paths src --ignore-src -r -y
 pip3 install -r requirements.txt
 ```
 
-Now you should be ready to go.
+Now you are ready to go.
 
 ## Update workspace
 
@@ -141,4 +141,3 @@ git push
 ```
 
 Now you can [create a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request#creating-the-pull-request) for your branch and merge it (after it is approved) into the `main` branch using the GitHub website.
-
