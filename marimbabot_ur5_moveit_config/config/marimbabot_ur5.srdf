@@ -209,12 +209,12 @@
         <joint name="ur5_wrist_3_joint" value="0"/>
     </group_state>
     <group_state name="marimbabot_home" group="arm">
-        <joint name="ur5_elbow_joint" value="-1.1387437025653284"/>
-        <joint name="ur5_shoulder_lift_joint" value="-2.194897476826803"/>
-        <joint name="ur5_shoulder_pan_joint" value="-1.5872224012957972"/>
-        <joint name="ur5_wrist_1_joint" value="-1.1468852202044886"/>
-        <joint name="ur5_wrist_2_joint" value="1.6060603857040405"/>
-        <joint name="ur5_wrist_3_joint" value="-0.010899368916646779"/>
+        <joint name="ur5_elbow_joint" value="-1.8700717131244105"/>
+        <joint name="ur5_shoulder_lift_joint" value="-2.34523851076235"/>
+        <joint name="ur5_shoulder_pan_joint" value="-1.3971708456622522"/>
+        <joint name="ur5_wrist_1_joint" value="0.5380123853683472"/>
+        <joint name="ur5_wrist_2_joint" value="1.437707781791687"/>
+        <joint name="ur5_wrist_3_joint" value="0.10527205467224121"/>
     </group_state>
     <group_state name="present_gripper" group="arm">
         <joint name="ur5_elbow_joint" value="0"/>

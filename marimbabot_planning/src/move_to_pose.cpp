@@ -159,8 +159,27 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_point(
 
     // Calculate approach pose
     geometry_msgs::PoseStamped approach_pose{pose};
-    approach_pose.pose.position.z += 0.05;
-    
+    approach_pose.pose.position.z += 0.07;
+
+    // Rotate the approach pose 20 degrees around the x-axis
+    tf2::Quaternion approach_orientation(
+        approach_pose.pose.orientation.x,
+        approach_pose.pose.orientation.y,
+        approach_pose.pose.orientation.z,
+        approach_pose.pose.orientation.w);
+    tf2::Quaternion rotation;
+    // Approach angle in degrees
+    double approach_angle = 30.0;
+    // Convert to radians and set rotation
+    rotation.setRPY(0.0, -approach_angle * M_PI / 180.0, 0.0);
+    // Rotate approach orientation
+    approach_orientation = rotation * approach_orientation;
+    // Set approach orientation
+    approach_pose.pose.orientation.x = approach_orientation.x();
+    approach_pose.pose.orientation.y = approach_orientation.y();
+    approach_pose.pose.orientation.z = approach_orientation.z();
+    approach_pose.pose.orientation.w = approach_orientation.w();
+        
     // Calculate retreat pose
     geometry_msgs::PoseStamped retreat_pose{approach_pose};
 
@@ -268,8 +287,8 @@ int main(int argc, char **argv)
     moveit::planning_interface::MoveGroupInterface move_group_interface(PLANNING_GROUP);
     move_group_interface.setPlanningPipelineId("pilz_industrial_motion_planner");
     move_group_interface.setPlannerId("PTP");
-    move_group_interface.setMaxVelocityScalingFactor(0.7);
-    move_group_interface.setMaxAccelerationScalingFactor(0.7);
+    move_group_interface.setMaxVelocityScalingFactor(0.05);
+    move_group_interface.setMaxAccelerationScalingFactor(0.05);
     move_group_interface.startStateMonitor();
 
     const moveit::core::JointModelGroup* joint_model_group =
@@ -277,6 +296,9 @@ int main(int argc, char **argv)
 
     move_group_interface.setNamedTarget("marimbabot_home");
     move_group_interface.move();
+
+    move_group_interface.setMaxVelocityScalingFactor(0.9);
+    move_group_interface.setMaxAccelerationScalingFactor(0.9);
     //ros::Duration(2).sleep();
 
     // Lookup the world to tcp transform
