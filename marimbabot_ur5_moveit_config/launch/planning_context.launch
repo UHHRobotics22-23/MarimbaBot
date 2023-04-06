@@ -10,7 +10,7 @@
 
   <!-- Load updated joint limits (override information from URDF) -->
   <group ns="$(arg robot_description)_planning">
-    <rosparam command="load" file="$(find marimbabot_ur5_moveit_config)/config/joint_limits.yaml"/>
+    <rosparam command="load" file="$(find marimbabot_ur5_moveit_config)/config/joint_limits_fast.yaml"/>
     <rosparam command="load" file="$(find marimbabot_ur5_moveit_config)/config/cartesian_limits.yaml"/>
   </group>
 

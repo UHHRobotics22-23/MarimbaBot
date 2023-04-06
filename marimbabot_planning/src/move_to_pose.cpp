@@ -268,8 +268,8 @@ int main(int argc, char **argv)
     moveit::planning_interface::MoveGroupInterface move_group_interface(PLANNING_GROUP);
     move_group_interface.setPlanningPipelineId("pilz_industrial_motion_planner");
     move_group_interface.setPlannerId("PTP");
-    move_group_interface.setMaxVelocityScalingFactor(0.1);
-    move_group_interface.setMaxAccelerationScalingFactor(0.1);
+    move_group_interface.setMaxVelocityScalingFactor(0.7);
+    move_group_interface.setMaxAccelerationScalingFactor(0.7);
     move_group_interface.startStateMonitor();
 
     const moveit::core::JointModelGroup* joint_model_group =
