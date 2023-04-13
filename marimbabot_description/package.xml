@@ -2,7 +2,7 @@
 <package format="2">
   <name>marimbabot_description</name>
   <version>0.0.0</version>
-  <description>The marimbabot_description package</description>
+  <description>The marimbabot_description package, describing the robot and marimba setup (urdf, ...)</description>
 
   <maintainer email="ubuntu@todo.todo">ubuntu</maintainer>
 
