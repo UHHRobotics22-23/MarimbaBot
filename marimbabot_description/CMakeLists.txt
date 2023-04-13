@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(marimbabot_sim)
+project(marimbabot_description)
 
 find_package(catkin REQUIRED COMPONENTS
 )

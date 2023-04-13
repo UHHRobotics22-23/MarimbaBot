@@ -11,7 +11,7 @@ The URDF model is generated using `xacro`, with the template `urdf/marimba.urdf.
 To see the model in RViz, [prepare your environment for the project](../README.md#setup) and run:
 
 ```bash
-roslaunch marimbabot_sim marimba_display.launch
+roslaunch marimbabot_description marimba_display.launch
 ```
 
 ![Marimba](extra/marimba_sim.png)
