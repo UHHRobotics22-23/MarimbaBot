@@ -1,0 +1,10 @@
+MalletHolder:
+  # ? Unsure if we need this as there probably already is a publisher in the final setup already
+  joints_update:
+    type: "joint_state_controller/JointStateController"
+    publish_rate: 20
+  
+  MalletServo_PositionController:
+    type: "position_controllers/JointTrajectoryController"
+    joints:
+      - mallet_servo

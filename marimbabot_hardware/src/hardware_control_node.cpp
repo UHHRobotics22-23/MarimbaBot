@@ -5,7 +5,10 @@
 int main(int argc, char **argv) {
     ros::init(argc, argv, "hardware_control_node");
 
-    ServoInterface servo_interface("/dev/ttyUSB0", 9600);
+    ROS_INFO("Starting hardware control node");
+    ros::NodeHandle node_handle;
+    std::string device = "/dev/ttyACM0"; //"/dev/ttyUSB0";
+    ServoInterface servo_interface(node_handle, device, 9600);
     controller_manager::ControllerManager controller_manager(&servo_interface);
 
     ros::AsyncSpinner spinner(1);

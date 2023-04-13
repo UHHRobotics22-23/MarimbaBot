@@ -4,6 +4,9 @@
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
+#include <joint_limits_interface/joint_limits.h>
+#include <joint_limits_interface/joint_limits_interface.h>
+#include <joint_limits_interface/joint_limits_rosparam.h>
 #include <serial/serial.h>
 
 
@@ -21,7 +24,7 @@ private:
     };
 
 public:
-    ServoInterface(const std::string &device, int baud);
+    ServoInterface(ros::NodeHandle& node_handle, std::string &device, int baud);
 
     void read();
     void write();
@@ -32,6 +35,8 @@ public:
 private:
     hardware_interface::JointStateInterface joint_state_interface;
     hardware_interface::PositionJointInterface position_joint_interface;
+    joint_limits_interface::PositionJointSaturationInterface position_joint_saturation_interface;
+    joint_limits_interface::JointLimits servo_limits;
     ServoState servo_state;
 
     ros::Time last_run_time;
