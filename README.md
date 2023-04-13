@@ -110,7 +110,7 @@ roslaunch marimbabot_bringup marimbabot.launch
 
 ## Launch single packages
 
-To launch a single package run this command each package: 
+To launch a single package run this command each package:
 
 ```bash
 roslaunch marimbabot_audio marimbabot.launch

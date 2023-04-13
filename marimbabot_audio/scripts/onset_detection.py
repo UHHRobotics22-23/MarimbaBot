@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import cv_bridge
 import rospy
 from audio_common_msgs.msg import AudioDataStamped, AudioInfo
@@ -19,8 +18,6 @@ from matplotlib.colors import ListedColormap
 from functools import reduce
 import struct
 
-
-# import time
 '''
     Some default parameters:
         -   Sampling rate = 44100
