@@ -27,7 +27,7 @@ mkdir -p catkin_ws/src
 
 # Clone repository into source folder
 cd catkin_ws/src
-git clone --recursive git@github.com:UHHRobotics22-23/robot_project
+git clone --recursive git@github.com:UHHRobotics22-23/marimbabot
 cd ..
 
 # Initilize workspace
@@ -55,7 +55,7 @@ Normally a simple pull should be enough.
 
 ```bash
 # Go to the repository
-cd catkin_ws/src/robot_project
+cd catkin_ws/src/marimbabot
 
 # Pull recent changes
 git pull
