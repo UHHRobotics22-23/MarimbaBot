@@ -1,0 +1,4 @@
+<launch>
+    <node name="lilypond_to_hitpoint" pkg="marimbabot_planning" type="lilypond_to_hitpoint.cpp"/>
+    <node name="move_to_pose" pkg="marimbabot_planning" type="move_to_pose.cpp"/>
+</launch>
