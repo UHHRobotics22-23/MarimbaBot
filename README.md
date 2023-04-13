@@ -1,11 +1,11 @@
 # TAMS Master Project 2022/2023
 
-This repository contains the codebase for a [Marimba](https://en.wikipedia.org/wiki/Marimba) playing robot developed during the TAMS Master Project 2022/2023. 
+This repository contains the codebase for a [Marimba](https://en.wikipedia.org/wiki/Marimba) playing robot developed during the TAMS Master Project 2022/2023.
 It is currently still "work in progress".
 
-## Setup 
+## Setup
 
-The robot uses Ubuntu 20.04 and ROS noetic. 
+The robot uses Ubuntu 20.04 and ROS noetic.
 So make sure that it is installed on your system.
 Visit the [ROS Wiki](http://wiki.ros.org/noetic/Installation) for further details. For Python version 3.8 is used.
 
@@ -27,7 +27,7 @@ mkdir -p catkin_ws/src
 
 # Clone repository into source folder
 cd catkin_ws/src
-git clone git@github.com:UHHRobotics22-23/robot_project
+git clone --recursive git@github.com:UHHRobotics22-23/robot_project
 cd ..
 
 # Initilize workspace
@@ -46,7 +46,7 @@ rosdep install --from-paths src --ignore-src -r -y
 pip3 install -r requirements.txt
 ```
 
-Now you should be ready to go.
+Now you are ready to go.
 
 ## Update workspace
 
@@ -141,4 +141,3 @@ git push
 ```
 
 Now you can [create a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request#creating-the-pull-request) for your branch and merge it (after it is approved) into the `main` branch using the GitHub website.
-

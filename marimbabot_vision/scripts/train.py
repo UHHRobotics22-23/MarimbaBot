@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import glob
 import os
 from typing import List, Tuple
@@ -14,24 +16,25 @@ from transformers import (DonutProcessor, VisionEncoderDecoderConfig,
 
 # Config
 config = {
-    "max_epochs": 50,
+    "max_epochs": 20,
     "check_val_every_n_epoch": 1,
     "gradient_clip_val":1.0,
     "lr":1e-5,
-    "train_batch_sizes": [8],
-    "val_batch_sizes": [8],
+    "train_batch_sizes": [6],
+    "val_batch_sizes": [6],
     "num_nodes": 1,
     "warmup_steps": 300,
     "result_path": "./result",
     "verbose": True,
-    "train_data_paths": ["data/"],
-    "val_data_paths": ["test_data/"],
-    "max_length": 70,
+    "train_data_paths": ["data_hw/", "data_augmented/", "data_wb/"],
+    "val_data_paths": ["test_data/", ],
+    "max_length": 40,
     "image_size": [583, 409],
     "start_token": "<s>",
     "num_workers": 24,
     "base_model": "nielsr/donut-base",
-    "output_model": "./model_1"
+    "output_model": "./model_1",
+    "add_note_vocab": True
 }
 
 # Load base model
@@ -42,13 +45,30 @@ ved_config.decoder.max_length = config['max_length']
 
 pre_processor = DonutProcessor.from_pretrained(config['base_model'])
 
-pre_processor.image_processor.do_align_long_axis = False
-pre_processor.image_processor.size = config['image_size'][::-1]
+pre_processor.image_processor.do_align_long_axis = True
+pre_processor.image_processor.size["height"] = config['image_size'][0]
+pre_processor.image_processor.size["width"] = config['image_size'][1]
 
 model = VisionEncoderDecoderModel.from_pretrained(
     config['base_model'],
     ignore_mismatched_sizes=True,
     config=ved_config)
+
+if config['add_note_vocab']:
+    note_vocab = []
+    notes = "cdefgab"
+    octaves = ["'", "''"]
+    durations = [1, 2, 4, 8, 16]
+    # Add note tokens
+    for note in notes:
+        for octave in octaves:
+            for duration in durations:
+                note_vocab.append(f"{note}{octave}{duration} ")
+    # Add rest tokens
+    for duration in durations:
+        note_vocab.append(f"r{duration} ")
+else:
+    note_vocab = []
 
 model.config.pad_token_id = pre_processor.tokenizer.pad_token_id
 model.config.decoder_start_token_id = pre_processor.tokenizer.convert_tokens_to_ids([config['start_token']])[0]
@@ -79,10 +99,10 @@ class NoteDataset(Dataset):
             with open(sample, 'r') as f:
                 ground_truth = f.read()
             self.gt_token_sequences.append(
-                    ground_truth + pre_processor.tokenizer.eos_token
+                    ground_truth + " " + pre_processor.tokenizer.eos_token
             )
 
-        self.add_tokens([self.start_token])
+        self.add_tokens(note_vocab + [self.start_token])
 
     def add_tokens(self, list_of_tokens: List[str]):
         newly_added_num = pre_processor.tokenizer.add_tokens(list_of_tokens)
@@ -96,9 +116,6 @@ class NoteDataset(Dataset):
         sample = self.dataset_lilypond_files[idx]
 
         image = Image.open(glob.glob(f"{os.path.dirname(sample)}/*.png")[0]).convert('RGB')
-
-        if image.size[0] > image.size[1]:
-            image = image.transpose(Image.Transpose.ROTATE_90)
 
         pixel_values = pre_processor(image, random_padding=self.split == "train", return_tensors="pt").pixel_values
         pixel_values = pixel_values.squeeze()
@@ -180,9 +197,9 @@ class DonutModelPLModule(pl.LightningModule):
 
         scores = list()
         for pred, answer in zip(predictions, answers):
-            answer = answer.replace(self.pre_processor.tokenizer.eos_token, "").replace(config['start_token'], "")
-            pred = pred.replace(self.pre_processor.tokenizer.eos_token, "").replace(config['start_token'], "")
-            score = edit_distance(pred, answer) / max(len(pred), len(answer))
+            pred = pred.replace(self.pre_processor.tokenizer.eos_token, "")[3:]
+            answer = answer.replace(self.pre_processor.tokenizer.eos_token, "")[:len(pred)]
+            score = edit_distance(pred, answer)
             scores.append(score)
 
             if self.config.get("verbose", False) and len(scores) < 10:
@@ -239,3 +256,4 @@ trainer.fit(model_module)
 # Save the model and tokenizer
 model.save_pretrained(config['output_model'])
 pre_processor.save_pretrained(config['output_model'])
+ved_config.save_pretrained(config['output_model'])

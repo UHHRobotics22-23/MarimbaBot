@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>marimbabot_sim</name>
+  <version>0.0.0</version>
+  <description>The marimbabot_sim package</description>
+
+  <maintainer email="ubuntu@todo.todo">ubuntu</maintainer>
+
+  <license>Apache License Version 2.0</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <exec_depend>joint_state_publisher</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rviz</exec_depend>
+  <exec_depend>xacro</exec_depend>
+
+</package>

@@ -1,6 +1,8 @@
 *.pyc
 __pycache__/
 
+.vscode/
+
 marimbabot_vision/scripts/data*
 marimbabot_vision/scripts/test_data*
 

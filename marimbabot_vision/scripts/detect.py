@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import torch
 from PIL import Image
 from transformers import (DonutProcessor, VisionEncoderDecoderConfig,
@@ -16,10 +18,6 @@ model.to(device)
 
 # Load image
 image = Image.open(INPUT_FILE).convert('RGB')
-
-# Rotate image if needed
-if image.size[0] > image.size[1]:
-    image = image.transpose(Image.Transpose.ROTATE_90)
 
 # Generate initial sequence
 decoder_input_ids = pre_processor.tokenizer(
@@ -45,14 +43,7 @@ outputs = model.generate(
 )
 
 # Decode tokens
-sequence = pre_processor.batch_decode(outputs.sequences)[0][4:]
-
-# Clean output sequence
-strings_to_clear = [
-    pre_processor.tokenizer.eos_token,
-    pre_processor.tokenizer.pad_token]
-
-for s in strings_to_clear:
-    sequence = sequence.replace(s, "")
+sequence = pre_processor.batch_decode(outputs.sequences, skip_special_tokens=True)[0]
 
 print(sequence)
+

@@ -1,0 +1,3 @@
+  ### vision_node
+  # Load the latest model from https://huggingface.co/Flova/omr_transformer by default
+  MODEL_PATH: "Flova/omr_transformer"
