@@ -13,3 +13,4 @@ jobs:
         env:
           ROS_DISTRO: noetic
           ROS_REPO: main
+          AFTER_SETUP_TARGET_WORKSPACE: /root/target_ws/src/marimbabot/load_vcs_workspace.sh

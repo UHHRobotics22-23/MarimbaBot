@@ -18,6 +18,11 @@ source ~/.bashrc
 
 Make sure to [setup your ssh key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account) for easy synchronization without authorization.
 
+We are using VCS for workspace management, so install it first:
+
+```
+apt install python3-vcstool
+```
 
 Run the following commands:
 
@@ -27,10 +32,10 @@ mkdir -p catkin_ws/src
 
 # Clone repository into source folder
 cd catkin_ws/src
-git clone --recursive git@github.com:UHHRobotics22-23/marimbabot
+curl https://raw.githubusercontent.com/UHHRobotics22-23/marimbabot/main/workspace.repos | vcs import --recursive
 cd ..
 
-# Initilize workspace
+# Initialize workspace
 catkin init
 
 # Setup rosdep to download dependencies (only needed once after installing ROS)
@@ -43,7 +48,7 @@ rosdep update
 rosdep install --from-paths src --ignore-src -r -y
 
 # Install python dependencies
-pip3 install -r requirements.txt
+pip3 install -r src/marimbabot/requirements.txt
 ```
 
 Now you are ready to go.
