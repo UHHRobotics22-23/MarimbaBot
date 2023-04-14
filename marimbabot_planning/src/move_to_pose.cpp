@@ -24,10 +24,9 @@ moveit::planning_interface::MoveGroupInterface::Plan concatinated_plan(std::vect
     assert(plans.size() > 0);
 
     moveit::planning_interface::MoveGroupInterface::Plan plan{plans[0]};
-    ros::Duration time_from_start{0};
+    ros::Duration time_from_start{plans[0].trajectory_.joint_trajectory.points.back().time_from_start};
     for (int i = 1; i < plans.size(); i++)
     {
-        time_from_start += plans[i].trajectory_.joint_trajectory.points.back().time_from_start;
         for (int j = 1; j < plans[i].trajectory_.joint_trajectory.points.size(); j++)
         {
             trajectory_msgs::JointTrajectoryPoint point;
@@ -35,6 +34,7 @@ moveit::planning_interface::MoveGroupInterface::Plan concatinated_plan(std::vect
             point.time_from_start += time_from_start;
             plan.trajectory_.joint_trajectory.points.push_back(point);
         }
+        time_from_start += plans[i].trajectory_.joint_trajectory.points.back().time_from_start;
     }
     return plan;
 }
@@ -159,8 +159,27 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_point(
 
     // Calculate approach pose
     geometry_msgs::PoseStamped approach_pose{pose};
-    approach_pose.pose.position.z += 0.05;
-    
+    approach_pose.pose.position.z += 0.07;
+
+    // Rotate the approach pose 20 degrees around the x-axis
+    tf2::Quaternion approach_orientation(
+        approach_pose.pose.orientation.x,
+        approach_pose.pose.orientation.y,
+        approach_pose.pose.orientation.z,
+        approach_pose.pose.orientation.w);
+    tf2::Quaternion rotation;
+    // Approach angle in degrees
+    double approach_angle = 20.0;
+    // Convert to radians and set rotation
+    rotation.setRPY(0.0, -approach_angle * M_PI / 180.0, 0.0);
+    // Rotate approach orientation
+    approach_orientation = rotation * approach_orientation;
+    // Set approach orientation
+    approach_pose.pose.orientation.x = approach_orientation.x();
+    approach_pose.pose.orientation.y = approach_orientation.y();
+    approach_pose.pose.orientation.z = approach_orientation.z();
+    approach_pose.pose.orientation.w = approach_orientation.w();
+        
     // Calculate retreat pose
     geometry_msgs::PoseStamped retreat_pose{approach_pose};
 
@@ -265,27 +284,21 @@ int main(int argc, char **argv)
     tf2_ros::TransformListener tfListener(tfBuffer);
 
     static const std::string PLANNING_GROUP = "arm";
-
     moveit::planning_interface::MoveGroupInterface move_group_interface(PLANNING_GROUP);
     move_group_interface.setPlanningPipelineId("pilz_industrial_motion_planner");
     move_group_interface.setPlannerId("PTP");
-    move_group_interface.setMaxVelocityScalingFactor(0.1);
-    move_group_interface.setMaxAccelerationScalingFactor(0.1);
+    move_group_interface.setMaxVelocityScalingFactor(0.05);
+    move_group_interface.setMaxAccelerationScalingFactor(0.05);
     move_group_interface.startStateMonitor();
 
     const moveit::core::JointModelGroup* joint_model_group =
         move_group_interface.getRobotModel()->getJointModelGroup(PLANNING_GROUP);
 
-    sensor_msgs::JointState home_joints;
-    //TODO : turn this into moveit group_state
-    home_joints.name = { "ur5_elbow_joint","ur5_shoulder_lift_joint","ur5_shoulder_pan_joint","ur5_wrist_1_joint","ur5_wrist_2_joint","ur5_wrist_3_joint"};
-    home_joints.position = {-1.1387437025653284, -2.194897476826803, -1.5872224012957972, -1.1468852202044886, 1.6060603857040405, -0.010899368916646779};
-    // agile home
-    //home_joints.name = { "joint_1","joint_2","joint_3","joint_4","joint_5","joint_6","joint_7" };
-    //home_joints.position = {-1.0764353166380913, 0.5625393633338827, 0.31906783564462415, 2.316970072925777, 0.042747545531845337, 1.0091591209316584, 1.4176498139743448};
-
-    move_group_interface.setJointValueTarget(home_joints);
+    move_group_interface.setNamedTarget("marimbabot_home");
     move_group_interface.move();
+
+    move_group_interface.setMaxVelocityScalingFactor(0.9);
+    move_group_interface.setMaxAccelerationScalingFactor(0.9);
     //ros::Duration(2).sleep();
 
     // Lookup the world to tcp transform
@@ -323,9 +336,8 @@ int main(int argc, char **argv)
     // Hit a sequence of points in cartesian space left and right of "pose"
 
     // Define hit points
-
     std::vector<geometry_msgs::PoseStamped> hit_point1;
-    for (auto offset : {/*-0.1, -0.05,*/ 0.0 , -0.05, -0.1, -0.05, 0.0})
+    for (auto offset : {-0.1, -0.05, 0.0, 0.05, 0.1})
     {
         geometry_msgs::PoseStamped hit_point{pose};
         hit_point.pose.position.y += offset;
@@ -344,7 +356,6 @@ int main(int argc, char **argv)
     display_trajectory.trajectory_start = hit_plan.start_state_;
     display_trajectory.trajectory.push_back(trajectory);
     display_publisher.publish(display_trajectory);
-
     std::cout <<"joint tracjector "<< trajectory.joint_trajectory;
     
 

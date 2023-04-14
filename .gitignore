@@ -3,6 +3,8 @@ __pycache__/
 
 .vscode/
 
+python_env/
+
 marimbabot_vision/scripts/data*
 marimbabot_vision/scripts/test_data*
 

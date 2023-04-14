@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: marimbabot_description
+    relative_path: urdf/marimbabot_ur5.urdf.xacro
+    xacro_args: ""
+  SRDF:
+    relative_path: config/marimbabot_ur5.srdf
+  CONFIG:
+    author_name: Imran Ibrahimli
+    author_email: imran.ibrahimli@studium.uni-hamburg.de
+    generated_timestamp: 1679588453

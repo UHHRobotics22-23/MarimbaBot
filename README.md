@@ -32,7 +32,7 @@ mkdir -p catkin_ws/src
 
 # Clone repository into source folder
 cd catkin_ws/src
-curl https://raw.githubusercontent.com/UHHRobotics22-23/robot_project/main/workspace.repos | vcs import --recursive
+curl https://raw.githubusercontent.com/UHHRobotics22-23/marimbabot/main/workspace.repos | vcs import --recursive
 cd ..
 
 # Initialize workspace
@@ -49,12 +49,9 @@ rosdep install --from-paths src --ignore-src -r -y
 
 # Install python dependencies
 pip3 install -r src/robot_project/requirements.txt
-
-# Install lilypond dependencies that are necessary for visualization of the detected notes 
-sudo apt-get install lilypond 
 ```
 
-Now you should be ready to go.
+Now you are ready to go.
 
 ## Update workspace
 
@@ -63,7 +60,7 @@ Normally a simple pull should be enough.
 
 ```bash
 # Go to the repository
-cd catkin_ws/src/robot_project
+cd catkin_ws/src/marimbabot
 
 # Pull recent changes
 git pull
@@ -149,4 +146,3 @@ git push
 ```
 
 Now you can [create a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request#creating-the-pull-request) for your branch and merge it (after it is approved) into the `main` branch using the GitHub website.
-

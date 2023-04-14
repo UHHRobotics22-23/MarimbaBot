@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
 <robot name="marimba" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-<xacro:include filename="$(find marimbabot_sim)/urdf/utilities.xacro" />
-<xacro:include filename="$(find marimbabot_sim)/urdf/materials.xacro" />
+<xacro:include filename="$(find marimbabot_description)/urdf/utilities.xacro" />
+<xacro:include filename="$(find marimbabot_description)/urdf/materials.xacro" />
 
 <!-- URDF/Gazebo model of a marimba.
 
@@ -92,7 +92,7 @@ TODO:
     ${(top_left_center_x + bottom_left_center_x) / 2}
     ${top_left_center_y - side_offset}
     ${bottom_left_center_z}"
-/>
+/>re
 <xacro:property name="side_right_pos" value="
     ${float(side_left_pos.split()[0])}
     ${float(side_left_pos.split()[1]) + n_bars_bottom * (bar_width + bar_gap) - 1.5 * bar_gap + side_offset}
@@ -122,14 +122,13 @@ TODO:
         </geometry>
         <!-- TODO material -->
         <!-- <material name="oak_wood" /> -->
-        <material name="red" />
+        <material name="marimba_key" />
     </visual>
     <collision>
-        <origin xyz="0 0 0" rpy="0 0 0" />
+        <origin xyz="0 0 ${-bar_height / 2}" rpy="0 0 0" />
         <geometry>
-            <box size="${bar_width} ${bar_height} ${length}"/>
+            <box size="${length} ${bar_width} ${bar_height}"/>
         </geometry>
-        <material name="blue" />
     </collision>
     </link>
 

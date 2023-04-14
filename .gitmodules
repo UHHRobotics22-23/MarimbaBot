@@ -1,3 +1,3 @@
 [submodule "lib/bio_ik"]
 	path = lib/bio_ik
-	url = git@github.com:TAMS-Group/bio_ik.git
+	url = ../../TAMS-Group/bio_ik.git
