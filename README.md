@@ -48,7 +48,7 @@ rosdep update
 rosdep install --from-paths src --ignore-src -r -y
 
 # Install python dependencies
-pip3 install -r src/robot_project/requirements.txt
+pip3 install -r src/marimbabot/requirements.txt
 ```
 
 Now you are ready to go.

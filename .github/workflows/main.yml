@@ -16,10 +16,10 @@ jobs:
           sudo apt install -y python3-vcstool
           # import workspace.repos file
           cd ..
-          vcs import --skip-existing --recursive < robot_project/workspace.repos
-          cd robot_project
+          vcs import --skip-existing --recursive < marimbabot/workspace.repos
+          cd marimbabot
       - uses: 'ros-industrial/industrial_ci@master'
         env:
           ROS_DISTRO: noetic
           ROS_REPO: main
-          AFTER_SETUP_TARGET_WORKSPACE: /root/target_ws/src/robot_project/load_vcs_workspace.sh
+          AFTER_SETUP_TARGET_WORKSPACE: /root/target_ws/src/marimbabot/load_vcs_workspace.sh

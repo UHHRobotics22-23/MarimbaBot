@@ -11,4 +11,4 @@ sudo apt install -y python3-vcstool
 
 # import workspace.repos file
 cd /root/target_ws/src
-vcs import --skip-existing --recursive < robot_project/workspace.repos
+vcs import --skip-existing --recursive < marimbabot/workspace.repos
