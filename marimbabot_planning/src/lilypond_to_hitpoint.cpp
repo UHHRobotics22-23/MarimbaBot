@@ -133,8 +133,6 @@ public:
         // Sleep to make sure the tf listener is ready and all publishers are connected
         ros::Duration(1.0).sleep();
 
-        ROS_INFO("Starting marimba_move");
-
         std::string lilypond_string = lilypond_sentence->data.c_str();
 
         // Convert lilypond sequence to cartesian poses and times
@@ -144,7 +142,7 @@ public:
             lilypond_string
             );
 
-        ROS_INFO("Converted lilypond sequence to cartesian poses and times");
+        ROS_DEBUG("Converted lilypond sequence to cartesian poses and times");
 
         // Loop over all hits and publish a marker at the correct time
         double time = 0.0;
@@ -211,7 +209,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "marimba_move_lilypond_to_hitpoints");
 
     // Create SubscribeAndPublish object
-    SubscribeAndPublish subscribe_and_publish;
+    SubscribeAndPublish subscribe_and_publish_object;
     ros::spin();
 
 
