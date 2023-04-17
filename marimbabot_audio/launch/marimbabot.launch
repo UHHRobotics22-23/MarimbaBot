@@ -1,0 +1,4 @@
+<launch>
+<node name="audio_from_lilypond" pkg="marimbabot_audio" type="audio_from_lilypond.py">
+</node>
+</launch>
