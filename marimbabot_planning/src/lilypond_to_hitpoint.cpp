@@ -107,20 +107,23 @@ std::vector<std::tuple<geometry_msgs::PoseStamped, double, double>> lilypond_to_
 }
 
 
-
+/**
+ * @brief ROS node that subscribes to the recognized lilypond sequence and publishes a marker at the correct time
+ * class is needed to access the publisher inside the callback function
+*/
 class SubscribeAndPublish
 {
 public: 
     SubscribeAndPublish() {
-        //Topic you want to publish
-        hit_marker_pub = n_.advertise<visualization_msgs::Marker>("hit_marker", 1);
-
-        //Topic you want to subscribe
-        sub_ = n_.subscribe("vision_node/recognized_sentence", 1, &SubscribeAndPublish::moveToPoseCallback, this);
+        // hit marker publisher
+        hit_marker_pub = nodeHandle.advertise<visualization_msgs::Marker>("hit_marker", 1);
+        // vision node subscriber
+        vision_node_subscriber = nodeHandle.subscribe("vision_node/recognized_sentence", 1, &SubscribeAndPublish::move_to_pose_callback, this);
     }
 
-    void moveToPoseCallback(const std_msgs::String::ConstPtr& lilypond_sentence) {
-        ROS_DEBUG("moveToPoseCallback heard: [%s]", lilypond_sentence->data.c_str());
+    // Callback function for the vision node subscriber
+    void move_to_pose_callback(const std_msgs::String::ConstPtr& lilypond_sentence) {
+        ROS_DEBUG("move_to_pose_callback heard: [%s]", lilypond_sentence->data.c_str());
 
 
         // Create tf2 listener
@@ -197,18 +200,18 @@ public:
     }
 
 private:
-    ros::NodeHandle n_; 
+    ros::NodeHandle nodeHandle; 
     ros::Publisher hit_marker_pub;
-    ros::Subscriber sub_;
+    ros::Subscriber vision_node_subscriber;
 
 };
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "marimba_move_lilypond_input_viz");
+    ros::init(argc, argv, "marimba_move_lilypond_to_hitpoints");
 
     // Create SubscribeAndPublish object
-    SubscribeAndPublish SAPObject;
+    SubscribeAndPublish subscribe_and_publish;
     ros::spin();
 
 
