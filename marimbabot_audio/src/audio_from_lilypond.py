@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 
+import tempfile
+
 import rospy
-from sensor_msgs.msg import Image as ROSImage
-from std_msgs.msg import String
 from abjad import Block, LilyPondFile, Staff, Voice
 from abjad.persist import as_midi
-import os
-import tempfile
-from sound_play.msg import SoundRequest
 from midi2audio import FluidSynth
+from sensor_msgs.msg import Image as ROSImage
+from sound_play.msg import SoundRequest
+from std_msgs.msg import String
+
 
 # create lilypond file from sentence
 def create_lilypond_file(sentence):
@@ -64,7 +65,6 @@ def callback_vision_results(data: String, callback_args):
     sound_request.arg = audio_filename
 
     audio_publisher.publish(sound_request)
-
 
 # create audio from lilypond publisher
 # send audio to audio node (sound_play package)
