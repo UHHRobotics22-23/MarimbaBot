@@ -10,13 +10,13 @@ class ActionDecider:
         self.sentence = None
 
         # publishes the latest recognized sentence after the 'read' command was issued
-        self.read_pub = rospy.Publisher('behavior_node/read_notes', String, queue_size=10) 
+        self.read_pub = rospy.Publisher('~read_notes', String, queue_size=10) 
         
         # publishes the read sentence after the 'play' command was issued
-        self.play_pub = rospy.Publisher('behavior_node/play_notes', String, queue_size=10) 
+        self.play_pub = rospy.Publisher('~play_notes', String, queue_size=10) 
 
         # publishes a response for the synthesized speech
-        self.response_pub = rospy.Publisher('behavior_node/response', String, queue_size=10) 
+        self.response_pub = rospy.Publisher('~response', String, queue_size=10) 
 
         # listens to the recognized commands from voice_recognition_node
         self.command_sub = rospy.Subscriber('voice_recognition_node/recognized_command', String, self.callback_command)
@@ -31,7 +31,7 @@ class ActionDecider:
                 # wait for the vision node to publish a recognized sentence
                 self.sentence = rospy.wait_for_message('vision_node/recognized_notes', String, timeout=5).data 
                 self.read_pub.publish(self.sentence)
-                self.response_pub.publish('Notes recognzed. Say play to play the notes.')
+                self.response_pub.publish('Notes recognized. Say play to play the notes.')
             except rospy.ROSException:
                 self.response_pub.publish('No notes recognized. Make sure the notes are readable and visible to the camera.')
 
@@ -41,7 +41,7 @@ class ActionDecider:
                 self.play_pub.publish(self.sentence)
                 # TODO: include tempo (for future commands: faster, slower)
             else:
-                self.response_pub.publish('No notes to play. Say read to read notes.')
+                self.response_pub.publish('No notes to play. Say reed to read notes.')
 
         elif command.data == 'stop':
             # publish an empty string to behavior_node/play_sentence to signal aborting the playing of notes
