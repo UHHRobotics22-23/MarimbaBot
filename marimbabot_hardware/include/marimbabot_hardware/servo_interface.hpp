@@ -15,7 +15,7 @@ class ServoInterface : public hardware_interface::RobotHW {
 private:
     struct ServoState {
         std::string name = "";
-        double command = 0;
+        double command = -1;    // -1 means no command yet
         double position = 0;
         double velocity = 0;
         double effort = 0;
@@ -28,6 +28,7 @@ public:
 
     void read();
     void write();
+    void initialize();
 
     const ros::Time& get_time() { return last_run_time; };
     const ros::Duration& get_period() { return last_run_period; };
@@ -42,7 +43,13 @@ private:
     ros::Time last_run_time;
     ros::Duration last_run_period;
     serial::Serial arduino_serial;
+    int last_arduino_error = 0;
     double previous_command = -1;
+    int TOP_LIMIT = 120;
+    int BOTTOM_LIMIT = 55;
+    double RADIAN_LIMIT = (2 * M_PI) * ((TOP_LIMIT - BOTTOM_LIMIT) / 255.0);    // =~ 1.602
+
+    bool try_open_serial_port();
 };
 
 #endif // MARIMBABOT_SERVO_INTERFACE_HPP

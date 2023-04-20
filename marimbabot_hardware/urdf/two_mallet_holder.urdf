@@ -19,11 +19,10 @@
         </collision>
     </link>
 
-    <joint name="mallet_servo" type="revolute">
+    <joint name="mallet_finger" type="revolute">
         <origin xyz="0.0 0.0 0.0292"/>
         <parent link="mallet_neck"/>
         <child link="mallet_top"/>
-        <!-- ! needs to be adjusted  -->
-        <limit lower="0.0" upper="6.28" effort="1.0" velocity="1.0"/>
+        <limit lower="0.0" upper="1.602" effort="1.0" velocity="1.0"/>
     </joint>
 </robot>

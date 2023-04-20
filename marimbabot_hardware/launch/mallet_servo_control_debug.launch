@@ -1,8 +1,10 @@
 <launch>
     <group ns="MalletHolder">
         <rosparam file="$(find marimbabot_hardware)/config/controllers.yaml" command="load"/>
-        <!-- TODO test without -->
         <rosparam file="$(find marimbabot_hardware)/config/joint_limits.yaml" command="load"/>
+        <!-- Setting device parameter -->
+        <param name="mallet_finger_device" value="/dev/ttyACM0"/>
+        <param name="mallet_finger_baudrate" value="115200"/>
         <!-- ! This is only for demo setups START -->
         <param name="robot_description" command="cat $(find marimbabot_hardware)/urdf/two_mallet_holder.urdf"/>
         <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
@@ -14,8 +16,8 @@
                 joint_state_controller
                 trajectory_controller
             "/> 
-            <!-- 
-                position_controller -->
+            <!-- Use this for easy debugging -->
+            <!-- position_controller -->
     </group>
 
 </launch>

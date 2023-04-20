@@ -1,14 +1,13 @@
 
-# ? Unsure if we need this as there probably already is a publisher in the final setup already
 joint_state_controller:
   type: "joint_state_controller/JointStateController"
   publish_rate: 20
-  
+
 trajectory_controller:
   type: "position_controllers/JointTrajectoryController"
   joints:
-    - mallet_servo
+    - mallet_finger
 
 position_controller:
   type: "position_controllers/JointPositionController"
-  joint: mallet_servo
+  joint: mallet_finger
