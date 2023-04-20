@@ -12,12 +12,12 @@ from sensor_msgs.msg import Image as ROSImage
 from std_msgs.msg import String
 
 
-def callback_vision_results(sentence, args):
-    rospy.logdebug(f"Received sentence: {sentence.data}")
+def callback_vision_results(notes, args):
+    rospy.logdebug(f"Received notes: {notes.data}")
     pub = args
 
     # generate abjad staff
-    voice = Voice(sentence.data)
+    voice = Voice(notes.data)
     staff = Staff([voice])
 
     # generate lilypond file
