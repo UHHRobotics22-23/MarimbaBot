@@ -21,13 +21,19 @@ class ActionDecider:
         # listens to the recognized commands from voice_recognition_node
         self.command_sub = rospy.Subscriber('voice_recognition_node/recognized_command', String, self.callback_command)
 
+        # TODO: add subscribers for other modules (eg. planning node -> finished playing, audio node -> audio feedback, ...)
+
     def callback_command(self, command):
 
         if command.data == 'read':
             # update the sentence variable with the latest sentence from vision_node/recognized_sentence to signal that notes have been read
-            self.sentence = rospy.wait_for_message('vision_node/recognized_sentence', String).data # wait for the vision node to publish a recognized sentence
-            self.read_pub.publish(self.sentence)
-            self.response_pub.publish('Notes recognzed. Say play to play the notes.')
+            try:
+                # wait for the vision node to publish a recognized sentence
+                self.sentence = rospy.wait_for_message('vision_node/recognized_sentence', String, timeout=5).data 
+                self.read_pub.publish(self.sentence)
+                self.response_pub.publish('Notes recognzed. Say play to play the notes.')
+            except rospy.ROSException:
+                self.response_pub.publish('No notes recognized. Make sure the notes are readable and visible to the camera.')
 
         elif command.data == 'play':
             # if a sentence has been read via the 'read' command, publish it to behavior_node/play_sentence to signal that notes should be played
