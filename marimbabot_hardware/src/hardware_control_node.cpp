@@ -7,13 +7,14 @@ int main(int argc, char **argv) {
 
     ROS_INFO("Starting hardware control node");
     ros::NodeHandle node_handle;
-    std::string device = "/dev/ttyACM0"; //"/dev/ttyUSB0";
+    // TODO Parameterize the device
+    std::string device = "/dev/ttyUSB0"; //"/dev/ttyUSB0";
     ServoInterface servo_interface(node_handle, device, 9600);
     controller_manager::ControllerManager controller_manager(&servo_interface);
 
     ros::AsyncSpinner spinner(1);
     spinner.start();
-    ros::Rate loop_rate(10);
+    ros::Rate loop_rate(100);
 
     while(ros::ok()) {
         servo_interface.read();

@@ -1,15 +1,21 @@
 <launch>
-    <rosparam file="$(find marimbabot_hardware)/config/controllers.yaml" command="load"/>
-    <rosparam file="$(find marimbabot_hardware)/config/joint_limits.yaml" command="load"/>
-    <rosparam name="robot_description" command="cat $(find marimbabot_hardware)/urdf/two_mallet_holder.urdf"/>
+    <group ns="MalletHolder">
+        <rosparam file="$(find marimbabot_hardware)/config/controllers.yaml" command="load"/>
+        <!-- TODO test without -->
+        <rosparam file="$(find marimbabot_hardware)/config/joint_limits.yaml" command="load"/>
+        <!-- ! This is only for demo setups START -->
+        <param name="robot_description" command="cat $(find marimbabot_hardware)/urdf/two_mallet_holder.urdf"/>
+        <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+        <!-- ! This is only for demo setups END -->
 
-    <node name="mallet_holder_hardware_control_node" pkg="marimbabot_hardware" type="hardware_control_node" output="screen"/>
-    <node name="mallet_holder_robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
-    <node name="mallet_holder_controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
-        args="
-            /MalletHolder/MalletServo_PositionController
-            /MalletHolder/joints_update
-        "/> 
-
+        <node name="hardware_control_node" pkg="marimbabot_hardware" type="hardware_control_node" output="screen"/>
+        <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
+            args="
+                joint_state_controller
+                trajectory_controller
+            "/> 
+            <!-- 
+                position_controller -->
+    </group>
 
 </launch>

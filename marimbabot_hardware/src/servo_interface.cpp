@@ -51,23 +51,33 @@ void ServoInterface::write() {
 
     // Checking if the arduino is connected
     if(!arduino_serial.isOpen()) {
+        ROS_WARN_STREAM("Arduino is not connected");
         return;
     }
 
     // Not sending commands which already where before
     if(previous_command == servo_state.command) {
+        // ROS_INFO_STREAM("Command already sent");
+        // ROS_INFO_STREAM("Previous command: " << previous_command);
         return;
     }
 
     previous_command = servo_state.command;
 
     // Remapping pwm value from radians input
-    int command_value = (int) round((servo_state.command / 2 * M_PI) * 255);
+    int command_value = (int) round((servo_state.command / (2 * M_PI)) * 255);
 
     std::stringstream sstream;
     sstream << "servoPos " << command_value << "\n";
+    // ROS_INFO_STREAM(sstream.str());
     arduino_serial.write(sstream.str());
-    std::string response = arduino_serial.readline();
+    std::string response;
+    while(arduino_serial.available() > 0) {
+        response = arduino_serial.readline();
+
+        // ROS_INFO_STREAM(response.c_str());
+    }
+    
 
     // TODO Parse errors from servo controller
     if(response == "") {
