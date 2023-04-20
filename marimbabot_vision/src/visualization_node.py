@@ -50,8 +50,8 @@ def callback_vision_results(sentence, args):
 def listener():
     rospy.init_node('visualization_node')
 
-    pub = rospy.Publisher('detection_visualization', ROSImage, queue_size=10)
-    rospy.Subscriber("vision_node/recognized_sentence", String, callback_vision_results, callback_args=(pub))
+    pub = rospy.Publisher('~detection_visualization', ROSImage, queue_size=10)
+    rospy.Subscriber("vision_node/recognized_notes", String, callback_vision_results, callback_args=(pub))
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
