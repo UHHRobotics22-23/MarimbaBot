@@ -21,11 +21,11 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(move_to_pose src/move_to_pose.cpp)
+add_executable(planning src/planning.cpp)
 add_executable(lilypond_to_hitpoint src/lilypond_to_hitpoint.cpp)
-target_link_libraries(move_to_pose ${catkin_LIBRARIES})
+target_link_libraries(planning ${catkin_LIBRARIES})
 target_link_libraries(lilypond_to_hitpoint ${catkin_LIBRARIES})
 
-install(TARGETS move_to_pose lilypond_to_hitpoint
+install(TARGETS planning lilypond_to_hitpoint
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
