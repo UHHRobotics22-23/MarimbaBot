@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 project(marimbabot_planning)
 
 find_package(catkin REQUIRED COMPONENTS
+  actionlib_msgs
   bio_ik
   geometry_msgs
   moveit_msgs
@@ -15,7 +16,9 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(Boost REQUIRED)
 
-catkin_package()
+catkin_package(
+  CATKIN_DEPENDS actionlib_msgs
+)
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
@@ -28,4 +31,14 @@ target_link_libraries(lilypond_to_hitpoint ${catkin_LIBRARIES})
 
 install(TARGETS planning lilypond_to_hitpoint
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)
+
+# Action 
+add_action_files(
+  DIRECTORY src/actions
+  FILES hit_sequence.action
+)
+
+generate_messages(
+  DEPENDENCIES actionlib_msgs std_msgs  # Or other packages containing msgs
 )
