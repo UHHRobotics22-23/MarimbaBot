@@ -53,17 +53,17 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_A#4:
+        bar_As4:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_A#5:
+        bar_As5:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_A#6:
+        bar_As6:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -98,17 +98,17 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_C#4:
+        bar_Cs4:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_C#5:
+        bar_Cs5:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_C#6:
+        bar_Cs6:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -133,17 +133,17 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_D#4:
+        bar_Ds4:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_D#5:
+        bar_Ds5:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_D#6:
+        bar_Ds6:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -178,17 +178,17 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_F#4:
+        bar_Fs4:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_F#5:
+        bar_Fs5:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_F#6:
+        bar_Fs6:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -208,17 +208,17 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_G#4:
+        bar_Gs4:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_G#5:
+        bar_Gs5:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_G#6:
+        bar_Gs6:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -507,11 +507,11 @@ Visualization Manager:
         All Enabled: true
         april_tag_ur5:
           Value: true
-        bar_A#4:
+        bar_As4:
           Value: true
-        bar_A#5:
+        bar_As5:
           Value: true
-        bar_A#6:
+        bar_As6:
           Value: true
         bar_A4:
           Value: true
@@ -525,11 +525,11 @@ Visualization Manager:
           Value: true
         bar_B6:
           Value: true
-        bar_C#4:
+        bar_Cs4:
           Value: true
-        bar_C#5:
+        bar_Cs5:
           Value: true
-        bar_C#6:
+        bar_Cs6:
           Value: true
         bar_C4:
           Value: true
@@ -539,11 +539,11 @@ Visualization Manager:
           Value: true
         bar_C7:
           Value: true
-        bar_D#4:
+        bar_Ds4:
           Value: true
-        bar_D#5:
+        bar_Ds5:
           Value: true
-        bar_D#6:
+        bar_Ds6:
           Value: true
         bar_D4:
           Value: true
@@ -557,11 +557,11 @@ Visualization Manager:
           Value: true
         bar_E6:
           Value: true
-        bar_F#4:
+        bar_Fs4:
           Value: true
-        bar_F#5:
+        bar_Fs5:
           Value: true
-        bar_F#6:
+        bar_Fs6:
           Value: true
         bar_F4:
           Value: true
@@ -569,11 +569,11 @@ Visualization Manager:
           Value: true
         bar_F6:
           Value: true
-        bar_G#4:
+        bar_Gs4:
           Value: true
-        bar_G#5:
+        bar_Gs5:
           Value: true
-        bar_G#6:
+        bar_Gs6:
           Value: true
         bar_G4:
           Value: true
@@ -815,35 +815,35 @@ Visualization Manager:
             body_right:
               {}
             body_top:
-              bar_A#4:
+              bar_As4:
                 {}
-              bar_A#5:
+              bar_As5:
                 {}
-              bar_A#6:
+              bar_As6:
                 {}
-              bar_C#4:
+              bar_Cs4:
                 {}
-              bar_C#5:
+              bar_Cs5:
                 {}
-              bar_C#6:
+              bar_Cs6:
                 {}
-              bar_D#4:
+              bar_Ds4:
                 {}
-              bar_D#5:
+              bar_Ds5:
                 {}
-              bar_D#6:
+              bar_Ds6:
                 {}
-              bar_F#4:
+              bar_Fs4:
                 {}
-              bar_F#5:
+              bar_Fs5:
                 {}
-              bar_F#6:
+              bar_Fs6:
                 {}
-              bar_G#4:
+              bar_Gs4:
                 {}
-              bar_G#5:
+              bar_Gs5:
                 {}
-              bar_G#6:
+              bar_Gs6:
                 {}
           turtlebot:
             turtlebot_holder:
