@@ -29,7 +29,8 @@
   <exec_depend>roscpp</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>tf2_eigen</exec_depend>
-
+  <exec_depend>message_generation</exec_depend>
+  
   <export>
 
   </export>
