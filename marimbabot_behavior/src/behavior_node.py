@@ -10,10 +10,10 @@ class ActionDecider:
         self.sentence = None
 
         # publishes the latest recognized sentence after the 'read' command was issued
-        self.read_pub = rospy.Publisher('behavior_node/read_sentence', String, queue_size=10) 
+        self.read_pub = rospy.Publisher('behavior_node/read_notes', String, queue_size=10) 
         
         # publishes the read sentence after the 'play' command was issued
-        self.play_pub = rospy.Publisher('behavior_node/play_sentence', String, queue_size=10) 
+        self.play_pub = rospy.Publisher('behavior_node/play_notes', String, queue_size=10) 
 
         # publishes a response for the synthesized speech
         self.response_pub = rospy.Publisher('behavior_node/response', String, queue_size=10) 
@@ -29,7 +29,7 @@ class ActionDecider:
             # update the sentence variable with the latest sentence from vision_node/recognized_sentence to signal that notes have been read
             try:
                 # wait for the vision node to publish a recognized sentence
-                self.sentence = rospy.wait_for_message('vision_node/recognized_sentence', String, timeout=5).data 
+                self.sentence = rospy.wait_for_message('vision_node/recognized_notes', String, timeout=5).data 
                 self.read_pub.publish(self.sentence)
                 self.response_pub.publish('Notes recognzed. Say play to play the notes.')
             except rospy.ROSException:
