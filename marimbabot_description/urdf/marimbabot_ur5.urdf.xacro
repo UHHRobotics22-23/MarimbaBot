@@ -10,6 +10,7 @@
   <!-- arm -->
   <xacro:include filename="$(find tams_ur5_description)/urdf/arm.urdf.xacro" />
   <xacro:include filename="$(find marimbabot_description)/urdf/marimba.urdf.xacro" />
+  <xacro:include filename="$(find marimbabot_description)/urdf/gazebo_gripper_transmissions.xacro" />
 
 
   <link name="world" />

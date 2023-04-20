@@ -235,40 +235,40 @@
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
     <end_effector name="gripper" parent_link="s_model_tool0" group="gripper" parent_group="arm"/>
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
-    <disable_collisions link1="april_tag_ur5" link2="bar_A#4" reason="Never"/>
-    <disable_collisions link1="april_tag_ur5" link2="bar_A#5" reason="Never"/>
-    <disable_collisions link1="april_tag_ur5" link2="bar_A#6" reason="Never"/>
+    <disable_collisions link1="april_tag_ur5" link2="bar_As4" reason="Never"/>
+    <disable_collisions link1="april_tag_ur5" link2="bar_As5" reason="Never"/>
+    <disable_collisions link1="april_tag_ur5" link2="bar_As6" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_A4" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_A5" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_A6" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_B4" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_B5" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_B6" reason="Never"/>
-    <disable_collisions link1="april_tag_ur5" link2="bar_C#4" reason="Never"/>
-    <disable_collisions link1="april_tag_ur5" link2="bar_C#5" reason="Never"/>
-    <disable_collisions link1="april_tag_ur5" link2="bar_C#6" reason="Never"/>
+    <disable_collisions link1="april_tag_ur5" link2="bar_Cs4" reason="Never"/>
+    <disable_collisions link1="april_tag_ur5" link2="bar_Cs5" reason="Never"/>
+    <disable_collisions link1="april_tag_ur5" link2="bar_Cs6" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_C4" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_C5" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_C6" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_C7" reason="Never"/>
-    <disable_collisions link1="april_tag_ur5" link2="bar_D#4" reason="Never"/>
-    <disable_collisions link1="april_tag_ur5" link2="bar_D#5" reason="Never"/>
-    <disable_collisions link1="april_tag_ur5" link2="bar_D#6" reason="Never"/>
+    <disable_collisions link1="april_tag_ur5" link2="bar_Ds4" reason="Never"/>
+    <disable_collisions link1="april_tag_ur5" link2="bar_Ds5" reason="Never"/>
+    <disable_collisions link1="april_tag_ur5" link2="bar_Ds6" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_D4" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_D5" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_D6" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_E4" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_E5" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="april_tag_ur5" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="april_tag_ur5" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="april_tag_ur5" link2="bar_F#6" reason="Never"/>
+    <disable_collisions link1="april_tag_ur5" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="april_tag_ur5" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="april_tag_ur5" link2="bar_Fs6" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_F4" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_F5" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="april_tag_ur5" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="april_tag_ur5" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="april_tag_ur5" link2="bar_G#6" reason="Never"/>
+    <disable_collisions link1="april_tag_ur5" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="april_tag_ur5" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="april_tag_ur5" link2="bar_Gs6" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_G4" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_G5" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_G6" reason="Never"/>
@@ -286,187 +286,187 @@
     <disable_collisions link1="april_tag_ur5" link2="ur5_mount" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="ur5_shoulder_link" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="wall" reason="Adjacent"/>
-    <disable_collisions link1="bar_A#4" link2="bar_A#5" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_A#6" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_A4" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_A5" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_A6" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_B4" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_B5" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_B6" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_C#4" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_C#5" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_C#6" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_C4" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_C5" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_C6" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_C7" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_D#4" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_D#5" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_D#6" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_D4" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_D5" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_D6" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_E4" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_E5" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_F#6" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_F4" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_F5" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_G#6" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_G4" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_G5" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="bar_G6" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="body_bottom" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="body_left" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="body_right" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="body_top" reason="Adjacent"/>
-    <disable_collisions link1="bar_A#4" link2="cable_duct" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="clock" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="floor" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="shelf" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="side_wall" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="small_wall" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="ur5_base_link" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="ur5_ee_link" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="ur5_mount" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="ur5_shoulder_link" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="ur5_upper_arm_link" reason="Never"/>
-    <disable_collisions link1="bar_A#4" link2="wall" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_A#6" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_A4" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_A5" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_A6" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_B4" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_B5" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_B6" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_C#4" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_C#5" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_C#6" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_C4" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_C5" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_C6" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_C7" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_D#4" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_D#5" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_D#6" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_D4" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_D5" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_D6" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_E4" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_E5" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_F#6" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_F4" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_F5" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_G#6" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_G4" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_G5" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="bar_G6" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="body_bottom" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="body_left" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="body_right" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="body_top" reason="Adjacent"/>
-    <disable_collisions link1="bar_A#5" link2="cable_duct" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="clock" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="floor" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="shelf" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="side_wall" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="small_wall" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="ur5_base_link" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="ur5_mount" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="ur5_shoulder_link" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="ur5_upper_arm_link" reason="Never"/>
-    <disable_collisions link1="bar_A#5" link2="wall" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_A4" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_A5" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_A6" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_B4" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_B5" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_B6" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_C#4" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_C#5" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_C#6" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_C4" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_C5" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_C6" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_C7" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_D#4" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_D#5" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_D#6" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_D4" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_D5" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_D6" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_E4" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_E5" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_F#6" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_F4" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_F5" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_G#6" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_G4" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_G5" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="bar_G6" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="body_bottom" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="body_left" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="body_right" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="body_top" reason="Adjacent"/>
-    <disable_collisions link1="bar_A#6" link2="cable_duct" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="clock" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="floor" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="shelf" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="side_wall" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="small_wall" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="ur5_base_link" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="ur5_mount" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="ur5_shoulder_link" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="ur5_upper_arm_link" reason="Never"/>
-    <disable_collisions link1="bar_A#6" link2="wall" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_As5" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_As6" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_A4" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_A5" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_A6" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_B4" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_B5" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_B6" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_Cs4" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_Cs5" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_Cs6" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_C4" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_C5" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_C6" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_C7" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_Ds4" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_Ds5" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_Ds6" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_D4" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_D5" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_D6" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_E4" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_E5" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_E6" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_Fs6" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_F4" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_F5" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_F6" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_Gs6" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_G4" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_G5" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="bar_G6" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="body_bottom" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="body_left" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="body_right" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="body_top" reason="Adjacent"/>
+    <disable_collisions link1="bar_As4" link2="cable_duct" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="clock" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="floor" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="shelf" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="side_wall" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="small_wall" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="ur5_base_link" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="ur5_ee_link" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="ur5_mount" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="ur5_shoulder_link" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="ur5_upper_arm_link" reason="Never"/>
+    <disable_collisions link1="bar_As4" link2="wall" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_As6" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_A4" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_A5" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_A6" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_B4" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_B5" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_B6" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_Cs4" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_Cs5" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_Cs6" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_C4" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_C5" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_C6" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_C7" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_Ds4" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_Ds5" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_Ds6" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_D4" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_D5" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_D6" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_E4" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_E5" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_E6" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_Fs6" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_F4" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_F5" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_F6" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_Gs6" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_G4" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_G5" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="bar_G6" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="body_bottom" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="body_left" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="body_right" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="body_top" reason="Adjacent"/>
+    <disable_collisions link1="bar_As5" link2="cable_duct" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="clock" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="floor" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="shelf" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="side_wall" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="small_wall" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="ur5_base_link" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="ur5_mount" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="ur5_shoulder_link" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="ur5_upper_arm_link" reason="Never"/>
+    <disable_collisions link1="bar_As5" link2="wall" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_A4" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_A5" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_A6" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_B4" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_B5" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_B6" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_Cs4" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_Cs5" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_Cs6" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_C4" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_C5" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_C6" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_C7" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_Ds4" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_Ds5" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_Ds6" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_D4" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_D5" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_D6" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_E4" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_E5" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_E6" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_Fs6" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_F4" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_F5" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_F6" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_Gs6" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_G4" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_G5" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="bar_G6" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="body_bottom" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="body_left" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="body_right" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="body_top" reason="Adjacent"/>
+    <disable_collisions link1="bar_As6" link2="cable_duct" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="clock" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="floor" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="shelf" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="side_wall" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="small_wall" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="ur5_base_link" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="ur5_mount" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="ur5_shoulder_link" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="ur5_upper_arm_link" reason="Never"/>
+    <disable_collisions link1="bar_As6" link2="wall" reason="Never"/>
     <disable_collisions link1="bar_A4" link2="bar_A5" reason="Never"/>
     <disable_collisions link1="bar_A4" link2="bar_A6" reason="Never"/>
     <disable_collisions link1="bar_A4" link2="bar_B4" reason="Never"/>
     <disable_collisions link1="bar_A4" link2="bar_B5" reason="Never"/>
     <disable_collisions link1="bar_A4" link2="bar_B6" reason="Never"/>
-    <disable_collisions link1="bar_A4" link2="bar_C#4" reason="Never"/>
-    <disable_collisions link1="bar_A4" link2="bar_C#5" reason="Never"/>
-    <disable_collisions link1="bar_A4" link2="bar_C#6" reason="Never"/>
+    <disable_collisions link1="bar_A4" link2="bar_Cs4" reason="Never"/>
+    <disable_collisions link1="bar_A4" link2="bar_Cs5" reason="Never"/>
+    <disable_collisions link1="bar_A4" link2="bar_Cs6" reason="Never"/>
     <disable_collisions link1="bar_A4" link2="bar_C4" reason="Never"/>
     <disable_collisions link1="bar_A4" link2="bar_C5" reason="Never"/>
     <disable_collisions link1="bar_A4" link2="bar_C6" reason="Never"/>
     <disable_collisions link1="bar_A4" link2="bar_C7" reason="Never"/>
-    <disable_collisions link1="bar_A4" link2="bar_D#4" reason="Never"/>
-    <disable_collisions link1="bar_A4" link2="bar_D#5" reason="Never"/>
-    <disable_collisions link1="bar_A4" link2="bar_D#6" reason="Never"/>
+    <disable_collisions link1="bar_A4" link2="bar_Ds4" reason="Never"/>
+    <disable_collisions link1="bar_A4" link2="bar_Ds5" reason="Never"/>
+    <disable_collisions link1="bar_A4" link2="bar_Ds6" reason="Never"/>
     <disable_collisions link1="bar_A4" link2="bar_D4" reason="Never"/>
     <disable_collisions link1="bar_A4" link2="bar_D5" reason="Never"/>
     <disable_collisions link1="bar_A4" link2="bar_D6" reason="Never"/>
     <disable_collisions link1="bar_A4" link2="bar_E4" reason="Never"/>
     <disable_collisions link1="bar_A4" link2="bar_E5" reason="Never"/>
     <disable_collisions link1="bar_A4" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_A4" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_A4" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_A4" link2="bar_F#6" reason="Never"/>
+    <disable_collisions link1="bar_A4" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_A4" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_A4" link2="bar_Fs6" reason="Never"/>
     <disable_collisions link1="bar_A4" link2="bar_F4" reason="Never"/>
     <disable_collisions link1="bar_A4" link2="bar_F5" reason="Never"/>
     <disable_collisions link1="bar_A4" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_A4" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_A4" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_A4" link2="bar_G#6" reason="Never"/>
+    <disable_collisions link1="bar_A4" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_A4" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_A4" link2="bar_Gs6" reason="Never"/>
     <disable_collisions link1="bar_A4" link2="bar_G4" reason="Never"/>
     <disable_collisions link1="bar_A4" link2="bar_G5" reason="Never"/>
     <disable_collisions link1="bar_A4" link2="bar_G6" reason="Never"/>
@@ -489,31 +489,31 @@
     <disable_collisions link1="bar_A5" link2="bar_B4" reason="Never"/>
     <disable_collisions link1="bar_A5" link2="bar_B5" reason="Never"/>
     <disable_collisions link1="bar_A5" link2="bar_B6" reason="Never"/>
-    <disable_collisions link1="bar_A5" link2="bar_C#4" reason="Never"/>
-    <disable_collisions link1="bar_A5" link2="bar_C#5" reason="Never"/>
-    <disable_collisions link1="bar_A5" link2="bar_C#6" reason="Never"/>
+    <disable_collisions link1="bar_A5" link2="bar_Cs4" reason="Never"/>
+    <disable_collisions link1="bar_A5" link2="bar_Cs5" reason="Never"/>
+    <disable_collisions link1="bar_A5" link2="bar_Cs6" reason="Never"/>
     <disable_collisions link1="bar_A5" link2="bar_C4" reason="Never"/>
     <disable_collisions link1="bar_A5" link2="bar_C5" reason="Never"/>
     <disable_collisions link1="bar_A5" link2="bar_C6" reason="Never"/>
     <disable_collisions link1="bar_A5" link2="bar_C7" reason="Never"/>
-    <disable_collisions link1="bar_A5" link2="bar_D#4" reason="Never"/>
-    <disable_collisions link1="bar_A5" link2="bar_D#5" reason="Never"/>
-    <disable_collisions link1="bar_A5" link2="bar_D#6" reason="Never"/>
+    <disable_collisions link1="bar_A5" link2="bar_Ds4" reason="Never"/>
+    <disable_collisions link1="bar_A5" link2="bar_Ds5" reason="Never"/>
+    <disable_collisions link1="bar_A5" link2="bar_Ds6" reason="Never"/>
     <disable_collisions link1="bar_A5" link2="bar_D4" reason="Never"/>
     <disable_collisions link1="bar_A5" link2="bar_D5" reason="Never"/>
     <disable_collisions link1="bar_A5" link2="bar_D6" reason="Never"/>
     <disable_collisions link1="bar_A5" link2="bar_E4" reason="Never"/>
     <disable_collisions link1="bar_A5" link2="bar_E5" reason="Never"/>
     <disable_collisions link1="bar_A5" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_A5" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_A5" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_A5" link2="bar_F#6" reason="Never"/>
+    <disable_collisions link1="bar_A5" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_A5" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_A5" link2="bar_Fs6" reason="Never"/>
     <disable_collisions link1="bar_A5" link2="bar_F4" reason="Never"/>
     <disable_collisions link1="bar_A5" link2="bar_F5" reason="Never"/>
     <disable_collisions link1="bar_A5" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_A5" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_A5" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_A5" link2="bar_G#6" reason="Never"/>
+    <disable_collisions link1="bar_A5" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_A5" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_A5" link2="bar_Gs6" reason="Never"/>
     <disable_collisions link1="bar_A5" link2="bar_G4" reason="Never"/>
     <disable_collisions link1="bar_A5" link2="bar_G5" reason="Never"/>
     <disable_collisions link1="bar_A5" link2="bar_G6" reason="Never"/>
@@ -535,31 +535,31 @@
     <disable_collisions link1="bar_A6" link2="bar_B4" reason="Never"/>
     <disable_collisions link1="bar_A6" link2="bar_B5" reason="Never"/>
     <disable_collisions link1="bar_A6" link2="bar_B6" reason="Never"/>
-    <disable_collisions link1="bar_A6" link2="bar_C#4" reason="Never"/>
-    <disable_collisions link1="bar_A6" link2="bar_C#5" reason="Never"/>
-    <disable_collisions link1="bar_A6" link2="bar_C#6" reason="Never"/>
+    <disable_collisions link1="bar_A6" link2="bar_Cs4" reason="Never"/>
+    <disable_collisions link1="bar_A6" link2="bar_Cs5" reason="Never"/>
+    <disable_collisions link1="bar_A6" link2="bar_Cs6" reason="Never"/>
     <disable_collisions link1="bar_A6" link2="bar_C4" reason="Never"/>
     <disable_collisions link1="bar_A6" link2="bar_C5" reason="Never"/>
     <disable_collisions link1="bar_A6" link2="bar_C6" reason="Never"/>
     <disable_collisions link1="bar_A6" link2="bar_C7" reason="Never"/>
-    <disable_collisions link1="bar_A6" link2="bar_D#4" reason="Never"/>
-    <disable_collisions link1="bar_A6" link2="bar_D#5" reason="Never"/>
-    <disable_collisions link1="bar_A6" link2="bar_D#6" reason="Never"/>
+    <disable_collisions link1="bar_A6" link2="bar_Ds4" reason="Never"/>
+    <disable_collisions link1="bar_A6" link2="bar_Ds5" reason="Never"/>
+    <disable_collisions link1="bar_A6" link2="bar_Ds6" reason="Never"/>
     <disable_collisions link1="bar_A6" link2="bar_D4" reason="Never"/>
     <disable_collisions link1="bar_A6" link2="bar_D5" reason="Never"/>
     <disable_collisions link1="bar_A6" link2="bar_D6" reason="Never"/>
     <disable_collisions link1="bar_A6" link2="bar_E4" reason="Never"/>
     <disable_collisions link1="bar_A6" link2="bar_E5" reason="Never"/>
     <disable_collisions link1="bar_A6" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_A6" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_A6" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_A6" link2="bar_F#6" reason="Never"/>
+    <disable_collisions link1="bar_A6" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_A6" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_A6" link2="bar_Fs6" reason="Never"/>
     <disable_collisions link1="bar_A6" link2="bar_F4" reason="Never"/>
     <disable_collisions link1="bar_A6" link2="bar_F5" reason="Never"/>
     <disable_collisions link1="bar_A6" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_A6" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_A6" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_A6" link2="bar_G#6" reason="Never"/>
+    <disable_collisions link1="bar_A6" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_A6" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_A6" link2="bar_Gs6" reason="Never"/>
     <disable_collisions link1="bar_A6" link2="bar_G4" reason="Never"/>
     <disable_collisions link1="bar_A6" link2="bar_G5" reason="Never"/>
     <disable_collisions link1="bar_A6" link2="bar_G6" reason="Never"/>
@@ -580,31 +580,31 @@
     <disable_collisions link1="bar_A6" link2="wall" reason="Never"/>
     <disable_collisions link1="bar_B4" link2="bar_B5" reason="Never"/>
     <disable_collisions link1="bar_B4" link2="bar_B6" reason="Never"/>
-    <disable_collisions link1="bar_B4" link2="bar_C#4" reason="Never"/>
-    <disable_collisions link1="bar_B4" link2="bar_C#5" reason="Never"/>
-    <disable_collisions link1="bar_B4" link2="bar_C#6" reason="Never"/>
+    <disable_collisions link1="bar_B4" link2="bar_Cs4" reason="Never"/>
+    <disable_collisions link1="bar_B4" link2="bar_Cs5" reason="Never"/>
+    <disable_collisions link1="bar_B4" link2="bar_Cs6" reason="Never"/>
     <disable_collisions link1="bar_B4" link2="bar_C4" reason="Never"/>
     <disable_collisions link1="bar_B4" link2="bar_C5" reason="Never"/>
     <disable_collisions link1="bar_B4" link2="bar_C6" reason="Never"/>
     <disable_collisions link1="bar_B4" link2="bar_C7" reason="Never"/>
-    <disable_collisions link1="bar_B4" link2="bar_D#4" reason="Never"/>
-    <disable_collisions link1="bar_B4" link2="bar_D#5" reason="Never"/>
-    <disable_collisions link1="bar_B4" link2="bar_D#6" reason="Never"/>
+    <disable_collisions link1="bar_B4" link2="bar_Ds4" reason="Never"/>
+    <disable_collisions link1="bar_B4" link2="bar_Ds5" reason="Never"/>
+    <disable_collisions link1="bar_B4" link2="bar_Ds6" reason="Never"/>
     <disable_collisions link1="bar_B4" link2="bar_D4" reason="Never"/>
     <disable_collisions link1="bar_B4" link2="bar_D5" reason="Never"/>
     <disable_collisions link1="bar_B4" link2="bar_D6" reason="Never"/>
     <disable_collisions link1="bar_B4" link2="bar_E4" reason="Never"/>
     <disable_collisions link1="bar_B4" link2="bar_E5" reason="Never"/>
     <disable_collisions link1="bar_B4" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_B4" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_B4" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_B4" link2="bar_F#6" reason="Never"/>
+    <disable_collisions link1="bar_B4" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_B4" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_B4" link2="bar_Fs6" reason="Never"/>
     <disable_collisions link1="bar_B4" link2="bar_F4" reason="Never"/>
     <disable_collisions link1="bar_B4" link2="bar_F5" reason="Never"/>
     <disable_collisions link1="bar_B4" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_B4" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_B4" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_B4" link2="bar_G#6" reason="Never"/>
+    <disable_collisions link1="bar_B4" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_B4" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_B4" link2="bar_Gs6" reason="Never"/>
     <disable_collisions link1="bar_B4" link2="bar_G4" reason="Never"/>
     <disable_collisions link1="bar_B4" link2="bar_G5" reason="Never"/>
     <disable_collisions link1="bar_B4" link2="bar_G6" reason="Never"/>
@@ -624,31 +624,31 @@
     <disable_collisions link1="bar_B4" link2="ur5_upper_arm_link" reason="Never"/>
     <disable_collisions link1="bar_B4" link2="wall" reason="Never"/>
     <disable_collisions link1="bar_B5" link2="bar_B6" reason="Never"/>
-    <disable_collisions link1="bar_B5" link2="bar_C#4" reason="Never"/>
-    <disable_collisions link1="bar_B5" link2="bar_C#5" reason="Never"/>
-    <disable_collisions link1="bar_B5" link2="bar_C#6" reason="Never"/>
+    <disable_collisions link1="bar_B5" link2="bar_Cs4" reason="Never"/>
+    <disable_collisions link1="bar_B5" link2="bar_Cs5" reason="Never"/>
+    <disable_collisions link1="bar_B5" link2="bar_Cs6" reason="Never"/>
     <disable_collisions link1="bar_B5" link2="bar_C4" reason="Never"/>
     <disable_collisions link1="bar_B5" link2="bar_C5" reason="Never"/>
     <disable_collisions link1="bar_B5" link2="bar_C6" reason="Never"/>
     <disable_collisions link1="bar_B5" link2="bar_C7" reason="Never"/>
-    <disable_collisions link1="bar_B5" link2="bar_D#4" reason="Never"/>
-    <disable_collisions link1="bar_B5" link2="bar_D#5" reason="Never"/>
-    <disable_collisions link1="bar_B5" link2="bar_D#6" reason="Never"/>
+    <disable_collisions link1="bar_B5" link2="bar_Ds4" reason="Never"/>
+    <disable_collisions link1="bar_B5" link2="bar_Ds5" reason="Never"/>
+    <disable_collisions link1="bar_B5" link2="bar_Ds6" reason="Never"/>
     <disable_collisions link1="bar_B5" link2="bar_D4" reason="Never"/>
     <disable_collisions link1="bar_B5" link2="bar_D5" reason="Never"/>
     <disable_collisions link1="bar_B5" link2="bar_D6" reason="Never"/>
     <disable_collisions link1="bar_B5" link2="bar_E4" reason="Never"/>
     <disable_collisions link1="bar_B5" link2="bar_E5" reason="Never"/>
     <disable_collisions link1="bar_B5" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_B5" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_B5" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_B5" link2="bar_F#6" reason="Never"/>
+    <disable_collisions link1="bar_B5" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_B5" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_B5" link2="bar_Fs6" reason="Never"/>
     <disable_collisions link1="bar_B5" link2="bar_F4" reason="Never"/>
     <disable_collisions link1="bar_B5" link2="bar_F5" reason="Never"/>
     <disable_collisions link1="bar_B5" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_B5" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_B5" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_B5" link2="bar_G#6" reason="Never"/>
+    <disable_collisions link1="bar_B5" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_B5" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_B5" link2="bar_Gs6" reason="Never"/>
     <disable_collisions link1="bar_B5" link2="bar_G4" reason="Never"/>
     <disable_collisions link1="bar_B5" link2="bar_G5" reason="Never"/>
     <disable_collisions link1="bar_B5" link2="bar_G6" reason="Never"/>
@@ -667,31 +667,31 @@
     <disable_collisions link1="bar_B5" link2="ur5_shoulder_link" reason="Never"/>
     <disable_collisions link1="bar_B5" link2="ur5_upper_arm_link" reason="Never"/>
     <disable_collisions link1="bar_B5" link2="wall" reason="Never"/>
-    <disable_collisions link1="bar_B6" link2="bar_C#4" reason="Never"/>
-    <disable_collisions link1="bar_B6" link2="bar_C#5" reason="Never"/>
-    <disable_collisions link1="bar_B6" link2="bar_C#6" reason="Never"/>
+    <disable_collisions link1="bar_B6" link2="bar_Cs4" reason="Never"/>
+    <disable_collisions link1="bar_B6" link2="bar_Cs5" reason="Never"/>
+    <disable_collisions link1="bar_B6" link2="bar_Cs6" reason="Never"/>
     <disable_collisions link1="bar_B6" link2="bar_C4" reason="Never"/>
     <disable_collisions link1="bar_B6" link2="bar_C5" reason="Never"/>
     <disable_collisions link1="bar_B6" link2="bar_C6" reason="Never"/>
     <disable_collisions link1="bar_B6" link2="bar_C7" reason="Never"/>
-    <disable_collisions link1="bar_B6" link2="bar_D#4" reason="Never"/>
-    <disable_collisions link1="bar_B6" link2="bar_D#5" reason="Never"/>
-    <disable_collisions link1="bar_B6" link2="bar_D#6" reason="Never"/>
+    <disable_collisions link1="bar_B6" link2="bar_Ds4" reason="Never"/>
+    <disable_collisions link1="bar_B6" link2="bar_Ds5" reason="Never"/>
+    <disable_collisions link1="bar_B6" link2="bar_Ds6" reason="Never"/>
     <disable_collisions link1="bar_B6" link2="bar_D4" reason="Never"/>
     <disable_collisions link1="bar_B6" link2="bar_D5" reason="Never"/>
     <disable_collisions link1="bar_B6" link2="bar_D6" reason="Never"/>
     <disable_collisions link1="bar_B6" link2="bar_E4" reason="Never"/>
     <disable_collisions link1="bar_B6" link2="bar_E5" reason="Never"/>
     <disable_collisions link1="bar_B6" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_B6" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_B6" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_B6" link2="bar_F#6" reason="Never"/>
+    <disable_collisions link1="bar_B6" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_B6" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_B6" link2="bar_Fs6" reason="Never"/>
     <disable_collisions link1="bar_B6" link2="bar_F4" reason="Never"/>
     <disable_collisions link1="bar_B6" link2="bar_F5" reason="Never"/>
     <disable_collisions link1="bar_B6" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_B6" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_B6" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_B6" link2="bar_G#6" reason="Never"/>
+    <disable_collisions link1="bar_B6" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_B6" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_B6" link2="bar_Gs6" reason="Never"/>
     <disable_collisions link1="bar_B6" link2="bar_G4" reason="Never"/>
     <disable_collisions link1="bar_B6" link2="bar_G5" reason="Never"/>
     <disable_collisions link1="bar_B6" link2="bar_G6" reason="Never"/>
@@ -710,153 +710,153 @@
     <disable_collisions link1="bar_B6" link2="ur5_shoulder_link" reason="Never"/>
     <disable_collisions link1="bar_B6" link2="ur5_upper_arm_link" reason="Never"/>
     <disable_collisions link1="bar_B6" link2="wall" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_C#5" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_C#6" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_C4" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_C5" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_C6" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_C7" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_D#4" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_D#5" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_D#6" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_D4" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_D5" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_D6" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_E4" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_E5" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_F#6" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_F4" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_F5" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_G#6" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_G4" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_G5" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="bar_G6" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="body_bottom" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="body_left" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="body_right" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="body_top" reason="Adjacent"/>
-    <disable_collisions link1="bar_C#4" link2="cable_duct" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="clock" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="floor" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="shelf" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="side_wall" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="small_wall" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="ur5_base_link" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="ur5_ee_link" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="ur5_forearm_link" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="ur5_mount" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="ur5_shoulder_link" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="ur5_upper_arm_link" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="ur5_wrist_1_link" reason="Never"/>
-    <disable_collisions link1="bar_C#4" link2="wall" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_C#6" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_C4" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_C5" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_C6" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_C7" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_D#4" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_D#5" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_D#6" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_D4" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_D5" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_D6" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_E4" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_E5" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_F#6" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_F4" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_F5" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_G#6" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_G4" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_G5" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="bar_G6" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="body_bottom" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="body_left" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="body_right" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="body_top" reason="Adjacent"/>
-    <disable_collisions link1="bar_C#5" link2="cable_duct" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="clock" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="floor" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="shelf" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="side_wall" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="small_wall" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="ur5_base_link" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="ur5_mount" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="ur5_shoulder_link" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="ur5_upper_arm_link" reason="Never"/>
-    <disable_collisions link1="bar_C#5" link2="wall" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_C4" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_C5" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_C6" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_C7" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_D#4" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_D#5" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_D#6" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_D4" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_D5" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_D6" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_E4" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_E5" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_F#6" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_F4" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_F5" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_G#6" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_G4" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_G5" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="bar_G6" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="body_bottom" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="body_left" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="body_right" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="body_top" reason="Adjacent"/>
-    <disable_collisions link1="bar_C#6" link2="cable_duct" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="clock" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="floor" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="shelf" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="side_wall" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="small_wall" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="ur5_base_link" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="ur5_mount" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="ur5_shoulder_link" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="ur5_upper_arm_link" reason="Never"/>
-    <disable_collisions link1="bar_C#6" link2="wall" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_Cs5" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_Cs6" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_C4" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_C5" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_C6" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_C7" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_Ds4" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_Ds5" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_Ds6" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_D4" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_D5" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_D6" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_E4" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_E5" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_E6" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_Fs6" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_F4" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_F5" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_F6" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_Gs6" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_G4" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_G5" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="bar_G6" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="body_bottom" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="body_left" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="body_right" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="body_top" reason="Adjacent"/>
+    <disable_collisions link1="bar_Cs4" link2="cable_duct" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="clock" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="floor" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="shelf" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="side_wall" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="small_wall" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="ur5_base_link" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="ur5_ee_link" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="ur5_forearm_link" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="ur5_mount" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="ur5_shoulder_link" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="ur5_upper_arm_link" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="ur5_wrist_1_link" reason="Never"/>
+    <disable_collisions link1="bar_Cs4" link2="wall" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_Cs6" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_C4" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_C5" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_C6" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_C7" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_Ds4" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_Ds5" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_Ds6" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_D4" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_D5" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_D6" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_E4" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_E5" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_E6" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_Fs6" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_F4" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_F5" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_F6" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_Gs6" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_G4" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_G5" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="bar_G6" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="body_bottom" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="body_left" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="body_right" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="body_top" reason="Adjacent"/>
+    <disable_collisions link1="bar_Cs5" link2="cable_duct" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="clock" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="floor" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="shelf" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="side_wall" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="small_wall" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="ur5_base_link" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="ur5_mount" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="ur5_shoulder_link" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="ur5_upper_arm_link" reason="Never"/>
+    <disable_collisions link1="bar_Cs5" link2="wall" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_C4" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_C5" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_C6" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_C7" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_Ds4" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_Ds5" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_Ds6" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_D4" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_D5" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_D6" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_E4" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_E5" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_E6" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_Fs6" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_F4" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_F5" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_F6" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_Gs6" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_G4" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_G5" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="bar_G6" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="body_bottom" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="body_left" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="body_right" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="body_top" reason="Adjacent"/>
+    <disable_collisions link1="bar_Cs6" link2="cable_duct" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="clock" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="floor" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="shelf" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="side_wall" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="small_wall" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="ur5_base_link" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="ur5_mount" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="ur5_shoulder_link" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="ur5_upper_arm_link" reason="Never"/>
+    <disable_collisions link1="bar_Cs6" link2="wall" reason="Never"/>
     <disable_collisions link1="bar_C4" link2="bar_C5" reason="Never"/>
     <disable_collisions link1="bar_C4" link2="bar_C6" reason="Never"/>
     <disable_collisions link1="bar_C4" link2="bar_C7" reason="Never"/>
-    <disable_collisions link1="bar_C4" link2="bar_D#4" reason="Never"/>
-    <disable_collisions link1="bar_C4" link2="bar_D#5" reason="Never"/>
-    <disable_collisions link1="bar_C4" link2="bar_D#6" reason="Never"/>
+    <disable_collisions link1="bar_C4" link2="bar_Ds4" reason="Never"/>
+    <disable_collisions link1="bar_C4" link2="bar_Ds5" reason="Never"/>
+    <disable_collisions link1="bar_C4" link2="bar_Ds6" reason="Never"/>
     <disable_collisions link1="bar_C4" link2="bar_D4" reason="Never"/>
     <disable_collisions link1="bar_C4" link2="bar_D5" reason="Never"/>
     <disable_collisions link1="bar_C4" link2="bar_D6" reason="Never"/>
     <disable_collisions link1="bar_C4" link2="bar_E4" reason="Never"/>
     <disable_collisions link1="bar_C4" link2="bar_E5" reason="Never"/>
     <disable_collisions link1="bar_C4" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_C4" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_C4" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_C4" link2="bar_F#6" reason="Never"/>
+    <disable_collisions link1="bar_C4" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_C4" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_C4" link2="bar_Fs6" reason="Never"/>
     <disable_collisions link1="bar_C4" link2="bar_F4" reason="Never"/>
     <disable_collisions link1="bar_C4" link2="bar_F5" reason="Never"/>
     <disable_collisions link1="bar_C4" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_C4" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_C4" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_C4" link2="bar_G#6" reason="Never"/>
+    <disable_collisions link1="bar_C4" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_C4" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_C4" link2="bar_Gs6" reason="Never"/>
     <disable_collisions link1="bar_C4" link2="bar_G4" reason="Never"/>
     <disable_collisions link1="bar_C4" link2="bar_G5" reason="Never"/>
     <disable_collisions link1="bar_C4" link2="bar_G6" reason="Never"/>
@@ -877,24 +877,24 @@
     <disable_collisions link1="bar_C4" link2="wall" reason="Never"/>
     <disable_collisions link1="bar_C5" link2="bar_C6" reason="Never"/>
     <disable_collisions link1="bar_C5" link2="bar_C7" reason="Never"/>
-    <disable_collisions link1="bar_C5" link2="bar_D#4" reason="Never"/>
-    <disable_collisions link1="bar_C5" link2="bar_D#5" reason="Never"/>
-    <disable_collisions link1="bar_C5" link2="bar_D#6" reason="Never"/>
+    <disable_collisions link1="bar_C5" link2="bar_Ds4" reason="Never"/>
+    <disable_collisions link1="bar_C5" link2="bar_Ds5" reason="Never"/>
+    <disable_collisions link1="bar_C5" link2="bar_Ds6" reason="Never"/>
     <disable_collisions link1="bar_C5" link2="bar_D4" reason="Never"/>
     <disable_collisions link1="bar_C5" link2="bar_D5" reason="Never"/>
     <disable_collisions link1="bar_C5" link2="bar_D6" reason="Never"/>
     <disable_collisions link1="bar_C5" link2="bar_E4" reason="Never"/>
     <disable_collisions link1="bar_C5" link2="bar_E5" reason="Never"/>
     <disable_collisions link1="bar_C5" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_C5" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_C5" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_C5" link2="bar_F#6" reason="Never"/>
+    <disable_collisions link1="bar_C5" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_C5" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_C5" link2="bar_Fs6" reason="Never"/>
     <disable_collisions link1="bar_C5" link2="bar_F4" reason="Never"/>
     <disable_collisions link1="bar_C5" link2="bar_F5" reason="Never"/>
     <disable_collisions link1="bar_C5" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_C5" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_C5" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_C5" link2="bar_G#6" reason="Never"/>
+    <disable_collisions link1="bar_C5" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_C5" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_C5" link2="bar_Gs6" reason="Never"/>
     <disable_collisions link1="bar_C5" link2="bar_G4" reason="Never"/>
     <disable_collisions link1="bar_C5" link2="bar_G5" reason="Never"/>
     <disable_collisions link1="bar_C5" link2="bar_G6" reason="Never"/>
@@ -914,24 +914,24 @@
     <disable_collisions link1="bar_C5" link2="ur5_upper_arm_link" reason="Never"/>
     <disable_collisions link1="bar_C5" link2="wall" reason="Never"/>
     <disable_collisions link1="bar_C6" link2="bar_C7" reason="Never"/>
-    <disable_collisions link1="bar_C6" link2="bar_D#4" reason="Never"/>
-    <disable_collisions link1="bar_C6" link2="bar_D#5" reason="Never"/>
-    <disable_collisions link1="bar_C6" link2="bar_D#6" reason="Never"/>
+    <disable_collisions link1="bar_C6" link2="bar_Ds4" reason="Never"/>
+    <disable_collisions link1="bar_C6" link2="bar_Ds5" reason="Never"/>
+    <disable_collisions link1="bar_C6" link2="bar_Ds6" reason="Never"/>
     <disable_collisions link1="bar_C6" link2="bar_D4" reason="Never"/>
     <disable_collisions link1="bar_C6" link2="bar_D5" reason="Never"/>
     <disable_collisions link1="bar_C6" link2="bar_D6" reason="Never"/>
     <disable_collisions link1="bar_C6" link2="bar_E4" reason="Never"/>
     <disable_collisions link1="bar_C6" link2="bar_E5" reason="Never"/>
     <disable_collisions link1="bar_C6" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_C6" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_C6" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_C6" link2="bar_F#6" reason="Never"/>
+    <disable_collisions link1="bar_C6" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_C6" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_C6" link2="bar_Fs6" reason="Never"/>
     <disable_collisions link1="bar_C6" link2="bar_F4" reason="Never"/>
     <disable_collisions link1="bar_C6" link2="bar_F5" reason="Never"/>
     <disable_collisions link1="bar_C6" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_C6" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_C6" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_C6" link2="bar_G#6" reason="Never"/>
+    <disable_collisions link1="bar_C6" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_C6" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_C6" link2="bar_Gs6" reason="Never"/>
     <disable_collisions link1="bar_C6" link2="bar_G4" reason="Never"/>
     <disable_collisions link1="bar_C6" link2="bar_G5" reason="Never"/>
     <disable_collisions link1="bar_C6" link2="bar_G6" reason="Never"/>
@@ -950,24 +950,24 @@
     <disable_collisions link1="bar_C6" link2="ur5_shoulder_link" reason="Never"/>
     <disable_collisions link1="bar_C6" link2="ur5_upper_arm_link" reason="Never"/>
     <disable_collisions link1="bar_C6" link2="wall" reason="Never"/>
-    <disable_collisions link1="bar_C7" link2="bar_D#4" reason="Never"/>
-    <disable_collisions link1="bar_C7" link2="bar_D#5" reason="Never"/>
-    <disable_collisions link1="bar_C7" link2="bar_D#6" reason="Never"/>
+    <disable_collisions link1="bar_C7" link2="bar_Ds4" reason="Never"/>
+    <disable_collisions link1="bar_C7" link2="bar_Ds5" reason="Never"/>
+    <disable_collisions link1="bar_C7" link2="bar_Ds6" reason="Never"/>
     <disable_collisions link1="bar_C7" link2="bar_D4" reason="Never"/>
     <disable_collisions link1="bar_C7" link2="bar_D5" reason="Never"/>
     <disable_collisions link1="bar_C7" link2="bar_D6" reason="Never"/>
     <disable_collisions link1="bar_C7" link2="bar_E4" reason="Never"/>
     <disable_collisions link1="bar_C7" link2="bar_E5" reason="Never"/>
     <disable_collisions link1="bar_C7" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_C7" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_C7" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_C7" link2="bar_F#6" reason="Never"/>
+    <disable_collisions link1="bar_C7" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_C7" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_C7" link2="bar_Fs6" reason="Never"/>
     <disable_collisions link1="bar_C7" link2="bar_F4" reason="Never"/>
     <disable_collisions link1="bar_C7" link2="bar_F5" reason="Never"/>
     <disable_collisions link1="bar_C7" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_C7" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_C7" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_C7" link2="bar_G#6" reason="Never"/>
+    <disable_collisions link1="bar_C7" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_C7" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_C7" link2="bar_Gs6" reason="Never"/>
     <disable_collisions link1="bar_C7" link2="bar_G4" reason="Never"/>
     <disable_collisions link1="bar_C7" link2="bar_G5" reason="Never"/>
     <disable_collisions link1="bar_C7" link2="bar_G6" reason="Never"/>
@@ -986,123 +986,123 @@
     <disable_collisions link1="bar_C7" link2="ur5_shoulder_link" reason="Never"/>
     <disable_collisions link1="bar_C7" link2="ur5_upper_arm_link" reason="Never"/>
     <disable_collisions link1="bar_C7" link2="wall" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="bar_D#5" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="bar_D#6" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="bar_D4" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="bar_D5" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="bar_D6" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="bar_E4" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="bar_E5" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="bar_F#6" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="bar_F4" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="bar_F5" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="bar_G#6" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="bar_G4" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="bar_G5" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="bar_G6" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="body_bottom" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="body_left" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="body_right" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="body_top" reason="Adjacent"/>
-    <disable_collisions link1="bar_D#4" link2="cable_duct" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="clock" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="floor" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="shelf" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="side_wall" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="small_wall" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="ur5_base_link" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="ur5_forearm_link" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="ur5_mount" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="ur5_shoulder_link" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="ur5_upper_arm_link" reason="Never"/>
-    <disable_collisions link1="bar_D#4" link2="wall" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="bar_D#6" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="bar_D4" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="bar_D5" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="bar_D6" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="bar_E4" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="bar_E5" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="bar_F#6" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="bar_F4" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="bar_F5" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="bar_G#6" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="bar_G4" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="bar_G5" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="bar_G6" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="body_bottom" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="body_left" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="body_right" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="body_top" reason="Adjacent"/>
-    <disable_collisions link1="bar_D#5" link2="cable_duct" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="clock" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="floor" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="shelf" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="side_wall" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="small_wall" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="ur5_base_link" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="ur5_mount" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="ur5_shoulder_link" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="ur5_upper_arm_link" reason="Never"/>
-    <disable_collisions link1="bar_D#5" link2="wall" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="bar_D4" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="bar_D5" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="bar_D6" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="bar_E4" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="bar_E5" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="bar_F#6" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="bar_F4" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="bar_F5" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="bar_G#6" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="bar_G4" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="bar_G5" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="bar_G6" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="body_bottom" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="body_left" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="body_right" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="body_top" reason="Adjacent"/>
-    <disable_collisions link1="bar_D#6" link2="cable_duct" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="clock" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="floor" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="shelf" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="side_wall" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="small_wall" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="ur5_base_link" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="ur5_mount" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="ur5_shoulder_link" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="ur5_upper_arm_link" reason="Never"/>
-    <disable_collisions link1="bar_D#6" link2="wall" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="bar_Ds5" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="bar_Ds6" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="bar_D4" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="bar_D5" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="bar_D6" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="bar_E4" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="bar_E5" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="bar_E6" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="bar_Fs6" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="bar_F4" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="bar_F5" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="bar_F6" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="bar_Gs6" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="bar_G4" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="bar_G5" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="bar_G6" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="body_bottom" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="body_left" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="body_right" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="body_top" reason="Adjacent"/>
+    <disable_collisions link1="bar_Ds4" link2="cable_duct" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="clock" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="floor" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="shelf" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="side_wall" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="small_wall" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="ur5_base_link" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="ur5_forearm_link" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="ur5_mount" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="ur5_shoulder_link" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="ur5_upper_arm_link" reason="Never"/>
+    <disable_collisions link1="bar_Ds4" link2="wall" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="bar_Ds6" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="bar_D4" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="bar_D5" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="bar_D6" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="bar_E4" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="bar_E5" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="bar_E6" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="bar_Fs6" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="bar_F4" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="bar_F5" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="bar_F6" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="bar_Gs6" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="bar_G4" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="bar_G5" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="bar_G6" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="body_bottom" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="body_left" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="body_right" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="body_top" reason="Adjacent"/>
+    <disable_collisions link1="bar_Ds5" link2="cable_duct" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="clock" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="floor" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="shelf" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="side_wall" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="small_wall" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="ur5_base_link" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="ur5_mount" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="ur5_shoulder_link" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="ur5_upper_arm_link" reason="Never"/>
+    <disable_collisions link1="bar_Ds5" link2="wall" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="bar_D4" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="bar_D5" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="bar_D6" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="bar_E4" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="bar_E5" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="bar_E6" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="bar_Fs6" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="bar_F4" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="bar_F5" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="bar_F6" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="bar_Gs6" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="bar_G4" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="bar_G5" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="bar_G6" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="body_bottom" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="body_left" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="body_right" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="body_top" reason="Adjacent"/>
+    <disable_collisions link1="bar_Ds6" link2="cable_duct" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="clock" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="floor" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="shelf" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="side_wall" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="small_wall" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="ur5_base_link" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="ur5_mount" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="ur5_shoulder_link" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="ur5_upper_arm_link" reason="Never"/>
+    <disable_collisions link1="bar_Ds6" link2="wall" reason="Never"/>
     <disable_collisions link1="bar_D4" link2="bar_D5" reason="Never"/>
     <disable_collisions link1="bar_D4" link2="bar_D6" reason="Never"/>
     <disable_collisions link1="bar_D4" link2="bar_E4" reason="Never"/>
     <disable_collisions link1="bar_D4" link2="bar_E5" reason="Never"/>
     <disable_collisions link1="bar_D4" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_D4" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_D4" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_D4" link2="bar_F#6" reason="Never"/>
+    <disable_collisions link1="bar_D4" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_D4" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_D4" link2="bar_Fs6" reason="Never"/>
     <disable_collisions link1="bar_D4" link2="bar_F4" reason="Never"/>
     <disable_collisions link1="bar_D4" link2="bar_F5" reason="Never"/>
     <disable_collisions link1="bar_D4" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_D4" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_D4" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_D4" link2="bar_G#6" reason="Never"/>
+    <disable_collisions link1="bar_D4" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_D4" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_D4" link2="bar_Gs6" reason="Never"/>
     <disable_collisions link1="bar_D4" link2="bar_G4" reason="Never"/>
     <disable_collisions link1="bar_D4" link2="bar_G5" reason="Never"/>
     <disable_collisions link1="bar_D4" link2="bar_G6" reason="Never"/>
@@ -1125,15 +1125,15 @@
     <disable_collisions link1="bar_D5" link2="bar_E4" reason="Never"/>
     <disable_collisions link1="bar_D5" link2="bar_E5" reason="Never"/>
     <disable_collisions link1="bar_D5" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_D5" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_D5" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_D5" link2="bar_F#6" reason="Never"/>
+    <disable_collisions link1="bar_D5" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_D5" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_D5" link2="bar_Fs6" reason="Never"/>
     <disable_collisions link1="bar_D5" link2="bar_F4" reason="Never"/>
     <disable_collisions link1="bar_D5" link2="bar_F5" reason="Never"/>
     <disable_collisions link1="bar_D5" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_D5" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_D5" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_D5" link2="bar_G#6" reason="Never"/>
+    <disable_collisions link1="bar_D5" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_D5" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_D5" link2="bar_Gs6" reason="Never"/>
     <disable_collisions link1="bar_D5" link2="bar_G4" reason="Never"/>
     <disable_collisions link1="bar_D5" link2="bar_G5" reason="Never"/>
     <disable_collisions link1="bar_D5" link2="bar_G6" reason="Never"/>
@@ -1155,15 +1155,15 @@
     <disable_collisions link1="bar_D6" link2="bar_E4" reason="Never"/>
     <disable_collisions link1="bar_D6" link2="bar_E5" reason="Never"/>
     <disable_collisions link1="bar_D6" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_D6" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_D6" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_D6" link2="bar_F#6" reason="Never"/>
+    <disable_collisions link1="bar_D6" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_D6" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_D6" link2="bar_Fs6" reason="Never"/>
     <disable_collisions link1="bar_D6" link2="bar_F4" reason="Never"/>
     <disable_collisions link1="bar_D6" link2="bar_F5" reason="Never"/>
     <disable_collisions link1="bar_D6" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_D6" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_D6" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_D6" link2="bar_G#6" reason="Never"/>
+    <disable_collisions link1="bar_D6" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_D6" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_D6" link2="bar_Gs6" reason="Never"/>
     <disable_collisions link1="bar_D6" link2="bar_G4" reason="Never"/>
     <disable_collisions link1="bar_D6" link2="bar_G5" reason="Never"/>
     <disable_collisions link1="bar_D6" link2="bar_G6" reason="Never"/>
@@ -1184,15 +1184,15 @@
     <disable_collisions link1="bar_D6" link2="wall" reason="Never"/>
     <disable_collisions link1="bar_E4" link2="bar_E5" reason="Never"/>
     <disable_collisions link1="bar_E4" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_E4" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_E4" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_E4" link2="bar_F#6" reason="Never"/>
+    <disable_collisions link1="bar_E4" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_E4" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_E4" link2="bar_Fs6" reason="Never"/>
     <disable_collisions link1="bar_E4" link2="bar_F4" reason="Never"/>
     <disable_collisions link1="bar_E4" link2="bar_F5" reason="Never"/>
     <disable_collisions link1="bar_E4" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_E4" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_E4" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_E4" link2="bar_G#6" reason="Never"/>
+    <disable_collisions link1="bar_E4" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_E4" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_E4" link2="bar_Gs6" reason="Never"/>
     <disable_collisions link1="bar_E4" link2="bar_G4" reason="Never"/>
     <disable_collisions link1="bar_E4" link2="bar_G5" reason="Never"/>
     <disable_collisions link1="bar_E4" link2="bar_G6" reason="Never"/>
@@ -1212,15 +1212,15 @@
     <disable_collisions link1="bar_E4" link2="ur5_upper_arm_link" reason="Never"/>
     <disable_collisions link1="bar_E4" link2="wall" reason="Never"/>
     <disable_collisions link1="bar_E5" link2="bar_E6" reason="Never"/>
-    <disable_collisions link1="bar_E5" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_E5" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_E5" link2="bar_F#6" reason="Never"/>
+    <disable_collisions link1="bar_E5" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_E5" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_E5" link2="bar_Fs6" reason="Never"/>
     <disable_collisions link1="bar_E5" link2="bar_F4" reason="Never"/>
     <disable_collisions link1="bar_E5" link2="bar_F5" reason="Never"/>
     <disable_collisions link1="bar_E5" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_E5" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_E5" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_E5" link2="bar_G#6" reason="Never"/>
+    <disable_collisions link1="bar_E5" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_E5" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_E5" link2="bar_Gs6" reason="Never"/>
     <disable_collisions link1="bar_E5" link2="bar_G4" reason="Never"/>
     <disable_collisions link1="bar_E5" link2="bar_G5" reason="Never"/>
     <disable_collisions link1="bar_E5" link2="bar_G6" reason="Never"/>
@@ -1239,15 +1239,15 @@
     <disable_collisions link1="bar_E5" link2="ur5_shoulder_link" reason="Never"/>
     <disable_collisions link1="bar_E5" link2="ur5_upper_arm_link" reason="Never"/>
     <disable_collisions link1="bar_E5" link2="wall" reason="Never"/>
-    <disable_collisions link1="bar_E6" link2="bar_F#4" reason="Never"/>
-    <disable_collisions link1="bar_E6" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_E6" link2="bar_F#6" reason="Never"/>
+    <disable_collisions link1="bar_E6" link2="bar_Fs4" reason="Never"/>
+    <disable_collisions link1="bar_E6" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_E6" link2="bar_Fs6" reason="Never"/>
     <disable_collisions link1="bar_E6" link2="bar_F4" reason="Never"/>
     <disable_collisions link1="bar_E6" link2="bar_F5" reason="Never"/>
     <disable_collisions link1="bar_E6" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_E6" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_E6" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_E6" link2="bar_G#6" reason="Never"/>
+    <disable_collisions link1="bar_E6" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_E6" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_E6" link2="bar_Gs6" reason="Never"/>
     <disable_collisions link1="bar_E6" link2="bar_G4" reason="Never"/>
     <disable_collisions link1="bar_E6" link2="bar_G5" reason="Never"/>
     <disable_collisions link1="bar_E6" link2="bar_G6" reason="Never"/>
@@ -1266,86 +1266,86 @@
     <disable_collisions link1="bar_E6" link2="ur5_shoulder_link" reason="Never"/>
     <disable_collisions link1="bar_E6" link2="ur5_upper_arm_link" reason="Never"/>
     <disable_collisions link1="bar_E6" link2="wall" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="bar_F#5" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="bar_F#6" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="bar_F4" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="bar_F5" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="bar_G#6" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="bar_G4" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="bar_G5" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="bar_G6" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="body_bottom" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="body_left" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="body_right" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="body_top" reason="Adjacent"/>
-    <disable_collisions link1="bar_F#4" link2="cable_duct" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="clock" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="floor" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="shelf" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="side_wall" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="small_wall" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="ur5_base_link" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="ur5_mount" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="ur5_shoulder_link" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="ur5_upper_arm_link" reason="Never"/>
-    <disable_collisions link1="bar_F#4" link2="wall" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="bar_F#6" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="bar_F4" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="bar_F5" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="bar_G#6" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="bar_G4" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="bar_G5" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="bar_G6" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="body_bottom" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="body_left" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="body_right" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="body_top" reason="Adjacent"/>
-    <disable_collisions link1="bar_F#5" link2="cable_duct" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="clock" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="floor" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="shelf" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="side_wall" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="small_wall" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="ur5_base_link" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="ur5_mount" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="ur5_shoulder_link" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="ur5_upper_arm_link" reason="Never"/>
-    <disable_collisions link1="bar_F#5" link2="wall" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="bar_F4" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="bar_F5" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="bar_G#6" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="bar_G4" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="bar_G5" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="bar_G6" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="body_bottom" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="body_left" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="body_right" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="body_top" reason="Adjacent"/>
-    <disable_collisions link1="bar_F#6" link2="cable_duct" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="clock" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="floor" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="shelf" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="side_wall" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="small_wall" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="ur5_base_link" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="ur5_mount" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="ur5_shoulder_link" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="ur5_upper_arm_link" reason="Never"/>
-    <disable_collisions link1="bar_F#6" link2="wall" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="bar_Fs5" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="bar_Fs6" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="bar_F4" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="bar_F5" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="bar_F6" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="bar_Gs6" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="bar_G4" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="bar_G5" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="bar_G6" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="body_bottom" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="body_left" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="body_right" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="body_top" reason="Adjacent"/>
+    <disable_collisions link1="bar_Fs4" link2="cable_duct" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="clock" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="floor" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="shelf" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="side_wall" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="small_wall" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="ur5_base_link" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="ur5_mount" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="ur5_shoulder_link" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="ur5_upper_arm_link" reason="Never"/>
+    <disable_collisions link1="bar_Fs4" link2="wall" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="bar_Fs6" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="bar_F4" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="bar_F5" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="bar_F6" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="bar_Gs6" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="bar_G4" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="bar_G5" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="bar_G6" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="body_bottom" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="body_left" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="body_right" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="body_top" reason="Adjacent"/>
+    <disable_collisions link1="bar_Fs5" link2="cable_duct" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="clock" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="floor" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="shelf" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="side_wall" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="small_wall" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="ur5_base_link" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="ur5_mount" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="ur5_shoulder_link" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="ur5_upper_arm_link" reason="Never"/>
+    <disable_collisions link1="bar_Fs5" link2="wall" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="bar_F4" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="bar_F5" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="bar_F6" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="bar_Gs6" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="bar_G4" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="bar_G5" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="bar_G6" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="body_bottom" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="body_left" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="body_right" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="body_top" reason="Adjacent"/>
+    <disable_collisions link1="bar_Fs6" link2="cable_duct" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="clock" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="floor" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="shelf" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="side_wall" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="small_wall" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="ur5_base_link" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="ur5_mount" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="ur5_shoulder_link" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="ur5_upper_arm_link" reason="Never"/>
+    <disable_collisions link1="bar_Fs6" link2="wall" reason="Never"/>
     <disable_collisions link1="bar_F4" link2="bar_F5" reason="Never"/>
     <disable_collisions link1="bar_F4" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_F4" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_F4" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_F4" link2="bar_G#6" reason="Never"/>
+    <disable_collisions link1="bar_F4" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_F4" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_F4" link2="bar_Gs6" reason="Never"/>
     <disable_collisions link1="bar_F4" link2="bar_G4" reason="Never"/>
     <disable_collisions link1="bar_F4" link2="bar_G5" reason="Never"/>
     <disable_collisions link1="bar_F4" link2="bar_G6" reason="Never"/>
@@ -1365,9 +1365,9 @@
     <disable_collisions link1="bar_F4" link2="ur5_upper_arm_link" reason="Never"/>
     <disable_collisions link1="bar_F4" link2="wall" reason="Never"/>
     <disable_collisions link1="bar_F5" link2="bar_F6" reason="Never"/>
-    <disable_collisions link1="bar_F5" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_F5" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_F5" link2="bar_G#6" reason="Never"/>
+    <disable_collisions link1="bar_F5" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_F5" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_F5" link2="bar_Gs6" reason="Never"/>
     <disable_collisions link1="bar_F5" link2="bar_G4" reason="Never"/>
     <disable_collisions link1="bar_F5" link2="bar_G5" reason="Never"/>
     <disable_collisions link1="bar_F5" link2="bar_G6" reason="Never"/>
@@ -1386,9 +1386,9 @@
     <disable_collisions link1="bar_F5" link2="ur5_shoulder_link" reason="Never"/>
     <disable_collisions link1="bar_F5" link2="ur5_upper_arm_link" reason="Never"/>
     <disable_collisions link1="bar_F5" link2="wall" reason="Never"/>
-    <disable_collisions link1="bar_F6" link2="bar_G#4" reason="Never"/>
-    <disable_collisions link1="bar_F6" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_F6" link2="bar_G#6" reason="Never"/>
+    <disable_collisions link1="bar_F6" link2="bar_Gs4" reason="Never"/>
+    <disable_collisions link1="bar_F6" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_F6" link2="bar_Gs6" reason="Never"/>
     <disable_collisions link1="bar_F6" link2="bar_G4" reason="Never"/>
     <disable_collisions link1="bar_F6" link2="bar_G5" reason="Never"/>
     <disable_collisions link1="bar_F6" link2="bar_G6" reason="Never"/>
@@ -1407,63 +1407,63 @@
     <disable_collisions link1="bar_F6" link2="ur5_shoulder_link" reason="Never"/>
     <disable_collisions link1="bar_F6" link2="ur5_upper_arm_link" reason="Never"/>
     <disable_collisions link1="bar_F6" link2="wall" reason="Never"/>
-    <disable_collisions link1="bar_G#4" link2="bar_G#5" reason="Never"/>
-    <disable_collisions link1="bar_G#4" link2="bar_G#6" reason="Never"/>
-    <disable_collisions link1="bar_G#4" link2="bar_G4" reason="Never"/>
-    <disable_collisions link1="bar_G#4" link2="bar_G5" reason="Never"/>
-    <disable_collisions link1="bar_G#4" link2="bar_G6" reason="Never"/>
-    <disable_collisions link1="bar_G#4" link2="body_bottom" reason="Never"/>
-    <disable_collisions link1="bar_G#4" link2="body_left" reason="Never"/>
-    <disable_collisions link1="bar_G#4" link2="body_right" reason="Never"/>
-    <disable_collisions link1="bar_G#4" link2="body_top" reason="Adjacent"/>
-    <disable_collisions link1="bar_G#4" link2="cable_duct" reason="Never"/>
-    <disable_collisions link1="bar_G#4" link2="clock" reason="Never"/>
-    <disable_collisions link1="bar_G#4" link2="floor" reason="Never"/>
-    <disable_collisions link1="bar_G#4" link2="shelf" reason="Never"/>
-    <disable_collisions link1="bar_G#4" link2="side_wall" reason="Never"/>
-    <disable_collisions link1="bar_G#4" link2="small_wall" reason="Never"/>
-    <disable_collisions link1="bar_G#4" link2="ur5_base_link" reason="Never"/>
-    <disable_collisions link1="bar_G#4" link2="ur5_mount" reason="Never"/>
-    <disable_collisions link1="bar_G#4" link2="ur5_shoulder_link" reason="Never"/>
-    <disable_collisions link1="bar_G#4" link2="ur5_upper_arm_link" reason="Never"/>
-    <disable_collisions link1="bar_G#4" link2="wall" reason="Never"/>
-    <disable_collisions link1="bar_G#5" link2="bar_G#6" reason="Never"/>
-    <disable_collisions link1="bar_G#5" link2="bar_G4" reason="Never"/>
-    <disable_collisions link1="bar_G#5" link2="bar_G5" reason="Never"/>
-    <disable_collisions link1="bar_G#5" link2="bar_G6" reason="Never"/>
-    <disable_collisions link1="bar_G#5" link2="body_bottom" reason="Never"/>
-    <disable_collisions link1="bar_G#5" link2="body_left" reason="Never"/>
-    <disable_collisions link1="bar_G#5" link2="body_right" reason="Never"/>
-    <disable_collisions link1="bar_G#5" link2="body_top" reason="Adjacent"/>
-    <disable_collisions link1="bar_G#5" link2="cable_duct" reason="Never"/>
-    <disable_collisions link1="bar_G#5" link2="clock" reason="Never"/>
-    <disable_collisions link1="bar_G#5" link2="floor" reason="Never"/>
-    <disable_collisions link1="bar_G#5" link2="shelf" reason="Never"/>
-    <disable_collisions link1="bar_G#5" link2="side_wall" reason="Never"/>
-    <disable_collisions link1="bar_G#5" link2="small_wall" reason="Never"/>
-    <disable_collisions link1="bar_G#5" link2="ur5_base_link" reason="Never"/>
-    <disable_collisions link1="bar_G#5" link2="ur5_mount" reason="Never"/>
-    <disable_collisions link1="bar_G#5" link2="ur5_shoulder_link" reason="Never"/>
-    <disable_collisions link1="bar_G#5" link2="ur5_upper_arm_link" reason="Never"/>
-    <disable_collisions link1="bar_G#5" link2="wall" reason="Never"/>
-    <disable_collisions link1="bar_G#6" link2="bar_G4" reason="Never"/>
-    <disable_collisions link1="bar_G#6" link2="bar_G5" reason="Never"/>
-    <disable_collisions link1="bar_G#6" link2="bar_G6" reason="Never"/>
-    <disable_collisions link1="bar_G#6" link2="body_bottom" reason="Never"/>
-    <disable_collisions link1="bar_G#6" link2="body_left" reason="Never"/>
-    <disable_collisions link1="bar_G#6" link2="body_right" reason="Never"/>
-    <disable_collisions link1="bar_G#6" link2="body_top" reason="Adjacent"/>
-    <disable_collisions link1="bar_G#6" link2="cable_duct" reason="Never"/>
-    <disable_collisions link1="bar_G#6" link2="clock" reason="Never"/>
-    <disable_collisions link1="bar_G#6" link2="floor" reason="Never"/>
-    <disable_collisions link1="bar_G#6" link2="shelf" reason="Never"/>
-    <disable_collisions link1="bar_G#6" link2="side_wall" reason="Never"/>
-    <disable_collisions link1="bar_G#6" link2="small_wall" reason="Never"/>
-    <disable_collisions link1="bar_G#6" link2="ur5_base_link" reason="Never"/>
-    <disable_collisions link1="bar_G#6" link2="ur5_mount" reason="Never"/>
-    <disable_collisions link1="bar_G#6" link2="ur5_shoulder_link" reason="Never"/>
-    <disable_collisions link1="bar_G#6" link2="ur5_upper_arm_link" reason="Never"/>
-    <disable_collisions link1="bar_G#6" link2="wall" reason="Never"/>
+    <disable_collisions link1="bar_Gs4" link2="bar_Gs5" reason="Never"/>
+    <disable_collisions link1="bar_Gs4" link2="bar_Gs6" reason="Never"/>
+    <disable_collisions link1="bar_Gs4" link2="bar_G4" reason="Never"/>
+    <disable_collisions link1="bar_Gs4" link2="bar_G5" reason="Never"/>
+    <disable_collisions link1="bar_Gs4" link2="bar_G6" reason="Never"/>
+    <disable_collisions link1="bar_Gs4" link2="body_bottom" reason="Never"/>
+    <disable_collisions link1="bar_Gs4" link2="body_left" reason="Never"/>
+    <disable_collisions link1="bar_Gs4" link2="body_right" reason="Never"/>
+    <disable_collisions link1="bar_Gs4" link2="body_top" reason="Adjacent"/>
+    <disable_collisions link1="bar_Gs4" link2="cable_duct" reason="Never"/>
+    <disable_collisions link1="bar_Gs4" link2="clock" reason="Never"/>
+    <disable_collisions link1="bar_Gs4" link2="floor" reason="Never"/>
+    <disable_collisions link1="bar_Gs4" link2="shelf" reason="Never"/>
+    <disable_collisions link1="bar_Gs4" link2="side_wall" reason="Never"/>
+    <disable_collisions link1="bar_Gs4" link2="small_wall" reason="Never"/>
+    <disable_collisions link1="bar_Gs4" link2="ur5_base_link" reason="Never"/>
+    <disable_collisions link1="bar_Gs4" link2="ur5_mount" reason="Never"/>
+    <disable_collisions link1="bar_Gs4" link2="ur5_shoulder_link" reason="Never"/>
+    <disable_collisions link1="bar_Gs4" link2="ur5_upper_arm_link" reason="Never"/>
+    <disable_collisions link1="bar_Gs4" link2="wall" reason="Never"/>
+    <disable_collisions link1="bar_Gs5" link2="bar_Gs6" reason="Never"/>
+    <disable_collisions link1="bar_Gs5" link2="bar_G4" reason="Never"/>
+    <disable_collisions link1="bar_Gs5" link2="bar_G5" reason="Never"/>
+    <disable_collisions link1="bar_Gs5" link2="bar_G6" reason="Never"/>
+    <disable_collisions link1="bar_Gs5" link2="body_bottom" reason="Never"/>
+    <disable_collisions link1="bar_Gs5" link2="body_left" reason="Never"/>
+    <disable_collisions link1="bar_Gs5" link2="body_right" reason="Never"/>
+    <disable_collisions link1="bar_Gs5" link2="body_top" reason="Adjacent"/>
+    <disable_collisions link1="bar_Gs5" link2="cable_duct" reason="Never"/>
+    <disable_collisions link1="bar_Gs5" link2="clock" reason="Never"/>
+    <disable_collisions link1="bar_Gs5" link2="floor" reason="Never"/>
+    <disable_collisions link1="bar_Gs5" link2="shelf" reason="Never"/>
+    <disable_collisions link1="bar_Gs5" link2="side_wall" reason="Never"/>
+    <disable_collisions link1="bar_Gs5" link2="small_wall" reason="Never"/>
+    <disable_collisions link1="bar_Gs5" link2="ur5_base_link" reason="Never"/>
+    <disable_collisions link1="bar_Gs5" link2="ur5_mount" reason="Never"/>
+    <disable_collisions link1="bar_Gs5" link2="ur5_shoulder_link" reason="Never"/>
+    <disable_collisions link1="bar_Gs5" link2="ur5_upper_arm_link" reason="Never"/>
+    <disable_collisions link1="bar_Gs5" link2="wall" reason="Never"/>
+    <disable_collisions link1="bar_Gs6" link2="bar_G4" reason="Never"/>
+    <disable_collisions link1="bar_Gs6" link2="bar_G5" reason="Never"/>
+    <disable_collisions link1="bar_Gs6" link2="bar_G6" reason="Never"/>
+    <disable_collisions link1="bar_Gs6" link2="body_bottom" reason="Never"/>
+    <disable_collisions link1="bar_Gs6" link2="body_left" reason="Never"/>
+    <disable_collisions link1="bar_Gs6" link2="body_right" reason="Never"/>
+    <disable_collisions link1="bar_Gs6" link2="body_top" reason="Adjacent"/>
+    <disable_collisions link1="bar_Gs6" link2="cable_duct" reason="Never"/>
+    <disable_collisions link1="bar_Gs6" link2="clock" reason="Never"/>
+    <disable_collisions link1="bar_Gs6" link2="floor" reason="Never"/>
+    <disable_collisions link1="bar_Gs6" link2="shelf" reason="Never"/>
+    <disable_collisions link1="bar_Gs6" link2="side_wall" reason="Never"/>
+    <disable_collisions link1="bar_Gs6" link2="small_wall" reason="Never"/>
+    <disable_collisions link1="bar_Gs6" link2="ur5_base_link" reason="Never"/>
+    <disable_collisions link1="bar_Gs6" link2="ur5_mount" reason="Never"/>
+    <disable_collisions link1="bar_Gs6" link2="ur5_shoulder_link" reason="Never"/>
+    <disable_collisions link1="bar_Gs6" link2="ur5_upper_arm_link" reason="Never"/>
+    <disable_collisions link1="bar_Gs6" link2="wall" reason="Never"/>
     <disable_collisions link1="bar_G4" link2="bar_G5" reason="Never"/>
     <disable_collisions link1="bar_G4" link2="bar_G6" reason="Never"/>
     <disable_collisions link1="bar_G4" link2="body_bottom" reason="Adjacent"/>

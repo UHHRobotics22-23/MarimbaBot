@@ -1,0 +1,110 @@
+arm_trajectory:
+  type: effort_controllers/JointTrajectoryController
+  joints:
+    - ur5_shoulder_pan_joint
+    - ur5_shoulder_lift_joint
+    - ur5_elbow_joint
+    - ur5_wrist_1_joint
+    - ur5_wrist_2_joint
+    - ur5_wrist_3_joint
+  gains:
+    ur5_shoulder_pan_joint:
+      p: 100
+      d: 1
+      i: 1
+      i_clamp: 1
+    ur5_shoulder_lift_joint:
+      p: 100
+      d: 1
+      i: 1
+      i_clamp: 1
+    ur5_elbow_joint:
+      p: 100
+      d: 1
+      i: 1
+      i_clamp: 1
+    ur5_wrist_1_joint:
+      p: 100
+      d: 1
+      i: 1
+      i_clamp: 1
+    ur5_wrist_2_joint:
+      p: 100
+      d: 1
+      i: 1
+      i_clamp: 1
+    ur5_wrist_3_joint:
+      p: 100
+      d: 1
+      i: 1
+      i_clamp: 1
+gripper_trajectory:
+  type: effort_controllers/JointTrajectoryController
+  joints:
+    - s_model_palm_finger_1_joint
+    - s_model_finger_1_joint_1
+    - s_model_finger_1_joint_2
+    - s_model_finger_1_joint_3
+    - s_model_palm_finger_2_joint
+    - s_model_finger_2_joint_1
+    - s_model_finger_2_joint_2
+    - s_model_finger_2_joint_3
+    - s_model_finger_middle_joint_1
+    - s_model_finger_middle_joint_2
+    - s_model_finger_middle_joint_3
+  gains:
+    s_model_palm_finger_1_joint:
+      p: 100
+      d: 1
+      i: 1
+      i_clamp: 1
+    s_model_finger_1_joint_1:
+      p: 100
+      d: 1
+      i: 1
+      i_clamp: 1
+    s_model_finger_1_joint_2:
+      p: 100
+      d: 1
+      i: 1
+      i_clamp: 1
+    s_model_finger_1_joint_3:
+      p: 100
+      d: 1
+      i: 1
+      i_clamp: 1
+    s_model_palm_finger_2_joint:
+      p: 100
+      d: 1
+      i: 1
+      i_clamp: 1
+    s_model_finger_2_joint_1:
+      p: 100
+      d: 1
+      i: 1
+      i_clamp: 1
+    s_model_finger_2_joint_2:
+      p: 100
+      d: 1
+      i: 1
+      i_clamp: 1
+    s_model_finger_2_joint_3:
+      p: 100
+      d: 1
+      i: 1
+      i_clamp: 1
+    s_model_finger_middle_joint_1:
+      p: 100
+      d: 1
+      i: 1
+      i_clamp: 1
+    s_model_finger_middle_joint_2:
+      p: 100
+      d: 1
+      i: 1
+      i_clamp: 1
+    s_model_finger_middle_joint_3:
+      p: 100
+      d: 1
+      i: 1
+      i_clamp: 1
