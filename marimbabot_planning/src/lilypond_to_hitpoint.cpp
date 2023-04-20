@@ -115,8 +115,13 @@ class LilypondMotionConverter
 {
 public: 
     LilypondMotionConverter() {
+        // start spinner
+        ros::AsyncSpinner spinner(2);
+        spinner.start();
+
         // hit marker publisher
         hit_marker_pub = nodeHandle.advertise<visualization_msgs::Marker>("hit_marker", 1);
+        
         // vision node subscriber
         vision_node_subscriber = nodeHandle.subscribe("vision_node/recognized_sentence", 1, &LilypondMotionConverter::move_to_pose_callback, this);
     }
