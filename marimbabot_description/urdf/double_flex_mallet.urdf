@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<robot name="double_flex_mallet">
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <mesh filename = "package://marimbabot_description/mesh/mallet_mount_double_flex_v1.stl" scale="0.001 0.001 0.001"/>
+                         
+      </geometry>
+    </visual>
+  </link>
+ 
+</robot> 
+
+
