@@ -139,7 +139,7 @@ class OnsetDetection:
 
         self.cv_bridge = cv_bridge.CvBridge()
 
-    def _warm_up(self):
+    def warm_up(self):
         # warm up classifier / jit caches
         _ = self.cqt()
         _ = self.onset_classification(0.0)
@@ -165,7 +165,7 @@ class OnsetDetection:
         self.buffer = np.array([0.0] * self.sr, dtype=float)
 
         # warm up classifier / jit caches
-        self._warm_up()
+        self.warm_up()
 
         self.first_input = True
 
@@ -192,15 +192,9 @@ class OnsetDetection:
             queue_size=500,
             tcp_nodelay=True,
         )
-        #self.rqt_plotter = rospy.Publisher("/transform_sequence", Float32, queue_size=10,tcp_nodelay=True)
-        #self.plotter_sub = rospy.Subscriber("/seq_plot", Float32,self.plot2d,queue_size=500,tcp_nodelay=True)
-        #self.plotter_pub = rospy.Publisher("/seq_plot", Float32, queue_size=500,tcp_nodelay=True)
         rospy.spin()
 
-#    def plot2d(self,data):
-#        rate = rospy.Rate(87)
-#        self.rqt_plotter.publish(data)
-#        rate.sleep()
+
 
     def reset(self):
         # audio buffer
@@ -211,6 +205,7 @@ class OnsetDetection:
         self.spectrogram = None
         self.previous_onsets = []
         self.onsets_times = []
+        self.previous_winner_onsets_times = []
         self.previous_onsets_times = []
         self.previous_winners = []
 
@@ -258,7 +253,7 @@ class OnsetDetection:
         if self.buffer.shape[0] < self.window + 2 * self.window_overlap:
             return
 
-        # TODO: clearn nose
+        # TODO: clearn noise
         #self.buffer = reduce_noise_power(self.buffer,sr=self.sr)
 
 
@@ -280,9 +275,6 @@ class OnsetDetection:
         cqt_overlap_num = int(self.window_overlap_t/self.window_all_t*cqt_len)
         _cqt = cqt[:,cqt_overlap_num:-cqt_overlap_num]
         _cqt = _cqt[0,:]
-        #db_sequence = librosa.onset.onset_strength(y=self.buffer, sr=self.sr, aggregate=np.max, fmax=self.fmax,n_mels=60)
-#        for each in _cqt.tolist():
-#            self.plotter_pub.publish(each)
 
         loudness_seq = librosa.power_to_db(cqt**2)
 
@@ -355,7 +347,7 @@ class OnsetDetection:
                 no.loudness = loudness
                 self.pub_onset.publish(no)
 
-                rospy.loginfo(
+                rospy.logdebug(
                     f"music note detected: "
                     f"time:{t} "
                     f"note:{note} "
@@ -367,6 +359,7 @@ class OnsetDetection:
         # update the sectrum visualization
         self.update_spectrogram(
             spec=cqt,
+            onsets_cqt=onsets_cqt,
             ys=winner_onsets_times,
             xs=winners_idx,
             durations_len=durations_len,
@@ -396,7 +389,6 @@ class OnsetDetection:
         m = 1
         while True:
             this_intensity = np.mean(cqt[xs, y + m - 1:y + m + 1])
-            # print(f"{this_intensity/init_intensity:.4f}")
             if (this_intensity / (max_intensity + 0.00001) < intensity_threshold_ratio) or (m + y >= frame_len - 1):
                 break
             m += 1
@@ -459,10 +451,14 @@ class OnsetDetection:
         else:
             return 0.0, 0.0, None, None
 
-    def update_spectrogram(self, spec, ys, xs, durations_len):
+    def update_spectrogram(self, spec,onsets_cqt, ys, xs, durations_len):
         if self.pub_spectrogram.get_num_connections() == 0:
             self.spectrogram = None
             return
+        
+
+        onsets_time = [self.onsets_to_time_in_spec(onset) for onset in onsets_cqt]
+
 
         # throw away overlap
         spec = spec[:, self.overlap_hops:-self.overlap_hops]
@@ -485,25 +481,28 @@ class OnsetDetection:
 
         assert len(durations_len) == len(xs)
 
-        LINECOLOR = [255, 0, 255]
-        for idx, t in enumerate(self.previous_onsets_times):
+        WINNER_LINECOLOR = [0, 255, 0]
+        for idx, t in enumerate(self.previous_winner_onsets_times):
             t_end = t + self.previous_durations_len[idx]
             if t_end < 173 and self.previous_winners[idx] < 60:
-                # assert  t_end< 173,f"t_end:{t_end},t:{t}, duration:{self.previous_durations_len[idx]}"
-                # assert self.previous_winners[idx] < 60,f"{self.previous_winners[idx]}"
-                heatmap[self.previous_winners[idx], t:t_end][:] = LINECOLOR
+                heatmap[self.previous_winners[idx], t:t_end][:] = WINNER_LINECOLOR
 
         for idx, t in enumerate(ys):
             t_end = t + durations_len[idx]
             if t_end < 173 and xs[idx] < 60:
-                # assert  t_end< 173,f"t_end:{t_end},t:{t}, duration:{durations_len[idx]}"
-                # assert winners[idx] < 60,f"{winners[idx]}"
-                heatmap[xs[idx], t:t_end][:] = LINECOLOR
+                heatmap[xs[idx], t:t_end][:] = WINNER_LINECOLOR
+        
+        ONSET_LINECOLOR = [255, 255, 255]
+        for t in self.previous_onsets_times:
+            heatmap[:,t] = ONSET_LINECOLOR
+        for t in onsets_time:
+            heatmap[:,t] = ONSET_LINECOLOR
 
         # keep the histories
-        self.previous_onsets_times = [onset_time - int(self.window / self.hop_length) for onset_time in ys]
+        self.previous_winner_onsets_times = [winner_onset_time - int(self.window / self.hop_length) for winner_onset_time in ys]
         self.previous_winners = xs
         self.previous_durations_len = durations_len
+        self.previous_onsets_times = [onset_time - int(self.window / self.hop_length) for onset_time in onsets_time]
 
         self.pub_spectrogram.publish(
             self.cv_bridge.cv2_to_imgmsg(heatmap, "bgr8")
