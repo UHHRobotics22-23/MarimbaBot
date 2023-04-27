@@ -10,7 +10,7 @@
 
         <node name="mallet_hardware_control_node" pkg="marimbabot_hardware" type="mallet_hardware_control_node" output="screen">
             <!-- Setting device parameter -->
-            <param name="device" value="/dev/ttyUSB0"/>
+            <param name="device" value="/dev/ttyACM0"/>
             <param name="baudrate" value="115200"/>
             <param name="top_limit" value="120"/>
             <param name="bottom_limit" value="55"/>
