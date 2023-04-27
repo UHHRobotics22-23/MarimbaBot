@@ -2,15 +2,19 @@
     <group ns="MalletHolder">
         <rosparam file="$(find marimbabot_hardware)/config/controllers.yaml" command="load"/>
         <rosparam file="$(find marimbabot_hardware)/config/joint_limits.yaml" command="load"/>
-        <!-- Setting device parameter -->
-        <param name="mallet_finger_device" value="/dev/ttyACM0"/>
-        <param name="mallet_finger_baudrate" value="115200"/>
+        
         <!-- ! This is only for demo setups START -->
         <param name="robot_description" command="cat $(find marimbabot_hardware)/urdf/two_mallet_holder.urdf"/>
         <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
         <!-- ! This is only for demo setups END -->
 
-        <node name="hardware_control_node" pkg="marimbabot_hardware" type="hardware_control_node" output="screen"/>
+        <node name="mallet_hardware_control_node" pkg="marimbabot_hardware" type="mallet_hardware_control_node" output="screen">
+            <!-- Setting device parameter -->
+            <param name="device" value="/dev/ttyUSB0"/>
+            <param name="baudrate" value="115200"/>
+            <param name="top_limit" value="120"/>
+            <param name="bottom_limit" value="55"/>
+        </node>
         <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
             args="
                 joint_state_controller

@@ -5,10 +5,14 @@ ServoInterface::ServoState::ServoState(const std::string &servo_name) {
 }
 
 // Initializing the serial connection and servo_state object
-ServoInterface::ServoInterface(ros::NodeHandle& node_handle, std::string &device, int baud) : 
+ServoInterface::ServoInterface(ros::NodeHandle& node_handle, std::string &device, int baud, int top_limit, int bottom_limit) : 
     servo_state("mallet_finger") {
     
     ROS_INFO("Initializing servo interface");
+
+    this->top_limit = top_limit; // 120
+    this->bottom_limit = bottom_limit; // 55
+    this->radian_limit = (2 * M_PI) * ((top_limit - bottom_limit) / 255.0);    // =~ 1.602
 
     // Initializing the serial connection
     arduino_serial.setPort(device);
@@ -106,11 +110,22 @@ void ServoInterface::read() {
             arduino_serial.close();
             return;
         }
-        //ROS_INFO_STREAM("Servo controller: Received response from arduino: \"" << response << "\"");
-    } while(arduino_serial.available() > 0);
+    } while(arduino_serial.available() > 0);//while(arduino_serial.available() > 0);
 
     // Parsing response (extract int value)
     // remove first 2 chars and last chars (\r\n)
+    
+    if(response.size() < 4) {
+        ROS_WARN_STREAM("Servo controller error: Response from arduino is too short");
+        return;
+    }
+
+    // Check if response starts with "p "
+    if(response[0] != 'p' || response[1] != ' ') {
+        ROS_WARN_STREAM("Servo controller error: Response from arduino does not start with 'p '");
+        return;
+    }
+    
     response = response.substr(2, response.length() - 4);
     std::stringstream sstream(response);
     int value;
@@ -122,7 +137,7 @@ void ServoInterface::read() {
     }
 
     // Remapping pwm value to radians
-    servo_state.position = ((TOP_LIMIT - value) / ((double) TOP_LIMIT - BOTTOM_LIMIT)) * RADIAN_LIMIT;
+    servo_state.position = ((top_limit - value) / ((double) top_limit - bottom_limit)) * radian_limit;
 }
 
 void ServoInterface::write() {
@@ -141,10 +156,8 @@ void ServoInterface::write() {
 
     ROS_DEBUG_STREAM("Servo controller: Sending command to arduino: " << servo_state.command);
 
-    previous_command = servo_state.command;
-
     // Remapping pwm value from radians input
-    int command_value = TOP_LIMIT - (int) round((servo_state.command / RADIAN_LIMIT) * (TOP_LIMIT - BOTTOM_LIMIT));
+    int command_value = top_limit - (int) round((servo_state.command / radian_limit) * (top_limit - bottom_limit));
 
     // Sending command to arduino
     std::stringstream sstream;
@@ -190,7 +203,7 @@ void ServoInterface::write() {
     }
 
     else if(response == "ok") {
-        // servo_state.position = servo_state.command;
+        previous_command = servo_state.command;
     }
 
     else {

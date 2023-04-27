@@ -3,18 +3,22 @@
 #include "marimbabot_hardware/servo_interface.hpp"
 
 int main(int argc, char **argv) {
-    ros::init(argc, argv, "hardware_control_node");
+    ros::init(argc, argv, "mallet_hardware_control_node");
 
     // Get device parameters from parameter server
-    ros::NodeHandle node_handle;
+    ros::NodeHandle node_handle { "~" };
     int baud;
     std::string device;
-    node_handle.param("mallet_finger_device", device, std::string("/dev/ttyUSB0"));
-    node_handle.param("mallet_finger_baud", baud, 115200);
+    int top_limit;
+    int bottom_limit;
+    node_handle.param("device", device, std::string("/dev/ttyUSB0"));
+    node_handle.param("baud", baud, 115200);
+    node_handle.param("top_limit", top_limit, 120);
+    node_handle.param("bottom_limit", bottom_limit, 55);
 
     ROS_INFO("Starting hardware control node for device %s", device.c_str());
 
-    ServoInterface servo_interface(node_handle, device, baud);
+    ServoInterface servo_interface(node_handle, device, baud, top_limit, bottom_limit);
     controller_manager::ControllerManager controller_manager(&servo_interface);
 
     ros::AsyncSpinner spinner(1);

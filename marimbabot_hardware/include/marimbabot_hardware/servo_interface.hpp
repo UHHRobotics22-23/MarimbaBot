@@ -24,7 +24,7 @@ private:
     };
 
 public:
-    ServoInterface(ros::NodeHandle& node_handle, std::string &device, int baud);
+    ServoInterface(ros::NodeHandle& node_handle, std::string &device, int baud, int top_limit, int bottom_limit);
 
     void read();
     void write();
@@ -45,9 +45,9 @@ private:
     serial::Serial arduino_serial;
     int last_arduino_error = 0;
     double previous_command = -1;
-    int TOP_LIMIT = 120;
-    int BOTTOM_LIMIT = 55;
-    double RADIAN_LIMIT = (2 * M_PI) * ((TOP_LIMIT - BOTTOM_LIMIT) / 255.0);    // =~ 1.602
+    int top_limit = -1;
+    int bottom_limit = -1;
+    double radian_limit = -1;
 
     bool try_open_serial_port();
 };
