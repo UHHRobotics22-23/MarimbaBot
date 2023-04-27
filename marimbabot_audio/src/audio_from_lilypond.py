@@ -38,7 +38,7 @@ def create_audio_from_lilypond(sentence):
     # store lilypond as midi temporarily
     # store temporarily due to parser limitations concerning '\midi' https://abjad.github.io/api/abjad/parsers/parser.html 
     temp_ = tempfile.TemporaryFile()
-    as_midi(lilypond_file, str(temp_.name), remove_ly=True)
+    as_midi(lilypond_file, str(temp_.name))
     midi_filename = str(temp_.name) + ".mid"
 
     # create audio from midi
