@@ -38,12 +38,14 @@ def create_audio_from_lilypond(sentence):
     # store lilypond as midi temporarily
     # store temporarily due to parser limitations concerning '\midi' https://abjad.github.io/api/abjad/parsers/parser.html 
     temp_ = tempfile.TemporaryFile()
-    as_midi(lilypond_file, str(temp_.name), remove_ly=True, resolution=200)
+    as_midi(lilypond_file, str(temp_.name), remove_ly=True)
     midi_filename = str(temp_.name) + ".mid"
 
     # create audio from midi
     # it is hardcoded for now, could be changed to a temporary file as well
-    audio_filename = "vision_result_audio.wav"
+    temp_ = tempfile.TemporaryFile()
+    audio_filename = str(temp_.name) + ".wav"
+
     FluidSynth().midi_to_audio(midi_filename, audio_filename)
 
     return audio_filename
@@ -69,9 +71,8 @@ def callback_vision_results(data: String, callback_args):
 # create audio from lilypond publisher
 # send audio to audio node (sound_play package)
 def listener():
-    rospy.init_node('visualization_node')
+    rospy.init_node('~audio_generation', anonymous=True)
 
-    # TODO: create audio from lilypond publisher
     pub = rospy.Publisher('soundplay_node/SoundRequest', ROSImage, queue_size=50)
     rospy.Subscriber("vision_node/recognized_sentence", String, callback_vision_results, callback_args=(pub))
 
