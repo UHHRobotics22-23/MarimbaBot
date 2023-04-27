@@ -1,0 +1,13 @@
+#goal definition
+std_msgs/String[] notes_sequence # list of note string, e.g. c4
+float32[] notes_loudness # loudness factor for each note
+int32 beats_per_minute # tempo for sequence
+---
+#result definition
+std_msgs/String[] played_sequence # sequence that was actually played
+std_msgs/String[] played_sequence_time_hit # time for each note inside this sequence
+int32 total_of_notes_played # number of notes played in total
+bool success # whether bot executed the goal successfully
+---
+#feedback
+int32 current_number_of_notes_played # update on the amount of notes played

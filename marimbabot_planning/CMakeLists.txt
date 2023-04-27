@@ -35,8 +35,8 @@ install(TARGETS planning lilypond_to_hitpoint
 
 # Action 
 add_action_files(
-  DIRECTORY src/actions
-  FILES hit_sequence.action
+  DIRECTORY $(find marimbabot_description)/actions
+  FILES HitSequence.action
 )
 
 generate_messages(
