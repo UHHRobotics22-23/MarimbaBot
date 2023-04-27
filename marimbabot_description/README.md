@@ -15,3 +15,7 @@ roslaunch marimbabot_description marimba_display.launch
 ```
 
 ![Marimba](extra/marimba_sim.png)
+
+
+### double_flex_mallet
+ This model has a flexibility in two sides. It serves to make the sound on the marimba louder and at the same time ensure that the mallet does not break.

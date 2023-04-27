@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<robot name="double_flex_mallet">
+
+      <link name="mallet_top">
+        <collision>
+            <origin xyz="0.0 0.0 0.410375" rpy="0.0 0.0 0.0"/>
+            <!-- 0.018375 -->
+            <geometry>
+                <sphere radius="0.0198"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="mallet_neck">
+        <collision>
+            <origin xyz="0.0 0.0 0.2095" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="0.0042" length="0.365"/> 
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="connector_plate">
+        <collision> 
+           <origin xyz="0.0 0.0 0.0059" rpy="0.0 0.0 0.0"/>
+           <geometry>
+                <box size="0.05 0.0335  0.0118 "/> 
+          </geometry>
+       </collision>
+    </link>
+
+    <link name="base_link">
+        <visual>
+            <origin xyz="0.0 0.0 0.057" rpy="0.0 -1.570796326 0.0"/>
+            <geometry>
+                <mesh filename="package://marimbabot_description/mesh/flex_mallet_holder.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="mallet_holder_red">
+                <color rgba="1.0 0.0 0.0 0.5"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0.0 0.0 0.057" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="0.090 0.0322 0.090"/>
+            </geometry>
+            
+        </collision>
+    </link>
+
+    <joint name="group_1_start_link" type="fixed">
+        <parent link="base_link"/>
+        <child link="mallet_neck"/>
+        <origin xyz="0.0 0.0 0.015"/>
+    </joint>
+
+    <joint name="group_1_2nd_link" type="fixed">
+        <parent link="mallet_neck"/>
+        <child link="mallet_top"/>
+        <origin xyz="0.0 0.0 0.365"/>
+    </joint>
+
+    <joint name="group_1_connector_plate_link" type="fixed">
+        <parent link="connector_plate"/>
+        <child link="base_link"/>
+        <origin xyz="0.0 0.0 0.0118"/>
+    </joint>
+ 
+</robot> 
+
+
