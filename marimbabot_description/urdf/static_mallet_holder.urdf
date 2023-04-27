@@ -19,14 +19,14 @@
         </collision>
     </link>
 
-    <link name="base_link">
+    <link name="mallet_base_link">
         <visual>
             <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
             <geometry>
                 <mesh filename="package://marimbabot_description/mesh/static_mallet_holder.stl" scale="0.001 0.001 0.001"/>
             </geometry>
-            <material name="mallet_holder_red">
-                <color rgba="1.0 0.0 0.0 0.5"/>
+            <material name="mallet_holder_white">
+                <color rgba="1.0 1.0 1.0 1.0"/>
             </material>
         </visual>
         <collision>
@@ -38,7 +38,7 @@
     </link>
 
     <joint name="group_1_start_link" type="fixed">
-        <parent link="base_link"/>
+        <parent link="mallet_base_link"/>
         <child link="mallet_neck"/>
         <origin xyz="0.0 0.0 0.0292"/>
     </joint>
