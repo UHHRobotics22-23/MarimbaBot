@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(marimbabot_audio)
+project(marimbabot_speech)
 
 find_package(catkin REQUIRED COMPONENTS
   rospy
