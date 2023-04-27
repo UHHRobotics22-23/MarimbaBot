@@ -10,4 +10,6 @@ int32 total_of_notes_played # number of notes played in total
 bool success # whether bot executed the goal successfully
 ---
 #feedback
+std_msgs/String[] played_sequence # sequence that was actually played
+std_msgs/String[] played_sequence_time_hit # time for each note inside this sequence
 int32 current_number_of_notes_played # update on the amount of notes played
