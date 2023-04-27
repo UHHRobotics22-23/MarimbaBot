@@ -107,7 +107,7 @@ moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
     ik_options.replace = true;
     ik_options.return_approximate_solution = false;
 
-    ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_tip", goal_position));
+    ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head", goal_position));
 
     // Create link on plane constraint using the LinkFunctionGoal
     tf2::Vector3 plane_point(0.0, 0.0, 1.0);
@@ -278,7 +278,7 @@ int main(int argc, char **argv)
     tf2_ros::Buffer tfBuffer;
     tf2_ros::TransformListener tfListener(tfBuffer);
 
-    static const std::string PLANNING_GROUP = "arm";
+    static const std::string PLANNING_GROUP = "arm_mallet";
     moveit::planning_interface::MoveGroupInterface move_group_interface(PLANNING_GROUP);
     move_group_interface.setPlanningPipelineId("pilz_industrial_motion_planner");
     move_group_interface.setPlannerId("PTP");
