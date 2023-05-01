@@ -1,6 +1,7 @@
 import rospy
 import actionlib
 import marimbabot_msgs.actions
+from std_msgs.msg import String
 
 class HitSequenceAction:
     feedback = marimbabot_msgs.actions.HitSequenceFeedback
@@ -8,6 +9,8 @@ class HitSequenceAction:
 
     def __init__(self, name):
         self.action_name = name
+        self.hitpoint_publisher = rospy.Publisher('move_lilypond_to_hitpoints', String, queue_size=10)
+
 
     def execute_callback(self, goal):
         # helper variables
@@ -15,24 +18,17 @@ class HitSequenceAction:
         
         # initialize feedback
         self.feedback.current_number_of_notes_played = 0
-        self.feedback.played_sequence = [] 
-        self.feedback.played_sequence_time_hit = []
+        self.feedback.played_sequence = None
 
+        lilypond_string = goal.lilypond_string  # list of note string, e.g. c4
 
-        notes_sequence = goal.notes_sequence  # list of note string, e.g. c4
-        notes_loudness = goal.notes_loudness # loudness factor for each note
-        beats_per_minute = goal.beats_per_minute # tempo for sequence
+        self.hitpoint_publisher.publish(lilypond_string)
 
-
-        # TODO execute goal
-        for note in notes_sequence)
-            pass
-
-        # conditional success
+        # TODO create subscriber to listen to the played notes
+        # TODO conditional success
         if self.feedback.current_number_of_notes_played == len(self.goal.notes_sequence):
             self.result.success = True
             self.result.played_sequence = self.feedback.played_sequence
-            self.result.played_sequence_time_hit = self.feedback.played_sequence_time_hit
             self.result.total_of_notes_played = self.feedback.current_number_of_notes_played
             rospy.loginfo('%s: Succeeded' % self._action_name)
             self._as.set_succeeded(self.result)
