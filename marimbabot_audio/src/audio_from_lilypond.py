@@ -3,10 +3,9 @@
 import tempfile
 
 import rospy
-from abjad import Block, LilyPondFile, Staff, Voice
+from abjad import Block, LilyPondFile, Score, Staff, Voice
 from abjad.persist import as_midi
 from midi2audio import FluidSynth
-from sensor_msgs.msg import Image as ROSImage
 from sound_play.msg import SoundRequest
 from std_msgs.msg import String
 
@@ -16,6 +15,13 @@ def create_lilypond_file(sentence):
     # generate abjad staff
     voice = Voice(sentence)
     staff = Staff([voice])
+    score = Score([staff], name="Score")
+
+    # generate abjad score block and midi block as described here https://github.com/Abjad/abjad/issues/1352#issuecomment-904852122
+    score_block = Block(name="score")
+    score_block.items.append(score)
+    midi_block = Block(name="midi")
+    score_block.items.append(midi_block)
 
     # generate lilypond file
     header_block = Block(name="header")
@@ -23,10 +29,8 @@ def create_lilypond_file(sentence):
     lilypond_file = LilyPondFile(
         items=[
             header_block,
-            """#(set-default-paper-size "a8" 'landscape)""",
-            "#(set-global-staff-size 16)",
-            staff,
-        ]
+            score_block        
+            ]
     )
 
     return lilypond_file
@@ -39,22 +43,23 @@ def create_audio_from_lilypond(sentence):
     # store temporarily due to parser limitations concerning '\midi' https://abjad.github.io/api/abjad/parsers/parser.html 
     temp_ = tempfile.TemporaryFile()
     as_midi(lilypond_file, str(temp_.name))
-    midi_filename = str(temp_.name) + ".mid"
+    midi_filename = str(temp_.name) + ".midi"
 
     # create audio from midi
     # it is hardcoded for now, could be changed to a temporary file as well
     temp_ = tempfile.TemporaryFile()
     audio_filename = str(temp_.name) + ".wav"
 
+    # create audio file from midi
     FluidSynth().midi_to_audio(midi_filename, audio_filename)
 
     return audio_filename
 
 # callback for vision node, includes audio publisher
-def callback_vision_results(data: String, callback_args):
+def callback_vision_results(data: String, audio_publisher):
     rospy.logdebug("received recognized sentence")
-    audio_publisher = callback_args
-
+    
+    # create audio from lilypond
     audio_filename = create_audio_from_lilypond(data.data)
     rospy.logdebug(f"created audio file {audio_filename}")
 
@@ -73,7 +78,7 @@ def callback_vision_results(data: String, callback_args):
 def listener():
     rospy.init_node('~audio_generation', anonymous=True)
 
-    pub = rospy.Publisher('soundplay_node/SoundRequest', ROSImage, queue_size=50)
+    pub = rospy.Publisher('soundplay_node/SoundRequest', SoundRequest, queue_size=50)
     rospy.Subscriber("vision_node/recognized_notes", String, callback_vision_results, callback_args=(pub))
 
     # spin() simply keeps python from exiting until this node is stopped
