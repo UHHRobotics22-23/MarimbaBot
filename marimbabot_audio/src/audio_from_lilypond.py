@@ -46,7 +46,6 @@ def create_audio_from_lilypond(sentence):
     midi_filename = str(temp_.name) + ".midi"
 
     # create audio from midi
-    # it is hardcoded for now, could be changed to a temporary file as well
     temp_ = tempfile.TemporaryFile()
     audio_filename = str(temp_.name) + ".wav"
 
