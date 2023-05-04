@@ -15,18 +15,23 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 
 
-'''
+''' 
+    Just keep some parameters here, it come from the configuration of ../launch/microphone.launch file.
     Some default parameters:
         -   Sampling rate = 44100
         -   Sampleing format = S16LE
 
 '''
+
 def hz_to_note(hz):
     return pretty_midi.note_number_to_name(pretty_midi.hz_to_note_number(hz))
+
 def note_to_pm_id(note_name):
     return pretty_midi.note_name_to_number(note_name)
+
 def pm_id_to_note(pm_id):
     return pretty_midi.note_number_to_name(pm_id)
+
 def note_to_hz(note):
     return pretty_midi.note_number_to_hz(pretty_midi.note_name_to_number(note))
 
@@ -35,7 +40,7 @@ def check_audio_format():
     check available audio input format, if it satisfy the requirements.
     :return:
     """
-    rospy.loginfo("Waiting for Audio Info")
+    rospy.logdebug("Waiting for Audio Info")
     info = rospy.wait_for_message("audio_info", AudioInfo)
     if info.channels != 1:
         rospy.logfatal(
@@ -55,19 +60,34 @@ def check_audio_format():
             f"coding '{info.coding_format}' is not raw"
         )
     else:
-        rospy.loginfo("Audio compatible")
+        rospy.logdebug("Audio compatible")
         return True
     return False
 
-def unpack_data(data):
-    return np.array(struct.unpack(
-        f"{int(len(data) / 2)}h",
-        bytes(data)
-        ),
-        dtype=float)
-
-
 class OnsetDetection:
+    def __init__(self):
+
+        self._init_instrument_config()
+        self._init_audio_config()
+        self._init_detection_config()
+        self._init_visualization_config()
+
+        if not check_audio_format():
+            rospy.signal_shutdown("incompatible audio format")
+            return
+
+        # other parameters
+        self.last_time = rospy.Time.now()
+        self.last_seq = 0
+
+        # the buffer to read audio raw data from ros topic
+        self.buffer = np.array([0.0] * self.sr, dtype=float)
+
+        # warm up classifier / jit caches
+        self.warm_up()
+
+        self.first_input = True
+    
     def _init_instrument_config(self):
         # # harp
         # self.fmin_note = "C4"
@@ -106,9 +126,9 @@ class OnsetDetection:
         # preload model to not block the callback on first message
         # capacities: 'tiny', 'small', 'medium', 'large', 'full'
         self.crepe_model = "full"  # choose the crepe model type for music note classification
-        rospy.loginfo(f"Loading crepe {self.crepe_model}-model...")
+        rospy.logdebug(f"Loading crepe {self.crepe_model}-model...")
         crepe.core.build_and_load_model(self.crepe_model)
-        rospy.loginfo(f"Crepe {self.crepe_model}-model loaded.")
+        rospy.logdebug(f"Crepe {self.crepe_model}-model loaded.")
 
     def _init_visualization_config(self):
         """
@@ -142,29 +162,7 @@ class OnsetDetection:
         _ = self.onset_classification(0.0)
         self.reset()
 
-    def __init__(self):
 
-        self._init_instrument_config()
-        self._init_audio_config()
-        self._init_detection_config()
-        self._init_visualization_config()
-
-
-        if not check_audio_format():
-            rospy.signal_shutdown("incompatible audio format")
-            return
-
-        # other parameters
-        self.last_time = rospy.Time.now()
-        self.last_seq = 0
-
-        # the buffer to read audio raw data from ros topic
-        self.buffer = np.array([0.0] * self.sr, dtype=float)
-
-        # warm up classifier / jit caches
-        self.warm_up()
-
-        self.first_input = True
 
     def start(self):
         # the spectrum for visualization
@@ -211,11 +209,11 @@ class OnsetDetection:
         # unpack the msg
         now = msg.header.stamp
         seq = msg.header.seq
-        msg_data = unpack_data(msg.audio.data)
+        msg_data =np.array(struct.unpack(f"{int(len(msg.audio.data) / 2)}h",bytes(msg.audio.data)),dtype=float)
 
         # handle bag loop graciously
         if now < self.last_time:
-            rospy.loginfo("detected bag loop")
+            rospy.logdebug("detected bag loop")
             self.reset()
         # make sure the seq in order
         if seq > self.last_seq + 1 and not self.first_input:
@@ -250,12 +248,7 @@ class OnsetDetection:
         if self.buffer.shape[0] < self.window + 2 * self.window_overlap:
             return
 
-        # TODO: clearn noise
-        #self.buffer = reduce_noise_power(self.buffer,sr=self.sr)
 
-
-
-        # TODO: it would be better to do the computation below asynchronously
         """
             constant q transform with 60 half-tones from C4,
             in theory we only need notes from C4-C7, but in practice tuning
@@ -265,9 +258,6 @@ class OnsetDetection:
         cqt = self.cqt()  # cqt ndarrary  (60,173)
         self.publish_cqt(cqt)
 
-
-        # TODO: visualization of the loudness to figure out the rght way for duration detection
-        # to extract the cqt within the target windows
         cqt_len = cqt.shape[1]
         cqt_overlap_num = int(self.window_overlap_t/self.window_all_t*cqt_len)
         _cqt = cqt[:,cqt_overlap_num:-cqt_overlap_num]
@@ -275,7 +265,6 @@ class OnsetDetection:
 
         loudness_seq = librosa.power_to_db(cqt**2)
 
-        # rospy.loginfo(f"dB(median:{np.median(db)} max:{np.max(db)}, avg:{np.average(db)}):{db}")
         onset_env_cqt = librosa.onset.onset_strength(
             sr=self.sr, S=librosa.amplitude_to_db(cqt, ref=np.max)
         )
@@ -288,7 +277,6 @@ class OnsetDetection:
             onset_envelope=onset_env_cqt,
             units="time",
             backtrack=False,
-            # wait= 0.1*self.sr/self.hop_length,
             delta=4.0,
             normalize=False,
         )
@@ -511,7 +499,6 @@ class OnsetDetection:
             input: self.buffer
             output: ndarrary with shape (60,173) by default
         """
-        # TODO: subtract mean background noise from CQT
         return np.abs(
             librosa.cqt(
                 y=self.buffer,

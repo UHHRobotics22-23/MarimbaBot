@@ -6,15 +6,16 @@ from marimbabot_audio.msg import NoteOnset
 from sensor_msgs.msg import Image
 import cv_bridge
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import pretty_midi
+matplotlib.use('Agg')
 
 
 class MyPrettyMiDi():
-    def __init__(self, instruments_name_list: list = ["Marimba"], file_path: str = None):
+    def __init__(self,file_path:str, instruments_name_list: list = ["Marimba"], ):
         # if file_path existed, then load midi file from current path, else create a new midi file.
         self.file_path = file_path
-        assert file_path is not None, "the midi file path can not be None."
         if os.path.exists(file_path):
             self.pm = pretty_midi.PrettyMIDI(midi_file=file_path)
         else:
@@ -23,6 +24,7 @@ class MyPrettyMiDi():
             self.pm = pretty_midi.PrettyMIDI(initial_tempo=100)
             self.instruments = self._init_instruments()
 
+    # initialize some config for midi file
     def _init_instruments(self):
         for instrument in self.instruments_name_list:
             # get the intrument id from name
@@ -31,20 +33,19 @@ class MyPrettyMiDi():
             intru = pretty_midi.Instrument(program=program_id, is_drum=False, name=instrument)
             self.pm.instruments.append(intru)
 
-    def append_note(self, instrument_name: str, onset_note: str, start_time, end_time):
+    def append_note(self, instrument_name: str, onset_note: str, start_time:float, end_time:float):
         '''
             Add the note into specified instrument in the midi file.
             instrument_name: str, e.g. "Marimba"
             onset_note: str, e.g. "C#4"
             start_time: float, in second, e.g. 1.3
-            end_time: floar, sec, e.g. 1.7
+            end_time: float, sec, e.g. 1.7
         '''
         note_number = pretty_midi.note_name_to_number(note_name=onset_note)
         pm_note = pretty_midi.Note(velocity=100, pitch=note_number, start=start_time, end=end_time)
         for idx, instrument in enumerate(self.pm.instruments):
             if instrument.name == instrument_name:
                 self.pm.instruments[idx].notes.append(pm_note)
-
 
     def save(self):
         self.pm.write(self.file_path)
@@ -53,12 +54,9 @@ class Onset2Midi():
     def __init__(self, file_path: str = "./midi_files") -> None:
         self.cv_bridge = cv_bridge.CvBridge()
         now = datetime.datetime.now()
-        if not os.path.exists(file_path):
-            os.mkdir(file_path)
+        os.makedirs(file_path,exist_ok=True)
         self.file_path = os.path.join(file_path, f"{now.year}_{now.month}_{now.day}_{now.hour}_{now.minute}.mid")
         self.midi = None
-        # self.midi_save_duration = 5*60 #  save the mid file per 5 minutes
-        # self.midi_last_save_time = 0  # reocorder for save the mid files
         self.time_first = 0  # recorder
 
         self.midi_fig_update_duration = 5  # 0.5 sec duration for each update
@@ -84,7 +82,8 @@ class Onset2Midi():
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(1, 1, 1)
         self.midi_fig = None
-
+        
+    # plot the image to ros topic
     def plot_to_img(self):
         assert self.fig is not None
         assert self.ax is not None
@@ -118,7 +117,7 @@ class Onset2Midi():
             plt.title('marimba note over Time')
             plt.ylabel('Notes')
             plt.xlabel('Time')
-
+        self.fig.savefig('/tmp/tmp.png') # save the figure to tmp file, only in this way, the canvas can be updated.
         data = np.frombuffer(self.fig.canvas.tostring_rgb(), dtype=np.uint8)
         data = data.reshape(self.fig.canvas.get_width_height()[::-1] + (3,))
         self.midi_fig = data
@@ -136,7 +135,7 @@ class Onset2Midi():
     def onset_event(self, msg: NoteOnset):
 
         # parse the msg
-        start_time = msg.header.stamp.secs + msg.header.stamp.nsecs / 1000000000  # the system second, not start from zero.
+        start_time = msg.header.stamp.secs + msg.header.stamp.nsecs / 10**9  # the system second, not start from zero.
         note = msg.note
         duration = msg.confidence
 
