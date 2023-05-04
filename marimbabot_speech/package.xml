@@ -2,19 +2,26 @@
 <package format="2">
   <name>marimbabot_speech</name>
   <version>0.0.0</version>
+<<<<<<< HEAD:marimbabot_speech/package.xml
   <description>
   The marimbabot_speech package is designed produce audio from a given text string, acting as a text to speech synthesis.
   </description>
+=======
+  <description>Detect and visualize notes in audio signals. Also convert music note to midi file.</description>
+>>>>>>> 5784b3e7e67fbeba28e0cb515093b1222a82138a:marimbabot_audio/package.xml
 
-  <maintainer email="root@todo.todo">root</maintainer>
+  <maintainer email="yunlong.wang@studium.uni-hamburg.de">1wang</maintainer>
 
-  <license>Apache License Version 2.0</license>
+  <license>Apache 2.0</license>
 
   <buildtool_depend>catkin</buildtool_depend>
-  <build_depend>rospy</build_depend>
-  <build_depend>std_msgs</build_depend>
-  <build_export_depend>rospy</build_export_depend>
-  <build_export_depend>std_msgs</build_export_depend>
-  <exec_depend>rospy</exec_depend>
-  <exec_depend>std_msgs</exec_depend>
+
+  <depend>audio_common_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>cv_bridge</depend>
+  <depend>rospy</depend>  
+
+  <build_depend>message_generation</build_depend>
+  <exec_depend>message_runtime</exec_depend>
 </package>
