@@ -1,13 +1,14 @@
+import os
+import datetime
+
 import rospy
 from marimbabot_audio.msg import NoteOnset
-import pretty_midi
-import os
-import matplotlib.pyplot as plt
-import cv_bridge
 from sensor_msgs.msg import Image
-import matplotlib.animation as animation
-import datetime
+import cv_bridge
 import numpy as np
+import matplotlib.pyplot as plt
+import pretty_midi
+
 
 class MyPrettyMiDi():
     def __init__(self, instruments_name_list: list = ["Marimba"], file_path: str = None):

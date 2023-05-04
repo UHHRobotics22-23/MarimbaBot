@@ -1,22 +1,19 @@
+from functools import reduce
+import struct
 import cv_bridge
 import rospy
 from audio_common_msgs.msg import AudioDataStamped, AudioInfo
 from sensor_msgs.msg import Image
-from std_msgs.msg import Float32, ColorRGBA
+from std_msgs.msg import Float32
 from marimbabot_audio.msg import NoteOnset, CQTStamped
-
-
 import pretty_midi
 import librosa
 import crepe
-import crepe.core
-
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
-from functools import reduce
-import struct
+
 
 '''
     Some default parameters:
