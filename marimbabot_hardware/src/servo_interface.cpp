@@ -69,6 +69,7 @@ bool ServoInterface::try_open_serial_port() {
             response += arduino_serial.readline();
         } while(arduino_serial.available() > 0);
 
+        // Checking if response is long enough (l \r\n)
         if(response.length() < 4) {
             ROS_ERROR_STREAM("Servo controller error: Unable to read limits from arduino -> closing");
             arduino_serial.close();
@@ -83,23 +84,31 @@ bool ServoInterface::try_open_serial_port() {
         }
 
         response = response.substr(2, response.length() - 4);
+        
+        try {
+            // Splitting into top bottom and resolution
+            // We could get into bounds errors with the substrings here, so we catch them
+            std::vector<std::string> limits;
+            std::string bottom_limit_str = response.substr(0, response.find(' '));
+            response = response.substr(response.find(' ') + 1);
+            std::string top_limit_str = response.substr(0, response.find(' '));
+            response = response.substr(response.find(' ') + 1);
+            std::string resolution_str = response;
 
-        // Splitting into top bottom and resolution
-        std::vector<std::string> limits;
-        std::string bottom_limit_str = response.substr(0, response.find(' '));
-        response = response.substr(response.find(' ') + 1);
-        std::string top_limit_str = response.substr(0, response.find(' '));
-        response = response.substr(response.find(' ') + 1);
-        std::string resolution_str = response;
+            this->top_limit = atoi(top_limit_str.c_str());
+            this->bottom_limit = atoi(bottom_limit_str.c_str());
+            this->resolution = atoi(resolution_str.c_str());
+            this->radian_limit = (2 * M_PI) * ((this->top_limit - this->bottom_limit) / ((double) this->resolution));
 
-        this->top_limit = atoi(top_limit_str.c_str());
-        this->bottom_limit = atoi(bottom_limit_str.c_str());
-        this->resolution = atoi(resolution_str.c_str());
-        this->radian_limit = (2 * M_PI) * ((this->top_limit - this->bottom_limit) / ((double) this->resolution));
+            ROS_INFO_STREAM("Servo controller: Loaded limits from arduino");
 
-        ROS_INFO_STREAM("Servo controller: Loaded limits from arduino");
+            return true;
+        } catch(std::exception &e) {
+            ROS_ERROR_STREAM("Servo controller error: Unable to parse limits from arduino -> closing");
+            arduino_serial.close();
+            return false;
+        }
 
-        return true;
     } catch (serial::IOException &e) {
         if(e.getErrorNumber() != last_arduino_error) {
             ROS_ERROR_STREAM("Servo controller error: Unable to open port " << arduino_serial.getPort());
@@ -148,9 +157,8 @@ void ServoInterface::read() {
         }
     } while(arduino_serial.available() > 0);
 
-    // Parsing response (extract int value)
-    // remove first 2 chars and last chars (\r\n)
     
+    // Checking if response is long enough (p \r\n)
     if(response.size() < 4) {
         ROS_WARN_STREAM("Servo controller error: Response from arduino is too short");
         return;
@@ -162,6 +170,8 @@ void ServoInterface::read() {
         return;
     }
     
+    // Parsing response (extract int value)
+    // remove first 2 chars and last chars (\r\n
     response = response.substr(2, response.length() - 4);
     std::stringstream sstream(response);
     int value;

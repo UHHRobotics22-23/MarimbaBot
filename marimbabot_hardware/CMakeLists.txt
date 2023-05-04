@@ -3,7 +3,6 @@ project(marimbabot_hardware)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
-  std_msgs
   serial
   controller_manager
 )
