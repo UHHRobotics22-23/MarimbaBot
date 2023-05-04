@@ -118,7 +118,6 @@ class Onset2Midi():
             plt.ylabel('Notes')
             plt.xlabel('Time')
 
-        self.fig.savefig('/tmp/tmp.png')
         data = np.frombuffer(self.fig.canvas.tostring_rgb(), dtype=np.uint8)
         data = data.reshape(self.fig.canvas.get_width_height()[::-1] + (3,))
         self.midi_fig = data
@@ -161,38 +160,7 @@ class Onset2Midi():
         self.midi.save()
         rospy.logdebug(f"onset added :  onset_note:{note}  start_time:{start_time} end_time:{start_time + duration}")
 
-        img = self.plot_to_img()
-
-    ## For visualization
-    # This function is called periodically from FuncAnimation
-    # def animate(self, i):
-    #     limit = 20
-    #     if os.path.exists(self.file_path):
-    #         notes = MyPrettyMiDi(file_path=self.file_path).pm.instruments[0].notes[-limit:]
-    #         pitchs = [note.pitch for note in notes]
-    #         start_time = [note.start for note in notes]
-    #         durations = [note.end-note.start for note in notes]
-    #         note_names = [pretty_midi.note_number_to_name(note.pitch) for note in notes]
-
-    #         # Limit x and y lists to 20 items
-    #         xs = start_time
-    #         ys = pitchs
-
-    #         # C4 = 60  C7 = 96
-    #         # Draw x and y lists
-    #         self.ax.clear()
-    #         for idx in range(len(xs)):
-    #             self.ax.bar(x=xs[idx], height=1, width=durations[idx], bottom=ys[idx] - 0.5, align="edge", color='b')
-
-    #         # Format plot
-    #         plt.xticks(rotation=45, ha='right')
-    #         plt.yticks(pitchs, note_names)
-    #         plt.subplots_adjust(bottom=0.30)
-    #         plt.title('marimba note over Time')
-    #         plt.ylabel('Notes')
-    #         plt.xlabel('Time')
-    #     else:
-    #         return
+        self.plot_to_img()
 
 
 if __name__ == "__main__":
