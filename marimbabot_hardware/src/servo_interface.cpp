@@ -227,7 +227,7 @@ void ServoInterface::write() {
 
     // Checking if the command was successful
     if(response == "err_input_num") {
-        ROS_ERROR_STREAM("Servo controller error: Number unparsable or below 0");
+        ROS_ERROR_STREAM_THROTTLE(10, "Servo controller error: Number unparsable or below 0");
     }
 
     else if(response == "err_input_range") {
