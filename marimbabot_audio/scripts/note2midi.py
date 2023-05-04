@@ -118,7 +118,6 @@ class Onset2Midi():
             plt.ylabel('Notes')
             plt.xlabel('Time')
 
-        self.fig.savefig('/tmp/tmp.png')
         data = np.frombuffer(self.fig.canvas.tostring_rgb(), dtype=np.uint8)
         data = data.reshape(self.fig.canvas.get_width_height()[::-1] + (3,))
         self.midi_fig = data
