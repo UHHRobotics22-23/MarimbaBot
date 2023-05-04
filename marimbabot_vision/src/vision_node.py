@@ -64,8 +64,8 @@ def callbackImage(data: ROSImage, callback_args):
 def listener(pre_processor, model):
     rospy.init_node('vision_node')
 
-    notes_publisher = rospy.Publisher("~recognized_notes", String)
-    rospy.Subscriber("cv_camera_node/image_raw", ROSImage, callbackImage, callback_args=(pre_processor, model, notes_publisher))
+    notes_publisher = rospy.Publisher("~recognized_notes", String, queue_size=20)
+    rospy.Subscriber("cv_camera_node/image_raw", ROSImage, callbackImage, callback_args=(pre_processor, model, notes_publisher), queue_size=1)
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
