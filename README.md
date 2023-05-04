@@ -3,6 +3,9 @@
 This repository contains the codebase for a [Marimba](https://en.wikipedia.org/wiki/Marimba) playing robot developed during the TAMS Master Project 2022/2023.
 It is currently still "work in progress".
 
+## Declaration
+The code of marimbabot_audio part are after the modification of this base [repository](https://github.com/TAMS-Group/music_perception.git), which is from [@v4hn](https://github.com/v4hn).
+
 ## Setup
 
 The robot uses Ubuntu 20.04 and ROS noetic.
