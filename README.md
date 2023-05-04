@@ -50,6 +50,7 @@ rosdep update
 rosdep install --from-paths src --ignore-src -r -y
 
 # Install python dependencies
+pip3 install wheel  # firstly install the wheel for further package building if you start from a empty virtual environment.
 pip3 install -r src/marimbabot/requirements.txt
 ```
 
