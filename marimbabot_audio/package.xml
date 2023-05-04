@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>marimbabot_speech</name>
+  <version>0.0.0</version>
+  <description>
+  The marimbabot_speech package is designed produce audio from a given text string, acting as a text to speech synthesis.
+  </description>
+
+  <maintainer email="root@todo.todo">root</maintainer>
+
+  <license>Apache License Version 2.0</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_export_depend>fluidsynth</build_export_depend>
+  <build_export_depend>sound_play</build_export_depend>
+  <exec_depend>fluidsynth</exec_depend>
+  <exec_depend>sound_play</exec_depend>
+</package>
