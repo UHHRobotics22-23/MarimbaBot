@@ -21,7 +21,7 @@ Make sure to [setup your ssh key](https://docs.github.com/en/authentication/conn
 We are using VCS for workspace management, so install it first:
 
 ```
-apt install python3-vcstool
+sudo apt install python3-vcstool
 ```
 
 Run the following commands:
