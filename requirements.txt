@@ -9,3 +9,10 @@ torch==1.13.1
 tqdm==4.64.0
 transformers[sentencepiece]==4.26.0
 mycroft-mimic3-tts==0.2.4
+librosa==0.9.2
+crepe
+pretty-midi==0.2.10
+empy==3.3.4
+catkin-pkg==0.5.2
+rospkg==1.5.0
+tensorflow
