@@ -1,6 +1,7 @@
 # TAMS Master Project 2022/2023
 
 [![CI](https://github.com/UHHRobotics22-23/marimbabot/actions/workflows/main.yml/badge.svg)](https://github.com/UHHRobotics22-23/marimbabot/actions/workflows/main.yml)
+[![ROS Version Noetic](https://img.shields.io/badge/ROS%20Version-Noetic-%2388b55a)](http://wiki.ros.org/noetic)
 
 This repository contains the codebase for a [Marimba](https://en.wikipedia.org/wiki/Marimba) playing robot developed during the TAMS Master Project 2022/2023.
 It is currently still "work in progress".
