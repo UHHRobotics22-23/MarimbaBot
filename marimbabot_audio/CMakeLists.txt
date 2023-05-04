@@ -4,7 +4,6 @@ project(marimbabot_audio)
 find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
-  fluidsynth
   sound_play
 )
 
