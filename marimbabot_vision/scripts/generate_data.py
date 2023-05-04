@@ -7,7 +7,7 @@ import random
 from multiprocessing import Pool
 
 import tqdm
-from abjad import Block, LilyPondFile, Staff, Voice
+from abjad import Block, LilyPondFile, Staff, Voice, KeySignature, NamedPitchClass, Mode, select, attach
 from abjad.persist import as_png
 from numpy.random import choice
 
@@ -16,16 +16,20 @@ NUM_WORKER = 24
 OUTPUT_DIR = "data"
 MIN_DURATION = 16 # 1/16th note
 SAMPLE_DYNAMICS = True
-
+music_notes = ['c', 'd', 'e', 'f', 'g', 'a', 'b', 'r']
+accidentals = ["is", "es", "isis", "eses"]
 def note_sampler(duration, dynamics=False):
     """Sample a note, dynamics or rest given a duration"""
-    note = random.choice(['c', 'd', 'e', 'f', 'g', 'a', 'b', 'r'])
+    note = random.choice(music_notes)
+    accidental = "" if random.random() < 0.5 else random.choice(accidentals)  # sharp, flat
+
     dynamic = "" 
     if dynamics:
         # https://lilypond.org/doc/v2.22/Documentation/music-glossary/dynamics
         dynamic = "" if random.random() < 0.9  else random.choice(["\\p", "\\pp", "\\mp", "\\f", "\\mf", "\\ff", "\\dim", "\\decresc", "\\cresc"])
+    
     octave = choice(["", "'", "''"], p=[0.0, 0.8, 0.2]) if note != 'r' else ''
-    return note + octave + duration + dynamic
+    return note + accidental + octave + duration + dynamic
 
 def bar_sampler(dynamics = False):
     """Sample a bar of notes"""
@@ -45,8 +49,20 @@ def bar_sampler(dynamics = False):
 def generate_piece(num_bars=3, dynamics=False):
     """Generate a piece of music"""
     string = ' '.join([bar_sampler(dynamics=dynamics) for _ in range(num_bars)])
+
     voice_1 = Voice(string, name="Voice_1")
     staff_1 = Staff([voice_1], name="Staff_1")
+
+    # scale
+    if random.random > 0.8:
+        note = select.note(staff_1, 0)
+        key_signature = KeySignature(
+            NamedPitchClass(random.choice(music_notes)), Mode("major")
+        )
+        attach(key_signature, note)
+        # TODO fix, refactor so that it only contains the voice?
+        string = str(staff_1)
+
     return string, staff_1
 
 def generate_sample(i, args):
