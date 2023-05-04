@@ -24,7 +24,7 @@ private:
     };
 
 public:
-    ServoInterface(ros::NodeHandle& node_handle, std::string &device, int baud, int top_limit, int bottom_limit);
+    ServoInterface(ros::NodeHandle& node_handle, std::string &device, int baud);
 
     void read();
     void write();
@@ -47,6 +47,7 @@ private:
     double previous_command = -1;
     int top_limit = -1;
     int bottom_limit = -1;
+    int resolution = -1;
     double radian_limit = -1;
 
     bool try_open_serial_port();

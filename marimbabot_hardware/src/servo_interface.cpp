@@ -5,14 +5,10 @@ ServoInterface::ServoState::ServoState(const std::string &servo_name) {
 }
 
 // Initializing the serial connection and servo_state object
-ServoInterface::ServoInterface(ros::NodeHandle& node_handle, std::string &device, int baud, int top_limit, int bottom_limit) : 
+ServoInterface::ServoInterface(ros::NodeHandle& node_handle, std::string &device, int baud) : 
     servo_state("mallet_finger") {
     
     ROS_INFO("Initializing servo interface");
-
-    this->top_limit = top_limit; // 120
-    this->bottom_limit = bottom_limit; // 55
-    this->radian_limit = (2 * M_PI) * ((top_limit - bottom_limit) / 255.0);    // =~ 1.602
 
     // Initializing the serial connection
     arduino_serial.setPort(device);
@@ -63,6 +59,46 @@ bool ServoInterface::try_open_serial_port() {
         arduino_serial.open();
         last_arduino_error = 0;
         ROS_INFO_STREAM("Servo controller: Successfully opened port " << arduino_serial.getPort());
+
+        // Loading the servo limits from the arduino
+        arduino_serial.write("l\n");
+
+        // Reading response from arduino, no error handling here because we want to fail the connect
+        std::string response;
+        do {
+            response += arduino_serial.readline();
+        } while(arduino_serial.available() > 0);
+
+        if(response.length() < 4) {
+            ROS_ERROR_STREAM("Servo controller error: Unable to read limits from arduino -> closing");
+            arduino_serial.close();
+            return false;
+        }
+
+        // Check if response starts with "l "
+        if(response[0] != 'l' || response[1] != ' ') {
+            ROS_ERROR_STREAM("Servo controller error: Limit response from arduino is invalid -> closing");
+            arduino_serial.close();
+            return false;
+        }
+
+        response = response.substr(2, response.length() - 4);
+
+        // Splitting into top bottom and resolution
+        std::vector<std::string> limits;
+        std::string bottom_limit_str = response.substr(0, response.find(' '));
+        response = response.substr(response.find(' ') + 1);
+        std::string top_limit_str = response.substr(0, response.find(' '));
+        response = response.substr(response.find(' ') + 1);
+        std::string resolution_str = response;
+
+        this->top_limit = atoi(top_limit_str.c_str());
+        this->bottom_limit = atoi(bottom_limit_str.c_str());
+        this->resolution = atoi(resolution_str.c_str());
+        this->radian_limit = (2 * M_PI) * ((this->top_limit - this->bottom_limit) / ((double) this->resolution));
+
+        ROS_INFO_STREAM("Servo controller: Loaded limits from arduino");
+
         return true;
     } catch (serial::IOException &e) {
         if(e.getErrorNumber() != last_arduino_error) {
@@ -110,7 +146,7 @@ void ServoInterface::read() {
             arduino_serial.close();
             return;
         }
-    } while(arduino_serial.available() > 0);//while(arduino_serial.available() > 0);
+    } while(arduino_serial.available() > 0);
 
     // Parsing response (extract int value)
     // remove first 2 chars and last chars (\r\n)

@@ -13,12 +13,10 @@ int main(int argc, char **argv) {
     int bottom_limit;
     node_handle.param("device", device, std::string("/dev/ttyUSB0"));
     node_handle.param("baud", baud, 115200);
-    node_handle.param("top_limit", top_limit, 120);
-    node_handle.param("bottom_limit", bottom_limit, 55);
 
     ROS_INFO("Starting hardware control node for device %s", device.c_str());
 
-    ServoInterface servo_interface(node_handle, device, baud, top_limit, bottom_limit);
+    ServoInterface servo_interface(node_handle, device, baud);
     controller_manager::ControllerManager controller_manager(&servo_interface);
 
     ros::AsyncSpinner spinner(1);

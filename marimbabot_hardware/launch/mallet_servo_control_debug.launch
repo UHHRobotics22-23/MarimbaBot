@@ -12,8 +12,6 @@
             <!-- Setting device parameter -->
             <param name="device" value="/dev/ttyACM0"/>
             <param name="baudrate" value="115200"/>
-            <param name="top_limit" value="120"/>
-            <param name="bottom_limit" value="55"/>
         </node>
         <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
             args="
