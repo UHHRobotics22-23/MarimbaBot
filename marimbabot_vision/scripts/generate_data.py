@@ -15,14 +15,19 @@ NUM_SAMPLES = 10000
 NUM_WORKER = 24
 OUTPUT_DIR = "data"
 MIN_DURATION = 16 # 1/16th note
+SAMPLE_DYNAMICS = True
 
-def note_sampler(duration):
-    """Sample a note or rest given a duration"""
+def note_sampler(duration, dynamics=False):
+    """Sample a note, dynamics or rest given a duration"""
     note = random.choice(['c', 'd', 'e', 'f', 'g', 'a', 'b', 'r'])
+    dynamic = "" 
+    if dynamics:
+        # https://lilypond.org/doc/v2.22/Documentation/music-glossary/dynamics
+        dynamic = "" if random.random() < 0.9  else random.choice(["\\p", "\\pp", "\\mp", "\\f", "\\mf", "\\ff", "\\dim", "\\decresc", "\\cresc"])
     octave = choice(["", "'", "''"], p=[0.0, 0.8, 0.2]) if note != 'r' else ''
-    return note + octave + duration
+    return note + octave + duration + dynamic
 
-def bar_sampler():
+def bar_sampler(dynamics = False):
     """Sample a bar of notes"""
     def sample_duration(durations, level=0):
         """Randomly subdivides a list of durations into smaller durations"""
@@ -35,18 +40,18 @@ def bar_sampler():
                 new_durations.append(duration)
         return new_durations
 
-    return ' '.join([note_sampler(str(duration)) for duration in sample_duration([1,])])
+    return ' '.join([note_sampler(str(duration), dynamics = dynamics) for duration in sample_duration([1,])])
 
-def generate_piece(num_bars=3):
+def generate_piece(num_bars=3, dynamics=False):
     """Generate a piece of music"""
-    string = ' '.join([bar_sampler() for _ in range(num_bars)])
+    string = ' '.join([bar_sampler(dynamics=dynamics) for _ in range(num_bars)])
     voice_1 = Voice(string, name="Voice_1")
     staff_1 = Staff([voice_1], name="Staff_1")
     return string, staff_1
 
 def generate_sample(i, args):
     """Generate a sample and save it to disk"""
-    string, staff = generate_piece()
+    string, staff = generate_piece(dynamics = args.dynamics)
     os.makedirs(f"{args.output_dir}/{i}", exist_ok=True)
     header_block = Block(name="header")
     header_block.tagline = "#ff"
@@ -68,6 +73,7 @@ if __name__ == "__main__":
     parser.add_argument("--num_worker", type=int, required=False, help="Amount of workers that are used to generate the data.", default=NUM_WORKER)
     parser.add_argument("--min_duration", type=int, required=False, help="Minimum duration for a note, e.g. 16 for 1/16th note.", default=MIN_DURATION)
     parser.add_argument("--output_dir", type=str, required=False, help="Folder for the generated data.", default=OUTPUT_DIR)
+    parser.add_argument("--dynamics", type=bool, required=False, help="Determine whether to sample data that includes dynamics.", default=SAMPLE_DYNAMICS)
 
     args = parser.parse_args()
     print(args.output_dir)
