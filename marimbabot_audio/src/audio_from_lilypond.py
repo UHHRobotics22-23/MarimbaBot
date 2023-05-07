@@ -77,7 +77,7 @@ def callback_vision_results(data: String, audio_publisher):
 def listener():
     rospy.init_node('~audio_generation', anonymous=True)
 
-    pub = rospy.Publisher('soundplay_node/SoundRequest', SoundRequest, queue_size=50)
+    pub = rospy.Publisher('robotsound', SoundRequest, queue_size=50)
     rospy.Subscriber("vision_node/recognized_notes", String, callback_vision_results, callback_args=(pub))
 
     # spin() simply keeps python from exiting until this node is stopped
