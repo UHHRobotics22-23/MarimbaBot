@@ -42,15 +42,18 @@ def create_audio_from_lilypond(sentence):
     # store lilypond as midi temporarily
     # store temporarily due to parser limitations concerning '\midi' https://abjad.github.io/api/abjad/parsers/parser.html 
     temp_ = tempfile.TemporaryFile()
-    as_midi(lilypond_file, str(temp_.name))
-    midi_filename = str(temp_.name) + ".midi"
+
+    # create midi file from lilypond
+    midi_file_path, abjad_formatting_time, lilypond_rendering_time, success = as_midi(lilypond_file, str(temp_.name))
+    rospy.logdebug(f"created midi file {midi_file_path}, success: {success},\
+                    abjad formatting time: {abjad_formatting_time}, lilypond rendering time: {lilypond_rendering_time}")
 
     # create audio from midi
     temp_ = tempfile.TemporaryFile()
     audio_filename = str(temp_.name) + ".wav"
 
     # create audio file from midi
-    FluidSynth().midi_to_audio(midi_filename, audio_filename)
+    FluidSynth().midi_to_audio(midi_file_path, audio_filename)
 
     return audio_filename
 
@@ -70,13 +73,16 @@ def callback_vision_results(data: String, audio_publisher):
     sound_request.volume = 0.5
     sound_request.arg = audio_filename
 
+    # publish audio file to audio node (sound_play package)
     audio_publisher.publish(sound_request)
 
 # create audio from lilypond publisher
 # send audio to audio node (sound_play package)
 def listener():
+    # initialize node
     rospy.init_node('~audio_generation', anonymous=True)
 
+    # subscribe to vision node and publish to audio node (sound_play package)
     pub = rospy.Publisher('robotsound', SoundRequest, queue_size=50)
     rospy.Subscriber("vision_node/recognized_notes", String, callback_vision_results, callback_args=(pub))
 
@@ -84,4 +90,5 @@ def listener():
     rospy.spin()
 
 if __name__ == '__main__':
+    # start listener node
     listener()
