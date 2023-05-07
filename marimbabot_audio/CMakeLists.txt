@@ -5,7 +5,9 @@ find_package(catkin REQUIRED COMPONENTS
   audio_common_msgs
   cv_bridge
   message_generation
+  rospy
   sensor_msgs
+  sound_play
   std_msgs
 )
 
@@ -29,9 +31,13 @@ CATKIN_DEPENDS
   sensor_msgs
   std_msgs
 )
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+)
 
 catkin_install_python(
 PROGRAMS
+  src/audio_from_lilypond.py
   scripts/onset_detection.py
   scripts/note2midi.py
 DESTINATION
