@@ -174,19 +174,6 @@ Changelog:
         <kd>1.0</kd>
     </gazebo>
 
-    <gazebo>
-        <plugin filename="libgazebo_ros_control.so" name="${name}_gazebo_ros_control">
-            <!-- don't add the robotNamespace here unless you really want it -->
-            <!-- <robotNamespace>marimba/</robotNamespace> -->
-            <!-- <robotNamespace>/</robotNamespaside_left_posce> -->
-            <robotParam>robot_description</robotParam>
-            <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
-            <legacyModeNS>true</legacyModeNS>
-            <!-- specify control period, default is to use the physics period -->
-            <!-- <controlPeriod>0.0333</controlPeriod> -->
-        </plugin>
-    </gazebo>
-
 
     <!-- Bottom body -->
 
