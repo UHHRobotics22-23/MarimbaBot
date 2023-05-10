@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
 import argparse
-from functools import partial
 import os
 import random
+from functools import partial
 from multiprocessing import Pool
 
+import abjad
 import tqdm
-from abjad import Block, LilyPondFile, Staff, Voice, KeySignature, NamedPitchClass, Mode, select, attach
+from abjad import Block, LilyPondFile, Staff, Voice
 from abjad.persist import as_png
 from numpy.random import choice
 
@@ -15,23 +16,48 @@ NUM_SAMPLES = 10000
 NUM_WORKER = 24
 OUTPUT_DIR = "data"
 MIN_DURATION = 8 # 1/16th note
-SAMPLE_DYNAMICS = True
+INCLUDE_DYNAMICS = True
+INCLUDE_SLURS = True
+INCLUDE_ARTICULATIONS = True
+INCLUDE_MAJORS = True
+INCLUDE_REPEATS = True
+INCLUDE_CHORDS = True
+
+
 
 class LilypondGenerator():
-    def __init__(self, dynamics=False, min_duration=8) -> None:
-        self.dynamics = dynamics
-        self.music_notes = ['c', 'd', 'e', 'f', 'g', 'a', 'b', 'r']
+    def __init__(self, include_dynamics=True, include_slurs=True, include_articulations=True,\
+                  include_major=True, include_repeat=True, include_chords=True, min_duration=8) -> None:
+        self.dynamics = include_dynamics
+        self.slurs = include_slurs
+        self.repeat = include_repeat
+        self.major = include_major
+        self.articulations = include_articulations
+        self.chords = include_chords
+        self.music_notes = ['c', 'd', 'e', 'f', 'g', 'a', 'b']
+        self.rests = ['r']
         self.accidentals = ['s', 'ss', 'f', 'ff']
-        #self.dynamics = ['ppp', 'pp', 'p', 'mp', 'mf', 'f', 'ff', 'fff']
         self.min_duration = min_duration
+        # OPTIONAL: one could add more articulations to the notes
+        # marcato, stopped, tenuto, staccatissimo, accent, staccato, and portato
+        # http://lilypond.org/doc/v2.22/Documentation/notation/expressive-marks-attached-to-notes
+        self.articulations = ['staccato', 'accent', 'tenuto', 'marcato', 'stopped', 'staccatissimo', 'portato']
+        self.dynamics = ['ppp', 'pp', 'p', 'mp', 'mf', 'f', 'ff', 'fff']
+        self.tempos = [60, 40, 96, 120]
 
     def note_sampler(self, duration, ):
         """Sample a note, dynamics or rest given a duration"""
-        note = random.choice(self.music_notes)
+        note = random.choice(self.music_notes + self.rests)
        
         octave = choice(["", "'", "''"], p=[0.0, 0.8, 0.2]) if note != 'r' else ''
         note = note + random.choice(self.accidentals) if note != 'r' and random.random() < 0.1 else note
-        return note + octave + duration
+        
+        retNote = note + octave
+
+        if self.chords and random.random() < 0.1 and note != 'r':
+            retNote = "<" + retNote + " " + random.choice(self.music_notes) + octave + ">"
+
+        return retNote + duration
 
     def bar_sampler(self,):
         """Sample a bar of notes"""
@@ -50,19 +76,113 @@ class LilypondGenerator():
     
     # https://lilypond.org/doc/v2.21/Documentation/learning/ties-and-slurs
 
-    def add_ties_and_slurs(self, staff_1,):
-        pass
+    def add_articulation(self, voice):
+        result = abjad.select(voice).leaves()
+        result = result.group_by_measure()
+        # random number of notes inside a part
+        random_count = random.randint(2,5)
+        # partition the part into groups of random_count notes
+        result = result.partition_by_counts([random_count], cyclic=True)
+        # flatten the groups
+        parts = [abjad.select(_).flatten() for _ in result]
 
-    def scale(self, staff_1):
-        pass
+        # add articulations to random notes with a certain probability
+        for part in parts:
+            if random.random() < 0.9:
+                articulation = abjad.Articulation(random.choice(self.articulations))
+                abjad.attach(articulation, part[random.randint(0, len(part) - 1)])
 
+
+    """
+    creates a random number of ties and slurs
+    code is based on the example from the abjad documentation 3.4
+    """
+    def add_slurs(self, voice):
+        result = abjad.select(voice).leaves()
+        result = result.group_by_measure()
+        # random number of notes inside a part
+        random_count = random.randint(2,5)
+        # partition the part into groups of random_count notes
+        result = result.partition_by_counts([random_count], cyclic=True)
+        result.partition_by_ratio
+        # flatten the groups
+        parts = [abjad.select(_).flatten() for _ in result]
+
+        # add slurs to random notes with a certain probability
+        for part in parts:
+            # random slur
+            if random.random() < 0.9:
+                # pick two random notes
+                first_note_index = random.randint(0, len(part) - 2)
+                second_note_index =random.randint(first_note_index + 1, len(part) - 1)
+                first_note, last_note = part[first_note_index], part[second_note_index]
+                start_slur = abjad.StartSlur()
+                abjad.attach(start_slur, first_note)
+                stop_slur = abjad.StopSlur()
+                abjad.attach(stop_slur, last_note)
+
+        return voice
+
+    """
+    adds a repeat to the voice
+    """
+    def add_repeat(self, voice):
+        if random.random() < 0.5:
+            repeat = abjad.Repeat()
+            abjad.attach(repeat, voice)
+
+    """
+    adds a tempo to the voice
+    """
+    def add_tempo(self, voice):
+        if random.random() < 0.3:
+            abjad.attach(abjad.MetronomeMark((1, 4), random.choice(self.tempos)), voice[0])
+
+    """
+    adds a major key signature to the voice, i.e. pitch
+    """
+    def add_major(self, voice):
+        key_signature = abjad.KeySignature(
+        abjad.NamedPitchClass(random.choice(self.music_notes)), abjad.Mode("major")
+        )
+        abjad.attach(key_signature, voice[0])
+
+    """
+    adds dynamics to the voice
+    """
+    def add_dynamics(self, voice):
+        if random.random() < 0.3:
+            abjad.attach(abjad.Dynamic(random.choice(self.dynamics)), voice[0])
+
+
+    """
+    generates a piece of music
+    """
     def generate_piece(self,num_bars=3,):
         """Generate a piece of music"""
         string = ' '.join([self.bar_sampler() for _ in range(num_bars)])
 
         voice_1 = Voice(string, name="Voice_1")
+        self.add_tempo(voice_1)
+
+        if self.slurs:
+            self.add_slurs(voice_1)
+        if self.articulations:
+            self.add_articulation(voice_1)
+        if self.repeat:
+            self.add_repeat(voice_1)
+        if self.major:
+            self.add_major(voice_1)
+        if self.dynamics:
+            self.add_dynamics(voice_1)
+
         staff_1 = Staff([voice_1], name="Staff_1")
 
+        # as the lilypond data lies inside brackets we need to remove them to get a clean string
+        # e.g. '\\context Voice = "Voice_1"\n{\n    \\tempo 4=60\n    c\'8\n    d\'8\n    e\'8\n    f\'8\n}'
+        string = abjad.lilypond(voice_1)
+        # the following statement  gets rid of the context and the newlines
+        string = " ".join(string.replace("\\context Voice = \"Voice_1\"\n{", "").replace("\n", "")[1:-1].split())
 
         return string, staff_1
 
@@ -91,12 +211,19 @@ if __name__ == "__main__":
     parser.add_argument("--num_worker", type=int, required=False, help="Amount of workers that are used to generate the data.", default=NUM_WORKER)
     parser.add_argument("--min_duration", type=int, required=False, help="Minimum duration for a note, e.g. 16 for 1/16th note.", default=MIN_DURATION)
     parser.add_argument("--output_dir", type=str, required=False, help="Folder for the generated data.", default=OUTPUT_DIR)
-    parser.add_argument("--dynamics", type=bool, required=False, help="Determine whether to sample data that includes dynamics.", default=SAMPLE_DYNAMICS)
+    parser.add_argument("--dynamics", type=bool, required=False, help="Determine whether to sample data that includes dynamics.", default=INCLUDE_DYNAMICS)
+    parser.add_argument("--slurs", type=bool, required=False, help="Determine whether to sample data that includes dynamics slurs.", default=INCLUDE_SLURS)
+    parser.add_argument("--majors", type=bool, required=False, help="Determine whether to sample data that includes dynamics majors.", default=INCLUDE_MAJORS)
+    parser.add_argument("--articulations", type=bool, required=False, help="Determine whether to sample data that includes dynamics articulations.", default=INCLUDE_ARTICULATIONS)
+    parser.add_argument("--chords", type=bool, required=False, help="Determine whether to sample data that includes dynamics chords.", default=INCLUDE_CHORDS)
+    parser.add_argument("--repeats", type=bool, required=False, help="Determine whether to sample data that includes dynamics repeats.", default=INCLUDE_REPEATS)
+
 
     args = parser.parse_args()
-    args.lilypondGenerator = LilypondGenerator(dynamics=args.dynamics, min_duration=args.min_duration)
+    args.lilypondGenerator = LilypondGenerator(include_dynamics=args.dynamics, include_articulations=args.articulations,\
+                                               include_chords=args.chords, include_major=args.majors,\
+                                                include_repeat=args.repeats, include_slurs=args.slurs, min_duration=args.min_duration)
     print(args.output_dir)
-    generate_sample(0, args)
 
     # Call generate_sample on ids with tqdm and multiprocessing (lilypond is single threaded)
     with Pool(args.num_worker) as pool:
