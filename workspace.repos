@@ -23,6 +23,10 @@ repositories:
     type: git
     url: https://github.com/TAMS-Group/tams_ur5_setup.git
     version: master
+  tams/tams_ur5_gazebo:
+    type: git
+    url: https://github.com/TAMS-Group/tams_ur5_gazebo.git
+    version: master
   upstream/apriltag_lib:
     type: git
     url: https://github.com/AprilRobotics/apriltag
