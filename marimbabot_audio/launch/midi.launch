@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<launch>
+  <node name="onset_midi" pkg="marimbabot_audio" type="note2midi.py" output="screen" />
+</launch>
