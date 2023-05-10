@@ -1,0 +1,29 @@
+pos_joint_traj_controller:
+  type: effort_controllers/JointTrajectoryController
+  joints:
+     - ur5_shoulder_pan_joint
+     - ur5_shoulder_lift_joint
+     - ur5_elbow_joint
+     - ur5_wrist_1_joint
+     - ur5_wrist_2_joint
+     - ur5_wrist_3_joint
+  gains:
+    ur5_shoulder_pan_joint: {p:  40000.0, d: 18.0, i: 8000.0, i_clamp: 4000.0}
+    ur5_shoulder_lift_joint: {p: 50000.0, d: 10.0, i: 7000.0, i_clamp: 10000.0}
+    ur5_elbow_joint: {p: 40000.0, d: 6.0, i: 4000.0, i_clamp: 10000.0}
+    ur5_wrist_1_joint: {p: 8000.0, d: 6.0, i: 300, i_clamp: 800.0}
+    ur5_wrist_2_joint: {p: 8000.0, d: 4.0, i: 300, i_clamp: 800.0}
+    ur5_wrist_3_joint: {p: 8000.0, d: 4.0, i: 300, i_clamp: 800.0}
+  constraints:
+      goal_time: 0.6
+      stopped_velocity_tolerance: 0.05
+      ur5_shoulder_pan_joint: {trajectory: 0.1, goal: 0.01}
+      ur5_shoulder_lift_joint: {trajectory: 0.1, goal: 0.01}
+      ur5_elbow_joint: {trajectory: 0.1, goal: 0.01}
+      ur5_wrist_1_joint: {trajectory: 0.1, goal: 0.01}
+      ur5_wrist_2_joint: {trajectory: 0.1, goal: 0.01}
+      ur5_wrist_3_joint: {trajectory: 0.1, goal: 0.01}
+  stop_trajectory_duration: 0.5
+  state_publish_rate:  100
+  action_monitor_rate: 20 
+
