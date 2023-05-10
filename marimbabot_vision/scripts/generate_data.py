@@ -14,60 +14,65 @@ from numpy.random import choice
 NUM_SAMPLES = 10000
 NUM_WORKER = 24
 OUTPUT_DIR = "data"
-MIN_DURATION = 16 # 1/16th note
-SAMPLE_DYNAMICS = True
+MIN_DURATION = 8 # 1/16th note
+SAMPLE_DYNAMICS = False
 music_notes = ['c', 'd', 'e', 'f', 'g', 'a', 'b', 'r']
-accidentals = ["is", "es", "isis", "eses"]
-def note_sampler(duration, dynamics=False):
-    """Sample a note, dynamics or rest given a duration"""
-    note = random.choice(music_notes)
-    accidental = "" if random.random() < 0.5 else random.choice(accidentals)  # sharp, flat
 
-    dynamic = "" 
-    if dynamics:
-        # https://lilypond.org/doc/v2.22/Documentation/music-glossary/dynamics
-        dynamic = "" if random.random() < 0.9  else random.choice(["\\p", "\\pp", "\\mp", "\\f", "\\mf", "\\ff", "\\dim", "\\decresc", "\\cresc"])
-    
-    octave = choice(["", "'", "''"], p=[0.0, 0.8, 0.2]) if note != 'r' else ''
-    return note + accidental + octave + duration + dynamic
+class LilypondGenerator():
+    def __init__(self, dynamics) -> None:
+        self.dynamics = dynamics
 
-def bar_sampler(dynamics = False):
-    """Sample a bar of notes"""
-    def sample_duration(durations, level=0):
-        """Randomly subdivides a list of durations into smaller durations"""
-        prop = 1/3
-        new_durations = []
-        for duration in durations: 
-            if duration < args.min_duration and random.random() > prop:
-                new_durations.extend(sample_duration([duration * 2, duration * 2], level + 1))
-            else:
-                new_durations.append(duration)
-        return new_durations
 
-    return ' '.join([note_sampler(str(duration), dynamics = dynamics) for duration in sample_duration([1,])])
+    def note_sampler(self, duration, ):
+        """Sample a note, dynamics or rest given a duration"""
+        note = random.choice(music_notes)
 
-def generate_piece(num_bars=3, dynamics=False):
-    """Generate a piece of music"""
-    string = ' '.join([bar_sampler(dynamics=dynamics) for _ in range(num_bars)])
+        dynamic = "" 
+        if self.dynamics:
+            # https://lilypond.org/doc/v2.22/Documentation/music-glossary/dynamics
+            dynamic = "" if random.random() < 0.9  else random.choice(["\\p", "\\pp", "\\mp", "\\f", "\\mf", "\\ff", "\\dim", "\\decresc", "\\cresc"])
+        
+        octave = choice(["", "'", "''"], p=[0.0, 0.8, 0.2]) if note != 'r' else ''
+        return note + octave + duration + dynamic
 
-    voice_1 = Voice(string, name="Voice_1")
-    staff_1 = Staff([voice_1], name="Staff_1")
+    def bar_sampler(self,):
+        """Sample a bar of notes"""
+        def sample_duration(durations, level=0):
+            """Randomly subdivides a list of durations into smaller durations"""
+            prop = 1/3
+            new_durations = []
+            for duration in durations: 
+                if duration < args.min_duration and random.random() > prop:
+                    new_durations.extend(sample_duration([duration * 2, duration * 2], level + 1))
+                else:
+                    new_durations.append(duration)
+            return new_durations
 
-    # scale
-    if random.random > 0.8:
-        note = select.note(staff_1, 0)
-        key_signature = KeySignature(
-            NamedPitchClass(random.choice(music_notes)), Mode("major")
-        )
-        attach(key_signature, note)
-        # TODO fix, refactor so that it only contains the voice?
-        string = str(staff_1)
+        return ' '.join([self.note_sampler(str(duration), ) for duration in sample_duration([1,])])
 
-    return string, staff_1
+    def generate_piece(self,num_bars=3,):
+        """Generate a piece of music"""
+        string = ' '.join([self.bar_sampler() for _ in range(num_bars)])
+
+        voice_1 = Voice(string, name="Voice_1")
+        staff_1 = Staff([voice_1], name="Staff_1")
+
+        # # scale
+        # if random.random() > 0.8:
+        #     note = select(staff_1, 0)
+        #     key_signature = KeySignature(
+        #         NamedPitchClass(random.choice(music_notes)), Mode("major")
+        #     )
+        #     attach(key_signature, note)
+        #     # TODO fix, refactor so that it only contains the voice?
+        #     string = str(staff_1)
+
+        return string, staff_1
 
 def generate_sample(i, args):
     """Generate a sample and save it to disk"""
-    string, staff = generate_piece(dynamics = args.dynamics)
+    lilypondGenerator = LilypondGenerator(dynamics=args.dynamics)
+    string, staff = lilypondGenerator.generate_piece()
     os.makedirs(f"{args.output_dir}/{i}", exist_ok=True)
     header_block = Block(name="header")
     header_block.tagline = "#ff"
@@ -93,6 +98,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     print(args.output_dir)
+    generate_sample(0, args)
 
     # Call generate_sample on ids with tqdm and multiprocessing (lilypond is single threaded)
     with Pool(args.num_worker) as pool:
