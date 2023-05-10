@@ -37,9 +37,9 @@
   <include file="$(find ur_gazebo)/launch/controller_utils.launch"/>
   -->
 
-  <rosparam file="$(find marimbabot_ur5_moveit_config)/config/gazebo_controllers.yaml" command="load"/>
-
-  <!-- <node name="joint_state_controller_spawner" pkg="controller_manager" type="spawner" 
+  <rosparam file="$(find marimbabot_ur5_moveit_config)/config/joint_state_controller.yaml" command="load"/>
+  
+  <node name="joint_state_controller_spawner" pkg="controller_manager" type="spawner" 
         args="joint_state_controller" respawn="false" output="screen"/>
 
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
@@ -47,16 +47,22 @@
     <param name="tf_prefix" type="string" value="" />
   </node>
 
+  <!-- arm controller, actually called "/pos_joint_traj_controller" -->
+  <rosparam file="$(find marimbabot_ur5_moveit_config)/config/arm_controller_ur5.yaml" command="load"/>
 
   <node name="arm_controller_spawner" pkg="controller_manager" type="spawner" 
-        args="arm_controller" respawn="false" output="screen" />
+        args="pos_joint_traj_controller" respawn="false" output="screen" />
 
+  <!-- remap arm_controller/ to top-level /follow_joint_trajectory -->
   <remap from="/follow_joint_trajectory" to="/arm_controller/follow_joint_trajectory"/>
 
+  <!-- our Robotiq gripper simulation has all joints actively controlled -->
+  <rosparam file="$(find marimbabot_ur5_moveit_config)/config/gripper_controller.yaml" command="load"/>
 
   <node name="gripper_controller_spawner" pkg="controller_manager" type="spawner" 
         args="gripper_controller" respawn="false" output="screen" />
 
+  <!-- we want to remap the gripper controller topics, but that is not so easy with gazebo plugins... -->
   <remap from="/gripper_action" to="/gripper_controller/follow_joint_trajectory" /> -->
 
   <!-- does not work:
@@ -66,6 +72,7 @@
   <remap from="/gripper_controller/follow_joint_trajectory/result" to="/gripper_action/result" />
   <remap from="/gripper_controller/follow_joint_trajectory/status" to="/gripper_action/status" />
   -->
+
   <!--
   <node pkg="topic_tools" type="relay" name="gripper_action_goal_relay" 
         args="/gripper_action/goal /gripper_controller/follow_joint_trajectory/goal" />
