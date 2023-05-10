@@ -143,7 +143,7 @@ class LilypondGenerator():
     """
     def add_major(self, voice):
         key_signature = abjad.KeySignature(
-        abjad.NamedPitchClass(random.choice(self.music_notes)), abjad.Mode("major")
+        abjad.NamedPitchClass(random.choice(self.music_notes)), abjad.Mode(random.choice(["major", "minor"]))
         )
         abjad.attach(key_signature, voice[0])
 
