@@ -46,15 +46,17 @@ class LilypondGenerator():
 
     def note_sampler(self, duration, ):
         """Sample a note, dynamics or rest given a duration"""
-        note = random.choice(self.music_notes + self.rests)
+        first_note = random.choice(self.music_notes + self.rests)
        
-        octave = choice(["", "'", "''"], p=[0.0, 0.8, 0.2]) if note != 'r' else ''
-        note = note + random.choice(self.accidentals) if note != 'r' and random.random() < 0.1 else note
-        
+        octave = choice(["", "'", "''"], p=[0.0, 0.8, 0.2]) if first_note != 'r' else ''
+        note = first_note if first_note != 'r' and random.random() < 0.1 else first_note
+        note = note + random.choice(self.accidentals) if random.random() < 0.2 else note
         retNote = note + octave
 
         if self.chords and random.random() < 0.1 and note != 'r':
-            retNote = "<" + retNote + " " + random.choice(self.music_notes) + octave + ">"
+            second_node = random.choice([n for n in self.music_notes if n != first_note])
+            second_node = second_node + random.choice(self.accidentals) if random.random() < 0.2 else second_node
+            retNote = "<" + retNote + " " + second_node + octave + ">"
 
         return retNote + duration
 
