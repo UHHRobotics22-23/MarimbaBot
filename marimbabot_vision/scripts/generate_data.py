@@ -19,19 +19,18 @@ MIN_DURATION = 8 # 1/16th note
 INCLUDE_DYNAMICS = True
 INCLUDE_SLURS = True
 INCLUDE_ARTICULATIONS = True
-INCLUDE_MAJORS = True
+INCLUDE_SCALES = True
 INCLUDE_REPEATS = True
 INCLUDE_CHORDS = True
 
 
-
 class LilypondGenerator():
     def __init__(self, include_dynamics=True, include_slurs=True, include_articulations=True,\
-                  include_major=True, include_repeat=True, include_chords=True, min_duration=8) -> None:
+                  include_scales=True, include_repeat=True, include_chords=True, min_duration=8) -> None:
         self.dynamics = include_dynamics
         self.slurs = include_slurs
         self.repeat = include_repeat
-        self.major = include_major
+        self.scale = include_scales
         self.articulations = include_articulations
         self.chords = include_chords
         self.music_notes = ['c', 'd', 'e', 'f', 'g', 'a', 'b']
@@ -43,7 +42,7 @@ class LilypondGenerator():
         # http://lilypond.org/doc/v2.22/Documentation/notation/expressive-marks-attached-to-notes
         self.articulations = ['staccato', 'accent', 'tenuto', 'marcato', 'stopped', 'staccatissimo', 'portato']
         self.dynamics = ['ppp', 'pp', 'p', 'mp', 'mf', 'f', 'ff', 'fff']
-        self.tempos = [60, 40, 96, 120]
+        self.tempos = [40, 60, 96, 120]
 
     def note_sampler(self, duration, ):
         """Sample a note, dynamics or rest given a duration"""
@@ -60,7 +59,7 @@ class LilypondGenerator():
         return retNote + duration
 
     def bar_sampler(self,):
-        """Sample a bar of notes"""
+        """Sample a bar of notes, rests or chords"""
         def sample_duration(durations, level=0):
             """Randomly subdivides a list of durations into smaller durations"""
             prop = 1/3
@@ -74,8 +73,6 @@ class LilypondGenerator():
 
         return ' '.join([self.note_sampler(str(duration), ) for duration in sample_duration([1,])])
     
-    # https://lilypond.org/doc/v2.21/Documentation/learning/ties-and-slurs
-
     def add_articulation(self, voice):
         result = abjad.select(voice).leaves()
         result = result.group_by_measure()
@@ -91,7 +88,6 @@ class LilypondGenerator():
             if random.random() < 0.9:
                 articulation = abjad.Articulation(random.choice(self.articulations))
                 abjad.attach(articulation, part[random.randint(0, len(part) - 1)])
-
 
     """
     creates a random number of ties and slurs
@@ -141,7 +137,7 @@ class LilypondGenerator():
     """
     adds a major key signature to the voice, i.e. pitch
     """
-    def add_major(self, voice):
+    def add_major_minor_scales(self, voice):
         key_signature = abjad.KeySignature(
         abjad.NamedPitchClass(random.choice(self.music_notes)), abjad.Mode(random.choice(["major", "minor"]))
         )
@@ -153,7 +149,6 @@ class LilypondGenerator():
     def add_dynamics(self, voice):
         if random.random() < 0.3:
             abjad.attach(abjad.Dynamic(random.choice(self.dynamics)), voice[0])
-
 
     """
     generates a piece of music
@@ -171,8 +166,8 @@ class LilypondGenerator():
             self.add_articulation(voice_1)
         if self.repeat:
             self.add_repeat(voice_1)
-        if self.major:
-            self.add_major(voice_1)
+        if self.scale:
+            self.add_major_minor_scales(voice_1)
         if self.dynamics:
             self.add_dynamics(voice_1)
 
@@ -213,7 +208,7 @@ if __name__ == "__main__":
     parser.add_argument("--output_dir", type=str, required=False, help="Folder for the generated data.", default=OUTPUT_DIR)
     parser.add_argument("--dynamics", type=bool, required=False, help="Determine whether to sample data that includes dynamics.", default=INCLUDE_DYNAMICS)
     parser.add_argument("--slurs", type=bool, required=False, help="Determine whether to sample data that includes dynamics slurs.", default=INCLUDE_SLURS)
-    parser.add_argument("--majors", type=bool, required=False, help="Determine whether to sample data that includes dynamics majors.", default=INCLUDE_MAJORS)
+    parser.add_argument("--scales", type=bool, required=False, help="Determine whether to sample data that includes dynamics scales.", default=INCLUDE_SCALES)
     parser.add_argument("--articulations", type=bool, required=False, help="Determine whether to sample data that includes dynamics articulations.", default=INCLUDE_ARTICULATIONS)
     parser.add_argument("--chords", type=bool, required=False, help="Determine whether to sample data that includes dynamics chords.", default=INCLUDE_CHORDS)
     parser.add_argument("--repeats", type=bool, required=False, help="Determine whether to sample data that includes dynamics repeats.", default=INCLUDE_REPEATS)
@@ -221,7 +216,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     args.lilypondGenerator = LilypondGenerator(include_dynamics=args.dynamics, include_articulations=args.articulations,\
-                                               include_chords=args.chords, include_major=args.majors,\
+                                               include_chords=args.chords, include_scales=args.scales,\
                                                 include_repeat=args.repeats, include_slurs=args.slurs, min_duration=args.min_duration)
     print(args.output_dir)
 
