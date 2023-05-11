@@ -1924,19 +1924,19 @@
     <disable_collisions link1="ur5_wrist_1_link" link2="ur5_wrist_2_link" reason="Adjacent"/>
     <disable_collisions link1="ur5_wrist_1_link" link2="ur5_wrist_3_link" reason="Never"/>
     <disable_collisions link1="ur5_wrist_2_link" link2="ur5_wrist_3_link" reason="Adjacent"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_1_link_0" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_1_link_1" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_1_link_2" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_1_link_3" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_2_link_0" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_2_link_1" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_2_link_2" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_2_link_3" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_middle_link_0" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_middle_link_1" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_middle_link_2" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_middle_link_3" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_adapter" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_1_link_0" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_1_link_1" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_1_link_2" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_1_link_3" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_2_link_0" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_2_link_1" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_2_link_2" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_2_link_3" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_middle_link_0" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_middle_link_1" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_middle_link_2" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_middle_link_3" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_adapter" reason="User"/>
     <disable_collisions link1="mallet_base_link" link2="s_model_finger_1_link_0" reason="User"/>
     <disable_collisions link1="mallet_base_link" link2="s_model_finger_1_link_1" reason="User"/>
     <disable_collisions link1="mallet_base_link" link2="s_model_finger_1_link_2" reason="User"/>
@@ -1963,9 +1963,9 @@
     <disable_collisions link1="mallet_neck" link2="s_model_finger_2_link_3" reason="User"/>
     <disable_collisions link1="mallet_base_link" link2="s_model_adapter" reason="User"/>
     <disable_collisions link1="mallet_base_link" link2="mallet_neck" reason="User"/>
-    <disable_collisions link1="mallet_base_link" link2="mallet_top" reason="User"/>
+    <disable_collisions link1="mallet_base_link" link2="mallet_head" reason="User"/>
     <disable_collisions link1="mallet_base_link" link2="s_model_palm" reason="User"/>
     <disable_collisions link1="mallet_neck" link2="s_model_palm" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_palm" reason="User"/>
-    <disable_collisions link1="mallet_neck" link2="mallet_top" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_palm" reason="User"/>
+    <disable_collisions link1="mallet_neck" link2="mallet_head" reason="User"/>
 </robot>
