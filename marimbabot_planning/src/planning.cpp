@@ -271,8 +271,8 @@ int main(int argc, char **argv)
     spinner.start();
 
     // Create tf2 listener
-    tf2_ros::Buffer tfBuffer;
-    tf2_ros::TransformListener tfListener(tfBuffer);
+    std::shared_ptr<tf2_ros::Buffer> tfBuffer = std::make_shared<tf2_ros::Buffer>();
+    tf2_ros::TransformListener tfListener(*tfBuffer);
 
     static const std::string PLANNING_GROUP = "arm";
     moveit::planning_interface::MoveGroupInterface move_group_interface(PLANNING_GROUP);
