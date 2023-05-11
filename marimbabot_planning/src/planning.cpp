@@ -116,7 +116,8 @@ moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
     };
 
     // Add link on plane constraint to ik_options
-    ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_1_joint", link_on_plane_constraint));
+    // Create minimal displacement goal, so that the robot does not move too much and stays close to the start state
+    ik_options.goals.emplace_back(new bio_ik::MinimalDisplacementGoal());
     
     // Create dummy goal pose
     geometry_msgs::Pose dummy_goal_pose;
