@@ -290,50 +290,41 @@ int main(int argc, char **argv)
 
     move_group_interface.setMaxVelocityScalingFactor(0.9);
     move_group_interface.setMaxAccelerationScalingFactor(0.9);
-    //ros::Duration(2).sleep();
-
-    // Lookup the world to tcp transform
-    geometry_msgs::TransformStamped transformStamped;
-    try
-    {
-        transformStamped = tfBuffer.lookupTransform("world", "ft_fts_toolside", ros::Time(0));
-    }
-    catch (tf2::TransformException &ex)
-    {
-        ROS_WARN("%s",ex.what());
-    }
-
-    // Convert transform to pose
-    geometry_msgs::PointStamped point;
-
-    point.header.stamp = ros::Time::now();
-    point.header.frame_id = transformStamped.header.frame_id;
-    point.point.x = transformStamped.transform.translation.x;
-    point.point.y = transformStamped.transform.translation.y;
-    point.point.z = transformStamped.transform.translation.z;
-
-    // Print pose
-    ROS_INFO_STREAM("Pose: " << point);
 
     auto current_state = move_group_interface.getCurrentState();
     //convert to moveit message
     moveit_msgs::RobotState start_state;
     moveit::core::robotStateToRobotStateMsg(*current_state, start_state);
 
-    // Hit a sequence of points in cartesian space left and right of "pose"
+    std::string dummy_lilypond = "d1 r1 d4 e4 f4 g4 c'2 e'2 e''1";
+    std::string planning_frame = move_group_interface.getPlanningFrame();
 
-    // Define hit points
-    std::vector<geometry_msgs::PointStamped> hit_point1;
-    for (auto offset : {-0.1, -0.05, 0.0, 0.05, 0.1})
+    // Convert lilypond sequence to cartesian poses and times
+    auto hits = marimbabot_planning::lilypond_to_cartesian(
+        tfBuffer,
+        planning_frame,
+        dummy_lilypond,
+        60.0
+    );
+
+    // Convert hits to hit points (drop time information and only keep the point) TODO remove if timing is implemented
+    std::vector<geometry_msgs::PointStamped> hit_points_vector;
+    std::transform(
+        hits.begin(),
+        hits.end(),
+        std::back_inserter(hit_points_vector),
+        [planning_frame](const std::tuple<geometry_msgs::PoseStamped, double, double> hit) -> geometry_msgs::PointStamped
     {
-        geometry_msgs::PointStamped hit_point{point};
-        hit_point.point.y += offset;
-        hit_point1.push_back(hit_point);
-        ROS_INFO_STREAM("Pose point : " << hit_point);
+            geometry_msgs::PointStamped point;
+            point.header.frame_id = planning_frame;
+            point.point = std::get<0>(hit).pose.position;
+            point.point.z += 0.04;
+            return point;
     }
+    );
 
     // Define hit plan by mapping hit_point on hit_points
-    auto hit_plan = hit_points(move_group_interface, start_state, hit_point1);
+    auto hit_plan = marimbabot_planning::hit_points(move_group_interface, start_state, hit_points_vector);
 
     // Publish the plan for rviz
     ros::Publisher display_publisher = node_handle.advertise<moveit_msgs::DisplayTrajectory>("/move_group/display_planned_path", 1, true);
