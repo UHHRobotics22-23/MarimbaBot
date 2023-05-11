@@ -50,15 +50,14 @@ class LilypondGenerator():
        
         octave = choice(["", "'", "''"], p=[0.0, 0.8, 0.2]) if first_note != 'r' else ''
         note = first_note + random.choice(self.accidentals) if first_note != 'r' and random.random() < 0.2 else first_note
-        dot = ("." if random.random() < 0.1 else "")
-        retNote = note + octave + dot
+        dot = "." if random.random() < 0.1 else ""
+        retNote = note + octave
 
         if self.chords and random.random() < 0.1 and note != 'r':
             second_note = random.choice([n for n in self.music_notes if n != first_note])
             second_note = second_note + random.choice(self.accidentals) if random.random() < 0.2 else second_note
-            retNote = "<" + retNote + " " + second_note + octave + dot + ">"
-
-        return retNote + duration
+            retNote = "<" + note + octave + " " + second_note + octave + ">"
+        return retNote + duration + dot
 
     def bar_sampler(self,):
         """Sample a bar of notes, rests or chords"""
@@ -221,6 +220,8 @@ if __name__ == "__main__":
                                                include_chords=args.chords, include_scales=args.scales,\
                                                 include_repeat=args.repeats, include_slurs=args.slurs, min_duration=args.min_duration)
     print(args.output_dir)
+
+    generate_sample(0, args)
 
     # Call generate_sample on ids with tqdm and multiprocessing (lilypond is single threaded)
     with Pool(args.num_worker) as pool:
