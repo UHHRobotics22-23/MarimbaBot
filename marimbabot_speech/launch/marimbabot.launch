@@ -1,4 +1,4 @@
 <launch>
-<node name="speech_node" pkg="marimbabot_speech" type="speech_synthesis.py">
+<node name="speech_synthesis_node" pkg="marimbabot_speech" type="speech_synthesis.py">
 </node>
 </launch>
