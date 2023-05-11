@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot name="static_mallet_holder">
-    <link name="mallet_top">
+    <link name="mallet_head">
         <collision>
             <origin xyz="0.0 0.0 0.013625" rpy="0.0 0.0 0.0"/>
             <!-- 0.018375 -->
@@ -14,7 +14,7 @@
         <collision>
             <origin xyz="0.0 0.0 0.1825" rpy="0.0 0.0 0.0"/>
             <geometry>
-                <cylinder radius="0.0042" length="0.375"/> 
+                <cylinder radius="0.0042" length="0.375"/>
             </geometry>
         </collision>
     </link>
@@ -45,7 +45,7 @@
 
     <joint name="group_1_2nd_link" type="fixed">
         <parent link="mallet_neck"/>
-        <child link="mallet_top"/>
+        <child link="mallet_head"/>
         <origin xyz="0.0 0.0 0.365"/>
     </joint>
 </robot>

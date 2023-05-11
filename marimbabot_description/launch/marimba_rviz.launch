@@ -1,5 +1,4 @@
 <launch>
-    <arg name="gui" default="true" />
     <arg name="rvizconfig" default="$(find marimbabot_description)/rviz/urdf.rviz" />
 
     <param name="robot_description" command="xacro '$(find marimbabot_description)/urdf/marimba.urdf.xacro'" />
