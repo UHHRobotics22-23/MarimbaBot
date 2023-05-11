@@ -50,12 +50,13 @@ class LilypondGenerator():
        
         octave = choice(["", "'", "''"], p=[0.0, 0.8, 0.2]) if first_note != 'r' else ''
         note = first_note + random.choice(self.accidentals) if first_note != 'r' and random.random() < 0.2 else first_note
-        retNote = note + octave
+        dot = ("." if random.random() < 0.1 else "")
+        retNote = note + octave + dot
 
         if self.chords and random.random() < 0.1 and note != 'r':
             second_note = random.choice([n for n in self.music_notes if n != first_note])
             second_note = second_note + random.choice(self.accidentals) if random.random() < 0.2 else second_note
-            retNote = "<" + retNote + " " + second_note + octave + ">"
+            retNote = "<" + retNote + " " + second_note + octave + dot + ">"
 
         return retNote + duration
 
