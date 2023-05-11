@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 import rospy
+from sound_play.msg import SoundRequest
 from std_msgs.msg import String
-import os
 import subprocess
+import tempfile
 
 class SpeechSynthesis:
     def __init__(self):
@@ -13,22 +14,33 @@ class SpeechSynthesis:
 
         # listens to the defined text responses from behavior node
         self.response_sub = rospy.Subscriber("behavior_node/response", String, self.callback_response)
+        self.audio_pub = rospy.Publisher('robotsound', SoundRequest, queue_size=1)
 
     def callback_response(self, response):
         text = response.data
 
-        mimic_subprocess = subprocess.Popen(
-            ('mimic3', '--voice', self.voice, '--length-scale', self.speed, text), 
-            stdout=subprocess.PIPE)
+        temp_ = tempfile.TemporaryFile()
+        audio_filename = str(temp_.name) + ".wav"
 
-        # Play the audio from the previous process with aplay
-        aplay_subprocess = subprocess.Popen(
-            ('aplay', '-'), 
-            stdin=mimic_subprocess.stdout, 
-            stdout=subprocess.PIPE)
-        
-        # Wait for the process to finish
-        aplay_subprocess.wait()
+        with open(audio_filename, "w+") as f:
+            mimic_subprocess = subprocess.Popen(
+                ('mimic3', '--voice', self.voice, '--length-scale', self.speed, text), 
+                # stdout=subprocess.PIPE)
+                stdout=f)
+
+            # Wait for the process to finish
+            mimic_subprocess.wait()
+
+        # send audio to audio node (sound_play package)
+        # http://docs.ros.org/en/api/sound_play/html/msg/SoundRequest.html
+        sound_request = SoundRequest()
+        sound_request.sound = -2
+        sound_request.command = 1
+        sound_request.volume = 1
+        sound_request.arg = audio_filename
+
+        # publish audio file to audio node (sound_play package)
+        self.audio_pub.publish(sound_request)
 
 if __name__ == '__main__':
     rospy.init_node('speech_synthesis_node')
