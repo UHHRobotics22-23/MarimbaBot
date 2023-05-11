@@ -97,7 +97,7 @@ moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
     // Use bio_ik to solve the inverse kinematics at the goal point
     bio_ik::BioIKKinematicsQueryOptions ik_options;
     ik_options.replace = true;
-    ik_options.return_approximate_solution = false;
+    ik_options.return_approximate_solution = false; // Activate for debugging if you get an error 
 
     ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head", goal_position));
 
@@ -120,7 +120,7 @@ moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
     
     // Create minimal displacement goal, so that the robot does not move too much and stays close to the start state
     ik_options.goals.emplace_back(new bio_ik::MinimalDisplacementGoal());
-    
+
     // Create dummy goal pose
     geometry_msgs::Pose dummy_goal_pose;
 
@@ -314,13 +314,13 @@ int main(int argc, char **argv)
         hits.end(),
         std::back_inserter(hit_points_vector),
         [planning_frame](const std::tuple<geometry_msgs::PoseStamped, double, double> hit) -> geometry_msgs::PointStamped
-    {
+        {
             geometry_msgs::PointStamped point;
             point.header.frame_id = planning_frame;
             point.point = std::get<0>(hit).pose.position;
             point.point.z += 0.04;
             return point;
-    }
+        }
     );
 
     // Define hit plan by mapping hit_point on hit_points
