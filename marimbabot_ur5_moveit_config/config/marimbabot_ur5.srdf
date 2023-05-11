@@ -215,7 +215,7 @@
         <joint name="ur5_elbow_joint" value="-1.87007"/>
         <joint name="ur5_shoulder_lift_joint" value="-2.34524"/>
         <joint name="ur5_shoulder_pan_joint" value="-1.39717"/>
-        <joint name="ur5_wrist_1_joint" value="0.538012"/>
+        <joint name="ur5_wrist_1_joint" value="0.87266"/>
         <joint name="ur5_wrist_2_joint" value="1.43771"/>
         <joint name="ur5_wrist_3_joint" value="0.105272"/>
     </group_state>
