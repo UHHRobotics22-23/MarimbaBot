@@ -1,3 +1,5 @@
 <launch>
   <include file="$(find marimbabot_vision)/launch/marimbabot.launch"/>
+  <include file="$(find marimbabot_audio)/launch/marimbabot.launch"/>
+  <include file="$(find marimbabot_planning)/launch/marimbabot.launch"/>
 </launch>
