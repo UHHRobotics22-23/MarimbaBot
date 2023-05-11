@@ -349,6 +349,5 @@ int main(int argc, char **argv)
     // Execute the plan
     move_group_interface.execute(hit_plan);
     //move_group_interface.plan(hit_plan);
-    ros::waitForShutdown();
     return 0;
 }
