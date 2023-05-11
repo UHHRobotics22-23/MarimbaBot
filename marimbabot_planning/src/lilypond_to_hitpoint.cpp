@@ -37,7 +37,7 @@ std::vector<std::tuple<geometry_msgs::PoseStamped, double, double>> lilypond_to_
 
     double time = 0.0;
 
-    // Each key on the marimba has its own tf frame called something like "bar_F#5" or "bar_C4"
+    // Each key on the marimba has its own tf frame called something like "bar_Fs5" or "bar_C4"
     // Iterate over all notes and calculate the cartesian pose for each note
     for(auto note : notes)
     {
