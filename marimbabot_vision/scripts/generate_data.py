@@ -15,7 +15,7 @@ from numpy.random import choice
 NUM_SAMPLES = 10000
 NUM_WORKER = 24
 OUTPUT_DIR = "data"
-MIN_DURATION = 8 # 1/16th note
+MIN_DURATION = 8 # 1/8th note
 INCLUDE_DYNAMICS = True
 INCLUDE_SLURS = True
 INCLUDE_ARTICULATIONS = True
