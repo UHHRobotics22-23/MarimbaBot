@@ -1,16 +1,7 @@
-#include <bio_ik/bio_ik.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <iostream>
-#include <moveit_msgs/DisplayTrajectory.h>
-#include <moveit_msgs/RobotState.h>
-#include <moveit_msgs/RobotTrajectory.h>
-#include <moveit/move_group_interface/move_group_interface.h>
-#include <moveit/robot_state/conversions.h>
-#include <ros/ros.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <tf2_ros/transform_listener.h>
-#include <tf2/LinearMath/Quaternion.h>
-#include <trajectory_msgs/JointTrajectoryPoint.h>
+#include "marimbabot_planning/planning.h"
+
+namespace marimbabot_planning
+{
 
 /**
  * @brief concatinates a vector of n plans (n>0) into one plan
@@ -266,6 +257,7 @@ moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
     return output_plan;
 }
 
+} // namespace marimbabot_planning
 
 int main(int argc, char **argv)
 {
