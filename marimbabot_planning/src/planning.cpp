@@ -274,7 +274,7 @@ int main(int argc, char **argv)
     tf2_ros::Buffer tfBuffer;
     tf2_ros::TransformListener tfListener(tfBuffer);
 
-    static const std::string PLANNING_GROUP = "arm_mallet";
+    static const std::string PLANNING_GROUP = "arm";
     moveit::planning_interface::MoveGroupInterface move_group_interface(PLANNING_GROUP);
     move_group_interface.setPlanningPipelineId("pilz_industrial_motion_planner");
     move_group_interface.setPlannerId("PTP");
