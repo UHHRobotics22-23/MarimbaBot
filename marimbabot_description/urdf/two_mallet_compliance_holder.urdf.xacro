@@ -1,0 +1,130 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="two_mallet_compliance_holder">
+    
+    <link name="mallet_base_link">
+        <visual>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <mesh filename="package://marimbabot_description/mesh/two_mallet_compliance_holder_static_element.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="mallet_holder_white">
+                <color rgba="1.0 1.0 1.0 1.0"/>
+            </material>
+        </visual>
+        <collision>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="0.08 0.06 0.070"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="mallet_servo_box">
+        <visual>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <mesh filename="package://marimbabot_description/mesh/two_mallet_compliance_holder_dynamic_element.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+        </visual>
+    </link>
+
+    <link name="mallet_base_box_1">
+        <collision>
+            <origin xyz="0.0 0.0 0.45" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="0.033 0.033 0.09"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="mallet_base_box_2">
+        <collision>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="0.033 0.033 0.09"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="mallet_neck_1">
+        <collision>
+            <origin xyz="0.0 0.0 0.1825" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="0.0042" length="0.375"/> 
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="mallet_neck_2">
+        <collision>
+            <origin xyz="0.0 0.0 0.1825" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="0.0042" length="0.375"/> 
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="mallet_top_1">
+        <collision>
+            <origin xyz="0.0 0.0 0.013625" rpy="0.0 0.0 0.0"/>
+            <!-- 0.018375 -->
+            <geometry>
+                <sphere radius="0.018375"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="mallet_top_2">
+        <collision>
+            <origin xyz="0.0 0.0 0.013625" rpy="0.0 0.0 0.0"/>
+            <!-- 0.018375 -->
+            <geometry>
+                <sphere radius="0.018375"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="mallet_base_link_group_1" type="fixed">
+        <parent link="mallet_base_link"/>
+        <child link="mallet_base_box_1"/>
+        <origin xyz="0.0 0.0 0.45"/>
+    </joint>
+
+    <joint name="mallet_finger" type="revolute">
+        <parent link="mallet_base_link"/>
+        <child link="mallet_servo_box"/>
+        <origin xyz="0.0 0.0 0.0"/>
+        <limit lower="0.0" upper="1.602" effort="1.0" velocity="7.0"/>
+    </joint>
+
+    <joint name="mallet_group_1_start_link" type="fixed">
+        <parent link="mallet_base_box_1"/>
+        <child link="mallet_neck_1"/>
+        <origin xyz="0.0 0.0 0.0292"/>
+    </joint>
+
+    <joint name="mallet_group_1_2nd_link" type="fixed">
+        <parent link="mallet_neck_1"/>
+        <child link="mallet_top_1"/>
+        <origin xyz="0.0 0.0 0.365"/>
+    </joint>
+
+    <joint name="mallet_group_2_start_link" type="fixed">
+        <parent link="mallet_servo_box"/>
+        <child link="mallet_base_box_2"/>
+        <origin xyz="0.0 0.0 0.0"/>
+    </joint>
+
+    <joint name="mallet_group_2_2nd_link" type="fixed">
+        <parent link="mallet_base_box_2"/>
+        <child link="mallet_neck_2"/>
+        <origin xyz="0.0 0.0 0.0292"/>
+    </joint>
+
+    <joint name="mallet_group_2_3rd_link" type="fixed">
+        <parent link="mallet_neck_2"/>
+        <child link="mallet_top_2"/>
+        <origin xyz="0.0 0.0 0.365"/>
+    </joint>
+    
+</robot>
