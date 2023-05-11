@@ -111,8 +111,8 @@ moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
         tf2::Vector3 plane_normal(0.0, 0.0, 1.0);
         tf2::Vector3 plane_to_position = position - plane_point;
         double signed_dist = plane_to_position.dot(plane_normal);
-        // Take the absolute value of the signed distance and scale it by 0.1
-        return 0.1 * std::abs(signed_dist);
+        // Take the squared value of the signed distance
+        return std::pow(signed_dist, 2);
     };
 
     // Add link on plane constraint to ik_options
