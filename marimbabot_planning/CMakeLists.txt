@@ -15,17 +15,23 @@ find_package(catkin REQUIRED COMPONENTS
 
 find_package(Boost REQUIRED)
 
-catkin_package()
+catkin_package(
+  INCLUDE_DIRS include
+)
 
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(planning src/planning.cpp)
-add_executable(lilypond_to_hitpoint src/lilypond_to_hitpoint.cpp)
-target_link_libraries(planning ${catkin_LIBRARIES})
-target_link_libraries(lilypond_to_hitpoint ${catkin_LIBRARIES})
+set(SOURCES
+    src/lilypond_to_hitpoint.cpp
+    src/planning.cpp
+)
 
-install(TARGETS planning lilypond_to_hitpoint
+add_executable(planning ${SOURCES})
+target_link_libraries(planning ${catkin_LIBRARIES})
+
+install(TARGETS planning
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
