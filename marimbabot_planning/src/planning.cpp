@@ -80,6 +80,7 @@ moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
     // Create robot state
     moveit::core::RobotState robot_state(move_group_interface.getRobotModel());
     robot_state.setToDefaultValues();
+    robot_state.setVariablePositions(start_state.joint_state.name, start_state.joint_state.position);
 
     // Set start state
     move_group_interface.setStartState(start_state);
