@@ -38,7 +38,7 @@
   <joint name="world_marimba_joint" type="fixed">
     <parent link="world" />
     <child link = "marimba" />
-    <origin xyz="0.9 0.8 0.9" rpy="0.0 0.0 ${pi}" />
+    <origin xyz="1.25 0.8 0.9" rpy="0.0 0.0 ${pi}" />
   </joint>
 
   <joint name="end_mallet" type="fixed">
