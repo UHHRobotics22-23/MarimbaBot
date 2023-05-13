@@ -263,12 +263,33 @@ moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
 
 } // namespace marimbabot_planning
 
+void speedCallback(const std_msgs::Float64MultiArray::ConstPtr& msg)
+{
+    // Check that the message has at least three elements
+    if (msg->data.size() < 3) {
+        ROS_WARN("Received message has fewer than 3 elements");
+        return;
+    }
+    else {
+        double param1 = msg->data[0];
+        double param2 = msg->data[1];
+        double param3 = msg->data[2];
+        ROS_INFO("Received triple: (%f, %f, %f)", param1, param2, param3);
+        // Set the maximum velocity scaling factor to the first element of the message
+        double max_velocity_scaling_factor = param1;
+        move_group_interface.setMaxVelocityScalingFactor(max_velocity_scaling_factor);
+    }
+}
+
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "marimba_move");
     ros::NodeHandle node_handle;
     ros::AsyncSpinner spinner(1);
     spinner.start();
+
+    // Subscribe to the topic that publishes hitting speed - double values
+    ros::Subscriber hitting_speed_subscriber = node_handle.subscribe("hitting_speed", 100, hitting_speed_callback);
 
     // Create tf2 listener
     std::shared_ptr<tf2_ros::Buffer> tfBuffer = std::make_shared<tf2_ros::Buffer>();
@@ -336,9 +357,15 @@ int main(int argc, char **argv)
     display_publisher.publish(display_trajectory);
     std::cout <<"joint tracjector "<< trajectory.joint_trajectory;
     
+    ros::Rate loop_rate(10);
+    while (ros::ok()) {
+        ros::spinOnce();
+        move_group_interface.setMaxVelocityScalingFactor(max_velocity_scaling_factor);
+        // Execute the plan
+        move_group_interface.execute(hit_plan);
 
-    // Execute the plan
-    move_group_interface.execute(hit_plan);
+        loop_rate.sleep();
+    //move_group_interface.execute(hit_plan);
     //move_group_interface.plan(hit_plan);
     return 0;
 }
