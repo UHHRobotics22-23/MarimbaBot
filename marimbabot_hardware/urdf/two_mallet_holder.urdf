@@ -23,6 +23,6 @@
         <origin xyz="0.0 0.0 0.0292"/>
         <parent link="mallet_neck"/>
         <child link="mallet_top"/>
-        <limit lower="0.0" upper="1.602" effort="1.0" velocity="7.0"/>
+        <limit lower="0.0" upper="0.801" effort="1.0" velocity="7.0"/>
     </joint>
 </robot>
