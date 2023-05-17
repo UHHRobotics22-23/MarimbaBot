@@ -261,10 +261,12 @@ moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
     return output_plan;
 }
 
-} // namespace marimbabot_planning
 
-void speedCallback(const std_msgs::Float64MultiArray::ConstPtr& msg)
+moveit::planning_interface::MoveGroupInterface::Plan speedCallback(
+    const moveit::planning_interface::MoveGroupInterface::Plan& input_plan,
+    const std_msgs::Float64MultiArray::ConstPtr& msg)
 {
+
     // Check that the message has at least three elements
     if (msg->data.size() < 3) {
         ROS_WARN("Received message has fewer than 3 elements");
@@ -280,6 +282,8 @@ void speedCallback(const std_msgs::Float64MultiArray::ConstPtr& msg)
         move_group_interface.setMaxVelocityScalingFactor(max_velocity_scaling_factor);
     }
 }
+} // namespace marimbabot_planning
+
 
 int main(int argc, char **argv)
 {
@@ -289,7 +293,7 @@ int main(int argc, char **argv)
     spinner.start();
 
     // Subscribe to the topic that publishes hitting speed - double values
-    ros::Subscriber hitting_speed_subscriber = node_handle.subscribe("hitting_speed", 100, hitting_speed_callback);
+    ros::Subscriber hitting_speed_subscriber = node_handle.subscribe("hitting_speed", 100, speedCallback);
 
     // Create tf2 listener
     std::shared_ptr<tf2_ros::Buffer> tfBuffer = std::make_shared<tf2_ros::Buffer>();
