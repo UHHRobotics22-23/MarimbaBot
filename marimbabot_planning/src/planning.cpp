@@ -261,6 +261,13 @@ moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
     return output_plan;
 }
 
+/**
+ * @brief Speed up or slow down a trajectory to a given msg.
+ *
+ * @param input_plan
+ * @param msg
+ * @return moveit::planning_interface::MoveGroupInterface::Plan
+ **/
 
 moveit::planning_interface::MoveGroupInterface::Plan speedCallback(
     const moveit::planning_interface::MoveGroupInterface::Plan& input_plan,
