@@ -1,11 +1,9 @@
 #goal definition
-std_msgs/String lilypond_string # sequence to be played including dynamics and tempo
+marimbabot_msgs/HitSequenceGoal[] hit_sequence_goals # HitSequenceGoal that should be played, definition in provided in marimbabot_msgs/HitSequenceGoal.msg
 ---
 #result definition
-std_msgs/String lilypond_string # sequence that was actually played
-int32 total_of_notes_played # number of notes played in total
-bool success # whether bot executed the goal successfully
+bool playing # whether marimbabot is currently playing
+bool planning_successful # whether the planning of marimbabot was successful
 ---
 #feedback
-std_msgs/String played_lilypond_sequence # sequence that was played so far
-int32 current_number_of_notes_played # update on the amount of notes played
+bool playing # whether marimbabot is currently (still) playing
