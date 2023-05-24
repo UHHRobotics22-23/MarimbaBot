@@ -1,9 +1,11 @@
 #goal definition
 marimbabot_msgs/HitSequenceGoal[] hit_sequence_goals # HitSequenceGoal that should be played, definition in provided in marimbabot_msgs/HitSequenceGoal.msg
----
+
 #result definition
+---
 bool playing # whether marimbabot is currently playing
 bool planning_successful # whether the planning of marimbabot was successful
----
+
 #feedback
+---
 bool playing # whether marimbabot is currently (still) playing, i.e. the goal is still active

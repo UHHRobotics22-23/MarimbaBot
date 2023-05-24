@@ -2,9 +2,31 @@ cmake_minimum_required(VERSION 3.0.2)
 project(marimbabot_msgs)
 
 find_package(catkin REQUIRED COMPONENTS
+  actionlib_msgs
+  message_generation
   std_msgs
 )
 
-include_directories(
-  ${catkin_INCLUDE_DIRS}
+## Generate messages and actions
+add_message_files(
+  DIRECTORY msg
+  FILES
+  HitSequenceGoal.msg
+)
+
+add_action_files(
+  DIRECTORY action
+  FILES
+  HitSequence.action
+)
+
+## Generate added messages and actions
+generate_messages(
+  DEPENDENCIES
+  actionlib_msgs std_msgs  # Add any other message dependencies here
+)
+
+## Catkin package
+catkin_package(
+  CATKIN_DEPENDS message_runtime
 )
