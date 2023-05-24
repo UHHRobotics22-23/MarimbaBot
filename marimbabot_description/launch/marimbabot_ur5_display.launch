@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
 
-  <include file="$(dirname)/marimba_ur5_upload.launch"/>
+  <include file="$(dirname)/load_robot_description.launch"/>
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(dirname)/../config/marimba_ur5.rviz" />

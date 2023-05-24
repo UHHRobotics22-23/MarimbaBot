@@ -1,14 +1,8 @@
-#include <boost/algorithm/string.hpp>
-#include <geometry_msgs/PoseStamped.h>
-#include <iostream>
-#include <regex>
-#include <ros/ros.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <tf2_ros/transform_listener.h>
-#include <tf2/LinearMath/Quaternion.h>
-#include <visualization_msgs/Marker.h>
-#include "std_msgs/String.h"
+#include "marimbabot_planning/lilypond_to_hitpoint.h"
 
+
+namespace marimbabot_planning
+{
 
 /**
  * @brief Convert lilypond sequence to cartesian poses and times
@@ -16,14 +10,14 @@
  * @param tf_buffer
  * @param planning_frame
  * @param lilypond
- * @param tempo (default: 60.0 bpm)
- * @return std::vector<std::tuple<geometry_msgs::PoseStamped, double, double>>
+ * @param tempo
+ * @return std::vector<std::tuple<geometry_msgs::PoseStamped, double, double>> (cartesian pose, start time, duration)
  **/
 std::vector<std::tuple<geometry_msgs::PoseStamped, double, double>> lilypond_to_cartesian(
     std::shared_ptr<tf2_ros::Buffer> tf_buffer,
     const std::string& planning_frame,
     std::string lilypond,
-    double tempo = 60.0)
+    double tempo)
 {
     // The lilypond sequence is a string of notes and looks like this: "c'4 d''4 e4 f'4 g'16"
     // The notes are separated by spaces and the duration is given by the number after the note
@@ -106,117 +100,4 @@ std::vector<std::tuple<geometry_msgs::PoseStamped, double, double>> lilypond_to_
     return hits;
 }
 
-
-/**
- * @brief ROS node that subscribes to the recognized lilypond sequence and publishes a marker at the correct time
- * class is needed to access the publisher inside the callback function
-*/
-class LilypondMotionConverter
-{
-public: 
-    LilypondMotionConverter() {
-        // start spinner
-        ros::AsyncSpinner spinner(2);
-        spinner.start();
-
-        // hit marker publisher
-        hit_marker_pub = nodeHandle.advertise<visualization_msgs::Marker>("hit_marker", 1);
-        
-        // vision node subscriber
-        vision_node_subscriber = nodeHandle.subscribe("vision_node/recognized_sentence", 1, &LilypondMotionConverter::move_to_pose_callback, this);
-    }
-
-    // Callback function for the vision node subscriber
-    void move_to_pose_callback(const std_msgs::String::ConstPtr& lilypond_sentence) {
-        ROS_DEBUG("move_to_pose_callback heard: [%s]", lilypond_sentence->data.c_str());
-
-
-        // Create tf2 listener
-        std::shared_ptr<tf2_ros::Buffer> tfBuffer = std::make_shared<tf2_ros::Buffer>();
-        tf2_ros::TransformListener tfListener(*tfBuffer);
-
-        // Sleep to make sure the tf listener is ready and all publishers are connected
-        ros::Duration(1.0).sleep();
-
-        std::string lilypond_string = lilypond_sentence->data.c_str();
-
-        // Convert lilypond sequence to cartesian poses and times
-        auto hits = lilypond_to_cartesian(
-            tfBuffer,
-            "base_link",
-            lilypond_string
-            );
-
-        ROS_DEBUG("Converted lilypond sequence to cartesian poses and times");
-
-        // Loop over all hits and publish a marker at the correct time
-        double time = 0.0;
-
-        for(int i = 0; i < hits.size(); i++)
-        {
-            // Create a marker
-            visualization_msgs::Marker marker;
-            marker.header.frame_id = "base_link";
-            marker.header.stamp = ros::Time::now();
-            marker.ns = "marimba";
-            marker.id = 0;
-            // Show a downpointing gree arrow
-            marker.type = visualization_msgs::Marker::ARROW;
-            marker.action = visualization_msgs::Marker::ADD;
-            marker.pose.position = std::get<0>(hits[i]).pose.position;
-            // Offset the marker so it is not under the marimba
-            marker.pose.position.z += 0.1;
-            // Make it down pointing
-            marker.pose.orientation.x = 0.0;
-            marker.pose.orientation.y =  0.707;
-            marker.pose.orientation.z = 0.0;
-            marker.pose.orientation.w =  0.707;
-            marker.scale.x = 0.1;
-            marker.scale.y = 0.02;
-            marker.scale.z = 0.02;
-            marker.color.a = 1.0;
-            marker.color.r = 0.0;
-            marker.color.g = 1.0;
-            marker.color.b = 0.0;
-
-            // Add lifetime (duration of the note)
-            marker.lifetime = ros::Duration(std::get<2>(hits[i]));
-
-            // Publish the marker
-            hit_marker_pub.publish(marker);
-
-            // Check if this is not the last one
-            if(i < hits.size() - 1)
-            {
-                // Get the time of the next hit
-                double next_time = std::get<1>(hits[i + 1]);
-
-                // Sleep until the next hit
-                ros::Duration(next_time - time).sleep();
-
-                // Update the time
-                time = next_time;
-            }
-        }
-
-        ros::Duration(0.1).sleep();
-    }
-
-private:
-    ros::NodeHandle nodeHandle; 
-    ros::Publisher hit_marker_pub;
-    ros::Subscriber vision_node_subscriber;
-
-};
-
-int main(int argc, char **argv)
-{
-    ros::init(argc, argv, "move_lilypond_to_hitpoints");
-
-    // Create LilypondMotionConverter object
-    LilypondMotionConverter subscribe_and_publish_object;
-    ros::spin();
-
-
-    return 0;
-}
+} // namespace marimbabot_planning

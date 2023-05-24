@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<robot name="two_mallet_holder">
+    <link name="mallet_top">
+        <collision>
+            <origin xyz="0.0 0.0 0.013625" rpy="0.0 0.0 0.0"/>
+            <!-- 0.018375 -->
+            <geometry>
+                <sphere radius="0.018375"/>
+            </geometry>
+        </collision>
+    </link>
+
+    <link name="mallet_neck">
+        <collision>
+            <origin xyz="0.0 0.0 0.1825" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="0.0042" length="0.375"/> 
+            </geometry>
+        </collision>
+    </link>
+
+    <joint name="mallet_finger" type="revolute">
+        <origin xyz="0.0 0.0 0.0292"/>
+        <parent link="mallet_neck"/>
+        <child link="mallet_top"/>
+        <limit lower="0.0" upper="1.602" effort="1.0" velocity="7.0"/>
+    </joint>
+</robot>

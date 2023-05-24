@@ -2,7 +2,7 @@
   <!-- By default we do not overwrite the URDF. Change the following to true to change the default behavior -->
   <arg name="load_robot_description" default="false"/>
 
-  <include if="$(arg load_robot_description)" file="$(find marimbabot_description)/launch/marimba_ur5_upload.launch" />
+  <include if="$(arg load_robot_description)" file="$(find marimbabot_description)/launch/load_robot_description.launch" />
   <arg name="robot_description" default="robot_description" />
 
   <!-- The semantic description that corresponds to the URDF -->
