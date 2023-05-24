@@ -7,7 +7,7 @@ This repository contains the codebase for a [Marimba](https://en.wikipedia.org/w
 It is currently still "work in progress".
 
 ## Declaration
-The code of marimbabot_audio part are after the modification of this base [repository](https://github.com/TAMS-Group/music_perception.git), which is from [@v4hn](https://github.com/v4hn).
+The file [onset_detection.py](https://github.com/UHHRobotics22-23/marimbabot/blob/main/marimbabot_audio/scripts/onset_detection.py) in the package marimbabot_audio is a modification of [@v4hn](https://github.com/v4hn)'s base [repository](https://github.com/TAMS-Group/music_perception.git).
 
 ## Setup
 
