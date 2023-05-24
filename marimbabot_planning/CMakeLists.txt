@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   moveit_msgs
   moveit_ros_planning_interface
   roscpp
+  std_msgs
   tf2_eigen
   tf2_geometry_msgs
   tf2_ros
@@ -15,6 +16,16 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(Boost REQUIRED)
+
+# Action 
+add_action_files(
+  DIRECTORY $(find marimbabot_msgs)/actions
+  FILES HitSequence.action
+)
+
+generate_messages(
+  DEPENDENCIES actionlib_msgs std_msgs
+)
 
 catkin_package(
   CATKIN_DEPENDS actionlib_msgs
@@ -33,12 +44,3 @@ install(TARGETS planning lilypond_to_hitpoint
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-# Action 
-add_action_files(
-  DIRECTORY $(find marimbabot_description)/actions
-  FILES HitSequence.action
-)
-
-generate_messages(
-  DEPENDENCIES actionlib_msgs std_msgs  # Or other packages containing msgs
-)
