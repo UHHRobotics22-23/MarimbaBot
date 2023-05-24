@@ -5,6 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib_msgs
   bio_ik
   geometry_msgs
+  marimbabot_msgs
   moveit_msgs
   moveit_ros_planning_interface
   roscpp
@@ -16,16 +17,6 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(Boost REQUIRED)
-
-# Action 
-add_action_files(
-  DIRECTORY $(find marimbabot_msgs)/actions
-  FILES HitSequence.action
-)
-
-generate_messages(
-  DEPENDENCIES actionlib_msgs std_msgs
-)
 
 catkin_package(
   CATKIN_DEPENDS actionlib_msgs

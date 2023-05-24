@@ -1,13 +1,13 @@
 import rospy
-import marimbabot_msgs.actions
+import marimbabot_msg.actions
 
 class HitSequenceAction:
-    feedback = marimbabot_msgs.actions.HitSequenceFeedback
-    result = marimbabot_msgs.actions.HitSequenceResult
+    feedback = marimbabot_msg.actions.HitSequenceFeedback
+    result = marimbabot_msg.actions.HitSequenceResult
 
     def __init__(self, name):
         self.action_name = name
-        self.planning_publisher = rospy.Publisher('marimba_move', marimbabot_msgs.actions.HitSequenceGoal, queue_size=10)
+        self.planning_publisher = rospy.Publisher('marimba_move', marimbabot_msg.actions.HitSequenceGoal, queue_size=10)
 
     def execute_callback(self, goal):
         # helper variables
