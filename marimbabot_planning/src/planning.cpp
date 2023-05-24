@@ -1,16 +1,7 @@
-#include <bio_ik/bio_ik.h>
-#include <geometry_msgs/PoseStamped.h>
-#include <iostream>
-#include <moveit_msgs/DisplayTrajectory.h>
-#include <moveit_msgs/RobotState.h>
-#include <moveit_msgs/RobotTrajectory.h>
-#include <moveit/move_group_interface/move_group_interface.h>
-#include <moveit/robot_state/conversions.h>
-#include <ros/ros.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <tf2_ros/transform_listener.h>
-#include <tf2/LinearMath/Quaternion.h>
-#include <trajectory_msgs/JointTrajectoryPoint.h>
+#include "marimbabot_planning/planning.h"
+
+namespace marimbabot_planning
+{
 
 /**
  * @brief concatinates a vector of n plans (n>0) into one plan
@@ -70,18 +61,18 @@ moveit_msgs::RobotState get_robot_state_after_plan(moveit::planning_interface::M
 
 
 /**
- * @brief Plan to Pose
+ * @brief Calculate a plan so that the mallet (end effector) is at a given point in cartesian space
  *
  * @param  start_state
- * @param  goal_pose
+ * @param  goal_point
  * @param  move_group_interface
  * @return moveit::planning_interface::MoveGroupInterface::Plan
  * @throws std::runtime_error
  **/
-moveit::planning_interface::MoveGroupInterface::Plan plan_to_pose(
+moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
     moveit::planning_interface::MoveGroupInterface& move_group_interface,
     const moveit_msgs::RobotState& start_state,
-    geometry_msgs::PoseStamped goal_pose)
+    geometry_msgs::PointStamped goal_point)
 {
     // Initialize output plan
     moveit::planning_interface::MoveGroupInterface::Plan plan;
@@ -89,34 +80,53 @@ moveit::planning_interface::MoveGroupInterface::Plan plan_to_pose(
     // Create robot state
     moveit::core::RobotState robot_state(move_group_interface.getRobotModel());
     robot_state.setToDefaultValues();
+    robot_state.setVariablePositions(start_state.joint_state.name, start_state.joint_state.position);
 
     // Set start state
     move_group_interface.setStartState(start_state);
 
     // Check if goal pose is in the same frame as the planning frame
-    assert(goal_pose.header.frame_id == move_group_interface.getPlanningFrame());
+    assert(goal_point.header.frame_id == move_group_interface.getPlanningFrame());
 
-    // Copy goal pose geometry_msgs::PoseStamped to tf2::Vector3 and tf2::Quaternion
+    // Copy goal pose geometry_msgs::PointStamped to tf2::Vector3
     tf2::Vector3 goal_position(
-        goal_pose.pose.position.x,
-        goal_pose.pose.position.y,
-        goal_pose.pose.position.z);
-    tf2::Quaternion goal_orientation(
-        goal_pose.pose.orientation.x,
-        goal_pose.pose.orientation.y,
-        goal_pose.pose.orientation.z,
-        goal_pose.pose.orientation.w);
+        goal_point.point.x,
+        goal_point.point.y,
+        goal_point.point.z);
 
-    // Use bio_ik to solve the inverse kinematics at the goal pose
+    // Use bio_ik to solve the inverse kinematics at the goal point
     bio_ik::BioIKKinematicsQueryOptions ik_options;
     ik_options.replace = true;
-    ik_options.return_approximate_solution = false;
+    ik_options.return_approximate_solution = false; // Activate for debugging if you get an error 
 
-    ik_options.goals.emplace_back(new bio_ik::PoseGoal("ft_fts_toolside", goal_position, goal_orientation));
+    ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head", goal_position));
+
+    // Create link on plane constraint using the LinkFunctionGoal
+    tf2::Vector3 plane_point(0.0, 0.0, 1.0);
+
+    // Define lambda function for link on plane constraint
+    // Requested format const std::function<double(const tf2::Vector3&, const tf2::Quaternion&)>& f
+    auto link_on_plane_constraint = [plane_point](const tf2::Vector3& position, const tf2::Quaternion& orientation) -> double
+    {
+        tf2::Vector3 plane_normal(0.0, 0.0, 1.0);
+        tf2::Vector3 plane_to_position = position - plane_point;
+        double signed_dist = plane_to_position.dot(plane_normal);
+        // Take the squared value of the signed distance
+        return std::pow(signed_dist, 2);
+    };
+
+    // Add link on plane constraint to ik_options
+    ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_1_link", link_on_plane_constraint));
     
+    // Create minimal displacement goal, so that the robot does not move too much and stays close to the start state
+    ik_options.goals.emplace_back(new bio_ik::MinimalDisplacementGoal());
+
+    // Create dummy goal pose
+    geometry_msgs::Pose dummy_goal_pose;
+
     if(!robot_state.setFromIK(
         move_group_interface.getRobotModel()->getJointModelGroup(move_group_interface.getName()),
-        goal_pose.pose /* this is ignored with replace = true */,
+        dummy_goal_pose /* this is ignored with replace = true */,
         0.0,
         moveit::core::GroupStateValidityCallbackFn(),
         ik_options))
@@ -142,55 +152,35 @@ moveit::planning_interface::MoveGroupInterface::Plan plan_to_pose(
  *
  * @param start_state
  * @param move_group_interface
- * @param pose
+ * @param point
  * @return moveit::planning_interface::MoveGroupInterface::Plan
 **/
 
 moveit::planning_interface::MoveGroupInterface::Plan hit_point(
     moveit::planning_interface::MoveGroupInterface& move_group_interface,
     const moveit_msgs::RobotState& start_state,
-    geometry_msgs::PoseStamped pose)
+    geometry_msgs::PointStamped point)
 {
 
     moveit::core::RobotState robot_state(move_group_interface.getRobotModel());
     robot_state.setToDefaultValues();
     moveit::core::robotStateMsgToRobotState(start_state, robot_state);
 
-
-    // Calculate approach pose
-    geometry_msgs::PoseStamped approach_pose{pose};
-    approach_pose.pose.position.z += 0.07;
-
-    // Rotate the approach pose 20 degrees around the x-axis
-    tf2::Quaternion approach_orientation(
-        approach_pose.pose.orientation.x,
-        approach_pose.pose.orientation.y,
-        approach_pose.pose.orientation.z,
-        approach_pose.pose.orientation.w);
-    tf2::Quaternion rotation;
-    // Approach angle in degrees
-    double approach_angle = 20.0;
-    // Convert to radians and set rotation
-    rotation.setRPY(0.0, -approach_angle * M_PI / 180.0, 0.0);
-    // Rotate approach orientation
-    approach_orientation = rotation * approach_orientation;
-    // Set approach orientation
-    approach_pose.pose.orientation.x = approach_orientation.x();
-    approach_pose.pose.orientation.y = approach_orientation.y();
-    approach_pose.pose.orientation.z = approach_orientation.z();
-    approach_pose.pose.orientation.w = approach_orientation.w();
+    // Calculate approach point
+    geometry_msgs::PointStamped approach_point{point};
+    approach_point.point.z += 0.1;
         
-    // Calculate retreat pose
-    geometry_msgs::PoseStamped retreat_pose{approach_pose};
+    // Calculate retreat point
+    geometry_msgs::PointStamped retreat_point{approach_point};
 
     // Calculate approach trajectory
-    auto approach_plan = plan_to_pose(move_group_interface, start_state, approach_pose);
+    auto approach_plan = plan_to_mallet_position(move_group_interface, start_state, approach_point);
 
     // Calculate down trajectory
-    auto down_plan = plan_to_pose(move_group_interface, get_robot_state_after_plan(approach_plan), pose);
+    auto down_plan = plan_to_mallet_position(move_group_interface, get_robot_state_after_plan(approach_plan), point);
 
     // Calculate retreat trajectory
-    auto retreat_plan = plan_to_pose(move_group_interface, get_robot_state_after_plan(down_plan), retreat_pose);
+    auto retreat_plan = plan_to_mallet_position(move_group_interface, get_robot_state_after_plan(down_plan), retreat_point);
 
     // Concatinate trajectories
     auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
@@ -203,31 +193,31 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_point(
  *
  * @param move_group_interface
  * @param start_state
- * @param poses
+ * @param points
  * @return moveit::planning_interface::MoveGroupInterface::Plan
 **/
 moveit::planning_interface::MoveGroupInterface::Plan hit_points(
     moveit::planning_interface::MoveGroupInterface& move_group_interface,
     const moveit_msgs::RobotState& start_state,
-    std::vector<geometry_msgs::PoseStamped> poses)
+    std::vector<geometry_msgs::PointStamped> points)
 {
     // Assert that there is at least one hit_point with an nice error message
-    assert(poses.size() > 0 && "There must be at least one hit_point");
+    assert(points.size() > 0 && "There must be at least one hit_point");
 
     // Calculate hit trajectory
     auto hit_plan = hit_point(
         move_group_interface,
         start_state,
-        poses.front()
+        points.front()
         );
 
     // Call hit_points recursively for all remaining hit_points
-    if(poses.size() > 1)
+    if(points.size() > 1)
     {
         auto remaining_hit_plan = hit_points(
             move_group_interface,
             get_robot_state_after_plan(hit_plan),
-            std::vector<geometry_msgs::PoseStamped>(poses.begin() + 1, poses.end())
+            std::vector<geometry_msgs::PointStamped>(points.begin() + 1, points.end())
             );
         hit_plan = concatinated_plan({hit_plan, remaining_hit_plan});
     }
@@ -271,6 +261,7 @@ moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
     return output_plan;
 }
 
+} // namespace marimbabot_planning
 
 int main(int argc, char **argv)
 {
@@ -280,8 +271,8 @@ int main(int argc, char **argv)
     spinner.start();
 
     // Create tf2 listener
-    tf2_ros::Buffer tfBuffer;
-    tf2_ros::TransformListener tfListener(tfBuffer);
+    std::shared_ptr<tf2_ros::Buffer> tfBuffer = std::make_shared<tf2_ros::Buffer>();
+    tf2_ros::TransformListener tfListener(*tfBuffer);
 
     static const std::string PLANNING_GROUP = "arm";
     moveit::planning_interface::MoveGroupInterface move_group_interface(PLANNING_GROUP);
@@ -299,54 +290,41 @@ int main(int argc, char **argv)
 
     move_group_interface.setMaxVelocityScalingFactor(0.9);
     move_group_interface.setMaxAccelerationScalingFactor(0.9);
-    //ros::Duration(2).sleep();
-
-    // Lookup the world to tcp transform
-    geometry_msgs::TransformStamped transformStamped;
-    try
-    {
-        transformStamped = tfBuffer.lookupTransform("world", "ft_fts_toolside", ros::Time(0));
-    }
-    catch (tf2::TransformException &ex)
-    {
-        ROS_WARN("%s",ex.what());
-    }
-
-    // Convert transform to pose
-    geometry_msgs::PoseStamped pose;
-
-    pose.header.stamp = ros::Time::now();
-    pose.header.frame_id = transformStamped.header.frame_id;
-    pose.pose.position.x = transformStamped.transform.translation.x;
-    pose.pose.position.y = transformStamped.transform.translation.y;
-    pose.pose.position.z = transformStamped.transform.translation.z;
-    pose.pose.orientation.x = transformStamped.transform.rotation.x;
-    pose.pose.orientation.y = transformStamped.transform.rotation.y;
-    pose.pose.orientation.z = transformStamped.transform.rotation.z;
-    pose.pose.orientation.w = transformStamped.transform.rotation.w;
-
-    // Print pose
-    ROS_INFO_STREAM("Pose: " << pose);
 
     auto current_state = move_group_interface.getCurrentState();
     //convert to moveit message
     moveit_msgs::RobotState start_state;
     moveit::core::robotStateToRobotStateMsg(*current_state, start_state);
 
-    // Hit a sequence of points in cartesian space left and right of "pose"
+    std::string dummy_lilypond = "d1 r1 d4 e4 f4 g4 c'2 e'2 e''1";
+    std::string planning_frame = move_group_interface.getPlanningFrame();
 
-    // Define hit points
-    std::vector<geometry_msgs::PoseStamped> hit_point1;
-    for (auto offset : {-0.1, -0.05, 0.0, 0.05, 0.1})
-    {
-        geometry_msgs::PoseStamped hit_point{pose};
-        hit_point.pose.position.y += offset;
-        hit_point1.push_back(hit_point);
-        ROS_INFO_STREAM("Pose point : " << hit_point);
-    }
+    // Convert lilypond sequence to cartesian poses and times
+    auto hits = marimbabot_planning::lilypond_to_cartesian(
+        tfBuffer,
+        planning_frame,
+        dummy_lilypond,
+        60.0
+    );
+
+    // Convert hits to hit points (drop time information and only keep the point) TODO remove if timing is implemented
+    std::vector<geometry_msgs::PointStamped> hit_points_vector;
+    std::transform(
+        hits.begin(),
+        hits.end(),
+        std::back_inserter(hit_points_vector),
+        [planning_frame](const std::tuple<geometry_msgs::PoseStamped, double, double> hit) -> geometry_msgs::PointStamped
+        {
+            geometry_msgs::PointStamped point;
+            point.header.frame_id = planning_frame;
+            point.point = std::get<0>(hit).pose.position;
+            point.point.z += 0.04;
+            return point;
+        }
+    );
 
     // Define hit plan by mapping hit_point on hit_points
-    auto hit_plan = hit_points(move_group_interface, start_state, hit_point1);
+    auto hit_plan = marimbabot_planning::hit_points(move_group_interface, start_state, hit_points_vector);
 
     // Publish the plan for rviz
     ros::Publisher display_publisher = node_handle.advertise<moveit_msgs::DisplayTrajectory>("/move_group/display_planned_path", 1, true);
@@ -362,6 +340,5 @@ int main(int argc, char **argv)
     // Execute the plan
     move_group_interface.execute(hit_plan);
     //move_group_interface.plan(hit_plan);
-    ros::waitForShutdown();
     return 0;
 }

@@ -1,7 +1,13 @@
 # TAMS Master Project 2022/2023
 
+[![CI](https://github.com/UHHRobotics22-23/marimbabot/actions/workflows/main.yml/badge.svg)](https://github.com/UHHRobotics22-23/marimbabot/actions/workflows/main.yml)
+[![ROS Version Noetic](https://img.shields.io/badge/ROS%20Version-Noetic-%2388b55a)](http://wiki.ros.org/noetic)
+
 This repository contains the codebase for a [Marimba](https://en.wikipedia.org/wiki/Marimba) playing robot developed during the TAMS Master Project 2022/2023.
 It is currently still "work in progress".
+
+## Declaration
+The code of marimbabot_audio part are after the modification of this base [repository](https://github.com/TAMS-Group/music_perception.git), which is from [@v4hn](https://github.com/v4hn).
 
 ## Setup
 
@@ -21,7 +27,7 @@ Make sure to [setup your ssh key](https://docs.github.com/en/authentication/conn
 We are using VCS for workspace management, so install it first:
 
 ```
-apt install python3-vcstool
+sudo apt install python3-vcstool
 ```
 
 Run the following commands:
@@ -48,6 +54,7 @@ rosdep update
 rosdep install --from-paths src --ignore-src -r -y
 
 # Install python dependencies
+pip3 install wheel  # firstly install the wheel for further package building if you start from a empty virtual environment.
 pip3 install -r src/marimbabot/requirements.txt
 ```
 
@@ -104,7 +111,7 @@ cd catkin_ws
 source devel/setup.bash
 ```
 
-In order to run the whole project, launch the bringup package that brings up the launch file for each package:
+In order to run the whole project on the real robot, launch the bringup package that brings up the launch file for each package:
 
 ```bash
 roslaunch marimbabot_bringup marimbabot.launch
@@ -112,6 +119,20 @@ roslaunch marimbabot_bringup marimbabot.launch
 
 
 #### Note for development: Add the main launch files to the bringup if they are created.
+
+To run the UR5 setup with the MoveIt Demo Mode run
+
+```bash
+roslaunch marimbabot_ur5_moveit_config demo.launch
+```
+
+you should be able to test simple planning things with it.
+
+To view the marimba model in RViz run
+
+```bash
+roslaunch marimbabot_description marimba_rviz.launch
+```
 
 ## Launch single packages
 

@@ -12,12 +12,12 @@ from sensor_msgs.msg import Image as ROSImage
 from std_msgs.msg import String
 
 
-def callback_vision_results(sentence, args):
-    rospy.logdebug(f"Received sentence: {sentence.data}")
+def callback_vision_results(notes, args):
+    rospy.logdebug(f"Received notes: {notes.data}")
     pub = args
 
     # generate abjad staff
-    voice = Voice(sentence.data)
+    voice = Voice(notes.data)
     staff = Staff([voice])
 
     # generate lilypond file
@@ -50,8 +50,8 @@ def callback_vision_results(sentence, args):
 def listener():
     rospy.init_node('visualization_node')
 
-    pub = rospy.Publisher('detection_visualization', ROSImage, queue_size=10)
-    rospy.Subscriber("vision_node/recognized_sentence", String, callback_vision_results, callback_args=(pub))
+    pub = rospy.Publisher('~detection_visualization', ROSImage, queue_size=10)
+    rospy.Subscriber("vision_node/recognized_notes", String, callback_vision_results, callback_args=(pub))
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
