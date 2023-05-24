@@ -6,4 +6,4 @@ bool playing # whether marimbabot is currently playing
 bool planning_successful # whether the planning of marimbabot was successful
 ---
 #feedback
-bool playing # whether marimbabot is currently (still) playing
+bool playing # whether marimbabot is currently (still) playing, i.e. the goal is still active

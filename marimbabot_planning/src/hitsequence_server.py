@@ -1,7 +1,5 @@
 import rospy
-import actionlib
 import marimbabot_msgs.actions
-from std_msgs.msg import String
 
 class HitSequenceAction:
     feedback = marimbabot_msgs.actions.HitSequenceFeedback
@@ -9,29 +7,35 @@ class HitSequenceAction:
 
     def __init__(self, name):
         self.action_name = name
-        self.hitpoint_publisher = rospy.Publisher('move_lilypond_to_hitpoints', String, queue_size=10)
-
+        self.planning_publisher = rospy.Publisher('marimba_move', marimbabot_msgs.actions.HitSequenceGoal, queue_size=10)
 
     def execute_callback(self, goal):
         # helper variables
         r = rospy.Rate(1)
-        
+
         # initialize feedback
-        self.feedback.current_number_of_notes_played = 0
-        self.feedback.played_sequence = None
+        self.feedback.playing = True
 
-        lilypond_string = goal.lilypond_string  # list of note string, e.g. c4
+        # retrieve information from the goal
+        hit_sequence_goals = goal.hit_sequence_goals
 
-        self.hitpoint_publisher.publish(lilypond_string)
+        # TODO forward this information to the planning node
+        # could look like this:
+        self.planning_publisher.publish(hit_sequence_goals)
 
-        # TODO create subscriber to listen to the played notes
-        # TODO conditional success
-        if self.feedback.current_number_of_notes_played == len(self.goal.notes_sequence):
-            self.result.success = True
-            self.result.played_sequence = self.feedback.played_sequence
-            self.result.total_of_notes_played = self.feedback.current_number_of_notes_played
+        # TODO wait for the planning node to finish / retrieve information from the planning node
+        # the planning node could publish information to a topic
+        # TODO create subscriber to listen to above topic
+        notes_were_played = True # TODO
+        if notes_were_played:
+            self.result.playing = False
+            self.result.planning_successful = True
             rospy.loginfo('%s: Succeeded' % self._action_name)
             self._as.set_succeeded(self.result)
+        else:
+            self.result.playing = False
+            self.result.planning_successful = False
+            rospy.loginfo('%s: Not succeeded' % self._action_name) 
 
 
 if __name__ == "__main__":
