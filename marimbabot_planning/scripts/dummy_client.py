@@ -20,7 +20,7 @@ class DummyMotionClient:
         """
         octave = int(input("Enter an octave (e.g. 4): "))
         while not rospy.is_shutdown():
-            input_str = input("Enter a sequence of hits (e.g. 'c, c#, a'): ")
+            input_str = input("Enter a sequence of hits (e.g. 'C, C#, A'): ")
             goal = HitSequenceGoal()
             start_time = rospy.Time(0)
             duration = rospy.Duration(0.5)
