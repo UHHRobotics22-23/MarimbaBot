@@ -3,7 +3,7 @@
 
       <link name="mallet_top">
         <collision>
-            <origin xyz="0.0 0.0 0.410375" rpy="0.0 0.0 0.0"/>
+            <origin xyz="0.0 0.0 0.397" rpy="0.0 0.0 0.0"/>
             <!-- 0.018375 -->
             <geometry>
                 <sphere radius="0.0198"/>
@@ -22,7 +22,7 @@
 
     <link name="connector_plate">
         <collision> 
-           <origin xyz="0.0 0.0 0.0059" rpy="0.0 0.0 0.0"/>
+           <origin xyz="0.0 0.0 0.0177" rpy="0.0 0.0 0.0"/>
            <geometry>
                 <box size="0.05 0.0335  0.0118 "/> 
           </geometry>
@@ -57,7 +57,7 @@
     <joint name="group_1_2nd_link" type="fixed">
         <parent link="mallet_neck"/>
         <child link="mallet_top"/>
-        <origin xyz="0.0 0.0 0.365"/>
+        <origin xyz="0.0 0.0 0.0"/>
     </joint>
 
     <joint name="group_1_connector_plate_link" type="fixed">
