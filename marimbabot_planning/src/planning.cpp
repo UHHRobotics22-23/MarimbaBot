@@ -4,12 +4,40 @@ namespace marimbabot_planning
 {
 
 /**
+ * @brief Construct a new Planning:: Planning object
+ *
+**/
+Planning::Planning(const std::string planning_group) : 
+    nh_{}, 
+    tf_listener_{tf_buffer_}, 
+    move_group_interface_{planning_group}, 
+    action_server_{
+        nh_, 
+        "hit_sequence", 
+        boost::bind(&Planning::action_server_callback, this, _1), 
+        false}
+{
+    // Set planning pipeline and planner
+    move_group_interface_.setPlanningPipelineId("pilz_industrial_motion_planner");
+    move_group_interface_.setPlannerId("PTP");
+    move_group_interface_.startStateMonitor();
+    // Go to home position
+    move_group_interface_.setMaxVelocityScalingFactor(0.05);
+    move_group_interface_.setMaxAccelerationScalingFactor(0.05);
+    move_group_interface_.setNamedTarget("marimbabot_home");
+    move_group_interface_.move();
+    // Start action server
+    action_server_.start();
+}
+
+
+/**
  * @brief concatinates a vector of n plans (n>0) into one plan
  *
  * @param plans
  * @return moveit::planning_interface::MoveGroupInterface::Plan
 **/
-moveit::planning_interface::MoveGroupInterface::Plan concatinated_plan(std::vector<moveit::planning_interface::MoveGroupInterface::Plan> plans)
+moveit::planning_interface::MoveGroupInterface::Plan Planning::concatinated_plan(std::vector<moveit::planning_interface::MoveGroupInterface::Plan> plans)
 {
     // assert at least one plan
     assert(plans.size() > 0);
@@ -37,7 +65,7 @@ moveit::planning_interface::MoveGroupInterface::Plan concatinated_plan(std::vect
  * @param  plan
  * @return moveit_msgs::RobotState
 **/
-moveit_msgs::RobotState get_robot_state_after_plan(moveit::planning_interface::MoveGroupInterface::Plan plan)
+moveit_msgs::RobotState Planning::get_robot_state_after_plan(moveit::planning_interface::MoveGroupInterface::Plan plan)
 {
     moveit_msgs::RobotState state_after_plan {plan.start_state_};
 
@@ -65,12 +93,10 @@ moveit_msgs::RobotState get_robot_state_after_plan(moveit::planning_interface::M
  *
  * @param  start_state
  * @param  goal_point
- * @param  move_group_interface
  * @return moveit::planning_interface::MoveGroupInterface::Plan
  * @throws std::runtime_error
  **/
-moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
-    moveit::planning_interface::MoveGroupInterface& move_group_interface,
+moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_position(
     const moveit_msgs::RobotState& start_state,
     geometry_msgs::PointStamped goal_point)
 {
@@ -78,15 +104,15 @@ moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
     moveit::planning_interface::MoveGroupInterface::Plan plan;
 
     // Create robot state
-    moveit::core::RobotState robot_state(move_group_interface.getRobotModel());
+    moveit::core::RobotState robot_state(move_group_interface_.getRobotModel());
     robot_state.setToDefaultValues();
     robot_state.setVariablePositions(start_state.joint_state.name, start_state.joint_state.position);
 
     // Set start state
-    move_group_interface.setStartState(start_state);
+    move_group_interface_.setStartState(start_state);
 
     // Check if goal pose is in the same frame as the planning frame
-    assert(goal_point.header.frame_id == move_group_interface.getPlanningFrame());
+    assert(goal_point.header.frame_id == move_group_interface_.getPlanningFrame());
 
     // Copy goal pose geometry_msgs::PointStamped to tf2::Vector3
     tf2::Vector3 goal_position(
@@ -125,7 +151,7 @@ moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
     geometry_msgs::Pose dummy_goal_pose;
 
     if(!robot_state.setFromIK(
-        move_group_interface.getRobotModel()->getJointModelGroup(move_group_interface.getName()),
+        move_group_interface_.getRobotModel()->getJointModelGroup(move_group_interface_.getName()),
         dummy_goal_pose /* this is ignored with replace = true */,
         0.0,
         moveit::core::GroupStateValidityCallbackFn(),
@@ -135,10 +161,10 @@ moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
     }
 
     // Plan to the goal pose (but in joint space)
-    move_group_interface.setJointValueTarget(robot_state);
+    move_group_interface_.setJointValueTarget(robot_state);
 
     // Plan
-    if(!move_group_interface.plan(plan))
+    if(!move_group_interface_.plan(plan))
     {
         throw std::runtime_error("Approach plan failed");
     };
@@ -151,18 +177,16 @@ moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
  * @brief hit a given point in cartesian space
  *
  * @param start_state
- * @param move_group_interface
  * @param point
  * @return moveit::planning_interface::MoveGroupInterface::Plan
 **/
 
-moveit::planning_interface::MoveGroupInterface::Plan hit_point(
-    moveit::planning_interface::MoveGroupInterface& move_group_interface,
+moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_point(
     const moveit_msgs::RobotState& start_state,
     geometry_msgs::PointStamped point)
 {
 
-    moveit::core::RobotState robot_state(move_group_interface.getRobotModel());
+    moveit::core::RobotState robot_state(move_group_interface_.getRobotModel());
     robot_state.setToDefaultValues();
     moveit::core::robotStateMsgToRobotState(start_state, robot_state);
 
@@ -174,13 +198,13 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_point(
     geometry_msgs::PointStamped retreat_point{approach_point};
 
     // Calculate approach trajectory
-    auto approach_plan = plan_to_mallet_position(move_group_interface, start_state, approach_point);
+    auto approach_plan = plan_to_mallet_position(start_state, approach_point);
 
     // Calculate down trajectory
-    auto down_plan = plan_to_mallet_position(move_group_interface, get_robot_state_after_plan(approach_plan), point);
+    auto down_plan = plan_to_mallet_position(get_robot_state_after_plan(approach_plan), point);
 
     // Calculate retreat trajectory
-    auto retreat_plan = plan_to_mallet_position(move_group_interface, get_robot_state_after_plan(down_plan), retreat_point);
+    auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), retreat_point);
 
     // Concatinate trajectories
     auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
@@ -191,13 +215,11 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_point(
 /**
  * @brief Hit a sequence of points in cartesian space
  *
- * @param move_group_interface
  * @param start_state
  * @param points
  * @return moveit::planning_interface::MoveGroupInterface::Plan
 **/
-moveit::planning_interface::MoveGroupInterface::Plan hit_points(
-    moveit::planning_interface::MoveGroupInterface& move_group_interface,
+moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_points(
     const moveit_msgs::RobotState& start_state,
     std::vector<geometry_msgs::PointStamped> points)
 {
@@ -206,7 +228,6 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_points(
 
     // Calculate hit trajectory
     auto hit_plan = hit_point(
-        move_group_interface,
         start_state,
         points.front()
         );
@@ -215,7 +236,6 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_points(
     if(points.size() > 1)
     {
         auto remaining_hit_plan = hit_points(
-            move_group_interface,
             get_robot_state_after_plan(hit_plan),
             std::vector<geometry_msgs::PointStamped>(points.begin() + 1, points.end())
             );
@@ -234,7 +254,7 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_points(
  * @return moveit::planning_interface::MoveGroupInterface::Plan
  **/
 
-moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
+moveit::planning_interface::MoveGroupInterface::Plan Planning::slow_down_plan(
     const moveit::planning_interface::MoveGroupInterface::Plan& input_plan,
     double length)
 {
@@ -261,84 +281,56 @@ moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
     return output_plan;
 }
 
-} // namespace marimbabot_planning
-
-int main(int argc, char **argv)
+/**
+ * Callback for the action server
+ * @param goal
+ * @param action_server
+ */
+void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalConstPtr &goal)
 {
-    ros::init(argc, argv, "marimba_move");
-    ros::NodeHandle node_handle;
-    ros::AsyncSpinner spinner(1);
-    spinner.start();
+    // Accept the goal
+    action_server_.acceptNewGoal();
 
-    // Create tf2 listener
-    std::shared_ptr<tf2_ros::Buffer> tfBuffer = std::make_shared<tf2_ros::Buffer>();
-    tf2_ros::TransformListener tfListener(*tfBuffer);
+    // Set the max velocity and acceleration scaling factors
+    move_group_interface_.setMaxVelocityScalingFactor(0.9);
+    move_group_interface_.setMaxAccelerationScalingFactor(0.9);
 
-    static const std::string PLANNING_GROUP = "arm";
-    moveit::planning_interface::MoveGroupInterface move_group_interface(PLANNING_GROUP);
-    move_group_interface.setPlanningPipelineId("pilz_industrial_motion_planner");
-    move_group_interface.setPlannerId("PTP");
-    move_group_interface.setMaxVelocityScalingFactor(0.05);
-    move_group_interface.setMaxAccelerationScalingFactor(0.05);
-    move_group_interface.startStateMonitor();
-
-    const moveit::core::JointModelGroup* joint_model_group =
-        move_group_interface.getRobotModel()->getJointModelGroup(PLANNING_GROUP);
-
-    move_group_interface.setNamedTarget("marimbabot_home");
-    move_group_interface.move();
-
-    move_group_interface.setMaxVelocityScalingFactor(0.9);
-    move_group_interface.setMaxAccelerationScalingFactor(0.9);
-
-    auto current_state = move_group_interface.getCurrentState();
+    auto current_state = move_group_interface_.getCurrentState();
     //convert to moveit message
     moveit_msgs::RobotState start_state;
     moveit::core::robotStateToRobotStateMsg(*current_state, start_state);
 
-    std::string dummy_lilypond = "d1 r1 d4 e4 f4 g4 c'2 e'2 e''1";
-    std::string planning_frame = move_group_interface.getPlanningFrame();
-
-    // Convert lilypond sequence to cartesian poses and times
-    auto hits = marimbabot_planning::lilypond_to_cartesian(
-        tfBuffer,
-        planning_frame,
-        dummy_lilypond,
-        60.0
-    );
-
-    // Convert hits to hit points (drop time information and only keep the point) TODO remove if timing is implemented
+    // Create a vector of hit_points (dummy implementation)
     std::vector<geometry_msgs::PointStamped> hit_points_vector;
-    std::transform(
-        hits.begin(),
-        hits.end(),
-        std::back_inserter(hit_points_vector),
-        [planning_frame](const std::tuple<geometry_msgs::PoseStamped, double, double> hit) -> geometry_msgs::PointStamped
-        {
-            geometry_msgs::PointStamped point;
-            point.header.frame_id = planning_frame;
-            point.point = std::get<0>(hit).pose.position;
-            point.point.z += 0.04;
-            return point;
-        }
-    );
 
     // Define hit plan by mapping hit_point on hit_points
-    auto hit_plan = marimbabot_planning::hit_points(move_group_interface, start_state, hit_points_vector);
+    auto hit_plan = hit_points(start_state, hit_points_vector);
 
     // Publish the plan for rviz
-    ros::Publisher display_publisher = node_handle.advertise<moveit_msgs::DisplayTrajectory>("/move_group/display_planned_path", 1, true);
     moveit_msgs::DisplayTrajectory display_trajectory;
     moveit_msgs::RobotTrajectory trajectory;
     trajectory.joint_trajectory = hit_plan.trajectory_.joint_trajectory;
     display_trajectory.trajectory_start = hit_plan.start_state_;
     display_trajectory.trajectory.push_back(trajectory);
-    display_publisher.publish(display_trajectory);
-    std::cout <<"joint tracjector "<< trajectory.joint_trajectory;
-    
+    trajectory_publisher_.publish(display_trajectory);
 
     // Execute the plan
-    move_group_interface.execute(hit_plan);
-    //move_group_interface.plan(hit_plan);
+    move_group_interface_.execute(hit_plan);
+    // Set the result
+    marimbabot_msgs::HitSequenceResult result;
+    result.success = true;
+    action_server_.setSucceeded(result);
+}
+
+} // namespace marimbabot_planning
+
+int main(int argc, char **argv)
+{
+    ros::init(argc, argv, "marimba_move");
+    ros::AsyncSpinner spinner(1);
+    spinner.start();
+
+    marimbabot_planning::Planning planning{"arm"};
+
     return 0;
 }
