@@ -27,6 +27,9 @@
     <group name="arm">
         <chain base_link="ur5_base_link" tip_link="s_model_tool0"/>
     </group>
+    <group name="arm_mallet">
+        <chain base_link="ur5_base_link" tip_link="mallet_head"/>
+    </group>
     <!--GROUP STATES: Purpose: Define a named state for a particular group, in terms of joint values. This is useful to define states like 'folded arms'-->
     <group_state name="closed" group="gripper">
         <joint name="s_model_finger_1_joint_1" value="0.924553"/>
@@ -212,7 +215,7 @@
         <joint name="ur5_elbow_joint" value="-1.87007"/>
         <joint name="ur5_shoulder_lift_joint" value="-2.34524"/>
         <joint name="ur5_shoulder_pan_joint" value="-1.39717"/>
-        <joint name="ur5_wrist_1_joint" value="0.538012"/>
+        <joint name="ur5_wrist_1_joint" value="0.87266"/>
         <joint name="ur5_wrist_2_joint" value="1.43771"/>
         <joint name="ur5_wrist_3_joint" value="0.105272"/>
     </group_state>
@@ -1921,19 +1924,19 @@
     <disable_collisions link1="ur5_wrist_1_link" link2="ur5_wrist_2_link" reason="Adjacent"/>
     <disable_collisions link1="ur5_wrist_1_link" link2="ur5_wrist_3_link" reason="Never"/>
     <disable_collisions link1="ur5_wrist_2_link" link2="ur5_wrist_3_link" reason="Adjacent"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_1_link_0" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_1_link_1" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_1_link_2" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_1_link_3" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_2_link_0" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_2_link_1" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_2_link_2" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_2_link_3" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_middle_link_0" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_middle_link_1" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_middle_link_2" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_finger_middle_link_3" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_adapter" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_1_link_0" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_1_link_1" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_1_link_2" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_1_link_3" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_2_link_0" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_2_link_1" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_2_link_2" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_2_link_3" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_middle_link_0" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_middle_link_1" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_middle_link_2" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_finger_middle_link_3" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_adapter" reason="User"/>
     <disable_collisions link1="mallet_base_link" link2="s_model_finger_1_link_0" reason="User"/>
     <disable_collisions link1="mallet_base_link" link2="s_model_finger_1_link_1" reason="User"/>
     <disable_collisions link1="mallet_base_link" link2="s_model_finger_1_link_2" reason="User"/>
@@ -1960,9 +1963,9 @@
     <disable_collisions link1="mallet_neck" link2="s_model_finger_2_link_3" reason="User"/>
     <disable_collisions link1="mallet_base_link" link2="s_model_adapter" reason="User"/>
     <disable_collisions link1="mallet_base_link" link2="mallet_neck" reason="User"/>
-    <disable_collisions link1="mallet_base_link" link2="mallet_top" reason="User"/>
+    <disable_collisions link1="mallet_base_link" link2="mallet_head" reason="User"/>
     <disable_collisions link1="mallet_base_link" link2="s_model_palm" reason="User"/>
     <disable_collisions link1="mallet_neck" link2="s_model_palm" reason="User"/>
-    <disable_collisions link1="mallet_top" link2="s_model_palm" reason="User"/>
-    <disable_collisions link1="mallet_neck" link2="mallet_top" reason="User"/>
+    <disable_collisions link1="mallet_head" link2="s_model_palm" reason="User"/>
+    <disable_collisions link1="mallet_neck" link2="mallet_head" reason="User"/>
 </robot>

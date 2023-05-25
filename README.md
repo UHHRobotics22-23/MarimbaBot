@@ -111,7 +111,7 @@ cd catkin_ws
 source devel/setup.bash
 ```
 
-In order to run the whole project, launch the bringup package that brings up the launch file for each package:
+In order to run the whole project on the real robot, launch the bringup package that brings up the launch file for each package:
 
 ```bash
 roslaunch marimbabot_bringup marimbabot.launch
@@ -119,6 +119,20 @@ roslaunch marimbabot_bringup marimbabot.launch
 
 
 #### Note for development: Add the main launch files to the bringup if they are created.
+
+To run the UR5 setup with the MoveIt Demo Mode run
+
+```bash
+roslaunch marimbabot_ur5_moveit_config demo.launch
+```
+
+you should be able to test simple planning things with it.
+
+To view the marimba model in RViz run
+
+```bash
+roslaunch marimbabot_description marimba_rviz.launch
+```
 
 ## Launch single packages
 

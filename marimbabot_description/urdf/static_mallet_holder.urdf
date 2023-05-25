@@ -79,7 +79,7 @@
 
     <joint name="group_1_2nd_link" type="fixed">
         <parent link="mallet_neck"/>
-        <child link="mallet_top"/>
+        <child link="mallet_head"/>
         <origin xyz="0.0 0.0 0.365"/>
     </joint>
 </robot>
