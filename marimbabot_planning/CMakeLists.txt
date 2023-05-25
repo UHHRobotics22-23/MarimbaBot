@@ -36,4 +36,3 @@ target_link_libraries(planning ${catkin_LIBRARIES})
 install(TARGETS planning
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
-

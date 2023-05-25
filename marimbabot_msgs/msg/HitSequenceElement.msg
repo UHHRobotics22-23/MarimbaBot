@@ -4,8 +4,8 @@
 # 3. starting time point in seconds (e.g. 0.0 for the first note) -> ros::Time (int)
 # 4. tone duration in seconds (e.g. 0.5 for a quarter note and 120 bpm) -> ros::Duration
 # 5. loudness level on a scale from 0 to 1 (e.g. 0.1 for ppp, 0.4 for mp, 0.6 for mf, 0.9 for ffff) -> double / float
-std_msgs/String tone_name
+string tone_name
 int32 octave
-std_msgs/Time start_time
-std_msgs/Duration tone_duration
+time start_time
+duration tone_duration
 float32 loudness
