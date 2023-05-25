@@ -159,7 +159,8 @@ moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
 moveit::planning_interface::MoveGroupInterface::Plan hit_point(
     moveit::planning_interface::MoveGroupInterface& move_group_interface,
     const moveit_msgs::RobotState& start_state,
-    geometry_msgs::PointStamped point)
+    geometry_msgs::PointStamped point,
+    const std_msgs::Float64MultiArray::ConstPtr& timing_msg)
 {
 
     moveit::core::RobotState robot_state(move_group_interface.getRobotModel());
@@ -181,6 +182,23 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_point(
 
     // Calculate retreat trajectory
     auto retreat_plan = plan_to_mallet_position(move_group_interface, get_robot_state_after_plan(down_plan), retreat_point);
+
+    if (timing_msg->data.size() < 4) {
+        ROS_WARN("Received message has fewer than 3 elements");
+    }
+    else {
+        double tone_name = timing_msg->data[0];
+        double start_time = timing_msg->data[1];
+        double tone_duration = timing_msg->data[2];
+        double loudness = timing_msg->data[3];
+        ROS_INFO("Received triple: (%f, %f, %f, %f)", tone_name, start_time, tone_duration, loudness);
+        // Set the maximum velocity scaling factor to the first element of the message
+        down_plan = slow_down_plan(down_plan, 1.0 / loudness);
+        // constant scale factor retreat plan to 0.5
+        retreat_plan = slow_down_plan(retreat_plan, 0.5);
+        down_plan = slow_down_plan(down_plan, 1.0 / loudness);
+        approach_plan = slow_down_plan(approach_plan, start_time - down_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec() - retreat_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec());
+
 
     // Concatinate trajectories
     auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
@@ -262,26 +280,6 @@ moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
 }
 
 
-moveit::planning_interface::MoveGroupInterface::Plan speedCallback(
-    const moveit::planning_interface::MoveGroupInterface::Plan& input_plan,
-    const std_msgs::Float64MultiArray::ConstPtr& msg)
-{
-
-    // Check that the message has at least three elements
-    if (msg->data.size() < 3) {
-        ROS_WARN("Received message has fewer than 3 elements");
-        return;
-    }
-    else {
-        double param1 = msg->data[0];
-        double param2 = msg->data[1];
-        double param3 = msg->data[2];
-        ROS_INFO("Received triple: (%f, %f, %f)", param1, param2, param3);
-        // Set the maximum velocity scaling factor to the first element of the message
-        double max_velocity_scaling_factor = param1;
-        move_group_interface.setMaxVelocityScalingFactor(max_velocity_scaling_factor);
-    }
-}
 } // namespace marimbabot_planning
 
 
@@ -313,8 +311,8 @@ int main(int argc, char **argv)
     move_group_interface.setNamedTarget("marimbabot_home");
     move_group_interface.move();
 
-    move_group_interface.setMaxVelocityScalingFactor(0.9);
-    move_group_interface.setMaxAccelerationScalingFactor(0.9);
+    move_group_interface.setMaxVelocityScalingFactor(1.0);
+    move_group_interface.setMaxAccelerationScalingFactor(1.0);
 
     auto current_state = move_group_interface.getCurrentState();
     //convert to moveit message
@@ -360,16 +358,9 @@ int main(int argc, char **argv)
     display_trajectory.trajectory.push_back(trajectory);
     display_publisher.publish(display_trajectory);
     std::cout <<"joint tracjector "<< trajectory.joint_trajectory;
-    
-    ros::Rate loop_rate(10);
-    while (ros::ok()) {
-        ros::spinOnce();
-        move_group_interface.setMaxVelocityScalingFactor(max_velocity_scaling_factor);
-        // Execute the plan
-        move_group_interface.execute(hit_plan);
 
-        loop_rate.sleep();
-    //move_group_interface.execute(hit_plan);
+    // Execute the plan
+    move_group_interface.execute(hit_plan);
     //move_group_interface.plan(hit_plan);
     return 0;
 }
