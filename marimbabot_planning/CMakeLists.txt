@@ -16,8 +16,6 @@ find_package(catkin REQUIRED COMPONENTS
   trajectory_msgs
 )
 
-find_package(Boost REQUIRED)
-
 catkin_package(
   CATKIN_DEPENDS actionlib_msgs
 )
@@ -28,7 +26,6 @@ include_directories(
 )
 
 set(SOURCES
-    src/lilypond_to_hitpoint.cpp
     src/planning.cpp
 )
 
