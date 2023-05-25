@@ -67,7 +67,7 @@
         </collision>
     </link>
 
-    <link name="mallet_top_1">
+    <link name="mallet_head_1">
         <collision>
             <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
             
@@ -77,7 +77,7 @@
         </collision>
     </link>
 
-    <link name="mallet_top_2">
+    <link name="mallet_head_2">
         <collision>
             <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
             <geometry>
@@ -108,7 +108,7 @@
 
     <joint name="mallet_group_1_2nd_link" type="fixed">
         <parent link="mallet_neck_1"/>
-        <child link="mallet_top_1"/>
+        <child link="mallet_head_1"/>
         <origin xyz="0.0 0.0 ${0.365+0.018375}"/>
     </joint>
 
@@ -126,7 +126,7 @@
 
     <joint name="mallet_group_2_3rd_link" type="fixed">
         <parent link="mallet_neck_2"/>
-        <child link="mallet_top_2"/>
+        <child link="mallet_head_2"/>
         <origin xyz="0.0 0.0 ${0.365+0.018375}"/>
     </joint>
     
