@@ -1,5 +1,14 @@
 <?xml version="1.0"?>
 <launch>
-  <param name="robot_description" command="xacro '$(find marimbabot_description)/urdf/marimbabot_ur5.urdf.xacro'
-    joint_ranges_config:=$(find tams_ur5_description)/config/joint_ranges/elbow_up.yaml" />
+  <arg name="joint_ranges_config" default="$(find tams_ur5_description)/config/joint_ranges/elbow_up.yaml"
+  doc="Path to the config YAML for joint ranges (e.g. to always keep the elbow up)"/>
+
+  <!-- PositionJointInterface required on real UR5 robot arm, but will not work in Gazebo 
+  <arg name="transmission_hw_interface" default="hardware_interface/PositionJointInterface" />
+  -->
+  <arg name="transmission_hw_interface" default="hardware_interface/EffortJointInterface" />
+
+  <param name="robot_description" command="$(find xacro)/xacro '$(find marimbabot_description)/urdf/marimbabot_ur5.urdf.xacro'
+    joint_ranges_config:=$(arg joint_ranges_config)
+    transmission_hw_interface:=$(arg transmission_hw_interface)" />
 </launch>
