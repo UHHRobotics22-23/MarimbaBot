@@ -19,25 +19,32 @@ class SpeechSynthesis:
     def callback_response(self, response):
         text = response.data
 
-        temp_ = tempfile.TemporaryFile()
-        audio_filename = str(temp_.name) + ".wav"
-
-        with open(audio_filename, "w+") as f:
-            mimic_subprocess = subprocess.Popen(
-                ('mimic3', '--voice', self.voice, '--length-scale', self.speed, text), 
-                # stdout=subprocess.PIPE)
-                stdout=f)
-
-            # Wait for the process to finish
-            mimic_subprocess.wait()
-
-        # send audio to audio node (sound_play package)
+        # generate sound request message
         # http://docs.ros.org/en/api/sound_play/html/msg/SoundRequest.html
         sound_request = SoundRequest()
-        sound_request.sound = -2
-        sound_request.command = 1
-        sound_request.volume = 1
-        sound_request.arg = audio_filename
+        
+        if text == '':
+            sound_request.command = 0 
+            sound_request.sound = -1
+
+        else:
+            sound_request.command = 1
+            sound_request.sound = -2
+            sound_request.volume = 1
+
+            temp_ = tempfile.TemporaryFile()
+            audio_filename = str(temp_.name) + ".wav"
+
+            with open(audio_filename, "w+") as f:
+                mimic_subprocess = subprocess.Popen(
+                    ('mimic3', '--voice', self.voice, '--length-scale', self.speed, text), 
+                    # stdout=subprocess.PIPE)
+                    stdout=f)
+
+                # Wait for the process to finish
+                mimic_subprocess.wait()
+
+            sound_request.arg = audio_filename
 
         # publish audio file to audio node (sound_play package)
         self.audio_pub.publish(sound_request)
