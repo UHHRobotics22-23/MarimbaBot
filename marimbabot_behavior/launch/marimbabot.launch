@@ -1,4 +1,4 @@
 <launch>
-<node name="behavior_node" pkg="marimbabot_behavior" type="behavior_node.py">
-</node>
+<node name="behavior_node" pkg="marimbabot_behavior" type="behavior_node.py"/>
+<node name="interpreter_node" pkg="marimbabot_behavior" type="interpreter_node.py"/>
 </launch>
