@@ -124,6 +124,8 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
                 ros::Duration(1.0)
                 );
 
+            // Add temporary z offset
+            note_point.point.z += 0.04;
 
             // Add the cartesian point and time to the vector
             CartesianHitSequenceElement hit_sequence_element;
