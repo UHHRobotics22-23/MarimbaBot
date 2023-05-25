@@ -1,6 +1,7 @@
 #include <bio_ik/bio_ik.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <iostream>
+#include <std_msgs/Float64MultiArray.h>
 #include <moveit_msgs/DisplayTrajectory.h>
 #include <moveit_msgs/RobotState.h>
 #include <moveit_msgs/RobotTrajectory.h>
