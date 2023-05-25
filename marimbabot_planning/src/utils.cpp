@@ -108,7 +108,7 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
     for (auto point : hit_sequence)
     {
         // Map the note letter and octave to the corresponding tf frame
-        std::string note_frame = "bar_" + point.tone_name.data + std::to_string(point.octave);
+        std::string note_frame = "bar_" + point.tone_name + std::to_string(point.octave);
 
         // Get the cartesian point of the note
         geometry_msgs::PointStamped note_point;
@@ -138,7 +138,7 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
         catch (tf2::TransformException &ex)
         {
             ROS_WARN("Failed to get the transformation from the robot base to the note frame on the marimba! Error: %s", ex.what());
-            ROS_WARN("Skipping note %s", point.tone_name.data.c_str());
+            ROS_WARN("Skipping note %s", point.tone_name.c_str());
             continue;
         }
     }
