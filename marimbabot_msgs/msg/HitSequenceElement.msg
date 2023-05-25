@@ -1,11 +1,11 @@
 # This is a ROS message definition file.
-# The following variables are defined as in https://github.com/UHHRobotics22-23/marimbabot/issues/111#issue-1706376396
-# and their explanations are copied from there.
-# 1. tone name(s) + octave(s) (e.g. c', <d' g'>) -> String
-# 2. starting time point in seconds (e.g. 0.0 for the first note) -> ros::Time (int)
-# 3. tone duration in seconds (e.g. 0.5 for a quarter note and 120 bpm) -> ros::Duration
-# 4. loudness level on a scale from 0 to 1 (e.g. 0.1 for ppp, 0.4 for mp, 0.6 for mf, 0.9 for ffff) -> double / float
+# 1. tone name (e.g. E#) -> String
+# 2. octave number (e.g. 4) -> int
+# 3. starting time point in seconds (e.g. 0.0 for the first note) -> ros::Time (int)
+# 4. tone duration in seconds (e.g. 0.5 for a quarter note and 120 bpm) -> ros::Duration
+# 5. loudness level on a scale from 0 to 1 (e.g. 0.1 for ppp, 0.4 for mp, 0.6 for mf, 0.9 for ffff) -> double / float
 std_msgs/String tone_name
+int32 octave
 std_msgs/Time start_time
 std_msgs/Duration tone_duration
 float32 loudness
