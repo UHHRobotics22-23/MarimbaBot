@@ -97,8 +97,9 @@ def draw_piece(string, sample_name, args):
     x_pos = 70 + randint(args.min_symbol_dist, args.max_symbol_dist) 
     y_offset = 0
     duration_counter = 0
-    piece = [(n[0], n.count('\''), int((re.findall(r'\d+', n)[0]))) for n in string.split()]
-    for (note, octave, duration) in piece:
+    piece = [(n[0], n[1], n.count('\''), int((re.findall(r'\d+', n)[0])), n.count('.')) for n in string.split()]
+
+    for (note, accidental, octave, duration, dot) in piece:
         x_pos, y_offset = check_space(sample_im, x_pos, y_offset, args)
         x_pos, y_offset, duration_counter = check_bar(sample_im, x_pos, y_offset, duration_counter, args)
 
@@ -106,8 +107,22 @@ def draw_piece(string, sample_name, args):
             draw_symbol(sample_im, f'{args.hw_symbols_dir}/rest/{duration}', (x_pos,50+y_offset))
         else:
             y_pos, is_flipped = get_note_pose(note, octave)
+            y_head_pos = head_positions[note]-octave*35+y_offset
+
+            if accidental == 'f':
+                draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/flat', (x_pos, y_head_pos-5))
+                x_pos += 20
+            elif accidental == 's':
+                draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/sharp', (x_pos, y_head_pos-5))
+                x_pos += 20
+
             extend_staff(sample_im, x_pos, y_pos, y_offset, is_flipped, args)
+
             draw_note(sample_im, (x_pos, y_pos+y_offset), is_flipped, duration, args)
+
+            if dot == 1:
+                draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos+10, y_head_pos))
+                x_pos += 20
             
         x_pos += randint(args.min_symbol_dist, args.max_symbol_dist)
         duration_counter += 1/duration
