@@ -28,6 +28,8 @@ Planning::Planning(const std::string planning_group) :
     move_group_interface_.move();
     // Start action server
     action_server_.start();
+    // Wait for shutdown
+    ros::waitForShutdown();
 }
 
 
