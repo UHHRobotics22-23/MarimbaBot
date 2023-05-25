@@ -10,8 +10,8 @@
 
         <node name="mallet_hardware_control_node" pkg="marimbabot_hardware" type="mallet_hardware_control_node" output="screen">
             <!-- Setting device parameter -->
-            <param name="device" value="/dev/ttyACM0"/>
-            <param name="baudrate" value="115200"/>
+            <param name="address" value="192.168.42.1"/>
+            <param name="port" value="8888"/>
         </node>
         <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
             args="
