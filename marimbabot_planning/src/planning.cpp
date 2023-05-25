@@ -170,6 +170,22 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_point(
     // Calculate approach point
     geometry_msgs::PointStamped approach_point{point};
     approach_point.point.z += 0.1;
+
+    // 30 degrees around the x-axis as default
+    tf2::Quaternion approach_orientation(
+        approach_point.point.orirentation.x,
+        approach_point.point.orirentation.y,
+        approach_point.point.orirentation.z,
+        approach_point.point.orirentation.w);
+    tf2::Quaternion rotation;
+    double angle = 30.0 * M_PI / 180.0;
+    rotation.setRPY(angle, 0.0, 0.0);
+    approach_orientation *= rotation;
+
+    approach_point.point.orirentation.x = approach_orientation.x();
+    approach_point.point.orirentation.y = approach_orientation.y();
+    approach_point.point.orirentation.z = approach_orientation.z();
+    approach_point.point.orirentation.w = approach_orientation.w();
         
     // Calculate retreat point
     geometry_msgs::PointStamped retreat_point{approach_point};
@@ -279,6 +295,13 @@ moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
     return output_plan;
 }
 
+/**
+ * @brief Speed up or slow down a trajectory to a given msg.
+ *
+ * @param input_plan
+ * @param msg
+ * @return moveit::planning_interface::MoveGroupInterface::Plan
+ **/
 
 } // namespace marimbabot_planning
 
