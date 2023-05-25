@@ -12,19 +12,7 @@
   </include>
 
   <!-- send robot urdf to param server, we have some Gazebo modifications here...  -->
-  <!-- <include file="$(find tams_ur5_setup_description)/launch/tams_ur5_setup_upload.launch" /> -->
   <include file="$(find marimbabot_description)/launch/marimbabot_ur5_upload.launch" />
-
-
-  <!-- Start the publisher for the gripper (the only hand) -->
-  <!--
-  <node pkg="robot_state_publisher" type="state_publisher" name="robotiq_gripper_robot_state_publisher">
-    <param name="publish_frequency" type="double" value="50.0" />
-    <remap from="joint_states" to="/hand/joint_states" />
-  </node>
-
-  <node pkg="topic_tools" type="relay" name="relay_joint_states" args="/s_model_hand/joint_states /joint_states" />
--->
 
   <!-- spawn robot in gazebo with start position "home" (=upright) -->
   <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" 
@@ -32,10 +20,6 @@
                -J ur5_shoulder_lift_joint -1.571 -J ur5_shoulder_pan_joint 0.0 -J ur5_elbow_joint 0.0
                -J ur5_wrist_1_joint -1.571 -J ur5_wrist_2_joint 0.0 -J ur5_wrist_3_joint 0.0" 
         respawn="false" output="screen" />
-
-  <!--
-  <include file="$(find ur_gazebo)/launch/controller_utils.launch"/>
-  -->
 
   <rosparam file="$(find marimbabot_ur5_moveit_config)/config/joint_state_controller.yaml" command="load"/>
   
@@ -64,27 +48,6 @@
 
   <!-- we want to remap the gripper controller topics, but that is not so easy with gazebo plugins... -->
   <remap from="/gripper_action" to="/gripper_controller/follow_joint_trajectory" /> -->
-
-  <!-- does not work:
-  <remap from="/gripper_controller/follow_joint_trajectory/goal" to="/gripper_action/goal" />
-  <remap from="/gripper_controller/follow_joint_trajectory/cancel" to="/gripper_action/cancel" />
-  <remap from="/gripper_controller/follow_joint_trajectory/feedback" to="/gripper_action/feedback" />
-  <remap from="/gripper_controller/follow_joint_trajectory/result" to="/gripper_action/result" />
-  <remap from="/gripper_controller/follow_joint_trajectory/status" to="/gripper_action/status" />
-  -->
-
-  <!--
-  <node pkg="topic_tools" type="relay" name="gripper_action_goal_relay" 
-        args="/gripper_action/goal /gripper_controller/follow_joint_trajectory/goal" />
-  <node pkg="topic_tools" type="relay" name="gripper_action_cancel_relay" 
-        args="/gripper_action/cancel /gripper_controller/follow_joint_trajectory/cancel" />
-  <node pkg="topic_tools" type="relay" name="gripper_action_status_relay" 
-        args="/gripper_controller/follow_joint_trajectory/status /gripper_action/status" />
-  <node pkg="topic_tools" type="relay" name="gripper_action_result_relay" 
-        args="/gripper_controller/follow_joint_trajectory/result /gripper_action/result" />
-  <node pkg="topic_tools" type="relay" name="gripper_action_feedback_relay" 
-        args="/gripper_controller/follow_joint_trajectory/feedback /gripper_action/feedback" />
-  -->
 
   <!-- fake UR5 calibration -->
   <node pkg="rostopic" type="rostopic" name="fake_joint_calibration"
