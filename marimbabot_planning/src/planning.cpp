@@ -153,6 +153,7 @@ moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
  * @param start_state
  * @param move_group_interface
  * @param point
+ * @param timing_msg
  * @return moveit::planning_interface::MoveGroupInterface::Plan
 **/
 
@@ -199,7 +200,7 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_point(
         down_plan = slow_down_plan(down_plan, 1.0 / loudness);
         approach_plan = slow_down_plan(approach_plan, start_time - down_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec() - retreat_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec());
 
-
+    }
     // Concatinate trajectories
     auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
 
@@ -226,7 +227,8 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_points(
     auto hit_plan = hit_point(
         move_group_interface,
         start_state,
-        points.front()
+        points.front(),
+        timing_msg
         );
 
     // Call hit_points recursively for all remaining hit_points
@@ -279,14 +281,6 @@ moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
     return output_plan;
 }
 
-/**
- * @brief Speed up or slow down a trajectory to a given msg.
- *
- * @param input_plan
- * @param msg
- * @return moveit::planning_interface::MoveGroupInterface::Plan
- **/
-
 } // namespace marimbabot_planning
 
 
@@ -296,9 +290,6 @@ int main(int argc, char **argv)
     ros::NodeHandle node_handle;
     ros::AsyncSpinner spinner(1);
     spinner.start();
-
-    // Subscribe to the topic that publishes hitting speed - double values
-    ros::Subscriber hitting_speed_subscriber = node_handle.subscribe("hitting_speed", 100, speedCallback);
 
     // Create tf2 listener
     std::shared_ptr<tf2_ros::Buffer> tfBuffer = std::make_shared<tf2_ros::Buffer>();
