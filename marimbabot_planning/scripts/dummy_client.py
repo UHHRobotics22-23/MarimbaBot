@@ -26,7 +26,7 @@ class DummyMotionClient:
             duration = rospy.Duration(0.5)
             for note in input_str.split(','):
                 start_time += duration
-                goal.sequence.append(
+                goal.hit_sequence_elements.append(
                     HitSequenceElement(
                         tone_name=note.strip(),
                         tone_duration=duration,
