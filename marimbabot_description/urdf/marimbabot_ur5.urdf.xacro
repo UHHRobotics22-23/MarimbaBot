@@ -2,16 +2,12 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro"
        name="marimbabot_ur5" > 
   
-  <xacro:arg name="r200" default="false" />
   <xacro:arg name="include_mallet" default="true" />
 
   <!-- tams corner -->
   <xacro:include filename="$(find tams_ur5_setup_description)/urdf/tams_corner.urdf.xacro">
-  <!-- <xacro:arg name="floating_table" value="$(arg floating_table)" />-->
-  <!-- the above argument is ignored by xacro! if you want to use this argument, try another way -->
   </xacro:include>
 
-  <!-- fnh: was <xacro:include filename="$(find tams_ur5_description)/urdf/arm.urdf.xacro" /> -->
   <!-- arm plus additions one by one -->  <!-- include macro definitions -->
   <xacro:include filename="$(find tams_ur5_gazebo)/urdf/ur5_for_gazebo.urdf.xacro" />
   <xacro:include filename="$(find robotiq_3f_gripper_visualization)/cfg/robotiq-3f-gripper_articulated_macro.xacro"/>
@@ -22,25 +18,13 @@
   <xacro:include filename="$(find tams_ur5_description)/urdf/plug_collision_model.urdf.xacro" />
 
   <xacro:include filename="$(find marimbabot_description)/urdf/marimba.urdf.xacro" />
-  <!-- <xacro:include filename="$(find marimbabot_description)/urdf/gazebo_gripper_transmissions.xacro" /> -->
 
-  <!-- fnh: arm with xamla_cap and gazebo EffortJointInterface transmissions -->
-  <!-- fnh: uncommented universal_robot/ur_description/urdf/common.gazebo.xacro -->
-  <!-- fnh: also removed the hardcoded PositionJointInterface transmissions. See below for hotfix -->
   <xacro:ur5_robot prefix="ur5_" joint_limited="false" xamla_cap="true" />
 
   <!-- ft_adapter -->
   <xacro:ft_adapter name="ft_adapter" parent="ur5_ee_link">
     <origin xyz="0.0045 0.0 0.0" rpy="0.0 ${pi/2} 0.0" />
   </xacro:ft_adapter>
-
-  <!-- mounted_camera -->
-  <xacro:if value="$(arg r200)">
-    <xacro:mounted_camera name="mounted_camera" parent="ft_adapter">
-        <origin xyz="0 0 0.0" rpy="0 0 0" />
-    </xacro:mounted_camera>
-    <!-- gazebo camera plugin should go here -->
-  </xacro:if>
 
   <!-- ft150 -->
   <xacro:robotiq_fts150 prefix="ft_" parent="ur5_ee_link">
@@ -76,15 +60,12 @@
   <!-- we want Gazebo to publish joint_states for all configured joints -->
   <gazebo>
     <plugin filename="libgazebo_ros_control.so" name="tams_ur5_gazebo_ros_control">
-      <!-- <robotSimType>sr_gazebo_sim/SrGazeboHWSim</robotSimType> -->
       <robotNamespace>/</robotNamespace> 
       <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
       <legacyModeNS>true</legacyModeNS>
       <updateRate>100.0</updateRate>
     </plugin>
   </gazebo>
-
-  <!-- fnh: some EffortJointInterface transmissions, UR and Robotiq repos do not have them  -->
 
   <xacro:macro name="fake_transmission" params="joint_name" >
     <transmission name="${joint_name}_transmission">
