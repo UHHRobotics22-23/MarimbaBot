@@ -9,7 +9,7 @@ namespace marimbabot_planning
 **/
 Planning::Planning(const std::string planning_group) : 
     nh_{}, 
-    tf_listener_{tf_buffer_}, 
+    tf_listener_{*tf_buffer_},
     move_group_interface_{planning_group}, 
     action_server_{
         nh_, 
@@ -28,63 +28,6 @@ Planning::Planning(const std::string planning_group) :
     move_group_interface_.move();
     // Start action server
     action_server_.start();
-}
-
-
-/**
- * @brief concatinates a vector of n plans (n>0) into one plan
- *
- * @param plans
- * @return moveit::planning_interface::MoveGroupInterface::Plan
-**/
-moveit::planning_interface::MoveGroupInterface::Plan Planning::concatinated_plan(std::vector<moveit::planning_interface::MoveGroupInterface::Plan> plans)
-{
-    // assert at least one plan
-    assert(plans.size() > 0);
-
-    moveit::planning_interface::MoveGroupInterface::Plan plan{plans[0]};
-    ros::Duration time_from_start{plans[0].trajectory_.joint_trajectory.points.back().time_from_start};
-    for (int i = 1; i < plans.size(); i++)
-    {
-        for (int j = 1; j < plans[i].trajectory_.joint_trajectory.points.size(); j++)
-        {
-            trajectory_msgs::JointTrajectoryPoint point;
-            point = plans[i].trajectory_.joint_trajectory.points[j];
-            point.time_from_start += time_from_start;
-            plan.trajectory_.joint_trajectory.points.push_back(point);
-        }
-        time_from_start += plans[i].trajectory_.joint_trajectory.points.back().time_from_start;
-    }
-    return plan;
-}
-
-
-/**
- * @brief get robot state after plan
- *
- * @param  plan
- * @return moveit_msgs::RobotState
-**/
-moveit_msgs::RobotState Planning::get_robot_state_after_plan(moveit::planning_interface::MoveGroupInterface::Plan plan)
-{
-    moveit_msgs::RobotState state_after_plan {plan.start_state_};
-
-    // Check if plan is empty
-    if (plan.trajectory_.joint_trajectory.points.size() != 0)
-    {
-        // Get last point of plan
-        trajectory_msgs::JointTrajectoryPoint last_point;
-        last_point = plan.trajectory_.joint_trajectory.points.back();
-
-        // Set joint positions of state after plan
-        for (int i = 0; i < last_point.positions.size(); i++)
-        {
-            state_after_plan.joint_state.position[i] = last_point.positions[i];
-            state_after_plan.joint_state.velocity[i] = 0.0;
-
-        }
-    }
-    return state_after_plan;
 }
 
 
@@ -111,10 +54,10 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     // Set start state
     move_group_interface_.setStartState(start_state);
 
-    // Check if goal pose is in the same frame as the planning frame
+    // Check if goal point is in the same frame as the planning frame
     assert(goal_point.header.frame_id == move_group_interface_.getPlanningFrame());
 
-    // Copy goal pose geometry_msgs::PointStamped to tf2::Vector3
+    // Copy goal point geometry_msgs::PointStamped to tf2::Vector3
     tf2::Vector3 goal_position(
         goal_point.point.x,
         goal_point.point.y,
@@ -160,7 +103,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
         throw std::runtime_error("IK for approach pose failed");
     }
 
-    // Plan to the goal pose (but in joint space)
+    // Plan to the goal state (but in joint space)
     move_group_interface_.setJointValueTarget(robot_state);
 
     // Plan
@@ -174,16 +117,16 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
 
 
 /**
- * @brief hit a given point in cartesian space
+ * @brief hit a given note in cartesian space
  *
  * @param start_state
- * @param point
+ * @param note
  * @return moveit::planning_interface::MoveGroupInterface::Plan
 **/
 
-moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_point(
+moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     const moveit_msgs::RobotState& start_state,
-    geometry_msgs::PointStamped point)
+    CartesianHitSequenceElement note)
 {
 
     moveit::core::RobotState robot_state(move_group_interface_.getRobotModel());
@@ -191,7 +134,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_point(
     moveit::core::robotStateMsgToRobotState(start_state, robot_state);
 
     // Calculate approach point
-    geometry_msgs::PointStamped approach_point{point};
+    geometry_msgs::PointStamped approach_point{note.point};
     approach_point.point.z += 0.1;
         
     // Calculate retreat point
@@ -201,7 +144,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_point(
     auto approach_plan = plan_to_mallet_position(start_state, approach_point);
 
     // Calculate down trajectory
-    auto down_plan = plan_to_mallet_position(get_robot_state_after_plan(approach_plan), point);
+    auto down_plan = plan_to_mallet_position(get_robot_state_after_plan(approach_plan), note.point);
 
     // Calculate retreat trajectory
     auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), retreat_point);
@@ -213,21 +156,21 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_point(
 }
 
 /**
- * @brief Hit a sequence of points in cartesian space
+ * @brief Hit a sequence of notes in cartesian space
  *
  * @param start_state
  * @param points
  * @return moveit::planning_interface::MoveGroupInterface::Plan
 **/
-moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_points(
+moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_notes(
     const moveit_msgs::RobotState& start_state,
-    std::vector<geometry_msgs::PointStamped> points)
+    std::vector<CartesianHitSequenceElement> points)
 {
     // Assert that there is at least one hit_point with an nice error message
     assert(points.size() > 0 && "There must be at least one hit_point");
 
     // Calculate hit trajectory
-    auto hit_plan = hit_point(
+    auto hit_plan = hit_note(
         start_state,
         points.front()
         );
@@ -235,9 +178,9 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_points(
     // Call hit_points recursively for all remaining hit_points
     if(points.size() > 1)
     {
-        auto remaining_hit_plan = hit_points(
+        auto remaining_hit_plan = hit_notes(
             get_robot_state_after_plan(hit_plan),
-            std::vector<geometry_msgs::PointStamped>(points.begin() + 1, points.end())
+            std::vector<CartesianHitSequenceElement>(points.begin() + 1, points.end())
             );
         hit_plan = concatinated_plan({hit_plan, remaining_hit_plan});
     }
@@ -245,41 +188,6 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_points(
     return hit_plan;
 }
 
-
-/**
- * @brief Slow down a trajectory to a given length. No speedup is possible.
- *
- * @param input_plan
- * @param length
- * @return moveit::planning_interface::MoveGroupInterface::Plan
- **/
-
-moveit::planning_interface::MoveGroupInterface::Plan Planning::slow_down_plan(
-    const moveit::planning_interface::MoveGroupInterface::Plan& input_plan,
-    double length)
-{
-    assert(input_plan.trajectory_.joint_trajectory.points.size() > 0 && "Input plan must have at least one point");
-
-    // Get the time from start of the last point
-    double original_length = input_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec();
-
-    // Assert that the input plan is shorter than the desired length
-    assert(original_length <= length && "Input plan must be shorter than the desired length");
-
-    // Calculate the scaling factor
-    double scaling_factor = length / original_length;
-
-    // Copy the input plan
-    moveit::planning_interface::MoveGroupInterface::Plan output_plan{input_plan};
-
-    // Scale the time stamps in a functional way
-    for(auto i = 0; i < output_plan.trajectory_.joint_trajectory.points.size(); i++)
-    {
-        output_plan.trajectory_.joint_trajectory.points[i].time_from_start *= scaling_factor;
-    }
-
-    return output_plan;
-}
 
 /**
  * Callback for the action server
@@ -300,11 +208,15 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
     moveit_msgs::RobotState start_state;
     moveit::core::robotStateToRobotStateMsg(*current_state, start_state);
 
-    // Create a vector of hit_points (dummy implementation)
-    std::vector<geometry_msgs::PointStamped> hit_points_vector;
+    // Gets the hit points in cartesian space for every note
+    auto hits = hit_sequence_to_points(
+        goal->hit_sequence_elements, 
+        move_group_interface_.getPlanningFrame(),
+        tf_buffer_
+    );
 
-    // Define hit plan by mapping hit_point on hit_points
-    auto hit_plan = hit_points(start_state, hit_points_vector);
+    // Define hit plan
+    auto hit_plan = hit_notes(start_state, hits);
 
     // Publish the plan for rviz
     moveit_msgs::DisplayTrajectory display_trajectory;

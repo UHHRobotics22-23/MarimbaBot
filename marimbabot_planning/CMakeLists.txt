@@ -27,6 +27,7 @@ include_directories(
 
 set(SOURCES
     src/planning.cpp
+    src/utils.cpp
 )
 
 add_executable(planning ${SOURCES})
