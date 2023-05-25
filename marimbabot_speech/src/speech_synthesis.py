@@ -29,22 +29,28 @@ class SpeechSynthesis:
 
         else:
             sound_request.command = 1
-            sound_request.sound = -2
             sound_request.volume = 1
 
-            temp_ = tempfile.TemporaryFile()
-            audio_filename = str(temp_.name) + ".wav"
+            # speak from text 
+            sound_request.sound = -3
+            sound_request.arg = text
 
-            with open(audio_filename, "w+") as f:
-                mimic_subprocess = subprocess.Popen(
-                    ('mimic3', '--voice', self.voice, '--length-scale', self.speed, text), 
-                    # stdout=subprocess.PIPE)
-                    stdout=f)
+            # # play sound from audio file
+            # sound_request.sound = -2
 
-                # Wait for the process to finish
-                mimic_subprocess.wait()
+            # temp_ = tempfile.TemporaryFile()
+            # audio_filename = str(temp_.name) + ".wav"
 
-            sound_request.arg = audio_filename
+            # with open(audio_filename, "w+") as f:
+            #     mimic_subprocess = subprocess.Popen(
+            #         ('mimic3', '--voice', self.voice, '--length-scale', self.speed, text), 
+            #         # stdout=subprocess.PIPE)
+            #         stdout=f)
+
+            #     # Wait for the process to finish
+            #     mimic_subprocess.wait()
+
+            # sound_request.arg = audio_filename
 
         # publish audio file to audio node (sound_play package)
         self.audio_pub.publish(sound_request)
