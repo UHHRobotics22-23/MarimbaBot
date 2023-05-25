@@ -153,7 +153,7 @@ moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
  * @param start_state
  * @param move_group_interface
  * @param point
- * @param timing_msg
+         * @param timing_msg
  * @return moveit::planning_interface::MoveGroupInterface::Plan
 **/
 
@@ -184,15 +184,16 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_point(
     // Calculate retreat trajectory
     auto retreat_plan = plan_to_mallet_position(move_group_interface, get_robot_state_after_plan(down_plan), retreat_point);
 
-    if (timing_msg->data.size() < 4) {
-        ROS_WARN("Received message has fewer than 3 elements");
+    if (timing_msg->data.size() < 5) {
+        ROS_WARN("Received message has fewer than 4 elements");
     }
     else {
         double tone_name = timing_msg->data[0];
-        double start_time = timing_msg->data[1];
-        double tone_duration = timing_msg->data[2];
-        double loudness = timing_msg->data[3];
-        ROS_INFO("Received triple: (%f, %f, %f, %f)", tone_name, start_time, tone_duration, loudness);
+        double octave = timing_msg->data[1];
+        double start_time = timing_msg->data[2];
+        double tone_duration = timing_msg->data[3];
+        double loudness = timing_msg->data[4];
+        ROS_INFO("Received : (%f, %f, %f, %f)", tone_name, start_time, tone_duration, loudness);
         // Set the maximum velocity scaling factor to the first element of the message
         down_plan = slow_down_plan(down_plan, 1.0 / loudness);
         // constant scale factor retreat plan to 0.5
@@ -346,7 +347,8 @@ int main(int argc, char **argv)
 
     // Define hit plan by mapping hit_point on hit_points
     auto hit_plan = marimbabot_planning::hit_points(move_group_interface, start_state, hit_points_vector);
-
+    // subscribe to timing topic
+    //ros::Subscriber timing_msg = node_handle.subscribe("/timing", 1, timing_callback);
     // Publish the plan for rviz
     ros::Publisher display_publisher = node_handle.advertise<moveit_msgs::DisplayTrajectory>("/move_group/display_planned_path", 1, true);
     moveit_msgs::DisplayTrajectory display_trajectory;
