@@ -1,5 +1,5 @@
 #goal definition
-marimbabot_msgs/HitSequenceGoal[] hit_sequence_goals # HitSequenceGoal that should be played, definition in provided in marimbabot_msgs/HitSequenceGoal.msg
+marimbabot_msgs/HitSequenceElement[] hit_sequence_elements # HitSequenceElement that should be played, definition in provided in marimbabot_msgs/HitSequenceElement.msg
 
 #result definition
 ---

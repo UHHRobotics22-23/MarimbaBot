@@ -17,7 +17,7 @@ class HitSequenceAction:
         self.feedback.playing = True
 
         # retrieve information from the goal
-        hit_sequence_goals = goal.hit_sequence_goals
+        hit_sequence_goals = goal.hit_sequence_elements
 
         # TODO forward this information to the planning node
         # could look like this:
