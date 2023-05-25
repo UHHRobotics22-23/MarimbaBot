@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot name="double_flex_mallet">
 
-      <link name="mallet_top">
+      <link name="mallet_head">
         <collision>
             <origin xyz="0.0 0.0 0" rpy="0.0 0.0 0.0"/>
             <!-- 0.018375 -->
@@ -56,7 +56,7 @@
 
     <joint name="group_1_2nd_link" type="fixed">
         <parent link="mallet_neck"/>
-        <child link="mallet_top"/>
+        <child link="mallet_head"/>
         <origin xyz="0.0 0.0 0.397"/>
     </joint>
 
