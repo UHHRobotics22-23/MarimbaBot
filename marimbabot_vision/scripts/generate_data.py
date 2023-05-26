@@ -178,7 +178,7 @@ class LilypondGenerator():
         # e.g. '\\context Voice = "Voice_1"\n{\n    \\tempo 4=60\n    c\'8\n    d\'8\n    e\'8\n    f\'8\n}'
         string = abjad.lilypond(voice_1)
         # the following statement  gets rid of the context and the newlines
-        string = " ".join(string.replace("\\context Voice = \"Voice_1\"\n{", "").replace("\n", "")[1:-1].split())
+        string = " ".join(string.replace("\\context Voice = \"Voice_1\"\n{", "").replace("\n", "")[:-1].split())
 
         return string, staff_1
 
