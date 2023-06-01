@@ -28,7 +28,7 @@ class DummyMotionClient:
                 start_time += duration
                 goal.hit_sequence_elements.append(
                     HitSequenceElement(
-                        tone_name=note.strip(),
+                        tone_name=note.strip().upper(),
                         tone_duration=duration,
                         octave=octave,
                         loudness=1.0,

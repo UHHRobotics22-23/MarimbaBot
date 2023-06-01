@@ -10,12 +10,29 @@
 namespace marimbabot_planning
 {
 
+/**
+ * @brief Custom exception for the case that a plan failed
+ * 
+ **/
+class PlanFailedException : public std::runtime_error 
+{ using std::runtime_error::runtime_error; };
+
+/**
+ * @brief Custom exception for the case that a plan failed because of IK issues
+ * 
+ **/
+class IKFailedException : public PlanFailedException 
+{ using PlanFailedException::PlanFailedException; };
+
+/**
+ * @brief Struct containing a hit point in cartesian space and the corresponding HitSequenceElement
+ * 
+ **/
 struct CartesianHitSequenceElement
 {
     geometry_msgs::PointStamped point;
     marimbabot_msgs::HitSequenceElement msg;
 };
-
 
 /**
  * @brief concatinates a vector of n plans (n>0) into one plan

@@ -21,11 +21,19 @@ Planning::Planning(const std::string planning_group) :
     move_group_interface_.setPlanningPipelineId("pilz_industrial_motion_planner");
     move_group_interface_.setPlannerId("PTP");
     move_group_interface_.startStateMonitor();
-    // Go to home position
-    move_group_interface_.setMaxVelocityScalingFactor(0.05);
-    move_group_interface_.setMaxAccelerationScalingFactor(0.05);
-    move_group_interface_.setNamedTarget("marimbabot_home");
-    move_group_interface_.move();
+    // Move to home position
+    go_to_home_position();
+    // Timer callback that moves back to the home position if no action is active
+    auto timer_callback = [this](const ros::TimerEvent& event) {
+        // Check if an action in not active and if the last action was more than 5 seconds ago
+        if (!action_server_.isActive() && ros::Time::now() - last_action_time_ > ros::Duration(5.0))
+        {
+            // Check if we are currently close to the home position
+            go_to_home_position();
+        }
+    };
+    // Create timer that checks if an action is active and moves back to the home position if not
+    auto timer = nh_.createTimer(ros::Duration(1.0), timer_callback);
     // Start action server
     action_server_.start();
     // Wait for shutdown
@@ -34,12 +42,26 @@ Planning::Planning(const std::string planning_group) :
 
 
 /**
+ * @brief Move the robot to its idle/home position
+*/
+void Planning::go_to_home_position()
+{
+    // Set slow velocity and acceleration scaling factor as speed is not important
+    move_group_interface_.setMaxVelocityScalingFactor(0.05);
+    move_group_interface_.setMaxAccelerationScalingFactor(0.05);
+    // Set home position as target
+    move_group_interface_.setNamedTarget("marimbabot_home");
+    move_group_interface_.move();
+}
+
+
+/**
  * @brief Calculate a plan so that the mallet (end effector) is at a given point in cartesian space
- *
+ *goal
  * @param  start_state
  * @param  goal_point
  * @return moveit::planning_interface::MoveGroupInterface::Plan
- * @throws std::runtime_error
+ * @throws PlanFailedException, IKFailedException
  **/
 moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_position(
     const moveit_msgs::RobotState& start_state,
@@ -102,7 +124,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
         moveit::core::GroupStateValidityCallbackFn(),
         ik_options))
     {
-        throw std::runtime_error("IK for approach pose failed");
+        throw IKFailedException("IK for approach pose failed");
     }
 
     // Plan to the goal state (but in joint space)
@@ -111,7 +133,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     // Plan
     if(!move_group_interface_.plan(plan))
     {
-        throw std::runtime_error("Approach plan failed");
+        throw PlanFailedException("Approach plan failed");
     };
 
     return plan;
@@ -198,42 +220,49 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_notes(
  */
 void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalConstPtr &goal)
 {
-    // Accept the goal
-    action_server_.acceptNewGoal();
+    try {
+        // Set the max velocity and acceleration scaling factors
+        move_group_interface_.setMaxVelocityScalingFactor(0.9);
+        move_group_interface_.setMaxAccelerationScalingFactor(0.9);
 
-    // Set the max velocity and acceleration scaling factors
-    move_group_interface_.setMaxVelocityScalingFactor(0.9);
-    move_group_interface_.setMaxAccelerationScalingFactor(0.9);
+        auto current_state = move_group_interface_.getCurrentState();
+        //convert to moveit message
+        moveit_msgs::RobotState start_state;
+        moveit::core::robotStateToRobotStateMsg(*current_state, start_state);
 
-    auto current_state = move_group_interface_.getCurrentState();
-    //convert to moveit message
-    moveit_msgs::RobotState start_state;
-    moveit::core::robotStateToRobotStateMsg(*current_state, start_state);
+        // Gets the hit points in cartesian space for every note
+        auto hits = hit_sequence_to_points(
+            goal->hit_sequence_elements, 
+            move_group_interface_.getPlanningFrame(),
+            tf_buffer_
+        );
 
-    // Gets the hit points in cartesian space for every note
-    auto hits = hit_sequence_to_points(
-        goal->hit_sequence_elements, 
-        move_group_interface_.getPlanningFrame(),
-        tf_buffer_
-    );
+        // Define hit plan
+        auto hit_plan = hit_notes(start_state, hits);
 
-    // Define hit plan
-    auto hit_plan = hit_notes(start_state, hits);
+        // Publish the plan for rviz
+        moveit_msgs::DisplayTrajectory display_trajectory;
+        moveit_msgs::RobotTrajectory trajectory;
+        trajectory.joint_trajectory = hit_plan.trajectory_.joint_trajectory;
+        display_trajectory.trajectory_start = hit_plan.start_state_;
+        display_trajectory.trajectory.push_back(trajectory);
+        trajectory_publisher_.publish(display_trajectory);
 
-    // Publish the plan for rviz
-    moveit_msgs::DisplayTrajectory display_trajectory;
-    moveit_msgs::RobotTrajectory trajectory;
-    trajectory.joint_trajectory = hit_plan.trajectory_.joint_trajectory;
-    display_trajectory.trajectory_start = hit_plan.start_state_;
-    display_trajectory.trajectory.push_back(trajectory);
-    trajectory_publisher_.publish(display_trajectory);
+        // Execute the plan
+        move_group_interface_.execute(hit_plan);
+        // Set the result
+        marimbabot_msgs::HitSequenceResult result;
+        result.success = true;
+        action_server_.setSucceeded(result);
 
-    // Execute the plan
-    move_group_interface_.execute(hit_plan);
-    // Set the result
-    marimbabot_msgs::HitSequenceResult result;
-    result.success = true;
-    action_server_.setSucceeded(result);
+    } catch (PlanFailedException& e) {
+        ROS_ERROR_STREAM("Hit sequence planning failed: " << e.what());
+        marimbabot_msgs::HitSequenceResult result;
+        result.success = false;
+        result.error_code = marimbabot_msgs::HitSequenceResult::PLANNING_FAILED;
+        action_server_.setAborted(result);
+    }
+    last_action_time_ = ros::Time::now();
 }
 
 } // namespace marimbabot_planning
@@ -241,7 +270,7 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
 int main(int argc, char **argv)
 {
     ros::init(argc, argv, "marimba_move");
-    ros::AsyncSpinner spinner(1);
+    ros::AsyncSpinner spinner(4);
     spinner.start();
 
     marimbabot_planning::Planning planning{"arm"};

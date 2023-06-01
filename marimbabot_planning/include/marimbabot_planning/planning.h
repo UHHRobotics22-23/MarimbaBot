@@ -38,6 +38,14 @@ class Planning
         // Create a trajectory publisher
         ros::Publisher trajectory_publisher_ = nh_.advertise<moveit_msgs::DisplayTrajectory>("/move_group/display_planned_path", 1, true);
 
+        // Last action time
+        ros::Time last_action_time_;
+
+        /**
+         * @brief Move the robot to its idle/home position
+         * 
+        */
+        void go_to_home_position();
 
         /**
          * @brief Calculate a plan so that the mallet (end effector) is at a given point in cartesian space
@@ -45,7 +53,7 @@ class Planning
          * @param  start_state
          * @param  goal_point
          * @return moveit::planning_interface::MoveGroupInterface::Plan
-         * @throws std::runtime_error
+         * @throws PlanFailedException, IKFailedException
          **/
         moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
             const moveit_msgs::RobotState& start_state,
