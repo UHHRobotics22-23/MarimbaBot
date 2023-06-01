@@ -1,5 +1,4 @@
 #include <ros/ros.h>
-
 #include <controller_manager/controller_manager.h>
 #include "marimbabot_hardware/servo_interface.hpp"
 
@@ -8,16 +7,16 @@ int main(int argc, char **argv) {
 
     // Get device parameters from parameter server
     ros::NodeHandle node_handle { "~" };
-    int port;
-    std::string address;
+    int baud;
+    std::string device;
     int top_limit;
     int bottom_limit;
-    node_handle.param("address", address, std::string("192.168.42.1"));
-    node_handle.param("port", port, 8888);
+    node_handle.param("device", device, std::string("/dev/ttyUSB0"));
+    node_handle.param("baud", baud, 115200);
 
-    ROS_INFO("Starting hardware control node for device %s", address.c_str());
+    ROS_INFO("Starting hardware control node for device %s", device.c_str());
 
-    ServoInterface servo_interface(node_handle, address, port);
+    ServoInterface servo_interface(node_handle, device, baud);
     controller_manager::ControllerManager controller_manager(&servo_interface);
 
     ros::AsyncSpinner spinner(1);
