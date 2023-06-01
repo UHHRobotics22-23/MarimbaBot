@@ -12,24 +12,52 @@
   </include>
 
   <!-- send robot urdf to param server, we have some Gazebo modifications here...  -->
-  <include file="$(find marimbabot_description)/launch/marimbabot_ur5_upload.launch" />
+  <include file="$(find marimbabot_description)/launch/load_robot_description.launch" />
+
+  <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" 
+   args="-urdf -param robot_description -model robot 
+         -J ur5_shoulder_lift_joint -1.571 -J ur5_shoulder_pan_joint 0.0 -J ur5_elbow_joint 0.0
+         -J ur5_wrist_1_joint -1.571 -J ur5_wrist_2_joint 0.0 -J ur5_wrist_3_joint 0.0" 
+   respawn="false" output="screen" />
 
   <!-- spawn robot in gazebo with start position "home" (=upright) -->
-  <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" 
-        args="-urdf -param robot_description -model robot 
-               -J ur5_shoulder_lift_joint -1.571 -J ur5_shoulder_pan_joint 0.0 -J ur5_elbow_joint 0.0
-               -J ur5_wrist_1_joint -1.571 -J ur5_wrist_2_joint 0.0 -J ur5_wrist_3_joint 0.0" 
-        respawn="false" output="screen" />
+  <group ns="marimba">
+      
+      <!-- spawn marimba -->
+      <node name="spawn_gazebo_marimba" pkg="gazebo_ros" type="spawn_model" 
+            args="-urdf -param /marimba_description -model marimba" 
+            respawn="false" output="screen" />
 
+     <node pkg="robot_state_publisher" type="robot_state_publisher" name="marimba_state_publisher">
+      <param name="publish_frequency" type="double" value="100.0" />
+      <param name="tf_prefix" type="string" value="" />
+      <remap from="robot_description" to="marimba_description"/>
+     </node>
+
+    <node pkg="tf" type="static_transform_publisher" name="marimba" args="1.25 0.8 0.9 3.1415 0 0 world marimba 10"/>
+
+  </group>
+
+
+  <!-- ur5 joint controller -->
   <rosparam file="$(find marimbabot_ur5_moveit_config)/config/joint_state_controller.yaml" command="load"/>
   
   <node name="joint_state_controller_spawner" pkg="controller_manager" type="spawner" 
         args="joint_state_controller" respawn="false" output="screen"/>
 
+  <!-- marimba joint controller -->
+  <rosparam file="$(find marimbabot_ur5_moveit_config)/config/marimba_joint_state_controller.yaml" command="load"/>
+  
+  <node name="marimba_joint_state_controller_spawner" pkg="controller_manager" type="spawner" 
+        args="marimba/joint_state_controller" respawn="false" output="screen"/>
+
+
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
     <param name="publish_frequency" type="double" value="100.0" />
     <param name="tf_prefix" type="string" value="" />
   </node>
+
+
 
   <!-- arm controller, actually called "/pos_joint_traj_controller" -->
   <rosparam file="$(find marimbabot_ur5_moveit_config)/config/arm_controller_ur5.yaml" command="load"/>
@@ -58,6 +86,6 @@
 
   <group if="$(arg launch_rviz)">
    <node name="rviz" pkg="rviz" type="rviz" respawn="false"
-         args="-d $(find tams_ur5_gazebo)/config/tams_ur5_gazebo.rviz"  />
+         args="-d $(find marimbabot_ur5_moveit_config)/config/marimba_robotmodel.rviz"  />
   </group>
 </launch>

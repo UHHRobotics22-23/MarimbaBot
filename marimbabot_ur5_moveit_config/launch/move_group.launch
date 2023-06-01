@@ -25,21 +25,6 @@
 
   <arg name="capabilities" default=""/>
   <arg name="disable_capabilities" default=""/>
-  <!-- load these non-default MoveGroup capabilities (space seperated) -->
-  <!--
-  <arg name="capabilities" value="
-                a_package/AwsomeMotionPlanningCapability
-                another_package/GraspPlanningPipeline
-                " />
-  -->
-
-  <!-- inhibit these default MoveGroup capabilities (space seperated) -->
-  <!--
-  <arg name="disable_capabilities" value="
-                move_group/MoveGroupKinematicsService
-                move_group/ClearOctomapService
-                " />
-  -->
 
   <arg name="load_robot_description" default="false" />
   <!-- load URDF, SRDF -->
@@ -102,8 +87,4 @@
     <param name="planning_scene_monitor/publish_transforms_updates" value="$(arg publish_monitored_planning_scene)" />
   </node>
 
-  <include file="$(dirname)/default_warehouse_db.launch" if="$(arg db)">
-    <arg name="moveit_warehouse_database_path" value="$(arg db_path)"/>
-  </include>
-  <node name="moveit_ros_warehouse_services" pkg="moveit_ros_warehouse" type="moveit_warehouse_services" />
 </launch>

@@ -17,8 +17,6 @@
   <xacro:include filename="$(find tams_ur5_description)/urdf/s_model_adapter.urdf.xacro" />
   <xacro:include filename="$(find tams_ur5_description)/urdf/plug_collision_model.urdf.xacro" />
 
-  <xacro:include filename="$(find marimbabot_description)/urdf/marimba.urdf.xacro" />
-
   <xacro:ur5_robot prefix="ur5_" joint_limited="false" xamla_cap="true" />
 
   <!-- ft_adapter -->
@@ -121,11 +119,11 @@
     <origin xyz="0 0 0.003" rpy="0.0 0.0 ${pi/2}" />
   </joint>
 
-  <joint name="world_marimba_joint" type="fixed">
+  <!-- <joint name="world_marimba_joint" type="fixed">
     <parent link="world" />
     <child link = "marimba" />
     <origin xyz="1.25 0.8 0.9" rpy="0.0 0.0 ${pi}" />
-  </joint>
+  </joint> -->
 
   <xacro:if value="$(arg include_mallet)">
     <xacro:include filename="$(find marimbabot_description)/urdf/static_mallet_holder.urdf" />

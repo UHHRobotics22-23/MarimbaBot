@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot name="two_mallet_holder">
-    <link name="mallet_top">
+    <link name="mallet_head">
         <collision>
             <origin xyz="0.0 0.0 0.013625" rpy="0.0 0.0 0.0"/>
             <!-- 0.018375 -->

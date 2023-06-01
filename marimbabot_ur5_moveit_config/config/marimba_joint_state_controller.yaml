@@ -1,0 +1,7 @@
+# configure gazebo to publish /joint_states for all active joints.
+# fnh: For very fast motions, you might want to increase the rate here...
+#
+marimba/joint_state_controller:
+    type: joint_state_controller/JointStateController
+    publish_rate: 100
+

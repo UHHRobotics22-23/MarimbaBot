@@ -24,6 +24,16 @@
             </geometry>
         </collision>
     </link>
+    <gazebo reference="mallet_head" >
+        <turnGravityOff>false</turnGravityOff>
+        <selfCollide>true</selfCollide>
+        <!-- TODO material -->
+        <!-- <material>chordophones/OakWood</material> -->
+        <mu1>50.0</mu1>
+        <mu2>50.0</mu2>
+        <kp>1000000.0</kp>
+        <kd>1.0</kd>
+    </gazebo>
 
     <link name="mallet_neck">
         <inertial>
@@ -47,6 +57,16 @@
             </geometry>
         </collision>
     </link>
+    <gazebo reference="mallet_neck" >
+        <turnGravityOff>false</turnGravityOff>
+        <selfCollide>true</selfCollide>
+        <!-- TODO material -->
+        <!-- <material>chordophones/OakWood</material> -->
+        <mu1>50.0</mu1>
+        <mu2>50.0</mu2>
+        <kp>1000000.0</kp>
+        <kd>1.0</kd>
+    </gazebo>
 
     <link name="mallet_base_link">
         <inertial>
@@ -70,6 +90,16 @@
             </geometry>
         </collision>
     </link>
+    <gazebo reference="mallet_base_link" >
+        <turnGravityOff>false</turnGravityOff>
+        <selfCollide>true</selfCollide>
+        <!-- TODO material -->
+        <!-- <material>chordophones/OakWood</material> -->
+        <mu1>50.0</mu1>
+        <mu2>50.0</mu2>
+        <kp>1000000.0</kp>
+        <kd>1.0</kd>
+    </gazebo>
 
     <joint name="group_1_start_link" type="fixed">
         <parent link="mallet_base_link"/>

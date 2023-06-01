@@ -11,4 +11,6 @@
   <param name="robot_description" command="$(find xacro)/xacro '$(find marimbabot_description)/urdf/marimbabot_ur5.urdf.xacro'
     joint_ranges_config:=$(arg joint_ranges_config)
     transmission_hw_interface:=$(arg transmission_hw_interface)" />
+  
+  <param name="marimba_description" command="$(find xacro)/xacro '$(find marimbabot_description)/urdf/marimba_standalone.urdf.xacro'" />
 </launch>
