@@ -249,11 +249,20 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
         trajectory_publisher_.publish(display_trajectory);
 
         // Execute the plan
-        move_group_interface_.execute(hit_plan);
-        // Set the result
+        auto status = move_group_interface_.execute(hit_plan);
+
+        // Set the result of the action server
+        if (status != moveit::planning_interface::MoveItErrorCode::SUCCESS) {
+            ROS_ERROR_STREAM("Hit sequence execution failed: " << status);
+            marimbabot_msgs::HitSequenceResult result;
+            result.success = false;
+            result.error_code = marimbabot_msgs::HitSequenceResult::EXECUTION_FAILED;
+            action_server_.setAborted(result);
+        } else {
         marimbabot_msgs::HitSequenceResult result;
         result.success = true;
         action_server_.setSucceeded(result);
+        }
 
     } catch (PlanFailedException& e) {
         ROS_ERROR_STREAM("Hit sequence planning failed: " << e.what());
@@ -262,6 +271,8 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
         result.error_code = marimbabot_msgs::HitSequenceResult::PLANNING_FAILED;
         action_server_.setAborted(result);
     }
+
+    // Reset last action time so we move back to the home position after a while
     last_action_time_ = ros::Time::now();
 }
 
