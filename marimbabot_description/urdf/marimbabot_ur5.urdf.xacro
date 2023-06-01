@@ -63,7 +63,7 @@
       <robotNamespace>/</robotNamespace> 
       <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
       <legacyModeNS>true</legacyModeNS>
-      <updateRate>100.0</updateRate>
+      <updateRate>1000.0</updateRate>
     </plugin>
   </gazebo>
 

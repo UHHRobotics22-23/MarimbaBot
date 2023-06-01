@@ -101,7 +101,7 @@ Changelog:
 <xacro:macro name="bar" params="note parent id pos length" >
     <gazebo reference="bar_${note}" >
         <turnGravityOff>false</turnGravityOff>
-        <selfCollide>false</selfCollide>
+        <selfCollide>true</selfCollide>
         <!-- TODO material -->
         <!-- <material>chordophones/OakWood</material> -->
         <mu1>50.0</mu1>
@@ -165,7 +165,7 @@ Changelog:
 
     <gazebo reference="${name}" >
         <turnGravityOff>false</turnGravityOff>
-        <selfCollide>false</selfCollide>
+        <selfCollide>true</selfCollide>
         <!-- TODO material -->
         <!--<material>Gazebo/Green</material>-->
         <mu1>50.0</mu1>
@@ -179,7 +179,7 @@ Changelog:
 
     <gazebo reference="body_bottom">
         <turnGravityOff>false</turnGravityOff>
-        <selfCollide>false</selfCollide>
+        <selfCollide>true</selfCollide>
         <!-- TODO material -->
         <!-- <material>chordophones/OakWood</material> -->
         <mu1>50.0</mu1>
@@ -219,7 +219,7 @@ Changelog:
 
     <gazebo reference="body_top">
         <turnGravityOff>false</turnGravityOff>
-        <selfCollide>false</selfCollide>
+        <selfCollide>true</selfCollide>
         <!-- TODO material -->
         <!-- <material>chordophones/OakWood</material> -->
         <mu1>50.0</mu1>
@@ -259,7 +259,7 @@ Changelog:
 
     <gazebo reference="body_left">
         <turnGravityOff>false</turnGravityOff>
-        <selfCollide>false</selfCollide>
+        <selfCollide>true</selfCollide>
         <!-- TODO material -->
         <!-- <material>chordophones/OakWood</material> -->
         <mu1>50.0</mu1>
@@ -299,7 +299,7 @@ Changelog:
 
     <gazebo reference="body_right">
         <turnGravityOff>false</turnGravityOff>
-        <selfCollide>false</selfCollide>
+        <selfCollide>true</selfCollide>
         <!-- TODO material -->
         <!-- <material>chordophones/OakWood</material> -->
         <mu1>50.0</mu1>
