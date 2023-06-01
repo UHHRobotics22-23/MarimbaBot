@@ -54,6 +54,7 @@ DIRECTORY
     FILES
         Command.msg
         Speech.msg
+        TmpFile.msg
 )
 
 ## Generate services in the 'srv' folder

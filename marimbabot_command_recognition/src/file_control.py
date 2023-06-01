@@ -1,22 +1,39 @@
 import wave
 import os
+
+
 class WAVFile:
 	def __init__(self):
 		self.tmp_folder = "/tmp/"
 		self.sample_rate = 16000
 		self.channels = 1
 		self.sample_width = 2
-		self.cache_size_limit = 20
-		self.last_file_id = 0
+		self.cache_size_limit = 10
 
-	def get_last_file_path(self):
-		return self.file_id2path(self.last_file_id)
-
+	# get path from file id
 	def file_id2path(self, file_id):
 		return os.path.join(self.tmp_folder, f"tmp_audio_file_{file_id:04d}.wav")
 
+	# get file id from path
 	def path2file_id(self, path):
 		return int(path.split("_")[-1].split(".")[0])
+
+	# get all ids from tmp folder
+	def get_all_ids(self):
+		ids = []
+		for file in os.listdir(self.tmp_folder):
+			if 'tmp_audio_file_' in file:
+				ids.append(self.path2file_id(file))
+		ids.sort()
+		return ids
+
+	# get last file id
+	def get_last_file_id(self):
+		ids = self.get_all_ids()
+		if len(ids) > 0:
+			return ids[-1]
+		else:
+			return None
 
 	# save audio to file
 	def save_audio(self, audio, file_id):
@@ -26,7 +43,7 @@ class WAVFile:
 
 	# write audio with wave module
 	def write_audio(self, path, audio):
-		self.remove_cache()
+		self.clean_cache()
 		with wave.open(path, "wb") as f:
 			f.setnchannels(self.channels)
 			f.setsampwidth(self.sample_width)
@@ -44,16 +61,15 @@ class WAVFile:
 			f.close()
 			return frames
 
-	def remove_cache(self):
-		# remove old cache
-		tmp_files = []
-		ids = []
-		for file in os.listdir(self.tmp_folder):
-			if 'tmp_audio_file_' in file:
-				tmp_files.append(os.path.join(self.tmp_folder, file))
-				ids.append(self.path2file_id(file))
-		ids.sort()
-		self.last_file_id = ids[-1]
+	def clean_cache(self):
+		# remove old cache when cache size is over limit
+		ids = self.get_all_ids()
 		if len(ids) > self.cache_size_limit:
 			for i in range(len(ids) - self.cache_size_limit):
-				os.remove(tmp_files[i])
+				os.remove(self.file_id2path(ids[i]))
+
+	# remove all files from tmp folder
+	def remove_all_cache(self):
+		for file in os.listdir(self.tmp_folder):
+			if 'tmp_audio_file_' in file:
+				os.remove(os.path.join(self.tmp_folder, file))

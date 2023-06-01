@@ -3,15 +3,30 @@ import whisper
 from file_control import WAVFile
 from marimbabot_command_recognition.msg import Command as CommandMsg
 from marimbabot_command_recognition.msg import Speech as SpeechMsg
+from marimbabot_command_recognition.msg import TmpFile as TmpFileMsg
 
 class SpeechRecognition:
 	def __init__(self):
-		self.model = whisper.load_model('')
+		# 'tiny.en', 'tiny', 'base.en', 'base', 'small.en', 'small', 'medium.en', 'medium', 'large-v1', 'large-v2', 'large'
+		self.model = whisper.load_model('medium.en')
 		self.file_controller = WAVFile()
-		self.pub = rospy.Publisher('/speech', SpeechMsg, queue_size=10)
+		self.speech_pub = rospy.Publisher('/speech', SpeechMsg, queue_size=100, tcp_nodelay=True)
+		self.tmp_sub = rospy.Subscriber('/audio_tmp', TmpFileMsg, self.tmp_callback, queue_size=10, tcp_nodelay=True)
+		self.recognize_freq = 1  # Hz
+		self.recognize_rate = rospy.Rate(self.recognize_freq)
 
-	def recognize(self):
-		file_path = self.file_controller.get_last_file_path()
+	def tmp_callback(self, tmp_file_msg):
+		file_path = tmp_file_msg.file_path
+		rospy.logdebug(f"receive tmp file: {file_path}")
+		text = self.recognize(file_path)
+		rospy.logdebug(f"publish speech: {text}")
+		speech_msg = SpeechMsg()
+		speech_msg.speech = text
+		speech_msg.sentence_id = tmp_file_msg.sentence_id
+		self.speech_pub.publish(speech_msg)
+
+
+	def recognize(self, file_path:str):
 		# load audio and pad/trim it to fit 30 seconds
 		audio = whisper.load_audio(file_path)
 		audio = whisper.pad_or_trim(audio)
@@ -20,11 +35,18 @@ class SpeechRecognition:
 		mel = whisper.log_mel_spectrogram(audio).to(self.model.device)
 
 		# detect the spoken language
-		_, probs = self.model.detect_language(mel)
-		print(f"Detected language: {max(probs, key=probs.get)}")
+		# _, probs = self.model.detect_language(mel)
+		# print(f"Detected language: {max(probs, key=probs.get)}")
 
 		# decode the audio
-		options = whisper.DecodingOptions(language='en')
+		options = whisper.DecodingOptions(fp16=False, language='en')
 		result = whisper.decode(self.model, mel, options)
-		rospy.logdebug(f"detected text: {result.text}")
 		return result.text
+
+	def run(self):
+		rospy.spin()
+
+if __name__ == '__main__':
+	rospy.init_node('speech_recognition', log_level=rospy.DEBUG)
+	speech_recognition = SpeechRecognition()
+	speech_recognition.run()
