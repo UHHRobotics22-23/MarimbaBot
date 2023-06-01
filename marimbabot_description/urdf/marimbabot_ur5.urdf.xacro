@@ -154,7 +154,7 @@
       </joint>
     </xacro:if>
 
-    <xacro:if value="${mallet_holder_type_param == 'double_flex'}">
+    <xacro:if value="${mallet_holder_type_param == 'flex_double'}">
       <xacro:include filename="$(find marimbabot_description)/urdf/two_mallet_compliance_holder.urdf.xacro" />
 
       <joint name="end_mallet" type="fixed">

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="mallet_holder_type" default="static" doc="Type of mallet holder: static, flex or double_flex" />
+  <arg name="mallet_holder_type" default="static" doc="Type of mallet holder: static, flex or flex_double" />
   <include file="$(dirname)/load_robot_description.launch">
     <arg name="mallet_holder_type" value="$(arg mallet_holder_type)" />
   </include>

@@ -24,7 +24,7 @@ roslaunch marimbabot_description marimba_display.launch
 when running the marimbabot ur5 launch file, a parameter for the mallet mount can be specified. By default this remains the fixed mount for now  
 - fixed - the standard one mallet fixed mount
 - flex - the one mallet flexible mount
-- double_flex - the two mallet flexible mount with the integrated servo
+- flex_double - the two mallet flexible mount with the integrated servo
 ```bash
-roslaunch marimbabot_description marimbobot_ur5_display.launch mallet_holder_type:="double_flex"
+roslaunch marimbabot_description marimbobot_ur5_display.launch mallet_holder_type:="flex_double"
 ```
