@@ -20,7 +20,7 @@
         </collision>
     </link>
 
-    <link name="connector_plate">
+    <link name="mallet_connector_plate">
         <collision> 
            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
            <geometry>
@@ -29,7 +29,7 @@
        </collision>
     </link>
 
-    <link name="base_link">
+    <link name="mallet_base_link">
         <visual>
             <origin xyz="0.0 0.0 0.057" rpy="0.0 -1.570796326 0.0"/>
             <geometry>
@@ -49,7 +49,7 @@
     </link>
 
     <joint name="group_1_start_link" type="fixed">
-        <parent link="base_link"/>
+        <parent link="mallet_base_link"/>
         <child link="mallet_neck"/>
         <origin xyz="0.0 0.0 0.015"/>
     </joint>
@@ -61,8 +61,8 @@
     </joint>
 
     <joint name="group_1_connector_plate_link" type="fixed">
-        <parent link="connector_plate"/>
-        <child link="base_link"/>
+        <parent link="mallet_connector_plate"/>
+        <child link="mallet_base_link"/>
         <origin xyz="0.0 0.0 -0.0059"/>
     </joint>
  

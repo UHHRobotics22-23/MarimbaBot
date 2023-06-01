@@ -3,6 +3,12 @@
        name="marimbabot_ur5" > 
   
   <xacro:arg name="include_mallet" default="true" />
+  <!-- Choose the mallet holding assembly -->
+  <!-- Use 'static' for one mallet static holder -->
+  <!-- Use 'flex' for a flexible one mallet holder -->
+  <!-- Use 'flex_double' for the movable two mallet assembly with the flex holders -->
+  <xacro:arg name="mallet_holder_type" default="static" />
+  <xacro:property name="mallet_holder_type_param" value="$(arg mallet_holder_type)" />
 
   <!-- tams corner -->
   <xacro:include filename="$(find tams_ur5_setup_description)/urdf/tams_corner.urdf.xacro">
@@ -128,13 +134,36 @@
   </joint>
 
   <xacro:if value="$(arg include_mallet)">
-    <xacro:include filename="$(find marimbabot_description)/urdf/static_mallet_holder.urdf" />
+    <xacro:if value="${mallet_holder_type_param == 'static'}">
+      <xacro:include filename="$(find marimbabot_description)/urdf/static_mallet_holder.urdf" />
 
-    <joint name="end_mallet" type="fixed">
-      <parent link="s_model_palm" />
-      <child link = "mallet_base_link" />
-      <origin xyz="0.0 0.0 0.0" rpy="${-pi/2} 0.0 0.0" />
-    </joint>
+      <joint name="end_mallet" type="fixed">
+        <parent link="s_model_palm" />
+        <child link = "mallet_base_link" />
+        <origin xyz="0.0 0.0 0.0" rpy="${-pi/2} 0.0 0.0" />
+      </joint>
+    </xacro:if>
+
+    <xacro:if value="${mallet_holder_type_param == 'flex'}">
+      <xacro:include filename="$(find marimbabot_description)/urdf/flex_mallet_holder.urdf" />
+
+      <joint name="end_mallet" type="fixed">
+        <parent link="s_model_palm" />
+        <child link = "mallet_connector_plate" />
+        <origin xyz="0.0 ${(90/2+12)/1000} 0.0" rpy="${-pi/2} ${pi/2} 0.0" />
+      </joint>
+    </xacro:if>
+
+    <xacro:if value="${mallet_holder_type_param == 'flex_double'}">
+      <xacro:include filename="$(find marimbabot_description)/urdf/two_mallet_compliance_holder.urdf.xacro" />
+
+      <joint name="end_mallet" type="fixed">
+        <parent link="s_model_palm" />
+        <child link = "mallet_base_link" />
+        <origin xyz="0.0 ${(80+11)/1000} ${(-45)/1000}" rpy="0.0 0.0 ${pi}" />
+      </joint>
+    </xacro:if>
+    
   </xacro:if>
 
 

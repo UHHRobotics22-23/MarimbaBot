@@ -2,21 +2,22 @@ cmake_minimum_required(VERSION 3.0.2)
 project(marimbabot_planning)
 
 find_package(catkin REQUIRED COMPONENTS
+  actionlib_msgs
   bio_ik
   geometry_msgs
+  marimbabot_msgs
   moveit_msgs
   moveit_ros_planning_interface
   roscpp
+  std_msgs
   tf2_eigen
   tf2_geometry_msgs
   tf2_ros
   trajectory_msgs
 )
 
-find_package(Boost REQUIRED)
-
 catkin_package(
-  INCLUDE_DIRS include
+  CATKIN_DEPENDS actionlib_msgs
 )
 
 include_directories(
@@ -25,8 +26,8 @@ include_directories(
 )
 
 set(SOURCES
-    src/lilypond_to_hitpoint.cpp
     src/planning.cpp
+    src/utils.cpp
 )
 
 add_executable(planning ${SOURCES})
