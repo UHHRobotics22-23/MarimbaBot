@@ -221,8 +221,6 @@ if __name__ == "__main__":
                                                 include_repeat=args.repeats, include_slurs=args.slurs, min_duration=args.min_duration)
     print(args.output_dir)
 
-    generate_sample(0, args)
-
     # Call generate_sample on ids with tqdm and multiprocessing (lilypond is single threaded)
     with Pool(args.num_worker) as pool:
         list(tqdm.tqdm(pool.imap(partial(generate_sample, args=args), range(args.num_samples)), total=args.num_samples))
