@@ -1,7 +1,11 @@
 <?xml version="1.0"?>
 <launch>
-    <include file="$(find marimbabot_description)/launch/load_robot_description.launch"/>
 
+    <arg name="mallet_holder_type" default="static"/>
+
+    <include file="$(find marimbabot_description)/launch/load_robot_description.launch">
+        <arg name="mallet_holder_type" value="$(arg mallet_holder_type)"/>
+    </include>
     <include file="$(find ur_robot_driver)/launch/ur_control.launch">
         <arg name="headless_mode" value="true"/>
         <arg name="tf_prefix" value="ur5_"/>
