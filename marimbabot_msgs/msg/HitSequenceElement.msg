@@ -1,5 +1,5 @@
 # This is a ROS message definition file.
-# 1. tone name (e.g. E#) -> String
+# 1. tone name (e.g. Es) -> String
 # 2. octave number (e.g. 4) -> int
 # 3. starting time point in seconds (e.g. 0.0 for the first note) -> ros::Time (int)
 # 4. tone duration in seconds (e.g. 0.5 for a quarter note and 120 bpm) -> ros::Duration
