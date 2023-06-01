@@ -259,9 +259,9 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
             result.error_code = marimbabot_msgs::HitSequenceResult::EXECUTION_FAILED;
             action_server_.setAborted(result);
         } else {
-        marimbabot_msgs::HitSequenceResult result;
-        result.success = true;
-        action_server_.setSucceeded(result);
+            marimbabot_msgs::HitSequenceResult result;
+            result.success = true;
+            action_server_.setSucceeded(result);
         }
 
     } catch (PlanFailedException& e) {
