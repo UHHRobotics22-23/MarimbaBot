@@ -1,9 +1,10 @@
-import webrtcvad
 import rospy
 from audio_common_msgs.msg import AudioDataStamped
 from marimbabot_command_recognition.msg import TmpFile as TmpFileMsg
+from utils.file_control import WAVFile
+import webrtcvad
 
-from file_control import WAVFile
+# TODO: call the recognition for each 1 sec audio
 
 class Audio2FileNode:
 	def __init__(self):
@@ -25,11 +26,12 @@ class Audio2FileNode:
 			tcp_nodelay=True
 		)
 
-		self.vad = webrtcvad.Vad(3)  # 0: min/off, 1: low, 2: mid, 3: high
+		# set the aggressiveness of webrtcvad
+		self.vad = webrtcvad.Vad(3)  # 0: min/off, 1: low, 2: mid, 3: high (default)
 		self.audio_files = WAVFile()
 		self.sample_rate = self.audio_files.sample_rate
 		self.silence_count = 0
-		self.freq = 100  # Hz of ros pubiliching rate for tpoic /audio_stamped
+		self.topic_freq = 100  # Hz of ros publishing rate for topic /audio_stamped
 		self.silence_limit = 1  # sec
 		self.file_id = 0
 		self.buffer_limit = 60  # sec
@@ -57,7 +59,7 @@ class Audio2FileNode:
 		# self.wav_file.save_audio(audio_data, self.file_id)
 		self.buffer_count += 1
 		# start new sentence if buffer is full
-		if self.buffer_count > self.buffer_limit * self.freq:
+		if self.buffer_count > self.buffer_limit * self.topic_freq:
 			rospy.logdebug(f"buffer full, save and start new sentence")
 			self.save_and_start_new_sentence()
 		else:
@@ -69,7 +71,7 @@ class Audio2FileNode:
 				self.silence_count += 1
 				# if len(self.buffer) > 0:
 				# 	self.buffer += audio_data
-				if self.silence_count > self.silence_limit * self.freq:
+				if self.silence_count > self.silence_limit * self.topic_freq:
 					self.save_and_start_new_sentence()
 
 	def run(self):
@@ -79,7 +81,7 @@ class Audio2FileNode:
 		return self.vad.is_speech(audio, self.sample_rate)
 
 if __name__ == '__main__':
-	rospy.init_node('audio2file', log_level=rospy.DEBUG)
+	rospy.init_node('audio2file', log_level=rospy.INFO)
 	audio2file = Audio2FileNode()
 	rospy.logdebug(f"audio2file node started")
 	audio2file.run()

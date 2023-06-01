@@ -1,7 +1,6 @@
 import rospy
 import whisper
-from file_control import WAVFile
-from marimbabot_command_recognition.msg import Command as CommandMsg
+from utils.file_control import WAVFile
 from marimbabot_command_recognition.msg import Speech as SpeechMsg
 from marimbabot_command_recognition.msg import TmpFile as TmpFileMsg
 
@@ -47,6 +46,6 @@ class SpeechRecognition:
 		rospy.spin()
 
 if __name__ == '__main__':
-	rospy.init_node('speech_recognition', log_level=rospy.DEBUG)
+	rospy.init_node('speech_recognition', log_level=rospy.INFO)
 	speech_recognition = SpeechRecognition()
 	speech_recognition.run()

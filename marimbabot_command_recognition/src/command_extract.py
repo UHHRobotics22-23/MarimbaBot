@@ -2,7 +2,6 @@ from marimbabot_command_recognition.msg import Command as CommandMsg
 from marimbabot_command_recognition.msg import Speech as SpeechMsg
 import rospy
 
-
 class CommandExtract:
 	def __init__(self):
 		self.command_pub = rospy.Publisher('/command', CommandMsg, queue_size=100, tcp_nodelay=True)

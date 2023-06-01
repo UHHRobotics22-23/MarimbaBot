@@ -20,3 +20,6 @@ transformers[sentencepiece]==4.26.0
 catkin_pkg==0.5.2
 empy==3.3.4
 rospkg==1.5.0
+openai-whisper==20230314
+webrtcvad==2.0.10
+wave==0.0.2

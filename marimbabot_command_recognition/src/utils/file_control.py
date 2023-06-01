@@ -1,7 +1,6 @@
 import wave
 import os
 
-
 class WAVFile:
 	def __init__(self):
 		self.tmp_folder = "/tmp/"
