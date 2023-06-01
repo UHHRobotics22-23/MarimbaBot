@@ -11,7 +11,7 @@ class SpeechRecognition:
 		self.file_controller = WAVFile()
 		self.speech_pub = rospy.Publisher('/speech', SpeechMsg, queue_size=100, tcp_nodelay=True)
 		self.tmp_sub = rospy.Subscriber('/audio_tmp', TmpFileMsg, self.tmp_callback, queue_size=10, tcp_nodelay=True)
-		self.recognize_freq = 1  # Hz
+		self.recognize_freq = 2  # Hz
 		self.recognize_rate = rospy.Rate(self.recognize_freq)
 
 	def tmp_callback(self, tmp_file_msg):
@@ -22,6 +22,7 @@ class SpeechRecognition:
 		speech_msg = SpeechMsg()
 		speech_msg.speech = text
 		speech_msg.sentence_id = tmp_file_msg.sentence_id
+		speech_msg.is_finished = tmp_file_msg.is_finished
 		self.speech_pub.publish(speech_msg)
 
 
@@ -32,10 +33,6 @@ class SpeechRecognition:
 
 		# make log-Mel spectrogram and move to the same device as the model
 		mel = whisper.log_mel_spectrogram(audio).to(self.model.device)
-
-		# detect the spoken language
-		# _, probs = self.model.detect_language(mel)
-		# print(f"Detected language: {max(probs, key=probs.get)}")
 
 		# decode the audio
 		options = whisper.DecodingOptions(fp16=False, language='en')

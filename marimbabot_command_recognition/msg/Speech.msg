@@ -4,4 +4,5 @@ int32 sentence_id
 
 string speech
 
+bool is_finished
 

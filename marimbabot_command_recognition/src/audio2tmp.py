@@ -4,7 +4,6 @@ from marimbabot_command_recognition.msg import TmpFile as TmpFileMsg
 from utils.file_control import WAVFile
 import webrtcvad
 
-# TODO: call the recognition for each 1 sec audio
 
 class Audio2FileNode:
 	def __init__(self):
@@ -32,6 +31,7 @@ class Audio2FileNode:
 		self.sample_rate = self.audio_files.sample_rate
 		self.silence_count = 0
 		self.topic_freq = 100  # Hz of ros publishing rate for topic /audio_stamped
+		self.detect_freq = 1  # Hz of detection rate
 		self.silence_limit = 1  # sec
 		self.file_id = 0
 		self.buffer_limit = 60  # sec
@@ -43,14 +43,18 @@ class Audio2FileNode:
 		self.buffer_count = 0
 		self.buffer = b''
 
-	def save_and_start_new_sentence(self):
+	def send2detector(self,is_finished=False):
+		self.wav_file.save_audio(self.buffer, self.file_id)
+		tmp_file_msg = TmpFileMsg()
+		tmp_file_msg.sentence_id = self.file_id
+		tmp_file_msg.is_finished = is_finished
+		tmp_file_msg.file_path = self.wav_file.file_id2path(self.file_id)
+		self.tmp_pub.publish(tmp_file_msg)
+
+	def send_and_start_new_sentence(self):
 		if len(self.buffer) > 0:
 			rospy.logdebug(f"save audio file {self.file_id}")
-			self.wav_file.save_audio(self.buffer, self.file_id)
-			tmp_file_msg = TmpFileMsg()
-			tmp_file_msg.sentence_id = self.file_id
-			tmp_file_msg.file_path = self.wav_file.file_id2path(self.file_id)
-			self.tmp_pub.publish(tmp_file_msg)
+			self.send2detector(is_finished=True)
 			self.file_id += 1
 		self.reset()
 
@@ -61,18 +65,23 @@ class Audio2FileNode:
 		# start new sentence if buffer is full
 		if self.buffer_count > self.buffer_limit * self.topic_freq:
 			rospy.logdebug(f"buffer full, save and start new sentence")
-			self.save_and_start_new_sentence()
+			self.send_and_start_new_sentence()
 		else:
 			# start new sentence if silence is too long
 			if self.vad_is_speech(audio_data):
 				self.buffer += audio_data
 				self.silence_count = 0
+
+				if self.buffer_count % (self.detect_freq * self.topic_freq) == 0 and self.buffer_count > 0:
+					self.send2detector(is_finished=False)
+
 			else:
 				self.silence_count += 1
 				# if len(self.buffer) > 0:
 				# 	self.buffer += audio_data
 				if self.silence_count > self.silence_limit * self.topic_freq:
-					self.save_and_start_new_sentence()
+					self.send_and_start_new_sentence()
+
 
 	def run(self):
 		rospy.spin()
