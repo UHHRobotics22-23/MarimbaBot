@@ -1,8 +1,23 @@
 <?xml version="1.0"?>
 <robot name="static_mallet_holder">
+
     <link name="mallet_head">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.01"/>
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
+        <visual>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <sphere radius="0.018375"/>
+            </geometry>
+            <material name="mallet_head_white">
+                <color rgba="1.0 1.0 1.0 1.0"/>
+            </material>
+        </visual>
         <collision>
-            <origin xyz="0.0 0.0 0.013625" rpy="0.0 0.0 0.0"/>
+            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
             <!-- 0.018375 -->
             <geometry>
                 <sphere radius="0.018375"/>
@@ -11,6 +26,20 @@
     </link>
 
     <link name="mallet_neck">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.001"/>
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
+        <visual>
+            <origin xyz="0.0 0.0 0.1825" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <cylinder radius="0.0042" length="0.375"/>
+            </geometry>
+            <material name="mallet_neck_white">
+                <color rgba="1.0 1.0 1.0 1.0"/>
+            </material>
+        </visual>
         <collision>
             <origin xyz="0.0 0.0 0.1825" rpy="0.0 0.0 0.0"/>
             <geometry>
@@ -20,6 +49,11 @@
     </link>
 
     <link name="mallet_base_link">
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.005"/>
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
         <visual>
             <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
             <geometry>
@@ -46,6 +80,6 @@
     <joint name="group_1_2nd_link" type="fixed">
         <parent link="mallet_neck"/>
         <child link="mallet_head"/>
-        <origin xyz="0.0 0.0 0.365"/>
+        <origin xyz="0.0 0.0 0.378625"/>
     </joint>
 </robot>

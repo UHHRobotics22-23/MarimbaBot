@@ -1,6 +1,8 @@
 <?xml version="1.0" ?>
 <robot name="marimba" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+<xacro:arg name="bars_fixed_joint" default="false" />
+
 <xacro:include filename="$(find marimbabot_description)/urdf/utilities.xacro" />
 <xacro:include filename="$(find marimbabot_description)/urdf/materials.xacro" />
 
@@ -20,10 +22,6 @@ Changelog:
     2023.01.26 Complete model v1
     2023.01.19 Row of keys working
     2023.01.04 First version created
-
-
-TODO:
-    - prismatic joints instead of fixed ones for the bars
 -->
 
 <!-- Number of bars (including "missing" ones in the top row) -->
@@ -92,7 +90,7 @@ TODO:
     ${(top_left_center_x + bottom_left_center_x) / 2}
     ${top_left_center_y - side_offset}
     ${bottom_left_center_z}"
-/>re
+/>
 <xacro:property name="side_right_pos" value="
     ${float(side_left_pos.split()[0])}
     ${float(side_left_pos.split()[1]) + n_bars_bottom * (bar_width + bar_gap) - 1.5 * bar_gap + side_offset}
@@ -132,9 +130,26 @@ TODO:
     </collision>
     </link>
 
-    <xacro:tams_fixedjoint name="bar_${note}/fixedjoint" parent="${parent}" child="bar_${note}" >
-        <origin xyz="${pos}" rpy="0 0 0" />
-    </xacro:tams_fixedjoint>
+    <xacro:if value="$(arg bars_fixed_joint)">
+        <xacro:tams_fixedjoint name="bar_${note}/joint" parent="${parent}" child="bar_${note}" >
+            <origin xyz="${pos}" rpy="0 0 0" />
+        </xacro:tams_fixedjoint>
+    </xacro:if>
+    <xacro:unless value="$(arg bars_fixed_joint)">
+        <xacro:tams_z_joint name="bar_${note}/joint" parent="${parent}" child="bar_${note}" >
+            <origin xyz="${pos}" rpy="0 0 0" />
+        </xacro:tams_z_joint>
+    </xacro:unless>
+
+    <transmission name="bar_${note}/joint_transmission">
+        <type>transmission_interface/SimpleTransmission</type>
+        <joint name="bar_${note}/joint">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        </joint>
+        <actuator name="bar_${note}/joint_motor">
+        <mechanicalReduction>1</mechanicalReduction>
+        </actuator>
+    </transmission>
 </xacro:macro>
 
 
@@ -165,19 +180,6 @@ TODO:
         <mu2>50.0</mu2>
         <kp>1000000.0</kp>
         <kd>1.0</kd>
-    </gazebo>
-
-    <gazebo>
-        <plugin filename="libgazebo_ros_control.so" name="${name}_gazebo_ros_control">
-            <!-- don't add the robotNamespace here unless you really want it -->
-            <!-- <robotNamespace>${name}/</robotNamespace> -->
-            <!-- <robotNamespace>/</robotNamespaside_left_posce> -->
-            <robotParam>robot_description</robotParam>
-            <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
-            <legacyModeNS>true</legacyModeNS>
-            <!-- specify control period, default is to use the physics period -->
-            <!-- <controlPeriod>0.0333</controlPeriod> -->
-        </plugin>
     </gazebo>
 
 
@@ -371,26 +373,26 @@ TODO:
     <!-- Top row of bars -->
     <xacro:property name="body_top_length_diff" value="${bar_length_top_right - bar_length_top_left}" />
 
-    <xacro:bar_in_row note="C#4" parent="body_top" id="0" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
-    <xacro:bar_in_row note="D#4" parent="body_top" id="1" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
+    <xacro:bar_in_row note="Cs4" parent="body_top" id="0" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
+    <xacro:bar_in_row note="Ds4" parent="body_top" id="1" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
     <!-- <xacro:bar_in_row note="" parent="body_top" id="2" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" /> -->
-    <xacro:bar_in_row note="F#4" parent="body_top" id="3" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
-    <xacro:bar_in_row note="G#4" parent="body_top" id="4" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
-    <xacro:bar_in_row note="A#4" parent="body_top" id="5" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
+    <xacro:bar_in_row note="Fs4" parent="body_top" id="3" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
+    <xacro:bar_in_row note="Gs4" parent="body_top" id="4" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
+    <xacro:bar_in_row note="As4" parent="body_top" id="5" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
     <!-- <xacro:bar_in_row note="" parent="body_top" id="6" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" /> -->
-    <xacro:bar_in_row note="C#5" parent="body_top" id="7" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
-    <xacro:bar_in_row note="D#5" parent="body_top" id="8" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
+    <xacro:bar_in_row note="Cs5" parent="body_top" id="7" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
+    <xacro:bar_in_row note="Ds5" parent="body_top" id="8" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
     <!-- <xacro:bar_in_row note="" parent="body_top" id="9" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" /> -->
-    <xacro:bar_in_row note="F#5" parent="body_top" id="10" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
-    <xacro:bar_in_row note="G#5" parent="body_top" id="11" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
-    <xacro:bar_in_row note="A#5" parent="body_top" id="12" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
+    <xacro:bar_in_row note="Fs5" parent="body_top" id="10" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
+    <xacro:bar_in_row note="Gs5" parent="body_top" id="11" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
+    <xacro:bar_in_row note="As5" parent="body_top" id="12" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
     <!-- <xacro:bar_in_rbar_in_rowow note="" parent="body_top" id="13" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" /> -->
-    <xacro:bar_in_row note="C#6" parent="body_top" id="14" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
-    <xacro:bar_in_row note="D#6" parent="body_top" id="15" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
+    <xacro:bar_in_row note="Cs6" parent="body_top" id="14" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
+    <xacro:bar_in_row note="Ds6" parent="body_top" id="15" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
     <!-- <xacro:bar_in_row note="" parent="body_top" id="16" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" /> -->
-    <xacro:bar_in_row note="F#6" parent="body_top" id="17" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
-    <xacro:bar_in_row note="G#6" parent="body_top" id="18" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
-    <xacro:bar_in_row note="A#6" parent="body_top" id="19" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
+    <xacro:bar_in_row note="Fs6" parent="body_top" id="17" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
+    <xacro:bar_in_row note="Gs6" parent="body_top" id="18" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
+    <xacro:bar_in_row note="As6" parent="body_top" id="19" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
 
 </xacro:macro>
 

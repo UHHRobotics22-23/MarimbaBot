@@ -2,15 +2,101 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro"
        name="marimbabot_ur5" > 
   
+  <xacro:arg name="include_mallet" default="true" />
+
   <!-- tams corner -->
   <xacro:include filename="$(find tams_ur5_setup_description)/urdf/tams_corner.urdf.xacro">
-  <!-- <xacro:arg name="floating_table" value="$(arg floating_table)" />-->
-  <!-- the above argument is ignored by xacro! if you want to use this argument, try another way -->
   </xacro:include>
-  <!-- arm -->
-  <xacro:include filename="$(find tams_ur5_description)/urdf/arm.urdf.xacro" />
+
+  <!-- arm plus additions one by one -->  <!-- include macro definitions -->
+  <xacro:include filename="$(find tams_ur5_gazebo)/urdf/ur5_for_gazebo.urdf.xacro" />
+  <xacro:include filename="$(find robotiq_3f_gripper_visualization)/cfg/robotiq-3f-gripper_articulated_macro.xacro"/>
+
+  <xacro:include filename="$(find robotiq_ft_sensor)/urdf/robotiq_fts150.urdf.xacro" />
+  <xacro:include filename="$(find tams_ur5_description)/urdf/ft_adapter.urdf.xacro" />
+  <xacro:include filename="$(find tams_ur5_description)/urdf/s_model_adapter.urdf.xacro" />
+  <xacro:include filename="$(find tams_ur5_description)/urdf/plug_collision_model.urdf.xacro" />
+
   <xacro:include filename="$(find marimbabot_description)/urdf/marimba.urdf.xacro" />
-  <xacro:include filename="$(find marimbabot_description)/urdf/static_mallet_holder.urdf" />
+
+  <xacro:ur5_robot prefix="ur5_" joint_limited="false" xamla_cap="true" />
+
+  <!-- ft_adapter -->
+  <xacro:ft_adapter name="ft_adapter" parent="ur5_ee_link">
+    <origin xyz="0.0045 0.0 0.0" rpy="0.0 ${pi/2} 0.0" />
+  </xacro:ft_adapter>
+
+  <!-- ft150 -->
+  <xacro:robotiq_fts150 prefix="ft_" parent="ur5_ee_link">
+    <origin xyz="0.009 0.0 0.0" rpy="0.0 ${-pi/2} ${pi}" />
+  </xacro:robotiq_fts150>
+
+  <!-- tool0 frame -->
+  <link name="tool0" />
+  <joint name="ft_fts_toolside_tool0" type="fixed">
+    <parent link="ft_fts_toolside"/>
+    <child link="tool0"/>
+    <origin xyz="0.0 0.0 0.0205" rpy="0.0 ${-pi/2} 0.0"/>
+  </joint>
+
+  <!-- s_model_adapter -->
+  <xacro:s_model_adapter name="s_model_adapter" parent="ft_fts_toolside">
+    <origin xyz="0.0 0.0 0.015" rpy="0.0 0.0 0.0" />
+  </xacro:s_model_adapter>
+
+  <!-- the adaptive gripper -->
+  <xacro:robotiq-3f-gripper_articulated prefix="s_model_"/>
+  <joint name="gripper_joint" type="fixed">
+    <parent link="tool0" />
+    <child link = "s_model_palm" />
+    <origin xyz="0.057 0.0 0.0" rpy="0.0 ${pi} ${-pi/2}" />
+  </joint>
+
+  <!-- plug collision model -->
+  <xacro:plug_collision_model name="plug_collision_model" parent="ur5_ee_link" >
+    <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" />
+  </xacro:plug_collision_model>
+
+  <!-- we want Gazebo to publish joint_states for all configured joints -->
+  <gazebo>
+    <plugin filename="libgazebo_ros_control.so" name="tams_ur5_gazebo_ros_control">
+      <robotNamespace>/</robotNamespace> 
+      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+      <legacyModeNS>true</legacyModeNS>
+      <updateRate>100.0</updateRate>
+    </plugin>
+  </gazebo>
+
+  <xacro:macro name="fake_transmission" params="joint_name" >
+    <transmission name="${joint_name}_transmission">
+      <type>transmission_interface/SimpleTransmission</type>
+      <actuator name="${joint_name}_motor">
+        <mechanicalReduction>1.0</mechanicalReduction>
+      </actuator>
+      <joint name="${joint_name}">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      </joint>
+    </transmission>
+  </xacro:macro>
+
+  <xacro:fake_transmission joint_name="ur5_shoulder_pan_joint" />
+  <xacro:fake_transmission joint_name="ur5_shoulder_lift_joint" />
+  <xacro:fake_transmission joint_name="ur5_elbow_joint" />
+  <xacro:fake_transmission joint_name="ur5_wrist_1_joint" />
+  <xacro:fake_transmission joint_name="ur5_wrist_2_joint" />
+  <xacro:fake_transmission joint_name="ur5_wrist_3_joint" />
+
+  <xacro:fake_transmission joint_name="s_model_palm_finger_1_joint" />
+  <xacro:fake_transmission joint_name="s_model_finger_1_joint_1" />
+  <xacro:fake_transmission joint_name="s_model_finger_1_joint_2" />
+  <xacro:fake_transmission joint_name="s_model_finger_1_joint_3" />
+  <xacro:fake_transmission joint_name="s_model_palm_finger_2_joint" />
+  <xacro:fake_transmission joint_name="s_model_finger_2_joint_1" />
+  <xacro:fake_transmission joint_name="s_model_finger_2_joint_2" />
+  <xacro:fake_transmission joint_name="s_model_finger_2_joint_3" />
+  <xacro:fake_transmission joint_name="s_model_finger_middle_joint_1" />
+  <xacro:fake_transmission joint_name="s_model_finger_middle_joint_2" />
+  <xacro:fake_transmission joint_name="s_model_finger_middle_joint_3" />
 
 
   <link name="world" />
@@ -38,13 +124,18 @@
   <joint name="world_marimba_joint" type="fixed">
     <parent link="world" />
     <child link = "marimba" />
-    <origin xyz="1.25 0.8 0.9" rpy="0.0 0.0 ${pi}" />
+    <origin xyz="1.25 0.8 0.80" rpy="0.0 0.0 ${pi}" />
   </joint>
 
-  <joint name="end_mallet" type="fixed">
-    <parent link="s_model_palm" />
-    <child link = "mallet_base_link" />
-    <origin xyz="0.0 0.0 0.0" rpy="${-pi/2} 0.0 0.0" />
-  </joint>
+  <xacro:if value="$(arg include_mallet)">
+    <xacro:include filename="$(find marimbabot_description)/urdf/static_mallet_holder.urdf" />
+
+    <joint name="end_mallet" type="fixed">
+      <parent link="s_model_palm" />
+      <child link = "mallet_base_link" />
+      <origin xyz="0.0 0.0 0.0" rpy="${-pi/2} 0.0 0.0" />
+    </joint>
+  </xacro:if>
+
 
 </robot>
