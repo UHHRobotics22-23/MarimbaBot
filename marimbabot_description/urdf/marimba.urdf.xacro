@@ -130,12 +130,12 @@ Changelog:
     </collision>
     </link>
 
-    <xacro:if value="$(arg bars_fixed_joint)">
+    <xacro:if value="${arg bars_fixed_joint}">
         <xacro:tams_fixedjoint name="bar_${note}/joint" parent="${parent}" child="bar_${note}" >
             <origin xyz="${pos}" rpy="0 0 0" />
         </xacro:tams_fixedjoint>
     </xacro:if>
-    <xacro:unless value="$(arg bars_fixed_joint)">
+    <xacro:unless value="${arg bars_fixed_joint}">
         <xacro:tams_z_joint name="bar_${note}/joint" parent="${parent}" child="bar_${note}" >
             <origin xyz="${pos}" rpy="0 0 0" />
         </xacro:tams_z_joint>
