@@ -1,6 +1,8 @@
 <?xml version="1.0" ?>
 <robot name="marimba" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+<xacro:arg name="bars_fixed_joint" default="false" />
+
 <xacro:include filename="$(find marimbabot_description)/urdf/utilities.xacro" />
 <xacro:include filename="$(find marimbabot_description)/urdf/materials.xacro" />
 
@@ -15,7 +17,6 @@ From the point of view of the marimbist:
 
 
 Changelog:
-    2023.04.20 TODO
     2023.03.02 Named and correctly positioned bar frames
                Added side boxes
     2023.01.26 Complete model v1
@@ -89,7 +90,7 @@ Changelog:
     ${(top_left_center_x + bottom_left_center_x) / 2}
     ${top_left_center_y - side_offset}
     ${bottom_left_center_z}"
-/>re
+/>
 <xacro:property name="side_right_pos" value="
     ${float(side_left_pos.split()[0])}
     ${float(side_left_pos.split()[1]) + n_bars_bottom * (bar_width + bar_gap) - 1.5 * bar_gap + side_offset}
@@ -129,9 +130,16 @@ Changelog:
     </collision>
     </link>
 
-    <xacro:tams_z_joint name="bar_${note}/joint" parent="${parent}" child="bar_${note}" >
-        <origin xyz="${pos}" rpy="0 0 0" />
-    </xacro:tams_z_joint>
+    <xacro:if value="$(arg bars_fixed_joint)">
+        <xacro:tams_fixedjoint name="bar_${note}/joint" parent="${parent}" child="bar_${note}" >
+            <origin xyz="${pos}" rpy="0 0 0" />
+        </xacro:tams_fixedjoint>
+    </xacro:if>
+    <xacro:unless value="$(arg bars_fixed_joint)">
+        <xacro:tams_z_joint name="bar_${note}/joint" parent="${parent}" child="bar_${note}" >
+            <origin xyz="${pos}" rpy="0 0 0" />
+        </xacro:tams_z_joint>
+    </xacro:unless>
 
     <transmission name="bar_${note}/joint_transmission">
         <type>transmission_interface/SimpleTransmission</type>
