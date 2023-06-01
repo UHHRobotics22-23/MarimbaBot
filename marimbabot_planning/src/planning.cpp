@@ -168,7 +168,7 @@ moveit::planning_interface::MoveGroupInterface::Plan hit_point(
 
     // Calculate approach point
     geometry_msgs::PointStamped approach_point{point};
-    approach_point.point.z += 0.1;
+    approach_point.point.z += 0.15;
         
     // Calculate retreat point
     geometry_msgs::PointStamped retreat_point{approach_point};
