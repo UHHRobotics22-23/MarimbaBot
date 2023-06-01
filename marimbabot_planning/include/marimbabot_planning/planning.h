@@ -1,6 +1,10 @@
+#include <actionlib/server/simple_action_server.h>
 #include <bio_ik/bio_ik.h>
-#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/PointStamped.h>
+#include <geometry_msgs/Pose.h>
 #include <iostream>
+#include <marimbabot_msgs/HitSequenceAction.h>
+#include <marimbabot_planning/utils.h>
 #include <moveit_msgs/DisplayTrajectory.h>
 #include <moveit_msgs/RobotState.h>
 #include <moveit_msgs/RobotTrajectory.h>
@@ -11,82 +15,84 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
-#include "lilypond_to_hitpoint.h"
 
 
 namespace marimbabot_planning
 {
 
-    /**
-     * @brief concatinates a vector of n plans (n>0) into one plan
-     *
-     * @param plans
-     * @return moveit::planning_interface::MoveGroupInterface::Plan
-    **/
-    moveit::planning_interface::MoveGroupInterface::Plan concatinated_plan(std::vector<moveit::planning_interface::MoveGroupInterface::Plan> plans);
+class Planning
+{
+    private:
+        // Initialize node handle and tf 
+        ros::NodeHandle nh_;
+        std::shared_ptr<tf2_ros::Buffer> tf_buffer_ = std::make_shared<tf2_ros::Buffer>();
+        tf2_ros::TransformListener tf_listener_;
+
+        // MoveIt! MoveGroupInterface
+        moveit::planning_interface::MoveGroupInterface move_group_interface_;
+
+        // Action server
+        actionlib::SimpleActionServer<marimbabot_msgs::HitSequenceAction> action_server_;
+
+        // Create a trajectory publisher
+        ros::Publisher trajectory_publisher_ = nh_.advertise<moveit_msgs::DisplayTrajectory>("/move_group/display_planned_path", 1, true);
+
+        // Last action time
+        ros::Time last_action_time_;
+
+        /**
+         * @brief Move the robot to its idle/home position
+         * 
+        */
+        void go_to_home_position();
+
+        /**
+         * @brief Calculate a plan so that the mallet (end effector) is at a given point in cartesian space
+         *
+         * @param  start_state
+         * @param  goal_point
+         * @return moveit::planning_interface::MoveGroupInterface::Plan
+         * @throws PlanFailedException, IKFailedException
+         **/
+        moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
+            const moveit_msgs::RobotState& start_state,
+            geometry_msgs::PointStamped goal_point);
 
 
-    /**
-     * @brief get robot state after plan
-     *
-     * @param  plan
-     * @return moveit_msgs::RobotState
-    **/
-    moveit_msgs::RobotState get_robot_state_after_plan(moveit::planning_interface::MoveGroupInterface::Plan plan);
+        /**
+         * @brief hit a given note in cartesian space
+         *
+         * @param start_state
+         * @param note
+         * @return moveit::planning_interface::MoveGroupInterface::Plan
+        **/
+
+        moveit::planning_interface::MoveGroupInterface::Plan hit_note(
+            const moveit_msgs::RobotState& start_state,
+            CartesianHitSequenceElement note);
 
 
-    /**
-     * @brief Calculate a plan so that the mallet (end effector) is at a given point in cartesian space
-     *
-     * @param  start_state
-     * @param  goal_point
-     * @param  move_group_interface
-     * @return moveit::planning_interface::MoveGroupInterface::Plan
-     * @throws std::runtime_error
-     **/
-    moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
-        moveit::planning_interface::MoveGroupInterface& move_group_interface,
-        const moveit_msgs::RobotState& start_state,
-        geometry_msgs::PointStamped goal_point);
+        /**
+         * @brief Hit a sequence of notes in cartesian space
+         *
+         * @param start_state
+         * @param notes
+         * @return moveit::planning_interface::MoveGroupInterface::Plan
+        **/
+        moveit::planning_interface::MoveGroupInterface::Plan hit_notes(
+            const moveit_msgs::RobotState& start_state,
+            std::vector<CartesianHitSequenceElement> notes);
 
 
-    /**
-     * @brief hit a given point in cartesian space
-     *
-     * @param start_state
-     * @param move_group_interface
-     * @param point
-     * @return moveit::planning_interface::MoveGroupInterface::Plan
-    **/
+        /**
+         * @brief Callback for the action server
+         * 
+         * @param goal
+         * @param action_server
+         */
+        void action_server_callback(const marimbabot_msgs::HitSequenceGoalConstPtr &goal);
 
-    moveit::planning_interface::MoveGroupInterface::Plan hit_point(
-        moveit::planning_interface::MoveGroupInterface& move_group_interface,
-        const moveit_msgs::RobotState& start_state,
-        geometry_msgs::PointStamped point);
-
-    /**
-     * @brief Hit a sequence of points in cartesian space
-     *
-     * @param move_group_interface
-     * @param start_state
-     * @param points
-     * @return moveit::planning_interface::MoveGroupInterface::Plan
-    **/
-    moveit::planning_interface::MoveGroupInterface::Plan hit_points(
-        moveit::planning_interface::MoveGroupInterface& move_group_interface,
-        const moveit_msgs::RobotState& start_state,
-        std::vector<geometry_msgs::PointStamped> points);
-
-
-    /**
-     * @brief Slow down a trajectory to a given length. No speedup is possible.
-     *
-     * @param input_plan
-     * @param length
-     * @return moveit::planning_interface::MoveGroupInterface::Plan
-     **/
-
-    moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
-        const moveit::planning_interface::MoveGroupInterface::Plan& input_plan,
-        double length);
+    public:
+        Planning(const std::string planning_group);
+};
 } 

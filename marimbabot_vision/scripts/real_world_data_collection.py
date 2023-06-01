@@ -5,7 +5,7 @@ import os
 import tqdm
 import numpy as np
 
-WORKING_DIR = "data"
+WORKING_DIR = "data_real"
 VIDEO_DEVICE = "/dev/video2"
 IMAGES_PER_SAMPLE = 5
 
