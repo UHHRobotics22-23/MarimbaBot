@@ -150,7 +150,8 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
 
 moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     const moveit_msgs::RobotState& start_state,
-    CartesianHitSequenceElement note)
+    CartesianHitSequenceElement note,
+    const std::array<std::tuple<std::string, int32_t, ros::Time, ros::Duration, double>, 5>& timing_msg)
 {
 
     moveit::core::RobotState robot_state(move_group_interface_.getRobotModel());
@@ -173,6 +174,29 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     // Calculate retreat trajectory
     auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), retreat_point);
 
+    std::string tone_name;
+    int32_t octave;
+    ros::Time start_time;
+    ros::Duration tone_duration;
+    double loudness;
+
+    for (int i = 0; i < 5; i++) {
+        tone_name = std::get<0>(timing_msg[i]);
+        octave = std::get<1>(timing_msg[i]);
+        start_time = std::get<2>(timing_msg[i]);
+        tone_duration = std::get<3>(timing_msg[i]);
+        loudness = std::get<4>(timing_msg[i]);
+    }
+
+    // TODO : positional offset will be added in y direction for octave.
+
+    //ROS_INFO("Received data : (%s, %d, %s, %f, %f)", tone_name.c_str(), octave, start_time.toString().c_str(), tone_duration.toSec(), loudness);
+    down_plan = slow_down_plan(down_plan, 1.0 / loudness);
+    // constant scale factor retreat plan to 0.5
+    retreat_plan = slow_down_plan(retreat_plan, 0.5);
+    down_plan = slow_down_plan(down_plan, 1.0 / loudness);
+    approach_plan = slow_down_plan(approach_plan, start_time.toSec() - down_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec() - retreat_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec());
+
     // Concatinate trajectories
     auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
 
@@ -188,7 +212,8 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
 **/
 moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_notes(
     const moveit_msgs::RobotState& start_state,
-    std::vector<CartesianHitSequenceElement> points)
+    std::vector<CartesianHitSequenceElement> points,
+    const std::array<std::tuple<std::string, int32_t, ros::Time, ros::Duration, double>, 5>& speed)
 {
     // Assert that there is at least one hit_point with an nice error message
     assert(points.size() > 0 && "There must be at least one hit_point");
@@ -196,7 +221,8 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_notes(
     // Calculate hit trajectory
     auto hit_plan = hit_note(
         start_state,
-        points.front()
+        points.front(),
+        speed
         );
 
     // Call hit_points recursively for all remaining hit_points
@@ -204,7 +230,8 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_notes(
     {
         auto remaining_hit_plan = hit_notes(
             get_robot_state_after_plan(hit_plan),
-            std::vector<CartesianHitSequenceElement>(points.begin() + 1, points.end())
+            std::vector<CartesianHitSequenceElement>(points.begin() + 1, points.end()),
+            speed
             );
         hit_plan = concatinated_plan({hit_plan, remaining_hit_plan});
     }
@@ -236,9 +263,10 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
             move_group_interface_.getPlanningFrame(),
             tf_buffer_
         );
+        std::array<std::tuple<std::string, int32_t, ros::Time, ros::Duration, double>, 5> hit_speeds;
 
         // Define hit plan
-        auto hit_plan = hit_notes(start_state, hits);
+        auto hit_plan = hit_notes(start_state, hits, hit_speeds);
 
         // Publish the plan for rviz
         moveit_msgs::DisplayTrajectory display_trajectory;
