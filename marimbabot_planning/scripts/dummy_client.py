@@ -42,5 +42,5 @@ class DummyMotionClient:
                 print(f"Failure: {['None', 'PLANNING_FAILED', 'EXECUTION_FAILED'][result.error_code]}")
 
 if __name__ == '__main__':
-    rospy.init_node('dummy_motion_client')
+    rospy.init_node('dummy_motion_client', anonymous=True)
     DummyMotionClient()
