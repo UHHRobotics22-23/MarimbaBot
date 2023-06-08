@@ -12,7 +12,9 @@
   </include>
 
   <!-- send robot urdf to param server, we have some Gazebo modifications here...  -->
-  <include file="$(find marimbabot_description)/launch/marimbabot_ur5_upload.launch" />
+  <include file="$(find marimbabot_description)/launch/marimbabot_ur5_upload.launch">
+    <arg name="bars_fixed_joint" value="false"/>
+  </include>
 
   <!-- spawn robot in gazebo with start position "home" (=upright) -->
   <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" 
