@@ -41,10 +41,10 @@
                 " />
   -->
 
-  <arg name="load_robot_description" default="false" />
+  <arg name="marimbabot_ur5_upload" default="false" />
   <!-- load URDF, SRDF -->
   <include file="$(dirname)/planning_context.launch">
-    <arg name="load_robot_description" value="$(arg load_robot_description)" />
+    <arg name="marimbabot_ur5_upload" value="$(arg marimbabot_ur5_upload)" />
   </include>
 
   <!-- Planning Pipelines -->
