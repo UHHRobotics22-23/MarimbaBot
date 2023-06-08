@@ -50,4 +50,22 @@
     </node>
 
     <include file="$(find marimbabot_ur5_moveit_config)/launch/move_group.launch"/>
+
+    <!-- Mallet Holder Double Hardware controller -->
+    <group ns="MalletHolder">
+        <rosparam file="$(find marimbabot_hardware)/config/controllers.yaml" command="load"/>
+        <rosparam file="$(find marimbabot_hardware)/config/joint_limits.yaml" command="load"/>
+
+        <node name="mallet_hardware_control_node" pkg="marimbabot_hardware" type="mallet_hardware_control_node" output="screen">
+        <!-- Setting device parameter -->
+        <param name="device" value="/dev/ttyACM0"/>
+        <param name="baudrate" value="115200"/>
+        </node>
+        
+        <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
+        args="
+            joint_state_controller
+            trajectory_controller
+        "/>
+    </group>
 </launch>
