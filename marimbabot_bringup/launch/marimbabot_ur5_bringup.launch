@@ -1,9 +1,8 @@
 <?xml version="1.0"?>
 <launch>
-
     <arg name="mallet_holder_type" default="static"/>
 
-    <include file="$(find marimbabot_description)/launch/load_robot_description.launch">
+    <include file="$(find marimbabot_description)/launch/marimbabot_ur5_upload.launch">
         <arg name="mallet_holder_type" value="$(arg mallet_holder_type)"/>
     </include>
     <include file="$(find ur_robot_driver)/launch/ur_control.launch">
