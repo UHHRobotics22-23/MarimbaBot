@@ -1,7 +1,6 @@
 import rospy
-import actionlib
 from std_msgs.msg import String
-from marimbabot_msgs.msg import HitSequenceAction, HitSequenceGoal, HitSequenceElement
+from marimbabot_msgs.msg import HitSequenceGoal, HitSequenceElement
 
 import tempfile
 from abjad import Block, LilyPondFile, Score, Staff, Voice
@@ -34,7 +33,7 @@ def create_lilypond_file(notes):
     return lilypond_file
 
 def lilypond_to_midi(notes):
-    lilypond_file = create_lilypond_file(notes.data)
+    lilypond_file = create_lilypond_file(notes)
 
     # create midi file from lilypond
     midi_file_path, abjad_formatting_time, lilypond_rendering_time, success = as_midi(lilypond_file, 'test_midi.mid')
@@ -58,27 +57,12 @@ def read_notes(notes) -> HitSequenceGoal:
         name = pm.note_number_to_name(note.pitch)
         goal.hit_sequence_elements.append(
             HitSequenceElement(
-                tone_name = ''.join([x for x in name if not x.isdigit()])
-                octave = ''.join([x for x in name if x.isdigit()])
-                start_time = rospy.Time(note.start)
-                tone_duration = rospy.Duration(note.get_duration())
+                tone_name = ''.join([x for x in name.replace('#', 's') if not x.isdigit()]), # TODO regex parse
+                octave = int(name[-1]),
+                start_time = rospy.Time(note.start),
+                tone_duration = rospy.Duration(note.get_duration()),
                 loudness = note.velocity/127.0))
 
     return goal
     # Sends the goal to the action server.
     client.send_goal(note_sequence)
-
-def hit_sequence_client:
-    client = actionlib.SimpleActionClient('hit_sequence', HitSequenceAction)
-
-    # listens to the currently read note sequence
-    sub = rospy.Subscriber('behavior_node/read_notes', String, callback_read_notes, callback_args=(client))
-
-if __name__ == '__main__':
-
-    rospy.init_node('interpreter_client', anonymous=True)
-
-    result = hit_sequence_client()
-
-    # spin() simply keeps python from exiting until this node is stopped
-    rospy.spin()
