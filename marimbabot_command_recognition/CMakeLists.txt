@@ -7,7 +7,6 @@ find_package(catkin REQUIRED COMPONENTS
     std_msgs
     audio_common_msgs
     message_generation
-    sound_play
 )
 
 catkin_python_setup()
@@ -19,8 +18,13 @@ DIRECTORY
         Command.msg
         Speech.msg
         TmpFile.msg
-        Speaking.msg
-        SpeakingEnd.msg
+)
+
+add_service_files(
+DIRECTORY
+  srv
+    FILES
+        Speak.srv
 )
 
 generate_messages(
@@ -33,7 +37,6 @@ CATKIN_DEPENDS
   audio_common_msgs
   message_runtime
   std_msgs
-  sound_play
 )
 
 include_directories(
