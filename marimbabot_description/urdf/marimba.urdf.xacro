@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <robot name="marimba" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-<xacro:arg name="bars_fixed_joint" default="false" />
+<xacro:arg name="bars_fixed_joint" default="true" />
 
 <xacro:include filename="$(find marimbabot_description)/urdf/utilities.xacro" />
 <xacro:include filename="$(find marimbabot_description)/urdf/materials.xacro" />
@@ -53,7 +53,7 @@ Changelog:
 -->
 <xacro:property name="body_top_bottom_disp_x" value="-0.18" />
 <xacro:property name="body_top_bottom_disp_y" value="-0.02" />
-<xacro:property name="body_top_bottom_disp_z" value="${0.0149 + bar_height}" /> 
+<xacro:property name="body_top_bottom_disp_z" value="${0.0149 + bar_height}" />
 
 <!-- Body top pos & dimensions -->
 <xacro:property name="body_top_pos" value="
@@ -81,7 +81,7 @@ Changelog:
 
 <!-- Side boxes (left being the longer side) -->
 <xacro:property name="side_width" value="0.05" />
-<xacro:property name="side_length_left" value="0.61" /> 
+<xacro:property name="side_length_left" value="0.61" />
 <xacro:property name="side_length_right" value="0.32" />
 <xacro:property name="side_height" value="0.1" />
 <xacro:property name="side_offset" value="0.058" />
@@ -101,7 +101,7 @@ Changelog:
 <xacro:macro name="bar" params="note parent id pos length" >
     <gazebo reference="bar_${note}" >
         <turnGravityOff>false</turnGravityOff>
-        <selfCollide>false</selfCollide>
+        <selfCollide>true</selfCollide>
         <!-- TODO material -->
         <!-- <material>chordophones/OakWood</material> -->
         <mu1>50.0</mu1>
@@ -172,7 +172,7 @@ Changelog:
 
     <gazebo reference="${name}" >
         <turnGravityOff>false</turnGravityOff>
-        <selfCollide>false</selfCollide>
+        <selfCollide>true</selfCollide>
         <!-- TODO material -->
         <!--<material>Gazebo/Green</material>-->
         <mu1>50.0</mu1>
@@ -186,7 +186,7 @@ Changelog:
 
     <gazebo reference="body_bottom">
         <turnGravityOff>false</turnGravityOff>
-        <selfCollide>false</selfCollide>
+        <selfCollide>true</selfCollide>
         <!-- TODO material -->
         <!-- <material>chordophones/OakWood</material> -->
         <mu1>50.0</mu1>
@@ -226,7 +226,7 @@ Changelog:
 
     <gazebo reference="body_top">
         <turnGravityOff>false</turnGravityOff>
-        <selfCollide>false</selfCollide>
+        <selfCollide>true</selfCollide>
         <!-- TODO material -->
         <!-- <material>chordophones/OakWood</material> -->
         <mu1>50.0</mu1>
@@ -266,7 +266,7 @@ Changelog:
 
     <gazebo reference="body_left">
         <turnGravityOff>false</turnGravityOff>
-        <selfCollide>false</selfCollide>
+        <selfCollide>true</selfCollide>
         <!-- TODO material -->
         <!-- <material>chordophones/OakWood</material> -->
         <mu1>50.0</mu1>
@@ -306,7 +306,7 @@ Changelog:
 
     <gazebo reference="body_right">
         <turnGravityOff>false</turnGravityOff>
-        <selfCollide>false</selfCollide>
+        <selfCollide>true</selfCollide>
         <!-- TODO material -->
         <!-- <material>chordophones/OakWood</material> -->
         <mu1>50.0</mu1>
