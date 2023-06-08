@@ -12,6 +12,9 @@ class ActionDecider:
         # the currently active note sequence
         # will be updated with the latest sentence from vision_node/recognized_sentence after the 'read' command was issued
         self.sentence = None
+
+        # the currently active hit sequence
+        # will be updated together with sentence after the 'read' command was issued
         self.hit_sequence = None
 
         # publishes a response for the synthesized speech
@@ -20,9 +23,8 @@ class ActionDecider:
         # listens to the recognized commands from voice_recognition_node
         self.command_sub = rospy.Subscriber('voice_recognition_node/recognized_command', String, self.callback_command)
 
+        # action client to send the hit sequence to the planning action server
         self.client = actionlib.SimpleActionClient('hit_sequence', HitSequenceAction)
-
-        # TODO: add subscribers for other modules (eg. planning node -> finished playing, audio node -> audio feedback, ...)
 
     def callback_command(self, command):
         rospy.loginfo(f"received command: {command.data}")
@@ -43,7 +45,7 @@ class ActionDecider:
                 self.response_pub.publish('Lilypond string not valid. Make sure the note are valid and readable.')
 
         elif command.data == 'play':
-            # if a sentence has been read via the 'read' command, publish it to behavior_node/play_sentence to signal that notes should be played
+            # if a note sequence has been read via the 'read' command and the corresponding hit sequence is valid, the hit sequence is send to the planning action server
             if self.hit_sequence:
                 # check if action server is busy
                 if not self.client.gh:
@@ -57,10 +59,10 @@ class ActionDecider:
                 rospy.logwarn('No notes to play. Say reed to read notes.')
                 self.response_pub.publish('No notes to play. Say reed to read notes.')
 
-        elif command.data == 'stop':
-            # publish an empty string to behavior_node/play_sentence to signal aborting the playing of notes
-            self.play_pub.publish('')
+        # TODO: handle ROS exceptions from the planning side (e.g. planning failed, execution failed, ...)
 
+        # TODO: elif command.data == 'stop':
+        
         # TODO: add more cases (loop, repeat, faster, slower, save as <name_of_piece>, play <name_of_piece>, ...)
 
         else:
