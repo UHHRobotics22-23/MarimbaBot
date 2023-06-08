@@ -1,5 +1,7 @@
 import rospy
+import actionlib
 from std_msgs.msg import String
+from marimbabot_msgs.msg import HitSequenceAction, HitSequenceGoal, HitSequenceElement
 
 import tempfile
 from abjad import Block, LilyPondFile, Score, Staff, Voice
@@ -41,7 +43,7 @@ def lilypond_to_midi(notes):
 
     return midi_file_path
 
-def callback_read_notes(notes, pub):
+def read_notes(notes) -> HitSequenceGoal:
     midi_path = lilypond_to_midi(notes)
 
     midi_stream = pm.PrettyMIDI(midi_path)
@@ -49,30 +51,34 @@ def callback_read_notes(notes, pub):
     # get sequence of note names
     # note_names = midi_stream.get_pitch_names()
     # timings = midi_stream.get_beats()
-    note_sequence = []
+
+    goal = HitSequenceGoal()
+
     for note in midi_stream.instruments[0].notes:
-        info = {}
         name = pm.note_number_to_name(note.pitch)
-        info['note'] = ''.join([x for x in name if not x.isdigit()])
-        info['octave'] = ''.join([x for x in name if x.isdigit()])
-        info['start'] = note.start
-        info['duration'] = note.get_duration()
-        info['loudness'] = note.velocity/127.0
-        note_sequence.append(info)
+        goal.hit_sequence_elements.append(
+            HitSequenceElement(
+                tone_name = ''.join([x for x in name if not x.isdigit()])
+                octave = ''.join([x for x in name if x.isdigit()])
+                start_time = rospy.Time(note.start)
+                tone_duration = rospy.Duration(note.get_duration())
+                loudness = note.velocity/127.0))
 
-    pub.publish(str(note_sequence))
+    return goal
+    # Sends the goal to the action server.
+    client.send_goal(note_sequence)
 
-def listener():
-    pub = rospy.Publisher('~midi_path', String, queue_size=10) 
+def hit_sequence_client:
+    client = actionlib.SimpleActionClient('hit_sequence', HitSequenceAction)
 
     # listens to the currently read note sequence
-    sub = rospy.Subscriber('behavior_node/read_notes', String, callback_read_notes, callback_args=(pub))
+    sub = rospy.Subscriber('behavior_node/read_notes', String, callback_read_notes, callback_args=(client))
 
 if __name__ == '__main__':
 
-    rospy.init_node('behavior_node')
+    rospy.init_node('interpreter_client', anonymous=True)
 
-    listener()
+    result = hit_sequence_client()
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()

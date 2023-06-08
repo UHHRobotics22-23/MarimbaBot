@@ -2,6 +2,7 @@
 
 import rospy
 from std_msgs.msg import String
+from marimbsbot_behavior.interpreter import read_notes
 
 class ActionDecider:
     def __init__(self):
@@ -9,17 +10,13 @@ class ActionDecider:
         # will be updated with the latest sentence from vision_node/recognized_sentence after the 'read' command was issued
         self.sentence = None
 
-        # publishes the latest recognized sentence after the 'read' command was issued
-        self.read_pub = rospy.Publisher('~read_notes', String, queue_size=10) 
-        
-        # publishes the read sentence after the 'play' command was issued
-        self.play_pub = rospy.Publisher('~play_notes', String, queue_size=10) 
-
         # publishes a response for the synthesized speech
         self.response_pub = rospy.Publisher('~response', String, queue_size=10) 
 
         # listens to the recognized commands from voice_recognition_node
         self.command_sub = rospy.Subscriber('voice_recognition_node/recognized_command', String, self.callback_command)
+
+        self.client = actionlib.SimpleActionClient('hit_sequence', HitSequenceAction)
 
         # TODO: add subscribers for other modules (eg. planning node -> finished playing, audio node -> audio feedback, ...)
 
@@ -30,7 +27,6 @@ class ActionDecider:
             try:
                 # wait for the vision node to publish a recognized sentence
                 self.sentence = rospy.wait_for_message('vision_node/recognized_notes', String, timeout=5).data 
-                self.read_pub.publish(self.sentence)
                 self.response_pub.publish('Notes recognized. Say play to play the notes.')
             except rospy.ROSException:
                 self.response_pub.publish('No notes recognized. Make sure the notes are readable and visible to the camera.')
@@ -38,7 +34,8 @@ class ActionDecider:
         elif command.data == 'play':
             # if a sentence has been read via the 'read' command, publish it to behavior_node/play_sentence to signal that notes should be played
             if self.sentence:
-                self.play_pub.publish(self.sentence)
+                goal_hit_sequence = read_notes(self.sentence)
+                self.client.send_goal(goal_hit_sequence)
                 # TODO: include tempo (for future commands: faster, slower)
             else:
                 self.response_pub.publish('No notes to play. Say reed to read notes.')
