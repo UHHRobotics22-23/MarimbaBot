@@ -50,8 +50,8 @@ class ActionDecider:
                 # check if action server is busy
                 if not self.client.gh:
                     rospy.loginfo(f"playing notes: {self.sentence}")
-                    rospy.loginfo(f"goal_hit_sequence: {goal_hit_sequence}")
-                    self.client.send_goal(hit_sequence)
+                    rospy.loginfo(f"goal_hit_sequence: {self.hit_sequence}")
+                    self.client.send_goal(self.hit_sequence)
                 else:    
                     rospy.logwarn('Action server is busy. Try again later.')
                     self.response_pub.publish('Action server is busy. Try again later.')
