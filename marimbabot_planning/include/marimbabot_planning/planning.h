@@ -69,8 +69,7 @@ class Planning
 
         moveit::planning_interface::MoveGroupInterface::Plan hit_note(
             const moveit_msgs::RobotState& start_state,
-            CartesianHitSequenceElement note,
-            const std::array<std::tuple<std::string, int32_t, ros::Time, ros::Duration, double>, 5>& timing_msg);
+            CartesianHitSequenceElement note);
 
 
         /**
@@ -82,8 +81,7 @@ class Planning
         **/
         moveit::planning_interface::MoveGroupInterface::Plan hit_notes(
             const moveit_msgs::RobotState& start_state,
-            std::vector<CartesianHitSequenceElement> notes,
-            const std::array<std::tuple<std::string, int32_t, ros::Time, ros::Duration, double>, 5>& speeds);
+            std::vector<CartesianHitSequenceElement> notes);
 
 
         /**
