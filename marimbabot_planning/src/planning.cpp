@@ -26,14 +26,14 @@ Planning::Planning(const std::string planning_group) :
     // Timer callback that moves back to the home position if no action is active
     auto timer_callback = [this](const ros::TimerEvent& event) {
         // Check if an action in not active and if the last action was more than 5 seconds ago
-        if (!action_server_.isActive() && ros::Time::now() - last_action_time_ > ros::Duration(5.0))
+        if (!action_server_.isActive() && ros::Time::now() - last_action_time_ > ros::Duration(1.0))
         {
             // Check if we are currently close to the home position
             go_to_home_position();
         }
     };
     // Create timer that checks if an action is active and moves back to the home position if not
-    auto timer = nh_.createTimer(ros::Duration(1.0), timer_callback);
+    auto timer = nh_.createTimer(ros::Duration(0.5), timer_callback);
     // Start action server
     action_server_.start();
     // Wait for shutdown
@@ -277,11 +277,20 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
         trajectory_publisher_.publish(display_trajectory);
 
         // Execute the plan
-        move_group_interface_.execute(hit_plan);
-        // Set the result
-        marimbabot_msgs::HitSequenceResult result;
-        result.success = true;
-        action_server_.setSucceeded(result);
+        auto status = move_group_interface_.execute(hit_plan);
+
+        // Set the result of the action server
+        if (status != moveit::planning_interface::MoveItErrorCode::SUCCESS) {
+            ROS_ERROR_STREAM("Hit sequence execution failed: " << status);
+            marimbabot_msgs::HitSequenceResult result;
+            result.success = false;
+            result.error_code = marimbabot_msgs::HitSequenceResult::EXECUTION_FAILED;
+            action_server_.setAborted(result);
+        } else {
+            marimbabot_msgs::HitSequenceResult result;
+            result.success = true;
+            action_server_.setSucceeded(result);
+        }
 
     } catch (PlanFailedException& e) {
         ROS_ERROR_STREAM("Hit sequence planning failed: " << e.what());
@@ -290,6 +299,8 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
         result.error_code = marimbabot_msgs::HitSequenceResult::PLANNING_FAILED;
         action_server_.setAborted(result);
     }
+
+    // Reset last action time so we move back to the home position after a while
     last_action_time_ = ros::Time::now();
 }
 
