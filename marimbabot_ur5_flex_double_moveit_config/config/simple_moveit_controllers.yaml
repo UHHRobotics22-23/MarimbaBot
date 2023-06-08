@@ -1,0 +1,34 @@
+controller_list:
+  - name: pos_joint_traj_controller
+    action_ns: follow_joint_trajectory
+    type: FollowJointTrajectory
+    default: True
+    joints:
+      - ur5_shoulder_pan_joint
+      - ur5_shoulder_lift_joint
+      - ur5_elbow_joint
+      - ur5_wrist_1_joint
+      - ur5_wrist_2_joint
+      - ur5_wrist_3_joint
+  - name: gripper_action
+    action_ns: ''
+    type: FollowJointTrajectory
+    default: True
+    joints:
+      - s_model_palm_finger_1_joint
+      - s_model_finger_1_joint_1
+      - s_model_finger_1_joint_2
+      - s_model_finger_1_joint_3
+      - s_model_palm_finger_2_joint
+      - s_model_finger_2_joint_1
+      - s_model_finger_2_joint_2
+      - s_model_finger_2_joint_3
+      - s_model_finger_middle_joint_1
+      - s_model_finger_middle_joint_2
+      - s_model_finger_middle_joint_3
+  - name: mallet_holder_controller
+    action_ns: /MalletHolder/trajectory_controller
+    type: FollowJointTrajectory
+    default: True
+    joints:
+      - mallet_finger

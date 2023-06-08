@@ -17,4 +17,21 @@
     transmission_hw_interface:=$(arg transmission_hw_interface)
     mallet_holder_type:=$(arg mallet_holder_type)
     bars_fixed_joint:=$(arg bars_fixed_joint)" />
+
+  <group ns="MalletHolder">
+    <rosparam file="$(find marimbabot_hardware)/config/controllers.yaml" command="load"/>
+    <rosparam file="$(find marimbabot_hardware)/config/joint_limits.yaml" command="load"/>
+
+    <node name="mallet_hardware_control_node" pkg="marimbabot_hardware" type="mallet_hardware_control_node" output="screen">
+      <!-- Setting device parameter -->
+      <param name="device" value="/dev/ttyACM0"/>
+      <param name="baudrate" value="115200"/>
+    </node>
+    
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
+      args="
+        joint_state_controller
+        trajectory_controller
+      "/>
+    </group>
 </launch>
