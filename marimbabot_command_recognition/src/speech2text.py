@@ -4,13 +4,13 @@ from utils.file_control import WAVFile
 from marimbabot_command_recognition.msg import Speech as SpeechMsg
 from marimbabot_command_recognition.msg import TmpFile as TmpFileMsg
 
-class SpeechRecognition:
+class STT:
 	def __init__(self):
 		# 'tiny.en', 'tiny', 'base.en', 'base', 'small.en', 'small', 'medium.en', 'medium', 'large-v1', 'large-v2', 'large'
 		self.model = whisper.load_model('medium.en')
 		self.file_controller = WAVFile()
-		self.speech_pub = rospy.Publisher('/speech', SpeechMsg, queue_size=100, tcp_nodelay=True)
-		self.tmp_sub = rospy.Subscriber('/audio_tmp', TmpFileMsg, self.tmp_callback, queue_size=10, tcp_nodelay=True)
+		self.speech_pub = rospy.Publisher('/command_node/speech', SpeechMsg, queue_size=100, tcp_nodelay=True)
+		self.tmp_sub = rospy.Subscriber('/command_node/audio_tmp', TmpFileMsg, self.tmp_callback, queue_size=10, tcp_nodelay=True)
 		self.recognize_freq = 2  # Hz
 		self.recognize_rate = rospy.Rate(self.recognize_freq)
 
@@ -44,5 +44,5 @@ class SpeechRecognition:
 
 if __name__ == '__main__':
 	rospy.init_node('speech_recognition', log_level=rospy.INFO)
-	speech_recognition = SpeechRecognition()
+	speech_recognition = STT()
 	speech_recognition.run()

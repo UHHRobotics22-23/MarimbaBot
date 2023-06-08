@@ -8,5 +8,4 @@
   </node>
   <node name="command_Audio2TmpFile_node" pkg="marimbabot_command_recognition" type="audio2tmp.py"/>
   <node name="command_SpeechRecognition_node" pkg="marimbabot_command_recognition" type="speech2text.py"/>
-  <node name="command_Text2Command_node" pkg="marimbabot_command_recognition" type="text2command.py"/>
 </launch>

@@ -4,8 +4,8 @@ import rospy
 
 class CommandExtract:
 	def __init__(self):
-		self.command_pub = rospy.Publisher('/command', CommandMsg, queue_size=100, tcp_nodelay=True)
-		self.speech_sub = rospy.Subscriber('/speech', SpeechMsg, self.speech_callback, queue_size=10, tcp_nodelay=True)
+		self.command_pub = rospy.Publisher('/command_node/command', CommandMsg, queue_size=100, tcp_nodelay=True)
+		self.speech_sub = rospy.Subscriber('/command_node/speech', SpeechMsg, self.speech_callback, queue_size=10, tcp_nodelay=True)
 		self.command_id = 0
 		self.waiting_for_command = False
 		self.command_list = [
@@ -23,7 +23,7 @@ class CommandExtract:
 
 
 	def say(self,text):
-		rospy.loginfo(text)
+		print(text)
 		# TODO: implement this function to let robot say "Hello, I am here".
 
 	def keyword_spotting(self,text):
@@ -33,6 +33,7 @@ class CommandExtract:
 			"marimba",
 			"marinda",
 			"marumba",
+			"mermba",
 			"my rainbow",
 			"my rain bow",
 			"mernba",
@@ -69,6 +70,7 @@ class CommandExtract:
 		command_msg.command = command
 		command_msg.command_id = self.command_id
 		self.command_pub.publish(command_msg)
+		rospy.logdebug(f"publish command: {command}")
 		self.command_id += 1
 
 	def extract(self, text:str):
@@ -81,6 +83,6 @@ class CommandExtract:
 		rospy.spin()
 
 if __name__ == '__main__':
-	rospy.init_node('command_extract', log_level=rospy.INFO)
+	rospy.init_node('command_extract', log_level=rospy.DEBUG)
 	command_extract = CommandExtract()
 	command_extract.run()

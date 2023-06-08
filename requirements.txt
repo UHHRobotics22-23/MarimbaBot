@@ -23,3 +23,5 @@ rospkg==1.5.0
 openai-whisper==20230314
 webrtcvad==2.0.10
 wave==0.0.2
+#pynini==2.1.5
+#nemo-text-processing==0.1.7rc0

@@ -19,7 +19,7 @@ class Audio2FileNode:
 		)
 
 		self.tmp_pub = rospy.Publisher(
-			'/audio_tmp',
+			'/command_node/audio_tmp',
 			TmpFileMsg,
 			queue_size=10,
 			tcp_nodelay=True

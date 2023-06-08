@@ -1,0 +1,3 @@
+<launch>
+  <node name="command_Text2Command_node" pkg="marimbabot_command_recognition" type="text2command.py"/>
+</launch>
