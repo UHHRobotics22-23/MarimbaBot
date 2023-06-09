@@ -5,7 +5,7 @@ import rospy
 from audio_common_msgs.msg import AudioDataStamped, AudioInfo
 from sensor_msgs.msg import Image
 from std_msgs.msg import Float32
-from marimbabot_audio.msg import NoteOnset, CQTStamped
+from  marimbabot_msgs.msg import NoteOnset, CQTStamped
 import pretty_midi
 import librosa
 import crepe
