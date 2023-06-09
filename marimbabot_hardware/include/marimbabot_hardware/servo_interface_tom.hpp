@@ -7,21 +7,7 @@
 #include <joint_limits_interface/joint_limits.h>
 #include <joint_limits_interface/joint_limits_interface.h>
 #include <joint_limits_interface/joint_limits_rosparam.h>
-#include <iostream>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <bits/stdc++.h>
-#include <stdlib.h>
-#include <string.h>
-
-
-#define GETSOCKETERRNO() (errno)
-#define PORT     8888
-#define MAXLINE 1024
-//#include <serial/serial.h>
+#include <serial/serial.h>
 
 
 class ServoInterface : public hardware_interface::RobotHW {
@@ -33,13 +19,12 @@ private:
         double position = 0;
         double velocity = 0;
         double effort = 0;
-        
 
         ServoState(const std::string &servo_name);
     };
 
 public:
-    ServoInterface(ros::NodeHandle& node_handle, std::string &address, int port); //device
+    ServoInterface(ros::NodeHandle& node_handle, std::string &device, int baud);
 
     void read();
     void write();
@@ -57,7 +42,7 @@ private:
 
     ros::Time last_run_time;
     ros::Duration last_run_period;
-    //serial::Serial arduino_serial;
+    serial::Serial arduino_serial;
     int last_arduino_error = 0;
     double previous_command = -1;
     int top_limit = -1;
@@ -65,20 +50,7 @@ private:
     int resolution = -1;
     double radian_limit = -1;
 
-    int sockfd;
-    char buffer[MAXLINE];
-    const char *l_Sender = "l\n";
-    const char *p_Sender = "p\n";
-    
-    struct sockaddr_in servaddr, cliaddr;
-  
-    socklen_t len;
-    int received_message;
-
-    bool try_open_udp_port();
-    char* convert_to_char(std::string str);
-    
-    
+    bool try_open_serial_port();
 };
 
 #endif // MARIMBABOT_SERVO_INTERFACE_HPP
