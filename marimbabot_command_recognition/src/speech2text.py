@@ -13,13 +13,17 @@ class STT:
 		self.tmp_sub = rospy.Subscriber('/command_node/audio_tmp', TmpFileMsg, self.tmp_callback, queue_size=10, tcp_nodelay=True)
 		self.recognize_freq = 2  # Hz
 		self.recognize_rate = rospy.Rate(self.recognize_freq)
+		self.no_speech_prob_filter = 0.5
 
 	def tmp_callback(self, tmp_file_msg):
 		file_path = tmp_file_msg.file_path
 		rospy.logdebug(f"receive tmp file: {file_path}")
-		text = self.recognize(file_path)
+		text, no_speech_prob = self.recognize(file_path)
 		rospy.logdebug(f"publish speech: {text}")
+		if no_speech_prob > self.no_speech_prob_filter:
+			return
 		speech_msg = SpeechMsg()
+		speech_msg.header.stamp = rospy.Time.now()
 		speech_msg.speech = text
 		speech_msg.sentence_id = tmp_file_msg.sentence_id
 		speech_msg.is_finished = tmp_file_msg.is_finished
@@ -37,7 +41,10 @@ class STT:
 		# decode the audio
 		options = whisper.DecodingOptions(fp16=False, language='en')
 		result = whisper.decode(self.model, mel, options)
-		return result.text
+		text = result.text
+		no_speech_prob = result.no_speech_prob
+		rospy.logdebug(f"no_speech_prob: {no_speech_prob} , text: {text}")
+		return text, no_speech_prob
 
 	def run(self):
 		rospy.spin()

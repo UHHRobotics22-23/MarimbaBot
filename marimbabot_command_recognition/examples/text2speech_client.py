@@ -8,6 +8,5 @@ if __name__ == '__main__':
 	try:
 		speak = rospy.ServiceProxy('/speech_node/tts', Speak)
 		resp1 = speak(text)
-		print(resp1)
 	except rospy.ServiceException as e:
 		print(f"Service call failed: {e}")
