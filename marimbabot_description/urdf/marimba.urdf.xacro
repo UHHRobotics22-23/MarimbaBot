@@ -81,7 +81,7 @@ Changelog:
 <xacro:property name="top_left_center_z" value="${float(body_top_pos.split()[2]) + body_top_height / 2 + bar_height}" />
 
 <!-- Side boxes (left being the longer side) -->
-<xacro:property name="side_width" value="0.05" />
+<xacro:property name="side_width" value="0.028" />
 <xacro:property name="side_length_left" value="0.61" />
 <xacro:property name="side_length_right" value="0.32" />
 <xacro:property name="side_height" value="0.1" />
