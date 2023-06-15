@@ -53,187 +53,187 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_As4:
+        bar_ais4:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_As5:
+        bar_ais5:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_As6:
+        bar_ais6:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_A4:
+        bar_a4:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_A5:
+        bar_a5:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_A6:
+        bar_a6:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_B4:
+        bar_b4:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_B5:
+        bar_b5:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_B6:
+        bar_b6:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_Cs4:
+        bar_cis4:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_Cs5:
+        bar_cis5:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_Cs6:
+        bar_cis6:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_C4:
+        bar_c4:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_C5:
+        bar_c5:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_C6:
+        bar_c6:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_C7:
+        bar_c7:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_Ds4:
+        bar_dis4:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_Ds5:
+        bar_dis5:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_Ds6:
+        bar_dis6:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_D4:
+        bar_d4:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_D5:
+        bar_d5:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_D6:
+        bar_d6:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_E4:
+        bar_e4:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_E5:
+        bar_e5:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_E6:
+        bar_e6:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_Fs4:
+        bar_fis4:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_Fs5:
+        bar_fis5:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_Fs6:
+        bar_fis6:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_F4:
+        bar_f4:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_F5:
+        bar_f5:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_F6:
+        bar_f6:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_Gs4:
+        bar_gis4:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_Gs5:
+        bar_gis5:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_Gs6:
+        bar_gis6:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_G4:
+        bar_g4:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_G5:
+        bar_g5:
           Alpha: 1
           Show Axes: false
           Show Trail: false
           Value: true
-        bar_G6:
+        bar_g6:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -507,79 +507,79 @@ Visualization Manager:
         All Enabled: true
         april_tag_ur5:
           Value: true
-        bar_As4:
+        bar_ais4:
           Value: true
-        bar_As5:
+        bar_ais5:
           Value: true
-        bar_As6:
+        bar_ais6:
           Value: true
-        bar_A4:
+        bar_a4:
           Value: true
-        bar_A5:
+        bar_a5:
           Value: true
-        bar_A6:
+        bar_a6:
           Value: true
-        bar_B4:
+        bar_b4:
           Value: true
-        bar_B5:
+        bar_b5:
           Value: true
-        bar_B6:
+        bar_b6:
           Value: true
-        bar_Cs4:
+        bar_cis4:
           Value: true
-        bar_Cs5:
+        bar_cis5:
           Value: true
-        bar_Cs6:
+        bar_cis6:
           Value: true
-        bar_C4:
+        bar_c4:
           Value: true
-        bar_C5:
+        bar_c5:
           Value: true
-        bar_C6:
+        bar_c6:
           Value: true
-        bar_C7:
+        bar_c7:
           Value: true
-        bar_Ds4:
+        bar_dis4:
           Value: true
-        bar_Ds5:
+        bar_dis5:
           Value: true
-        bar_Ds6:
+        bar_dis6:
           Value: true
-        bar_D4:
+        bar_d4:
           Value: true
-        bar_D5:
+        bar_d5:
           Value: true
-        bar_D6:
+        bar_d6:
           Value: true
-        bar_E4:
+        bar_e4:
           Value: true
-        bar_E5:
+        bar_e5:
           Value: true
-        bar_E6:
+        bar_e6:
           Value: true
-        bar_Fs4:
+        bar_fis4:
           Value: true
-        bar_Fs5:
+        bar_fis5:
           Value: true
-        bar_Fs6:
+        bar_fis6:
           Value: true
-        bar_F4:
+        bar_f4:
           Value: true
-        bar_F5:
+        bar_f5:
           Value: true
-        bar_F6:
+        bar_f6:
           Value: true
-        bar_Gs4:
+        bar_gis4:
           Value: true
-        bar_Gs5:
+        bar_gis5:
           Value: true
-        bar_Gs6:
+        bar_gis6:
           Value: true
-        bar_G4:
+        bar_g4:
           Value: true
-        bar_G5:
+        bar_g5:
           Value: true
-        bar_G6:
+        bar_g6:
           Value: true
         body_bottom:
           Value: true
@@ -766,84 +766,84 @@ Visualization Manager:
             {}
           marimba:
             body_bottom:
-              bar_A4:
+              bar_a4:
                 {}
-              bar_A5:
+              bar_a5:
                 {}
-              bar_A6:
+              bar_a6:
                 {}
-              bar_B4:
+              bar_b4:
                 {}
-              bar_B5:
+              bar_b5:
                 {}
-              bar_B6:
+              bar_b6:
                 {}
-              bar_C4:
+              bar_c4:
                 {}
-              bar_C5:
+              bar_c5:
                 {}
-              bar_C6:
+              bar_c6:
                 {}
-              bar_C7:
+              bar_c7:
                 {}
-              bar_D4:
+              bar_d4:
                 {}
-              bar_D5:
+              bar_d5:
                 {}
-              bar_D6:
+              bar_d6:
                 {}
-              bar_E4:
+              bar_e4:
                 {}
-              bar_E5:
+              bar_e5:
                 {}
-              bar_E6:
+              bar_e6:
                 {}
-              bar_F4:
+              bar_f4:
                 {}
-              bar_F5:
+              bar_f5:
                 {}
-              bar_F6:
+              bar_f6:
                 {}
-              bar_G4:
+              bar_g4:
                 {}
-              bar_G5:
+              bar_g5:
                 {}
-              bar_G6:
+              bar_g6:
                 {}
             body_left:
               {}
             body_right:
               {}
             body_top:
-              bar_As4:
+              bar_ais4:
                 {}
-              bar_As5:
+              bar_ais5:
                 {}
-              bar_As6:
+              bar_ais6:
                 {}
-              bar_Cs4:
+              bar_cis4:
                 {}
-              bar_Cs5:
+              bar_cis5:
                 {}
-              bar_Cs6:
+              bar_cis6:
                 {}
-              bar_Ds4:
+              bar_dis4:
                 {}
-              bar_Ds5:
+              bar_dis5:
                 {}
-              bar_Ds6:
+              bar_dis6:
                 {}
-              bar_Fs4:
+              bar_fis4:
                 {}
-              bar_Fs5:
+              bar_fis5:
                 {}
-              bar_Fs6:
+              bar_fis6:
                 {}
-              bar_Gs4:
+              bar_gis4:
                 {}
-              bar_Gs5:
+              bar_gis5:
                 {}
-              bar_Gs6:
+              bar_gis6:
                 {}
           turtlebot:
             turtlebot_holder:

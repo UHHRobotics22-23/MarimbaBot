@@ -11,7 +11,6 @@ import termios
 
 import actionlib
 import rospy
-
 from marimbabot_msgs.msg import (HitSequenceAction, HitSequenceElement,
                                  HitSequenceGoal)
 
@@ -59,7 +58,7 @@ class KeyboardClient:
         goal = HitSequenceGoal()
         goal.hit_sequence_elements.append(
             HitSequenceElement(
-                tone_name=note.strip().upper().replace('#', 's'),
+                tone_name=note.strip().lower().replace('#', 'is'),
                 tone_duration=rospy.Duration(0.5),
                 octave=octave,
                 loudness=1.0,

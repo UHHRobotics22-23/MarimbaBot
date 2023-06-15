@@ -3,9 +3,10 @@
 A dummy action client to call the motions action server.
 """
 
-import rospy
 import actionlib
-from marimbabot_msgs.msg import HitSequenceAction, HitSequenceGoal, HitSequenceElement
+import rospy
+from marimbabot_msgs.msg import (HitSequenceAction, HitSequenceElement,
+                                 HitSequenceGoal)
 
 
 class DummyMotionClient:
@@ -28,7 +29,7 @@ class DummyMotionClient:
                 start_time += duration
                 goal.hit_sequence_elements.append(
                     HitSequenceElement(
-                        tone_name=note.strip().upper().replace('#', 's'),
+                        tone_name=note.strip().lower().replace('#', 'is'),
                         tone_duration=duration,
                         octave=octave,
                         loudness=1.0,
