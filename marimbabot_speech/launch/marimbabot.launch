@@ -10,6 +10,6 @@
   <node name="speech_stt_node" pkg="marimbabot_speech" type="speech2text.py" output="screen">
     <param name="commands_path"  value="$(find marimbabot_speech)/config/commands.txt"/>
   </node>
-<!--  <node name="speech_t2c_node" pkg="marimbabot_speech" type="text2command.py"/>-->
-<!--  <node name="speech_tts_node" pkg="marimbabot_speech" type="text2speech.py"/>-->
+  <node name="speech_t2c_node" pkg="marimbabot_speech" type="text2command.py" output="screen"/>
+  <node name="speech_tts_node" pkg="marimbabot_speech" type="text2speech.py" output="screen"/>
 </launch>

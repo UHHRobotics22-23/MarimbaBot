@@ -6,6 +6,7 @@ from utils.file_control import WAVFile
 from marimbabot_speech.msg import Speech as SpeechMsg
 from marimbabot_speech.msg import TmpFile as TmpFileMsg
 import time
+from utils.command import get_commands
 
 class STT:
 	def __init__(self):
@@ -21,14 +22,11 @@ class STT:
 		self.prompt = self.generate_prompt()
 
 	def generate_prompt(self):
-		file_path = rospy.get_param('/speech_stt_node/commands_path')
-		rospy.logdebug(f"FILE_PATH:{file_path}")
-		with open(file_path,'r+') as f:
-			command_lines = f.readlines()[1:]
+		commands = get_commands()
 		base_prompt = '''
 			Marimbabot is a marimba playing robot arm. You are able to give it commands, if you confuse just give it "None". The possible commands include:		
 		'''
-		for command in command_lines:
+		for command in commands:
 			base_prompt += ''.join(f'{command.strip()}, ')
 		rospy.logdebug(f"Generate prompt as: {base_prompt}.")
 		return base_prompt
@@ -44,7 +42,6 @@ class STT:
 		speech_msg = SpeechMsg()
 		speech_msg.header.stamp = rospy.Time.now()
 		speech_msg.speech = text
-		speech_msg.sentence_id = tmp_file_msg.sentence_id
 		speech_msg.is_finished = tmp_file_msg.is_finished
 		self.speech_pub.publish(speech_msg)
 		rospy.logdebug(f"speech published.")

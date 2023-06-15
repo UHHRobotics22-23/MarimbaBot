@@ -21,5 +21,3 @@ catkin_pkg==0.5.2
 openai-whisper==20230314
 webrtcvad==2.0.10
 wave==0.0.2
-gTTS==2.2.3
-playsound==1.3.0

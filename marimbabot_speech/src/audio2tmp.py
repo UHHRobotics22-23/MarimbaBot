@@ -47,7 +47,6 @@ class Audio2FileNode:
 		self.wav_file.save_audio(self.buffer, self.file_id)
 		tmp_file_msg = TmpFileMsg()
 		tmp_file_msg.header.stamp = rospy.Time.now()
-		tmp_file_msg.sentence_id = self.file_id
 		tmp_file_msg.is_finished = is_finished
 		tmp_file_msg.file_path = self.wav_file.file_id2path(self.file_id)
 		self.tmp_pub.publish(tmp_file_msg)
