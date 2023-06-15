@@ -62,7 +62,4 @@
    <node name="rviz" pkg="rviz" type="rviz" respawn="false"
          args="-d $(find tams_ur5_gazebo)/config/tams_ur5_gazebo.rviz"  />
   </group>
-
-  <!-- Launch bar contact detector -->
-    <node name="detect_bar_contact" pkg="marimbabot_simulation" type="detect_bar_contact.py" output="screen"/>
 </launch>
