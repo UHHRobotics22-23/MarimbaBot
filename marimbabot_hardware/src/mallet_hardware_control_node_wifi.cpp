@@ -21,7 +21,7 @@ int main(int argc, char **argv) {
 
     ros::AsyncSpinner spinner(1);
     spinner.start();
-    ros::Rate loop_rate(1);
+    ros::Rate loop_rate(100);
 
     servo_interface.initialize();
 

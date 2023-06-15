@@ -33,7 +33,7 @@ ServoInterface::ServoInterface(ros::NodeHandle& node_handle, std::string &addres
 
      try_open_udp_port();
     
-    // Creating the joint state interface + handle
+   // Creating the joint state interface + handle
     hardware_interface::JointStateHandle servo_state_handle(
         servo_state.name, &servo_state.position, &servo_state.velocity, &servo_state.effort);
     joint_state_interface.registerHandle(servo_state_handle);
@@ -117,7 +117,7 @@ char* ServoInterface::send_and_receive(char * message){
     strlen(message),MSG_CONFIRM, (const struct sockaddr *) &servaddr,len);
 
     received_message = recvfrom(sockfd, (char *)buffer, MAXLINE, 
-                MSG_WAITALL, ( struct sockaddr *) &servaddr,
+                MSG_DONTWAIT, ( struct sockaddr *) &servaddr,
                 &len);
     buffer[received_message] = '\0';
     std::string response; 
@@ -145,9 +145,12 @@ char* ServoInterface::send_and_receive(char * message){
         previous_command = servo_state.command;
         ROS_INFO("Position was changed successfully");
     }
+    else if(response ==""){
+        ROS_INFO_STREAM("Empty message");
+    }   
 
     else {
-         ROS_INFO_STREAM(response);
+        ROS_INFO_STREAM(response);
         ROS_ERROR_STREAM("Servo controller error: Unknown error");
     }
 
