@@ -67,8 +67,8 @@ private:
 
     int sockfd;
     char buffer[MAXLINE];
-    const char *l_Sender = "l\n";
-    const char *p_Sender = "p\n";
+    char *l_Sender = "l\n";
+    char *p_Sender = "p\n";
     
     struct sockaddr_in servaddr, cliaddr;
   
@@ -77,7 +77,11 @@ private:
 
     bool try_open_udp_port();
     char* convert_to_char(std::string str);
-    
+    char* send_and_receive(char *);
+    void l_function(std::string response);
+    void p_function(std::string response);
+    void s_function(std::string response);
+          
     
 };
 
