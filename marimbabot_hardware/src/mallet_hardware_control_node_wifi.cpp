@@ -30,7 +30,8 @@ int main(int argc, char **argv) {
         servo_interface.read();
         controller_manager.update(servo_interface.get_time(), servo_interface.get_period());
         servo_interface.write();
-    
         loop_rate.sleep();
     }
+
+
 }

@@ -26,17 +26,17 @@ ServoInterface::ServoInterface(ros::NodeHandle& node_handle, std::string &addres
 
     
     // Filling server information
-    servaddr.sin_family    = AF_INET; // IPv4
+    servaddr.sin_family = AF_INET; // IPv4
     inet_pton(AF_INET, char_address, &(servaddr.sin_addr)); // IPv4
     servaddr.sin_port = htons(PORT);
 
-    // arduino_serial.setTimeout(
-    //     timeout.inter_byte_timeout,
-    //     timeout.read_timeout_constant,
-    //     timeout.read_timeout_multiplier,
-    //     timeout.write_timeout_constant,
-    //     timeout.write_timeout_multiplier
-    // );
+                    // arduino_serial.setTimeout(
+                    //     timeout.inter_byte_timeout,
+                    //     timeout.read_timeout_constant,
+                    //     timeout.read_timeout_multiplier,
+                    //     timeout.write_timeout_constant,
+                    //     timeout.write_timeout_multiplier
+                    // );
 
      try_open_udp_port();
     
@@ -135,7 +135,7 @@ bool ServoInterface::try_open_udp_port() {
         }
 
         }catch (std::exception &e) {
-            ROS_ERROR_STREAM(" Hier muss error Code rein");
+            ROS_ERROR_STREAM(" Hier muss error Code rein"); //#TODO
         
         return false;
      }
@@ -149,48 +149,44 @@ void ServoInterface::read() {
     last_run_time = current_time;
 
     
-    // Checking if the arduino is connected
-    // if(!arduino_serial.isOpen()) {
-    //     // Trying to reconnect
-    //     if(!try_open_serial_port()) {
-    //         return;
-    //     }
-    // }
-    sendto(sockfd, (const char *)p_Sender, strlen(p_Sender), 
-        MSG_CONFIRM, (const struct sockaddr *) &servaddr,
-            len);
-    
-        ROS_INFO("2 Message Sent");
+                    // Checking if the arduino is connected
+                    // if(!arduino_serial.isOpen()) {
+                    //     // Trying to reconnect
+                    //     if(!try_open_serial_port()) {
+                    //         return;
+                    //     }
+                    // }
     // Sending command to arduino
-    // try {
-    //     arduino_serial.write("p\n");
-    //     arduino_serial.flush();
-    // } catch (serial::SerialException &e) {
-    //     ROS_ERROR_STREAM("Servo controller error: Unable to write to port " << arduino_serial.getPort());
-    //     ROS_ERROR_STREAM("Servo controller error: Error: " << e.what());
-    //     arduino_serial.close();
-    //     return;
-    // }
-    // Reading response from arduino
-    received_message = recvfrom(sockfd, (char *)buffer, MAXLINE, 
-                MSG_WAITALL, ( struct sockaddr *) &servaddr,
-                &len);
-         buffer[received_message] = '\0';
+    sendto(sockfd, (const char *)p_Sender, strlen(p_Sender),MSG_CONFIRM, (const struct sockaddr *) &servaddr,len);
+        //ROS_INFO("2 Message Sent");
+    
+                    // try {
+                    //     arduino_serial.write("p\n");
+                    //     arduino_serial.flush();
+                    // } catch (serial::SerialException &e) {
+                    //     ROS_ERROR_STREAM("Servo controller error: Unable to write to port " << arduino_serial.getPort());
+                    //     ROS_ERROR_STREAM("Servo controller error: Error: " << e.what());
+                    //     arduino_serial.close();
+                    //     return;
+                    // }
+                    // Reading response from arduino
+    received_message = recvfrom(sockfd, (char *)buffer, MAXLINE, MSG_WAITALL, ( struct sockaddr *) &servaddr, &len);
+    buffer[received_message] = '\0';
         // ROS_INFO("3 Message Received");
         // ROS_INFO("4 Aktuelle Read Position %s",buffer);
-        std::string response; 
-        //int size_arr = sizeof(buffer) / sizeof(char); 
-	    response = buffer;
-    // do {
-    //     try {
-    //         response += arduino_serial.readline();
-    //     } catch (serial::SerialException &e) {
-    //         ROS_ERROR_STREAM("Servo controller error: Unable to read from port " << arduino_serial.getPort());
-    //         ROS_ERROR_STREAM("Servo controller error: Error: " << e.what());
-    //         arduino_serial.close();
-    //         return;
-    //     }
-    // } while(arduino_serial.available() > 0);
+    std::string response; 
+                    //int size_arr = sizeof(buffer) / sizeof(char); 
+	response = buffer;
+                    // do {
+                    //     try {
+                    //         response += arduino_serial.readline();
+                    //     } catch (serial::SerialException &e) {
+                    //         ROS_ERROR_STREAM("Servo controller error: Unable to read from port " << arduino_serial.getPort());
+                    //         ROS_ERROR_STREAM("Servo controller error: Error: " << e.what());
+                    //         arduino_serial.close();
+                    //         return;
+                    //     }
+                    // } while(arduino_serial.available() > 0);
 
     
     //Checking if response is long enough (p \r\n)
@@ -224,11 +220,11 @@ void ServoInterface::read() {
 void ServoInterface::write() {
     position_joint_saturation_interface.enforceLimits(last_run_period);
 
-    // Checking if the arduino is connected
-    // Not retrying to connect here as we already tried in read()
-    // if(!arduino_serial.isOpen()) {
-    //     return;
-    // }
+                    // Checking if the arduino is connected
+                    // Not retrying to connect here as we already tried in read()
+                    // if(!arduino_serial.isOpen()) {
+                    //     return;
+                    // }
 
     // Not sending commands which already where before
    
@@ -257,15 +253,15 @@ void ServoInterface::write() {
             len);
         ROS_INFO("The write_pos_array contains %s",write_pos_array); 
         ROS_INFO("Write Message Sent");
-    // try {
-    //     arduino_serial.write(sstream.str());
-    //     arduino_serial.flush();
-    // } catch (serial::SerialException &e) {
-    //     ROS_ERROR_STREAM("Servo controller error: Failed to send command to arduino");
-    //     ROS_ERROR_STREAM("Servo controller error: Error: " << e.what());
-    //     arduino_serial.close();
-    //     return;
-    // }
+                    // try {
+                    //     arduino_serial.write(sstream.str());
+                    //     arduino_serial.flush();
+                    // } catch (serial::SerialException &e) {
+                    //     ROS_ERROR_STREAM("Servo controller error: Failed to send command to arduino");
+                    //     ROS_ERROR_STREAM("Servo controller error: Error: " << e.what());
+                    //     arduino_serial.close();
+                    //     return;
+                    // }
 
     // Reading response from arduino
         received_message = recvfrom(sockfd, (char *)buffer, MAXLINE, 
@@ -276,19 +272,19 @@ void ServoInterface::write() {
         std::string response; 
         //int size_arr = sizeof(buffer) / sizeof(char); 
 	    response = buffer;
-    // do {
-    //     try {
-    //         response += arduino_serial.readline();
-    //     } catch (serial::SerialException &e) {
-    //         ROS_ERROR_STREAM("Servo controller error: Unable to read from port " << arduino_serial.getPort());
-    //         ROS_ERROR_STREAM("Servo controller error: Error: " << e.what());
-    //         arduino_serial.close();
-    //         return;
-    //     }
-    // } while(arduino_serial.available() > 0);
+                    // do {
+                    //     try {
+                    //         response += arduino_serial.readline();
+                    //     } catch (serial::SerialException &e) {
+                    //         ROS_ERROR_STREAM("Servo controller error: Unable to read from port " << arduino_serial.getPort());
+                    //         ROS_ERROR_STREAM("Servo controller error: Error: " << e.what());
+                    //         arduino_serial.close();
+                    //         return;
+                    //     }
+                    // } while(arduino_serial.available() > 0);
 
-    // Removing trailing \r\n
-    //response = response.substr(0, response.length() - 2);
+        // Removing trailing \r\n
+        //response = response.substr(0, response.length() - 2);
 
     // Checking if the command was successful
     if(response == "err_input_num") {
