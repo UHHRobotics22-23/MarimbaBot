@@ -1,9 +1,0 @@
-<launch>
-  <node name="audio_capture" pkg="audio_capture" type="audio_capture" output="screen">
-    <param name="device" value="" />
-    <param name="format" value="wave" />
-    <param name="channels" value="1" />
-    <param name="depth" value="2" />
-    <param name="sample_rate" value="16000" />
-  </node>
-</launch>

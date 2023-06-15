@@ -1,3 +1,0 @@
-<launch>
-  <node name="command_Audio2TmpFile_node" pkg="marimbabot_command_recognition" type="audio2tmp.py"/>
-</launch>
