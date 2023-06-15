@@ -12,7 +12,7 @@ VEL_THRESHOLD = 0.01
 # names of bars we are interested in
 # corresponding joints are <bar_name>/joint
 # e.g. "bar_a4" <-> "bar_a4/joint"
-bar_jOINT_NAMES = [
+BAR_JOINT_NAMES = [
   "bar_a4/joint",
   "bar_a5/joint",
   "bar_a6/joint",
@@ -53,7 +53,12 @@ bar_jOINT_NAMES = [
 ]
 
 joint2note = {
-    joint: joint[4:joint.index("/")] for joint in bar_jOINT_NAMES
+    joint: joint[4:joint.index("/")] for joint in BAR_JOINT_NAMES
+}
+
+# TODO: remove after merging bar name PR
+joint2note = {
+    f"bar_{note.upper().replace('is', 's')}/joint": note for joint, note in joint2note.items()
 }
 
 pub = None
@@ -63,9 +68,9 @@ def joint_states_callback(message):
     for i, name in enumerate(message.name):
         if name not in joint2note:
             continue
-        absvel = abs(message.velocity[i])
-        if absvel > VEL_THRESHOLD:
-            rospy.loginfo(f"Detected contact with {joint2note[name]} vel={absvel:.5f}")
+        vel = message.velocity[i]
+        if vel > VEL_THRESHOLD:
+            rospy.loginfo(f"Detected contact with {joint2note[name]} vel={vel:.5f}")
             pub.publish(joint2note[name])
     return
 
