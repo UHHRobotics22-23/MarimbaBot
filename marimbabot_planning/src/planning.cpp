@@ -92,7 +92,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     ik_options.replace = true;
     ik_options.return_approximate_solution = false; // Activate for debugging if you get an error 
 
-    ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head", goal_position));
+    ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_1", goal_position));
 
     // Create link on plane constraint using the LinkFunctionGoal
     tf2::Vector3 plane_point(0.0, 0.0, 1.0);

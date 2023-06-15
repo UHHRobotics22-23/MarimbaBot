@@ -62,7 +62,33 @@
         <joint name="mallet_group_2_3rd_link"/>
     </group>
     <!--GROUP STATES: Purpose: Define a named state for a particular group, in terms of joint values. This is useful to define states like 'folded arms'-->
-    <group_state name="idle" group="arm">
+    <group_state name="basic_closed" group="gripper">
+        <joint name="s_model_finger_1_joint_1" value="1.22173"/>
+        <joint name="s_model_finger_1_joint_2" value="1.5708"/>
+        <joint name="s_model_finger_1_joint_3" value="-0.959931"/>
+        <joint name="s_model_finger_2_joint_1" value="1.22173"/>
+        <joint name="s_model_finger_2_joint_2" value="1.5708"/>
+        <joint name="s_model_finger_2_joint_3" value="-0.959931"/>
+        <joint name="s_model_finger_middle_joint_1" value="1.22173"/>
+        <joint name="s_model_finger_middle_joint_2" value="1.5708"/>
+        <joint name="s_model_finger_middle_joint_3" value="-0.959931"/>
+        <joint name="s_model_palm_finger_1_joint" value="-0.016212"/>
+        <joint name="s_model_palm_finger_2_joint" value="0.016212"/>
+    </group_state>
+    <group_state name="basic_open" group="gripper">
+        <joint name="s_model_finger_1_joint_1" value="0.107314"/>
+        <joint name="s_model_finger_1_joint_2" value="0"/>
+        <joint name="s_model_finger_1_joint_3" value="-0.113446"/>
+        <joint name="s_model_finger_2_joint_1" value="0.107314"/>
+        <joint name="s_model_finger_2_joint_2" value="0"/>
+        <joint name="s_model_finger_2_joint_3" value="-0.113446"/>
+        <joint name="s_model_finger_middle_joint_1" value="0.107314"/>
+        <joint name="s_model_finger_middle_joint_2" value="0"/>
+        <joint name="s_model_finger_middle_joint_3" value="-0.113446"/>
+        <joint name="s_model_palm_finger_1_joint" value="-0.016212"/>
+        <joint name="s_model_palm_finger_2_joint" value="0.016212"/>
+    </group_state>
+    <group_state name="marimbabot_home" group="arm">
         <joint name="ur5_elbow_joint" value="-2.1254"/>
         <joint name="ur5_shoulder_lift_joint" value="-1.947"/>
         <joint name="ur5_shoulder_pan_joint" value="-1.3375"/>
@@ -2466,6 +2492,10 @@
     <disable_collisions link1="s_model_finger_middle_link_3" link2="ur5_wrist_1_link" reason="Never"/>
     <disable_collisions link1="s_model_finger_middle_link_3" link2="ur5_wrist_2_link" reason="Never"/>
     <disable_collisions link1="s_model_finger_middle_link_3" link2="ur5_wrist_3_link" reason="Never"/>
+    <disable_collisions link1="s_model_finger_middle_link_3" link2="s_model_palm" reason="User"/>
+    <disable_collisions link1="s_model_finger_1_link_3" link2="s_model_palm" reason="User"/>
+    <disable_collisions link1="s_model_finger_2_link_3" link2="s_model_palm" reason="User"/>
+
     <disable_collisions link1="s_model_palm" link2="side_wall" reason="Default"/>
     <disable_collisions link1="s_model_palm" link2="ur5_ee_link" reason="Never"/>
     <disable_collisions link1="s_model_palm" link2="ur5_wrist_1_link" reason="Never"/>
