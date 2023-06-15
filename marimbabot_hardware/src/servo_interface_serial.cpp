@@ -1,4 +1,4 @@
-#include "marimbabot_hardware/servo_interface.hpp"
+#include "marimbabot_hardware/servo_interface_serial.hpp"
 
 ServoInterface::ServoState::ServoState(const std::string &servo_name) {
     name = servo_name;

@@ -1,6 +1,6 @@
 #include <ros/ros.h>
 #include <controller_manager/controller_manager.h>
-#include "marimbabot_hardware/servo_interface.hpp"
+#include "marimbabot_hardware/servo_interface_wifi.hpp"
 
 int main(int argc, char **argv) {
     ros::init(argc, argv, "mallet_hardware_control_node");

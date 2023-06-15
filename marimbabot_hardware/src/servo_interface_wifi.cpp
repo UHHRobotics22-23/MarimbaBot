@@ -1,4 +1,4 @@
-#include "marimbabot_hardware/servo_interface.hpp"
+#include "marimbabot_hardware/servo_interface_wifi.hpp"
 
 ServoInterface::ServoState::ServoState(const std::string &servo_name) {
     name = servo_name;
@@ -176,8 +176,8 @@ void ServoInterface::read() {
                 MSG_WAITALL, ( struct sockaddr *) &servaddr,
                 &len);
          buffer[received_message] = '\0';
-        ROS_INFO("3 Message Received");
-        ROS_INFO("4 Aktuelle Read Position %s",buffer);
+        // ROS_INFO("3 Message Received");
+        // ROS_INFO("4 Aktuelle Read Position %s",buffer);
         std::string response; 
         //int size_arr = sizeof(buffer) / sizeof(char); 
 	    response = buffer;
