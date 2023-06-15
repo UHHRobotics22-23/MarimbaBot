@@ -127,6 +127,7 @@ char* ServoInterface::send_and_receive(char * message){
             l_function(response);
         }
     else if(response[0] == 'p') {
+        
          p_function(response);
     }
     else if(response == "err_input_num") {
@@ -146,7 +147,7 @@ char* ServoInterface::send_and_receive(char * message){
         ROS_INFO("Position was changed successfully");
     }
     else if(response ==""){
-        ROS_INFO_STREAM("Empty message");
+       
     }   
 
     else {
@@ -181,6 +182,7 @@ void ServoInterface::l_function(std::string response){
             this->radian_limit = (2 * M_PI) * ((this->top_limit - this->bottom_limit) / ((double) this->resolution));
 
             ROS_INFO_STREAM("Servo controller: Loaded limits from arduino");
+            
 
             return;
         } catch(std::exception &e) {
