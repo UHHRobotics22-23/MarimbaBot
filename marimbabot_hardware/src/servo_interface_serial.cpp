@@ -98,7 +98,7 @@ bool ServoInterface::try_open_serial_port() {
             this->top_limit = atoi(top_limit_str.c_str());
             this->bottom_limit = atoi(bottom_limit_str.c_str());
             this->resolution = atoi(resolution_str.c_str());
-            this->radian_limit = (2 * M_PI) * ((this->top_limit - this->bottom_limit) / ((double) this->resolution));
+            this->radian_limit = M_PI * ((this->top_limit - this->bottom_limit) / ((double) this->resolution));
 
             ROS_INFO_STREAM("Servo controller: Loaded limits from arduino");
 

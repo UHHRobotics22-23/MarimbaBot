@@ -7,7 +7,7 @@ This repository contains the codebase for a [Marimba](https://en.wikipedia.org/w
 It is currently still "work in progress".
 
 ## Declaration
-The code of marimbabot_audio part are after the modification of this base [repository](https://github.com/TAMS-Group/music_perception.git), which is from [@v4hn](https://github.com/v4hn).
+The file [onset_detection.py](https://github.com/UHHRobotics22-23/marimbabot/blob/main/marimbabot_audio/scripts/onset_detection.py) and sloe the [messages](https://github.com/UHHRobotics22-23/marimbabot/blob/main/marimbabot_audio/msg) in the package marimbabot_audio is a modification of [@v4hn](https://github.com/v4hn)'s base [repository](https://github.com/TAMS-Group/music_perception.git).
 
 ## Setup
 
@@ -52,6 +52,8 @@ rosdep update
 
 # Install all dependencies needed by our repository
 rosdep install --from-paths src --ignore-src -r -y
+# Unfortunately this is needed as for unknown reasons the dependency is not recognized
+rosdep install serial
 
 # Install python dependencies
 pip3 install wheel  # firstly install the wheel for further package building if you start from a empty virtual environment.
@@ -84,6 +86,8 @@ rosdep update
 
 # Install new dependencies
 rosdep install --from-paths src --ignore-src -r -y
+# Unfortunately this is needed as for unknown reasons the dependency is not recognized
+rosdep install serial
 
 # Install new python dependencies
 pip3 install --upgrade -r requirements.txt

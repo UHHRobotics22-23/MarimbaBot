@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-  <param name="robot_description" command="xacro '$(find marimbabot_description)/urdf/marimbabot_ur5.urdf.xacro'
-    joint_ranges_config:=$(find tams_ur5_description)/config/joint_ranges/elbow_up.yaml" />
-</launch>

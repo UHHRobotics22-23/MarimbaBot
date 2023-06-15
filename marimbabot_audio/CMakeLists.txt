@@ -11,14 +11,6 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 
-add_message_files(
-DIRECTORY
-  msg
-  FILES
-  CQTStamped.msg
-  NoteOnset.msg
-)
-
 generate_messages(
 DEPENDENCIES
   std_msgs
