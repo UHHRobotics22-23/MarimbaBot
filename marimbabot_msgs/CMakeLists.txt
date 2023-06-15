@@ -12,6 +12,8 @@ add_message_files(
   DIRECTORY msg
   FILES
   HitSequenceElement.msg
+  CQTStamped.msg
+  NoteOnset.msg
 )
 
 add_action_files(

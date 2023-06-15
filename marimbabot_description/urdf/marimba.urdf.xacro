@@ -21,6 +21,7 @@ Changelog:
     2023.01.26 Complete model v1
     2023.01.19 Row of keys working
     2023.01.04 First version created
+    2023.06.14 Made side boxed width and height smaller
 -->
 
 <!-- Number of bars (including "missing" ones in the top row) -->
@@ -80,10 +81,12 @@ Changelog:
 <xacro:property name="top_left_center_z" value="${float(body_top_pos.split()[2]) + body_top_height / 2 + bar_height}" />
 
 <!-- Side boxes (left being the longer side) -->
-<xacro:property name="side_width" value="0.05" />
+<xacro:property name="side_width" value="0.028" />
 <xacro:property name="side_length_left" value="0.61" />
 <xacro:property name="side_length_right" value="0.32" />
-<xacro:property name="side_height" value="0.1" />
+<xacro:property name="side_height" value="0.07" /> <!-- 0.07 on the high side, 0.041 on the low side. 
+                                                        The low side starts at 0.28 when counting from the high side. 
+                                                        This is not taken into account here. -->
 <xacro:property name="side_offset" value="0.058" />
 <xacro:property name="side_left_pos" value="
     ${(top_left_center_x + bottom_left_center_x) / 2}
