@@ -3,18 +3,31 @@
   <name>marimbabot_speech</name>
   <version>0.0.0</version>
   <description>
-  The marimbabot_speech package is designed produce audio from a given text string, acting as a text to speech synthesis.
+  The marimbabot_speech package is designed to recognize and extract the command from the human voice, and also speech synthesis.
+    It consists of the following nodes:
+    - audio_capture: capture audio from microphone (from ros audio_common package)
+    - speech_tmp_node: convert audio to temporary file
+    - speech_stt_node: recognize speech from audio
+    - speech_ttc_node: convert text to command
+    - speech_tts_node: convert text to speech
   </description>
 
   <maintainer email="root@todo.todo">root</maintainer>
 
   <license>Apache License Version 2.0</license>
+  <depend>audio_common_msgs</depend>
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>rospy</build_depend>
   <build_depend>std_msgs</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>sound_play</build_depend>
+
   <build_export_depend>rospy</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>
+
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
+  <exec_depend>message_runtime</exec_depend>
+  <exec_depend>sound_play</exec_depend>
 </package>

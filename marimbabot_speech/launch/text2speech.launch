@@ -1,0 +1,3 @@
+<launch>
+<node name="speech_tts_node" pkg="marimbabot_speech" type="text2speech.py"/>
+</launch>

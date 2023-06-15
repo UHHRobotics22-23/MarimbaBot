@@ -1,14 +1,14 @@
-from marimbabot_command_recognition.msg import Command as CommandMsg
-from marimbabot_command_recognition.msg import Speech as SpeechMsg
-from marimbabot_command_recognition.srv import Speak, SpeakResponse
+from marimbabot_speech.msg import Command as CommandMsg
+from marimbabot_speech.msg import Speech as SpeechMsg
+# from marimbabot_speech.srv import Speak, SpeakResponse
 import rospy
 
 class CommandExtract:
 	def __init__(self):
-		self.command_pub = rospy.Publisher('/command_node/command', CommandMsg, queue_size=100, tcp_nodelay=True)
-		self.speech_sub = rospy.Subscriber('/command_node/speech', SpeechMsg, self.speech_callback, queue_size=10, tcp_nodelay=True)
+		self.command_pub = rospy.Publisher('/speech_node/command', CommandMsg, queue_size=100, tcp_nodelay=True)
+		self.speech_sub = rospy.Subscriber('/speech_node/speech', SpeechMsg, self.speech_callback, queue_size=10, tcp_nodelay=True)
 		rospy.wait_for_service('/speech_node/tts')
-		self.speaker = rospy.ServiceProxy('/speech_node/tts', Speak)
+		# self.speaker = rospy.ServiceProxy('/speech_node/tts', Speak)
 		self.command_id = 0
 		self.waiting_for_command = False
 		self.waiting_counter_limit = 3
@@ -29,9 +29,10 @@ class CommandExtract:
 
 	def say(self,text):
 		rospy.logdebug(f"say: {text}")
-		resp = self.speaker(text)
-		self.time_filter = rospy.Time.now()
-		return resp
+		# resp = self.speaker(text)
+		# self.time_filter = rospy.Time.now()
+		# return resp
+		return None
 
 	def keyword_spotting(self,text):
 		if "hello" not in text and "hi" not in text:
@@ -95,6 +96,6 @@ class CommandExtract:
 		rospy.spin()
 
 if __name__ == '__main__':
-	rospy.init_node('command_extract', log_level=rospy.DEBUG)
+	rospy.init_node('speech_t2c_node', log_level=rospy.DEBUG)
 	command_extract = CommandExtract()
 	command_extract.run()

@@ -1,0 +1,85 @@
+import os
+
+import rospy
+import whisper
+from utils.file_control import WAVFile
+from marimbabot_speech.msg import Speech as SpeechMsg
+from marimbabot_speech.msg import TmpFile as TmpFileMsg
+import time
+
+class STT:
+	def __init__(self):
+		# 'tiny.en', 'tiny', 'base.en', 'base', 'small.en', 'small', 'medium.en', 'medium', 'large-v1', 'large-v2', 'large'
+		self.model = whisper.load_model('medium.en')
+		self.file_controller = WAVFile()
+		self.speech_pub = rospy.Publisher('/speech_node/speech', SpeechMsg, queue_size=100, tcp_nodelay=True)
+		self.tmp_sub = rospy.Subscriber('/speech_node/audio_tmp', TmpFileMsg, self.tmp_callback, queue_size=10, tcp_nodelay=True)
+		self.recognize_freq = 2  # Hz
+		self.recognize_rate = rospy.Rate(self.recognize_freq)
+		self.no_speech_prob_filter = 0.5
+		rospy.logdebug(f"cwd:{os.getcwd()}")
+		self.prompt = self.generate_prompt()
+
+	def generate_prompt(self):
+		file_path = rospy.get_param('/speech_stt_node/commands_path')
+		rospy.logdebug(f"FILE_PATH:{file_path}")
+		with open(file_path,'r+') as f:
+			command_lines = f.readlines()[1:]
+		base_prompt = '''
+			Marimbabot is a marimba playing robot arm. You are able to give it commands, if you confuse just give it "None". The possible commands include:		
+		'''
+		for command in command_lines:
+			base_prompt += ''.join(f'{command.strip()}, ')
+		rospy.logdebug(f"Generate prompt as: {base_prompt}.")
+		return base_prompt
+
+
+	def tmp_callback(self, tmp_file_msg):
+		file_path = tmp_file_msg.file_path
+		text, no_speech_prob = self.recognize(file_path)
+		if no_speech_prob > self.no_speech_prob_filter:
+			return
+		if len(text)>300:
+			return
+		speech_msg = SpeechMsg()
+		speech_msg.header.stamp = rospy.Time.now()
+		speech_msg.speech = text
+		speech_msg.sentence_id = tmp_file_msg.sentence_id
+		speech_msg.is_finished = tmp_file_msg.is_finished
+		self.speech_pub.publish(speech_msg)
+		rospy.logdebug(f"speech published.")
+
+
+	def recognize(self, file_path:str):
+		time_0 = time.time()
+		# load audio and pad/trim it to fit 30 seconds
+		audio = whisper.load_audio(file_path)
+		audio = whisper.pad_or_trim(audio)
+
+		# make log-Mel spectrogram and move to the same device as the model
+		mel = whisper.log_mel_spectrogram(audio).to(self.model.device)
+
+		# decode the audio
+		options = whisper.DecodingOptions(fp16=True, language='en',prompt=self.prompt)
+		time_1 = time.time()
+		rospy.logdebug('*'*30)
+		rospy.logdebug(f"prerpocesing time:{time_1-time_0}")
+		result = whisper.decode(self.model, mel, options)
+		rospy.logdebug(f"decoding time:{time.time()-time_1}")
+		text = result.text
+		no_speech_prob = result.no_speech_prob
+		rospy.logdebug(f"no_speech_prob: {no_speech_prob}")
+		rospy.logdebug(f" TEXT:{text}")
+		return text, no_speech_prob
+
+	def run(self):
+		rospy.spin()
+
+if __name__ == '__main__':
+	rospy.init_node('speech_stt_node', log_level=rospy.DEBUG)
+	speech_recognition = STT()
+	speech_recognition.run()
+
+
+	# speech_recognition.generate_prompt()
+	# rospy.spin()

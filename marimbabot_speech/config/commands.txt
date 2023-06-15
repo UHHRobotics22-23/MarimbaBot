@@ -1,0 +1,13 @@
+# the following command will be used for generating the prompt, to improve the performance of STT.
+Marimbabot stop
+Marimbabot stop playing
+Marimbabot start
+Marimbabot start playing
+Marimbabot play slower
+Marimbabot play faster
+Marimbabot play louder
+Marimbabot play softer
+Marimbabot repeat
+Marimbabot loop
+Marimbabot read
+Marimbabot concatenate

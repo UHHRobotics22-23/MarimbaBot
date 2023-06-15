@@ -1,6 +1,6 @@
 import rospy
 from audio_common_msgs.msg import AudioDataStamped
-from marimbabot_command_recognition.msg import TmpFile as TmpFileMsg
+from marimbabot_speech.msg import TmpFile as TmpFileMsg
 from utils.file_control import WAVFile
 import webrtcvad
 
@@ -19,7 +19,7 @@ class Audio2FileNode:
 		)
 
 		self.tmp_pub = rospy.Publisher(
-			'/command_node/audio_tmp',
+			'/speech_node/audio_tmp',
 			TmpFileMsg,
 			queue_size=10,
 			tcp_nodelay=True
@@ -32,7 +32,7 @@ class Audio2FileNode:
 		self.silence_count = 0
 		self.topic_freq = 100  # Hz of ros publishing rate for topic /audio_stamped
 		self.detect_freq = 1  # Hz of detection rate
-		self.silence_limit = 1  # sec
+		self.silence_limit = 2  # sec
 		self.file_id = 0
 		self.buffer_limit = 60  # sec
 		self.buffer_count = 0
@@ -73,8 +73,8 @@ class Audio2FileNode:
 				self.buffer += audio_data
 				self.silence_count = 0
 
-				if self.buffer_count % (self.detect_freq * self.topic_freq) == 0 and self.buffer_count > 0:
-					self.send2detector(is_finished=False)
+				# if self.buffer_count % (self.detect_freq * self.topic_freq) == 0 and self.buffer_count > 0:
+				# 	self.send2detector(is_finished=False)
 
 			else:
 				self.silence_count += 1
@@ -91,7 +91,7 @@ class Audio2FileNode:
 		return self.vad.is_speech(audio, self.sample_rate)
 
 if __name__ == '__main__':
-	rospy.init_node('audio2file', log_level=rospy.INFO)
+	rospy.init_node('speech_tmp_node', log_level=rospy.INFO)
 	audio2file = Audio2FileNode()
 	rospy.logdebug(f"audio2file node started")
 	audio2file.run()
