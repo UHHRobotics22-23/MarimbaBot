@@ -6,13 +6,12 @@
         <arg name="mallet_holder_type" value="$(arg mallet_holder_type)"/>
     </include>
 
-    <if value="$(arg mallet_holder_type)=='static'">
-        <include file="$(find marimbabot_ur5_moveit_config)/launch/move_group.launch"/>
-    </if>
-    <!-- if mallet_holder_type is flex_double, then define arg target_urdf -->
-    <if value="$(arg mallet_holder_type)=='flex_double'">
-        <include file="$(find marimbabot_ur5_flex_double_moveit_config)/launch/move_group.launch"/> 
-    </if>
+    <include
+        file="$(find marimbabot_ur5_moveit_config)/launch/move_group.launch"
+        if="$(eval mallet_holder_type=='static')" />
+    <include
+        file="$(find marimbabot_ur5_flex_double_moveit_config)/launch/move_group.launch"
+        if="$(eval mallet_holder_type=='flex_double')"/> 
 
     <include file="$(find ur_robot_driver)/launch/ur_control.launch">
         <arg name="headless_mode" value="true"/>
