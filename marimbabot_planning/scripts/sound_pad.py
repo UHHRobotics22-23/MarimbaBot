@@ -4,10 +4,10 @@
 A set of melodies that can be played on the marimbabot for testing purposes.
 """
 
-import rospy
 import actionlib
-from marimbabot_msgs.msg import HitSequenceAction, HitSequenceGoal, HitSequenceElement
-
+import rospy
+from marimbabot_msgs.msg import (HitSequenceAction, HitSequenceElement,
+                                 HitSequenceGoal)
 
 MELODIES = {
     'chromatic_scale':
@@ -99,7 +99,7 @@ class DummyMotionClient:
                 start_time += duration
                 goal.hit_sequence_elements.append(
                     HitSequenceElement(
-                        tone_name=note.strip().upper().replace('#', 's'),
+                        tone_name=note.strip().lower().replace('#', 'is'),
                         tone_duration=duration,
                         octave=octave+octave_offset,
                         loudness=1.0,
