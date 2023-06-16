@@ -57,7 +57,7 @@ def read_notes(notes) -> HitSequenceGoal:
         name = pm.note_number_to_name(note.pitch)
         goal.hit_sequence_elements.append(
             HitSequenceElement(
-                tone_name = ''.join([x for x in name.replace('#', 's') if not x.isdigit()]), # TODO regex parse
+                tone_name = ''.join([x for x in name.replace('#', 'is') if not x.isdigit()]).lower(), # TODO regex parse
                 octave = int(name[-1]),
                 start_time = rospy.Time(note.start),
                 tone_duration = rospy.Duration(note.get_duration()),
