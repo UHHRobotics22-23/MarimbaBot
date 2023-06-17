@@ -4,6 +4,7 @@ project(marimbabot_speech)
 find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
+  sound_play
 )
 
 ###################################
