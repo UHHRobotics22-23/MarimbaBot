@@ -87,7 +87,7 @@ rosdep update
 # Install new dependencies
 rosdep install --from-paths src --ignore-src -r -y
 # Unfortunately this is needed as for unknown reasons the dependency is not recognized
-rosdep install serial
+sudo apt install ros-noetic-serial
 
 # Install new python dependencies
 pip3 install --upgrade -r requirements.txt
