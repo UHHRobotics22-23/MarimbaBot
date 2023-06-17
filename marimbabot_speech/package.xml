@@ -7,9 +7,9 @@
     It consists of the following nodes:
     - audio_capture: capture audio from microphone (from ros audio_common package)
     - speech_tmp_node: convert audio to temporary file
-    - speech_stt_node: recognize speech from audio
+    - speech_stt_node: recognize speech from audio file
     - speech_ttc_node: convert text to command
-    - speech_tts_node: convert text to speech using sound_play (from ros audio_common package)
+    - speech_tts_node: convert text to speech
   </description>
 
   <maintainer email="root@todo.todo">root</maintainer>
