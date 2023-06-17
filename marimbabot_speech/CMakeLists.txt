@@ -24,6 +24,7 @@ DIRECTORY
 generate_messages(
 DEPENDENCIES
   std_msgs
+  sound_play
 )
 
 catkin_package(

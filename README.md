@@ -52,6 +52,8 @@ rosdep update
 
 # Install all dependencies needed by our repository
 rosdep install --from-paths src --ignore-src -r -y
+# Unfortunately this is needed as for unknown reasons the dependency is not recognized
+rosdep install serial
 
 # Install python dependencies
 pip3 install wheel  # firstly install the wheel for further package building if you start from a empty virtual environment.
@@ -84,6 +86,8 @@ rosdep update
 
 # Install new dependencies
 rosdep install --from-paths src --ignore-src -r -y
+# Unfortunately this is needed as for unknown reasons the dependency is not recognized
+rosdep install serial
 
 # Install new python dependencies
 pip3 install --upgrade -r requirements.txt

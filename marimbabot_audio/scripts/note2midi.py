@@ -2,7 +2,7 @@ import os
 import datetime
 
 import rospy
-from marimbabot_audio.msg import NoteOnset
+from  marimbabot_msgs.msg import NoteOnset, CQTStamped
 from sensor_msgs.msg import Image
 import cv_bridge
 import numpy as np
