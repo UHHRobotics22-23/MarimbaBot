@@ -5,7 +5,7 @@
 
   <!-- Load URDF -->
   <include file="$(dirname)/planning_context.launch">
-    <arg name="load_robot_description" value="true"/>
+    <arg name="marimbabot_ur5_upload" value="true"/>
   </include>
 
   <!-- Start the database -->

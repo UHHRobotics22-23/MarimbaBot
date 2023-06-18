@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <launch>
-
-  <include file="$(dirname)/load_robot_description.launch"/>
+  <arg name="mallet_holder_type" default="static" doc="Type of mallet holder: static, flex or flex_double" />
+  <include file="$(dirname)/marimbabot_ur5_upload.launch">
+    <arg name="mallet_holder_type" value="$(arg mallet_holder_type)" />
+  </include>
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(dirname)/../config/marimba_ur5.rviz" />

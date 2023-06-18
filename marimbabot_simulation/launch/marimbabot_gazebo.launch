@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="paused" default="false"/>
+  <arg name="gui" default="true"/>
+  <arg name="launch_rviz" default="true" />
+
+  <!-- startup simulated world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" default="$(find tams_ur5_gazebo)/worlds/empty.world"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="gui" value="$(arg gui)"/>
+  </include>
+
+  <!-- send robot urdf to param server, we have some Gazebo modifications here...  -->
+  <include file="$(find marimbabot_description)/launch/marimbabot_ur5_upload.launch">
+    <arg name="bars_fixed_joint" value="false"/>
+  </include>
+
+  <!-- spawn robot in gazebo with start position "home" (=upright) -->
+  <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" 
+        args="-urdf -param robot_description -model robot 
+               -J ur5_shoulder_lift_joint -1.571 -J ur5_shoulder_pan_joint 0.0 -J ur5_elbow_joint 0.0
+               -J ur5_wrist_1_joint -1.571 -J ur5_wrist_2_joint 0.0 -J ur5_wrist_3_joint 0.0" 
+        respawn="false" output="screen" />
+
+  <rosparam file="$(find marimbabot_ur5_moveit_config)/config/joint_state_controller.yaml" command="load"/>
+  
+  <node name="joint_state_controller_spawner" pkg="controller_manager" type="spawner" 
+        args="joint_state_controller" respawn="false" output="screen"/>
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="100.0" />
+    <param name="tf_prefix" type="string" value="" />
+  </node>
+
+  <!-- arm controller, actually called "/pos_joint_traj_controller" -->
+  <rosparam file="$(find marimbabot_ur5_moveit_config)/config/arm_controller_ur5.yaml" command="load"/>
+
+  <node name="arm_controller_spawner" pkg="controller_manager" type="spawner" 
+        args="pos_joint_traj_controller" respawn="false" output="screen" />
+
+  <!-- remap arm_controller/ to top-level /follow_joint_trajectory -->
+  <remap from="/follow_joint_trajectory" to="/arm_controller/follow_joint_trajectory"/>
+
+  <!-- our Robotiq gripper simulation has all joints actively controlled -->
+  <rosparam file="$(find marimbabot_ur5_moveit_config)/config/gripper_controller.yaml" command="load"/>
+
+  <node name="gripper_controller_spawner" pkg="controller_manager" type="spawner" 
+        args="gripper_controller" respawn="false" output="screen" />
+
+  <!-- we want to remap the gripper controller topics, but that is not so easy with gazebo plugins... -->
+  <remap from="/gripper_action" to="/gripper_controller/follow_joint_trajectory" /> -->
+
+  <!-- fake UR5 calibration -->
+  <node pkg="rostopic" type="rostopic" name="fake_joint_calibration"
+        args="pub /calibrated std_msgs/Bool true" />
+
+  <!-- Moveit, same configuration as real TAMS robot -->
+  <include file="$(find marimbabot_ur5_moveit_config)/launch/move_group.launch"/>
+
+  <group if="$(arg launch_rviz)">
+   <node name="rviz" pkg="rviz" type="rviz" respawn="false"
+         args="-d $(find tams_ur5_gazebo)/config/tams_ur5_gazebo.rviz"  />
+  </group>
+</launch>

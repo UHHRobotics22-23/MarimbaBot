@@ -3,27 +3,27 @@
     
     <link name="mallet_base_link">
         <visual>
-            <origin xyz="0.0 0.0 0.0" rpy="${-pi / 2} 0.0 0.0"/>
+            <origin xyz="${(7-77/2)/1000} ${(6-(68.4+6+6)/2)/1000} ${110/1000}" rpy="${-pi / 2} 0.0 0.0"/>
             <geometry>
-                <mesh filename="package://marimbabot_description/mesh/two_mallet_compliance_holder_static_element.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://marimbabot_description/mesh/two_mallet_base_element.stl" scale="0.001 0.001 0.001"/>
             </geometry>
             <material name="mallet_holder_white">
                 <color rgba="1.0 1.0 1.0 1.0"/>
             </material>
         </visual>
         <collision>
-            <origin xyz="0.0 0.0 ${0.06/2}" rpy="0.0 0.0 0.0"/>
+            <origin xyz="0.0 0.0 ${0.11/2}" rpy="0.0 0.0 0.0"/>
             <geometry>
-                <box size="0.08 0.07 0.06"/>
+                <box size="0.077 ${(68.4+6+6)/1000} 0.11"/>
             </geometry>
         </collision>
     </link>
 
     <link name="mallet_servo_box">
         <visual>
-            <origin xyz="0.0 0.0 0.0" rpy="${-pi / 2} 0.0 0.0"/>
+            <origin xyz="${-(10)/1000} ${(6-(68.4+6+6)/2)/1000} ${(13.3+10)/1000}" rpy="${-pi / 2} 0.0 0.0"/>
             <geometry>
-                <mesh filename="package://marimbabot_description/mesh/two_mallet_compliance_holder_dynamic_element.stl" scale="0.001 0.001 0.001"/>
+                <mesh filename="package://marimbabot_description/mesh/two_mallet_servo_element.stl" scale="0.001 0.001 0.001"/>
             </geometry>
             <material name="mallet_holder_white">
                 <color rgba="1.0 1.0 1.0 1.0"/>
@@ -32,6 +32,15 @@
     </link>
 
     <link name="mallet_base_box_1">
+        <visual>
+            <origin xyz="0.0 0.0 ${(90/2)/1000}" rpy="${-pi / 2} ${-pi / 2} 0.0"/>
+            <geometry>
+                <mesh filename="package://marimbabot_description/mesh/mallet_double_flex.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="mallet_holder_white">
+                <color rgba="1.0 1.0 1.0 1.0"/>
+            </material>
+        </visual>
         <collision>
             <origin xyz="0.0 0.0 0.045" rpy="0.0 0.0 0.0"/>
             <geometry>
@@ -41,6 +50,15 @@
     </link>
 
     <link name="mallet_base_box_2">
+        <visual>
+            <origin xyz="0.0 0.0 ${(90/2)/1000}" rpy="${-pi / 2} ${-pi / 2} ${pi}"/>
+            <geometry>
+                <mesh filename="package://marimbabot_description/mesh/mallet_double_flex.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <material name="mallet_holder_white">
+                <color rgba="1.0 1.0 1.0 1.0"/>
+            </material>
+        </visual>
         <collision>
             <origin xyz="0.0 0.0 0.045" rpy="0.0 0.0 0.0"/>
             <geometry>
@@ -89,13 +107,13 @@
     <joint name="mallet_base_link_group_1" type="fixed">
         <parent link="mallet_base_link"/>
         <child link="mallet_base_box_1"/>
-        <origin xyz="0.0225 0.003 0.072"/>
+        <origin xyz="${(77/2-35/2)/1000} 0.0038 ${(110+12-0.2)/1000}"/>
     </joint>
 
     <joint name="mallet_finger" type="revolute">
         <parent link="mallet_base_link"/>
         <child link="mallet_servo_box"/>
-        <origin xyz="-0.02 0.0 0.0368"/>
+        <origin xyz="${(-77/2+10+7)/1000} 0.0 ${0.0368+(110-60)/1000}"/>
         <limit lower="0.0" upper="0.801" effort="1.0" velocity="7.0"/>
         <axis xyz="0.0 -1.0 0.0"/>
     </joint>
@@ -115,7 +133,7 @@
     <joint name="mallet_group_2_start_link" type="fixed">
         <parent link="mallet_servo_box"/>
         <child link="mallet_base_box_2"/>
-        <origin xyz="0.0075 0.003 0.0353"/>
+        <origin xyz="0.0075 0.0038 0.0351"/>
     </joint>
 
     <joint name="mallet_group_2_2nd_link" type="fixed">

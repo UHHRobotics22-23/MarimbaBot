@@ -1,4 +1,3 @@
 <launch>
-    <node name="marimba_move_lilypond_input_viz" pkg="marimbabot_planning" type="lilypond_to_hitpoint"/>
-    <node name="marimba_move" pkg="marimbabot_planning" type="move_to_pose"/>
+    <node name="marimbabot_planning" pkg="marimbabot_planning" type="planning" output="screen" />
 </launch>
