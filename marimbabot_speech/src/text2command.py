@@ -1,5 +1,5 @@
-from marimbabot_speech.msg import Command as CommandMsg
-from marimbabot_speech.msg import Speech as SpeechMsg
+from marimbabot_msgs.msg import Command as CommandMsg
+from marimbabot_msgs.msg import Speech as SpeechMsg
 import rospy
 from utils.command import get_commands
 

@@ -3,8 +3,8 @@ import os
 import rospy
 import whisper
 from utils.file_control import WAVFile
-from marimbabot_speech.msg import Speech as SpeechMsg
-from marimbabot_speech.msg import TmpFile as TmpFileMsg
+from marimbabot_msgs.msg import Speech as SpeechMsg
+from marimbabot_msgs.msg import TmpFile as TmpFileMsg
 import time
 from utils.command import get_commands
 

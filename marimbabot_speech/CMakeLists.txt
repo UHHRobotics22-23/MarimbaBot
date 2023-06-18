@@ -11,15 +11,6 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_python_setup()
 
-add_message_files(
-DIRECTORY
-  msg
-    FILES
-        Command.msg
-        Speech.msg
-        TmpFile.msg
-)
-
 
 generate_messages(
 DEPENDENCIES

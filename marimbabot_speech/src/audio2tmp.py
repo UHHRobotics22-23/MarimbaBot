@@ -1,6 +1,6 @@
 import rospy
 from audio_common_msgs.msg import AudioDataStamped
-from marimbabot_speech.msg import TmpFile as TmpFileMsg
+from marimbabot_msgs.msg import TmpFile as TmpFileMsg
 from utils.file_control import WAVFile
 import webrtcvad
 
