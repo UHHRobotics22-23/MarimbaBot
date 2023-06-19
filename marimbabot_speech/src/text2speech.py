@@ -56,7 +56,7 @@ class SpeechSynthesis:
         self.audio_pub.publish(sound_request)
 
 if __name__ == '__main__':
-    rospy.init_node('speech_synthesis_node')
+    rospy.init_node('speech_tts_node')
 
     SpeechSynthesis()
 
