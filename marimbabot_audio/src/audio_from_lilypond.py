@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
 import tempfile
+import time
+import wave
 
+import actionlib
 import rospy
 from abjad import Block, LilyPondFile, Score, Staff, Voice
 from abjad.persist import as_midi
@@ -9,6 +12,16 @@ from midi2audio import FluidSynth
 from sound_play.msg import SoundRequest
 from std_msgs.msg import String
 
+from marimbabot_msgs import (LilypondAudioAction, LilypondAudioFeedback,
+                             LilypondAudioResult)
+
+
+def get_audio_length(file_path):
+    with wave.open(file_path, 'rb') as audio_file:
+        framerate = audio_file.getframerate()
+        frames = audio_file.getnframes()
+        duration = frames / float(framerate)
+        return duration
 
 # create lilypond file from sentence
 def create_lilypond_file(sentence):
@@ -58,7 +71,7 @@ def create_audio_from_lilypond(sentence):
     return audio_filename
 
 # callback for vision node, includes audio publisher
-def callback_vision_results(data: String, audio_publisher):
+def callback_lilypond_sentence(data: String, audio_publisher):
     rospy.logdebug("received recognized sentence")
     
     # create audio from lilypond
@@ -76,21 +89,53 @@ def callback_vision_results(data: String, audio_publisher):
     # publish audio file to audio node (sound_play package)
     audio_publisher.publish(sound_request)
 
-# create audio from lilypond publisher
-# send audio to audio node (sound_play package)
-def listener():
+    return audio_filename
+
+"""
+Action server for audio generation from lilypond string
+"""
+class AudioFromLilypondActionServer:
+    # create messages that are used to publish feedback/result
+    _feedback = LilypondAudioFeedback()
+    _result = LilypondAudioResult()
+
+    def __init__(self, name):
+        # publish to audio node (sound_play package)
+        self.pub = rospy.Publisher('robotsound', SoundRequest, queue_size=50)
+
+        self._action_name = name
+        self._as = actionlib.SimpleActionServer(self._action_name, LilypondAudioAction, execute_cb=self.execute_cb, auto_start = False)
+        self._as.start()
+      
+    def execute_cb(self, goal):
+        success = True
+        
+        # append the seeds for the fibonacci sequence
+        self._feedback.in_progress = True
+        
+        # publish info to the console for the user
+        rospy.logdebug("Starting " + self._action_name + " with order " + str(goal.lilypond_string)) 
+        
+        # start executing the action
+        audio_filename = ""
+        try:
+            audio_filename = callback_lilypond_sentence(goal.lilypond_string, self.pub)
+            durations_seconds = get_audio_length(audio_filename)
+            time.sleep(durations_seconds)
+        except:
+            # if an error happens during audio generation, set success to false
+            success = False
+            rospy.logerr("Error during audio generation inside audio_from_lilypond action server")
+
+        if success:
+            rospy.loginfo('%s: Succeeded' % self._action_name)
+            self._as.set_succeeded(self._result)
+
+if __name__ == '__main__':
     # initialize node
     rospy.init_node('~audio_generation', anonymous=True)
 
-    # subscribe to vision node and publish to audio node (sound_play package)
-    pub = rospy.Publisher('robotsound', SoundRequest, queue_size=50)
-
-    # Especially for the behavior node: Topic to subscribe to: lilypond_to_audio.
-    rospy.Subscriber("lilypond_to_audio", String, callback_vision_results, callback_args=(pub))
+    server = AudioFromLilypondActionServer(rospy.get_name())
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
-
-if __name__ == '__main__':
-    # start listener node
-    listener()

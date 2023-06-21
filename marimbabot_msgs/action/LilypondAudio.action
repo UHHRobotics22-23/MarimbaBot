@@ -1,0 +1,10 @@
+#goal definition
+std_msgs/String lilypond_string # any string that can be interpreted by lilypond
+
+#result definition
+---
+bool success # whether audio is assumed to be played    
+
+#feedback
+---
+bool in_progress # whether audio is assumed to be played
