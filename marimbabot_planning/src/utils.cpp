@@ -96,13 +96,14 @@ moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
 }
 
 
-std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
+std::pair<std::vector<CartesianHitSequenceElement>, std::vector<CartesianHitSequenceElement>> hit_sequence_to_points(
             const std::vector<marimbabot_msgs::HitSequenceElement>& hit_sequence,
             std::string planning_frame,
             std::shared_ptr<tf2_ros::Buffer> tf_buffer)
 {
     // Create a vector of CartesianHitSequenceElements
     std::vector<CartesianHitSequenceElement> cartesian_hit_sequence;
+    std::vector<CartesianHitSequenceElement> cartesian_hit_sequence2;
 
     // Add the goal point to the vector
     for (auto point : hit_sequence)
@@ -142,7 +143,46 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
             continue;
         }
     }
-    return cartesian_hit_sequence;
+
+    // Add the goal point to the vector
+    for (auto point : hit_sequence)
+    {
+        // Map the note letter and octave to the corresponding tf frame
+        std::string note_frame = "bar_" + point.tone_name + std::to_string(point.octave+1);
+
+        // Get the cartesian point of the note
+        geometry_msgs::PointStamped note_point;
+        note_point.header.frame_id = note_frame;  // The frame of the note
+        note_point.header.stamp = ros::Time(0);  // Use the latest available transform
+
+        try
+        {
+            // Transform the point to the planning frame
+            note_point = tf_buffer->transform(
+                note_point,
+                planning_frame,
+                ros::Duration(1.0)
+                );
+
+            // Add temporary z offset
+            note_point.point.z += 0.04;
+
+            // Add the cartesian point and time to the vector
+            CartesianHitSequenceElement hit_sequence_element;
+            hit_sequence_element.point = note_point;
+            hit_sequence_element.msg = point;
+            
+            // Add the struct to the vector
+            cartesian_hit_sequence2.push_back(hit_sequence_element);
+        }
+        catch (tf2::TransformException &ex)
+        {
+            ROS_WARN("Failed to get the transformation from the robot base to the note frame on the marimba! Error: %s", ex.what());
+            ROS_WARN("Skipping note %s", point.tone_name.c_str());
+            continue;
+        }
+    }
+    return std::make_pair(cartesian_hit_sequence, cartesian_hit_sequence2);
 }
 
 } // namespace marimbabot_planning
