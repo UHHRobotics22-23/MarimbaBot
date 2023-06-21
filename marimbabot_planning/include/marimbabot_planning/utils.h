@@ -72,7 +72,7 @@ moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
  * @param planning_frame
  * @return std::vector<CartesianHitSequenceElement>
  **/
-std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
+std::pair<std::vector<CartesianHitSequenceElement>, std::vector<CartesianHitSequenceElement>>  hit_sequence_to_points(
     const std::vector<marimbabot_msgs::HitSequenceElement>& hit_sequence,
     std::string planning_frame,
     std::shared_ptr<tf2_ros::Buffer> tf_buffer);

@@ -18,7 +18,7 @@ Planning::Planning(const std::string planning_group) :
         false}
 {
     // Set planning pipeline and planner
-    move_group_interface_.setPlanningPipelineId("pilz_industrial_motion_planner");
+    move_group_interface_.setPlanningPipelineId("ompl");
     move_group_interface_.setPlannerId("PTP");
     move_group_interface_.startStateMonitor();
     // Move to home position
@@ -65,7 +65,8 @@ void Planning::go_to_home_position()
  **/
 moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_position(
     const moveit_msgs::RobotState& start_state,
-    geometry_msgs::PointStamped goal_point)
+    geometry_msgs::PointStamped goal_point,
+    geometry_msgs::PointStamped goal_point2)
 {
     // Initialize output plan
     moveit::planning_interface::MoveGroupInterface::Plan plan;
@@ -87,12 +88,34 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
         goal_point.point.y,
         goal_point.point.z);
 
+
+    // Copy goal point geometry_msgs::PointStamped to tf2::Vector3
+    tf2::Vector3 goal_position2(
+        goal_point2.point.x,
+        goal_point2.point.y,
+        goal_point2.point.z);
+
+    ROS_ERROR_STREAM("Points first: " << goal_point.point.x);
+    ROS_ERROR_STREAM("Points first: " << goal_point2.point.x);
+
+
     // Use bio_ik to solve the inverse kinematics at the goal point
     bio_ik::BioIKKinematicsQueryOptions ik_options;
     ik_options.replace = true;
     ik_options.return_approximate_solution = false; // Activate for debugging if you get an error 
 
+    // auto* mallet_head_1 = new bio_ik::PositionGoal();
+    // mallet_head_1->setLinkName("mallet_head_1");
+    // mallet_head_1->setPosition(goal_position);
+
+    // auto* mallet_head_2 = new bio_ik::PositionGoal();
+    // mallet_head_2->setLinkName("mallet_head_2");
+    // mallet_head_2->setPosition(goal_position2);
+    // ik_options.goals.emplace_back(mallet_head_1);
+    // ik_options.goals.emplace_back(mallet_head_2);
+
     ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_1", goal_position));
+    ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_2", goal_position2));
 
     // Create link on plane constraint using the LinkFunctionGoal
     tf2::Vector3 plane_point(0.0, 0.0, 1.0);
@@ -150,7 +173,8 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
 
 moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     const moveit_msgs::RobotState& start_state,
-    CartesianHitSequenceElement note)
+    CartesianHitSequenceElement note1,
+    CartesianHitSequenceElement note2)
 {
 
     moveit::core::RobotState robot_state(move_group_interface_.getRobotModel());
@@ -158,20 +182,23 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     moveit::core::robotStateMsgToRobotState(start_state, robot_state);
 
     // Calculate approach point
-    geometry_msgs::PointStamped approach_point{note.point};
-    approach_point.point.z += 0.1;
+    geometry_msgs::PointStamped approach_point1{note1.point};
+    geometry_msgs::PointStamped approach_point2{note2.point};
+    approach_point1.point.z += 0.1;
         
     // Calculate retreat point
-    geometry_msgs::PointStamped retreat_point{approach_point};
+    geometry_msgs::PointStamped retreat_point1{approach_point1};
+    geometry_msgs::PointStamped retreat_point2{approach_point2};
+
 
     // Calculate approach trajectory
-    auto approach_plan = plan_to_mallet_position(start_state, approach_point);
+    auto approach_plan = plan_to_mallet_position(start_state, approach_point1, approach_point2);
 
     // Calculate down trajectory
-    auto down_plan = plan_to_mallet_position(get_robot_state_after_plan(approach_plan), note.point);
+    auto down_plan = plan_to_mallet_position(get_robot_state_after_plan(approach_plan), note1.point, note2.point);
 
     // Calculate retreat trajectory
-    auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), retreat_point);
+    auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), retreat_point1, retreat_point2);
 
     // Concatinate trajectories
     auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
@@ -187,26 +214,30 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
  * @return moveit::planning_interface::MoveGroupInterface::Plan
 **/
 moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_notes(
-    const moveit_msgs::RobotState& start_state,
-    std::vector<CartesianHitSequenceElement> points)
+    moveit_msgs::RobotState& start_state,
+    const std::vector<CartesianHitSequenceElement>& points1,
+    const std::vector<CartesianHitSequenceElement>& points2)
 {
-    // Assert that there is at least one hit_point with an nice error message
-    assert(points.size() > 0 && "There must be at least one hit_point");
+    // Assert that there is at least one hit_point with a nice error message
+    assert(points1.size() > 0 && "There must be at least one hit_point for points1");
+    assert(points2.size() > 0 && "There must be at least one hit_point for points2");
 
-    // Calculate hit trajectory
-    auto hit_plan = hit_note(
-        start_state,
-        points.front()
-        );
+    // Calculate the number of points to iterate over (take the smaller size)
+    size_t num_points = std::min(points1.size(), points2.size());
 
-    // Call hit_points recursively for all remaining hit_points
-    if(points.size() > 1)
+    // Create an empty plan
+    moveit::planning_interface::MoveGroupInterface::Plan hit_plan;
+
+    // Iterate over the points and generate a combined plan
+    for (size_t i = 0; i < num_points; ++i)
     {
-        auto remaining_hit_plan = hit_notes(
-            get_robot_state_after_plan(hit_plan),
-            std::vector<CartesianHitSequenceElement>(points.begin() + 1, points.end())
-            );
+        // Calculate the hit trajectory for each point in points1 and points2
+        auto remaining_hit_plan = hit_note(start_state, points1[i], points2[i]);
+
+        // Update the start state for the next iteration
+        start_state = get_robot_state_after_plan(remaining_hit_plan);
         hit_plan = concatinated_plan({hit_plan, remaining_hit_plan});
+
     }
 
     return hit_plan;
@@ -231,14 +262,19 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
         moveit::core::robotStateToRobotStateMsg(*current_state, start_state);
 
         // Gets the hit points in cartesian space for every note
-        auto hits = hit_sequence_to_points(
+        auto points = hit_sequence_to_points(
             goal->hit_sequence_elements, 
             move_group_interface_.getPlanningFrame(),
             tf_buffer_
         );
+        auto mallet1_points = points.first;
+        auto mallet2_points = points.second;
+        ROS_ERROR_STREAM("Points first: " << mallet1_points.size());
+        ROS_ERROR_STREAM("Points second: " << mallet2_points.size());
+
 
         // Define hit plan
-        auto hit_plan = hit_notes(start_state, hits);
+        auto hit_plan = hit_notes(start_state, mallet1_points, mallet2_points);
 
         // Publish the plan for rviz
         moveit_msgs::DisplayTrajectory display_trajectory;

@@ -56,7 +56,8 @@ class Planning
          **/
         moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
             const moveit_msgs::RobotState& start_state,
-            geometry_msgs::PointStamped goal_point);
+            geometry_msgs::PointStamped goal_point,
+                geometry_msgs::PointStamped goal_point2);
 
 
         /**
@@ -69,7 +70,8 @@ class Planning
 
         moveit::planning_interface::MoveGroupInterface::Plan hit_note(
             const moveit_msgs::RobotState& start_state,
-            CartesianHitSequenceElement note);
+            CartesianHitSequenceElement note,
+            CartesianHitSequenceElement note2);
 
 
         /**
@@ -80,8 +82,9 @@ class Planning
          * @return moveit::planning_interface::MoveGroupInterface::Plan
         **/
         moveit::planning_interface::MoveGroupInterface::Plan hit_notes(
-            const moveit_msgs::RobotState& start_state,
-            std::vector<CartesianHitSequenceElement> notes);
+        moveit_msgs::RobotState& start_state,
+        const std::vector<CartesianHitSequenceElement>& points1,
+        const std::vector<CartesianHitSequenceElement>& points2);
 
 
         /**
