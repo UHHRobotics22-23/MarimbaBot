@@ -133,7 +133,7 @@ class AudioFromLilypondActionServer:
 
 if __name__ == '__main__':
     # initialize node
-    rospy.init_node('~audio_generation', anonymous=True)
+    rospy.init_node('~lilypond_audio_generation', anonymous=True)
 
     server = AudioFromLilypondActionServer(rospy.get_name())
 
