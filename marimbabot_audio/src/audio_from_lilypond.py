@@ -84,7 +84,9 @@ def listener():
 
     # subscribe to vision node and publish to audio node (sound_play package)
     pub = rospy.Publisher('robotsound', SoundRequest, queue_size=50)
-    rospy.Subscriber("vision_node/recognized_notes", String, callback_vision_results, callback_args=(pub))
+
+    # Especially for the behavior node: Topic to subscribe to: lilypond_to_audio.
+    rospy.Subscriber("lilypond_to_audio", String, callback_vision_results, callback_args=(pub))
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
