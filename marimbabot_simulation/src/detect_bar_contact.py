@@ -9,6 +9,9 @@ from std_msgs.msg import String
 # velocity threshold to count as a bar hit
 VEL_THRESHOLD = 0.01
 
+# time between contacts to register as a separate one
+TIME_THRESHOLD = 1. # s
+
 # names of bars we are interested in
 # corresponding joints are bar_<note>/joint
 # e.g. "bar_a4" <-> "bar_a4/joint"
@@ -57,23 +60,31 @@ joint2note = {
 }
 
 pub = None
+last_contact_timestamps = {
+    joint: 0 for joint in BAR_JOINT_NAMES
+}
 
 
 def joint_states_callback(message):
     for i, name in enumerate(message.name):
         if name not in joint2note:
             continue
+
+        # ignore joint if it has an ongoing contact
+        if message.header.stamp.secs - last_contact_timestamps[name] < TIME_THRESHOLD:
+            continue
+
         vel = message.velocity[i]
         if vel > VEL_THRESHOLD:
             rospy.loginfo(f"Detected contact with {joint2note[name]} vel={vel:.5f}")
             pub.publish(joint2note[name])
-    return
+            last_contact_timestamps[name] = message.header.stamp.secs
 
 
 def listener():
     rospy.init_node("detect_bar_contact")
     global pub
-    pub = rospy.Publisher("sim_notes", String, queue_size=10)
+    pub = rospy.Publisher("sim_notes", String, queue_size=1)
     rospy.Subscriber("joint_states", JointState, joint_states_callback, queue_size=1)
     rospy.spin()
 
