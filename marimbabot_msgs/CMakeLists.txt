@@ -14,6 +14,9 @@ add_message_files(
   HitSequenceElement.msg
   CQTStamped.msg
   NoteOnset.msg
+  Command.msg
+  Speech.msg
+  TmpFile.msg
 )
 
 add_action_files(

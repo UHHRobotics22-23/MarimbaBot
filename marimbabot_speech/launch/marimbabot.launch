@@ -1,4 +1,15 @@
 <launch>
-<node name="speech_synthesis_node" pkg="marimbabot_speech" type="speech_synthesis.py">
-</node>
+  <node name="audio_capture" pkg="audio_capture" type="audio_capture" output="screen">
+    <param name="device" value="" />
+    <param name="format" value="wave" />
+    <param name="channels" value="1" />
+    <param name="depth" value="2" />
+    <param name="sample_rate" value="16000" />
+  </node>
+  <node name="speech_tmp_node" pkg="marimbabot_speech" type="audio2tmp.py" output="screen"/>
+  <node name="speech_stt_node" pkg="marimbabot_speech" type="speech2text.py" output="screen">
+    <param name="commands_path"  value="$(find marimbabot_speech)/config/commands.txt"/>
+  </node>
+  <node name="speech_t2c_node" pkg="marimbabot_speech" type="text2command.py" output="screen"/>
+  <node name="speech_tts_node" pkg="marimbabot_speech" type="text2speech.py" output="screen"/>
 </launch>

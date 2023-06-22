@@ -10,7 +10,7 @@ class SpeechSynthesis:
     def __init__(self):
         # initialize voice and speed
         self.voice = "en_UK/apope_low"
-        self.speed = "1.0"
+        self.speed = "1.5"
 
         # listens to the defined text responses from behavior node
         self.response_sub = rospy.Subscriber("behavior_node/response", String, self.callback_response)
@@ -31,32 +31,32 @@ class SpeechSynthesis:
             sound_request.command = 1
             sound_request.volume = 1
 
-            # speak from text 
-            sound_request.sound = -3
-            sound_request.arg = text
+            # speak from text (uses espeak)
+            # sound_request.sound = -3
+            # sound_request.arg = text
 
-            # # play sound from audio file
-            # sound_request.sound = -2
+            # play sound from audio file (uses mimic3, produces tempfiles)
+            sound_request.sound = -2
 
-            # temp_ = tempfile.TemporaryFile()
-            # audio_filename = str(temp_.name) + ".wav"
+            temp_ = tempfile.TemporaryFile()
+            audio_filename = str(temp_.name) + ".wav"
 
-            # with open(audio_filename, "w+") as f:
-            #     mimic_subprocess = subprocess.Popen(
-            #         ('mimic3', '--voice', self.voice, '--length-scale', self.speed, text), 
-            #         # stdout=subprocess.PIPE)
-            #         stdout=f)
+            with open(audio_filename, "w+") as f:
+                mimic_subprocess = subprocess.Popen(
+                    ('mimic3', '--voice', self.voice, '--length-scale', self.speed, text), 
+                    # stdout=subprocess.PIPE)
+                    stdout=f)
 
-            #     # Wait for the process to finish
-            #     mimic_subprocess.wait()
+                # Wait for the process to finish
+                mimic_subprocess.wait()
 
-            # sound_request.arg = audio_filename
+            sound_request.arg = audio_filename
 
         # publish audio file to audio node (sound_play package)
         self.audio_pub.publish(sound_request)
 
 if __name__ == '__main__':
-    rospy.init_node('speech_synthesis_node')
+    rospy.init_node('speech_tts_node')
 
     SpeechSynthesis()
 
