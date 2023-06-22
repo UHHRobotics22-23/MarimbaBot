@@ -12,7 +12,7 @@ from midi2audio import FluidSynth
 from sound_play.msg import SoundRequest
 from std_msgs.msg import String
 
-from marimbabot_msgs import (LilypondAudioAction, LilypondAudioFeedback,
+from marimbabot_msgs.msg import (LilypondAudioAction, LilypondAudioFeedback,
                              LilypondAudioResult)
 
 
@@ -94,7 +94,7 @@ def callback_lilypond_sentence(data: String, audio_publisher):
 """
 Action server for audio generation from lilypond string
 """
-class AudioFromLilypondActionServer:
+class AudioFromLilypondActionServer(object):
     # create messages that are used to publish feedback/result
     _feedback = LilypondAudioFeedback()
     _result = LilypondAudioResult()
@@ -108,6 +108,7 @@ class AudioFromLilypondActionServer:
         self._as.start()
       
     def execute_cb(self, goal):
+        # helper variables
         success = True
         
         # append the seeds for the fibonacci sequence
@@ -119,23 +120,28 @@ class AudioFromLilypondActionServer:
         # start executing the action
         audio_filename = ""
         try:
+            print("before filename")
             audio_filename = callback_lilypond_sentence(goal.lilypond_string, self.pub)
+            print(audio_filename)
             durations_seconds = get_audio_length(audio_filename)
             time.sleep(durations_seconds)
+            self._feedback.in_progress = False
         except:
             # if an error happens during audio generation, set success to false
             success = False
             rospy.logerr("Error during audio generation inside audio_from_lilypond action server")
 
+        self._result.success = success
         if success:
             rospy.loginfo('%s: Succeeded' % self._action_name)
             self._as.set_succeeded(self._result)
 
 if __name__ == '__main__':
     # initialize node
-    rospy.init_node('~lilypond_audio_generation', anonymous=True)
+    rosnode_name = "audio_from_lilypond"
+    rospy.init_node(rosnode_name, anonymous=False)
 
-    server = AudioFromLilypondActionServer(rospy.get_name())
+    server = AudioFromLilypondActionServer(rosnode_name)
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
