@@ -8,6 +8,7 @@ from std_msgs.msg import String
 from marimbabot_behavior.interpreter import read_notes
 from marimbabot_msgs.msg import LilypondAudioAction, LilypondAudioGoal
 from marimbabot_msgs.msg import HitSequenceAction
+import re
 
 
 class ActionDecider:
@@ -32,8 +33,17 @@ class ActionDecider:
         # action client to send the sentence to the lilypond_audio action server
         self.lilypond_audio_client = actionlib.SimpleActionClient('lilypond_audio', LilypondAudioAction)
 
+    def update_hit_sequence(self):
+        try:
+            self.hit_sequence = read_notes(self.sentence)
+        except LilyPondParserError:
+            rospy.logwarn('Lilypond string not valid. Make sure the note are valid and readable.')
+            self.response_pub.publish('Lilypond string not valid. Make sure the note sequence is valid.')
+
     def callback_command(self, command):
         rospy.loginfo(f"received command: {command.data}")
+
+        # read notes on the whiteboard
         if command.data == 'read':
             rospy.loginfo('reading notes')
             # update the sentence variable with the latest sentence from vision_node/recognized_sentence to signal that notes have been read
@@ -41,15 +51,13 @@ class ActionDecider:
                 # wait for the vision node to publish a recognized sentence
                 self.sentence = rospy.wait_for_message('vision_node/recognized_notes', String, timeout=5).data 
                 rospy.loginfo(f"recognized notes: {self.sentence}")
-                self.hit_sequence = read_notes(self.sentence)
-                self.response_pub.publish('Notes recognized. Say play to play the notes.')
+                self.response_pub.publish('Notes recognized.')
+                self.update_hit_sequence()
             except rospy.ROSException:
                 rospy.logwarn('No notes recognized. Make sure the notes are readable and visible to the camera.')
                 self.response_pub.publish('No notes recognized. Make sure the notes are readable and visible to the camera.')
-            except LilyPondParserError:
-                rospy.logwarn('Lilypond string not valid. Make sure the note are valid and readable.')
-                self.response_pub.publish('Lilypond string not valid. Make sure the note are valid and readable.')
 
+        # play the read notes on the marimba
         elif command.data == 'play':
             # if a note sequence has been read via the 'read' command and the corresponding hit sequence is valid, the hit sequence is send to the planning action server
             if self.hit_sequence:
@@ -67,7 +75,7 @@ class ActionDecider:
                 
         # pre play, use sound interpreted by computer
         elif command.data == 'preview' or command.data == 'simulate' or command.data == 'demo':
-            # if a note sequence has been read via the 'read' command
+            # check if a note sequence has been read via the 'read' command
             if self.sentence:
                 # check if action server is busy
                 if not self.lilypond_audio_client.gh:
@@ -87,6 +95,23 @@ class ActionDecider:
             else:
                 rospy.logwarn('No notes to preview. Say reed to read notes.')
                 self.response_pub.publish('No notes to preview. Say reed to read notes.')
+
+        # increase/decrease the tempo of the active notes
+        elif command.data == 'faster' or 'slower':
+            # check if a note sequence has been read via the 'read' command
+            if self.sentence:
+                tempo = re.findall('\\tempo 4 = (.*)', self.sentence)
+                if len(tempo) > 0:
+                    self.sentence = re.sub('\\tempo 4 = (.*)', '\\tempo 4 = {} '.format(str(int(tempo[0]) + 20)), self.sentence) if command.data == 'faster' else re.sub('\\tempo 4 = (.*)', '\\tempo 4 = ' + str(int(tempo[0]) - 20), self.sentence)
+                else:
+                    self.sentence = '\\tempo 4 = 80' + self.sentence if command.data == 'faster' else '\\tempo 4 = 40' + self.sentence
+                rospy.loginfo(f"updated notes: {self.sentence}")
+                self.update_hit_sequence()
+                rospy.logwarn('Tempo increased.' if command.data == 'faster' else 'Tempo decreased.')
+                self.response_pub.publish('Tempo increased.' if command.data == 'faster' else 'Tempo decreased.')
+            else:
+                rospy.logwarn('No notes to play. Say reed to read notes.')
+                self.response_pub.publish('No notes to play. Say reed to read notes.')
 
         # TODO: handle ROS exceptions from the planning side (e.g. planning failed, execution failed, ...)
 
