@@ -1,6 +1,5 @@
 import os
 import datetime
-
 import rospy
 from  marimbabot_msgs.msg import NoteOnset, CQTStamped
 from sensor_msgs.msg import Image
@@ -69,7 +68,7 @@ class Onset2Midi():
         self.reset()
         self.cv_bridge = cv_bridge.CvBridge()
         self.sub = rospy.Subscriber(
-            "/onsets",
+            "/audio/onset_notes",
             NoteOnset,
             self.onset_event,
             queue_size=500,
@@ -77,7 +76,7 @@ class Onset2Midi():
         )
 
         self.pub_midi = rospy.Publisher(
-            "midi", Image, queue_size=1, tcp_nodelay=True
+            "/audio/midi_img", Image, queue_size=1, tcp_nodelay=True
         )
         self.fig = plt.figure()
         self.ax = self.fig.add_subplot(1, 1, 1)
@@ -168,4 +167,7 @@ if __name__ == "__main__":
     rospy.init_node("onset2midi")
     onset2midi = Onset2Midi()
     onset2midi.run()
+
+
+
 
