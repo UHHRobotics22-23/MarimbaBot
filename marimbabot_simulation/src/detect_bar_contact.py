@@ -10,7 +10,7 @@ from std_msgs.msg import String
 VEL_THRESHOLD = 0.01
 
 # names of bars we are interested in
-# corresponding joints are <bar_name>/joint
+# corresponding joints are bar_<note>/joint
 # e.g. "bar_a4" <-> "bar_a4/joint"
 BAR_JOINT_NAMES = [
   "bar_a4/joint",
