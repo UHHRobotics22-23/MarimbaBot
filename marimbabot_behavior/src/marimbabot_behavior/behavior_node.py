@@ -6,7 +6,7 @@ from abjad.exceptions import LilyPondParserError
 from std_msgs.msg import String
 
 from marimbabot_behavior.interpreter import read_notes
-from marimbabot_msgs import LilypondAudioAction, LilypondAudioGoal
+from marimbabot_msgs.msg import LilypondAudioAction, LilypondAudioGoal
 from marimbabot_msgs.msg import HitSequenceAction
 
 
@@ -27,7 +27,10 @@ class ActionDecider:
         self.command_sub = rospy.Subscriber('voice_recognition_node/recognized_command', String, self.callback_command)
 
         # action client to send the hit sequence to the planning action server
-        self.client = actionlib.SimpleActionClient('hit_sequence', HitSequenceAction)
+        self.planning_client = actionlib.SimpleActionClient('hit_sequence', HitSequenceAction)
+
+        # action client to send the sentence to the lilypond_audio action server
+        self.lilypond_audio_client = actionlib.SimpleActionClient('lilypond_audio', LilypondAudioAction)
 
     def callback_command(self, command):
         rospy.loginfo(f"received command: {command.data}")
@@ -51,10 +54,10 @@ class ActionDecider:
             # if a note sequence has been read via the 'read' command and the corresponding hit sequence is valid, the hit sequence is send to the planning action server
             if self.hit_sequence:
                 # check if action server is busy
-                if not self.client.gh:
+                if not self.planning_client.gh:
                     rospy.loginfo(f"playing notes: {self.sentence}")
                     rospy.loginfo(f"goal_hit_sequence: {self.hit_sequence}")
-                    self.client.send_goal(self.hit_sequence)
+                    self.planning_client.send_goal(self.hit_sequence)
                 else:    
                     rospy.logwarn('Action server is busy. Try again later.')
                     self.response_pub.publish('Action server is busy. Try again later.')
@@ -64,26 +67,26 @@ class ActionDecider:
                 
         # pre play, use sound interpreted by computer
         elif command.data == 'preview' or command.data == 'simulate' or command.data == 'demo':
-            rospy.publish('lilypond_to_audio', self.sentence)
-            # send lilypond string to action server 'lilypond_audio_generation'
-            client = actionlib.SimpleActionClient('lilypond_audio_generation', LilypondAudioAction)
+            # if a note sequence has been read via the 'read' command
+            if self.sentence:
+                # check if action server is busy
+                if not self.lilypond_audio_client.gh:
+                    rospy.loginfo(f"playing audio preview of notes: {self.sentence}")
+                    self.lilypond_audio_client.send_goal(LilypondAudioGoal(lilypond_string=self.sentence))
 
-            # Waits until the action server has started up and started
-            # listening for goals.
-            client.wait_for_server()
+                    # Waits for the server to finish performing the action.
+                    # Includes that the audio file is generated and was played
+                    self.lilypond_audio_client.wait_for_result()
 
-            # Creates a goal to send to the action server.
-            goal = LilypondAudioGoal(lilypond_string=self.sentence)
+                    # Prints out the result of executing the action
+                    rospy.logdebug(f"Result from audio_from_lilypond action server: {self.lilypond_audio_client.get_result()}")
 
-            # Sends the goal to the action server.
-            client.send_goal(goal)
-
-            # Waits for the server to finish performing the action.
-            # Includes that the audio file is generated and was played
-            client.wait_for_result()
-
-            # Prints out the result of executing the action
-            rospy.logdebug(f"Result from audio_from_lilypond action server: {client.get_result()}")
+                else:    
+                    rospy.logwarn('Action server is busy. Try again later.')
+                    self.response_pub.publish('Action server is busy. Try again later.')
+            else:
+                rospy.logwarn('No notes to preview. Say reed to read notes.')
+                self.response_pub.publish('No notes to preview. Say reed to read notes.')
 
         # TODO: handle ROS exceptions from the planning side (e.g. planning failed, execution failed, ...)
 
