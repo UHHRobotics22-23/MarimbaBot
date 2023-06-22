@@ -56,11 +56,6 @@ joint2note = {
     joint: joint[4:joint.index("/")] for joint in BAR_JOINT_NAMES
 }
 
-# TODO: remove after merging bar name PR
-joint2note = {
-    f"bar_{note.upper().replace('is', 's')}/joint": note for joint, note in joint2note.items()
-}
-
 pub = None
 
 
