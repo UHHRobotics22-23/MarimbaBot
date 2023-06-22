@@ -18,8 +18,8 @@ wrist_1_joint:
     lower: -0.733
     upper:  1.642
 wrist_2_joint:
-    lower: -0.5
-    upper: 0.5
+    lower: 0.7
+    upper: 2.2
 wrist_3_joint:
-    lower: -6.2411853
-    upper: 6.2411853 
+    lower: -1.57
+    upper: 1.57
