@@ -90,7 +90,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     // Use bio_ik to solve the inverse kinematics at the goal point
     bio_ik::BioIKKinematicsQueryOptions ik_options;
     ik_options.replace = true;
-    ik_options.return_approximate_solution = false; // Activate for debugging if you get an error 
+    ik_options.return_approximate_solution = true; // Activate for debugging if you get an error 
 
     ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_1", goal_position));
 

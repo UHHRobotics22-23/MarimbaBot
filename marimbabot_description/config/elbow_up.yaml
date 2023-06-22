@@ -1,0 +1,25 @@
+# elbow_up.yaml
+# Specifies the upper and lower limits of ur5 joints in the urdf.
+# elbow_up restricts the arm to move like a marimba player.
+
+# Limits that align with the robots joint limits (+/- 2*pi) may allow
+# joint configurations that lead to protective stop.
+# To prevent that we substract a safety tolerance of 0.002.
+shoulder_pan_joint:
+    lower: -3.1415926
+    upper: 1.570796
+shoulder_lift_joint:
+    lower: -4.7123890
+    upper: -1.1606440
+elbow_joint:
+    lower: -2.7
+    upper: -2.212
+wrist_1_joint:
+    lower: -0.733
+    upper:  1.642
+wrist_2_joint:
+    lower: -0.5
+    upper: 0.5
+wrist_3_joint:
+    lower: -6.2411853
+    upper: 6.2411853 
