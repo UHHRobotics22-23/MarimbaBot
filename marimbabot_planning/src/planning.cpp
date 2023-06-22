@@ -85,7 +85,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     tf2::Vector3 goal_position(
         goal_point.point.x,
         goal_point.point.y,
-        goal_point.point.z);
+        goal_point.point.z + 0.1);
 
     // Use bio_ik to solve the inverse kinematics at the goal point
     bio_ik::BioIKKinematicsQueryOptions ik_options;
@@ -95,7 +95,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_1", goal_position));
 
     // Create link on plane constraint using the LinkFunctionGoal
-    tf2::Vector3 plane_point(0.0, 0.0, 1.0);
+    tf2::Vector3 plane_point(0.0, 0.0, 1.3);
 
     // Define lambda function for link on plane constraint
     // Requested format const std::function<double(const tf2::Vector3&, const tf2::Quaternion&)>& f
@@ -222,8 +222,8 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
 {
     try {
         // Set the max velocity and acceleration scaling factors
-        move_group_interface_.setMaxVelocityScalingFactor(0.9);
-        move_group_interface_.setMaxAccelerationScalingFactor(0.9);
+        move_group_interface_.setMaxVelocityScalingFactor(0.5);
+        move_group_interface_.setMaxAccelerationScalingFactor(0.5);
 
         auto current_state = move_group_interface_.getCurrentState();
         //convert to moveit message
