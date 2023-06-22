@@ -10,5 +10,6 @@ catkin_package()
 
 catkin_install_python(PROGRAMS
   src/detect_bar_contact.py
+  src/play_notes.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
