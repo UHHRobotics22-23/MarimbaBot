@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
     std::string address;
     int top_limit;
     int bottom_limit;
-    node_handle.param("address", address, std::string("192.168.42.1"));
+    node_handle.param("address", address, std::string("127.0.0.1")); //192.168.42.1
     node_handle.param("port", port, 8888);
 
     ROS_INFO("Starting hardware control node for device %s", address.c_str());

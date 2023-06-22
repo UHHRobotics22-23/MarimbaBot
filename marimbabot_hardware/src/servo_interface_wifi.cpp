@@ -90,7 +90,7 @@ void ServoInterface::write(){
     position_joint_saturation_interface.enforceLimits(last_run_period);
 
     if(previous_command == servo_state.command) {
-        ROS_INFO("Position = Position");
+        //ROS_INFO("Position = Position");
         return;
     }
     ROS_DEBUG_STREAM("Servo controller: Sending command to arduino: " << servo_state.command);
@@ -112,7 +112,7 @@ void ServoInterface::write(){
 
 char* ServoInterface::send_and_receive(char * message){
     memset(&buffer, 0, sizeof(buffer));
-     ROS_INFO_STREAM(message);
+     //ROS_INFO_STREAM(message);
     sendto(sockfd, (const char *)message, 
     strlen(message),MSG_CONFIRM, (const struct sockaddr *) &servaddr,len);
 
@@ -125,6 +125,7 @@ char* ServoInterface::send_and_receive(char * message){
     response = buffer;
     if(response[0] == 'l' ) {
             l_function(response);
+            
         }
     else if(response[0] == 'p') {
         
@@ -151,6 +152,7 @@ char* ServoInterface::send_and_receive(char * message){
     }   
 
     else {
+        ROS_INFO_STREAM("The Error_message");
         ROS_INFO_STREAM(response);
         ROS_ERROR_STREAM("Servo controller error: Unknown error");
     }
@@ -163,8 +165,9 @@ void ServoInterface::l_function(std::string response){
             close(sockfd);
             return;
         }
-
-        response = response.substr(2, response.length() - 4);
+        ROS_INFO_STREAM(response);
+        response = response.substr(2, response.length() - 3);
+        ROS_INFO_STREAM(response);
         
         try {
             // Splitting into top bottom and resolution
