@@ -127,7 +127,7 @@ char* ServoInterface::send_and_receive(char * message){
     std::string response; 
     //int size_arr = sizeof(buffer) / sizeof(char); 
     response = buffer;
-    ROS_INFO_STREAM(response);
+    //ROS_INFO_STREAM(response);
     if(response[0] == 'l' ) {
             l_function(response);
             
