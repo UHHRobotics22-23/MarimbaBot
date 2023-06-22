@@ -81,8 +81,12 @@ void ServoInterface::read() {
     ros::Time current_time = ros::Time::now();
     last_run_period = current_time - last_run_time;
     last_run_time = current_time;
-
     send_and_receive(ServoInterface::p_Sender);
+    while(limit_checker==0){
+        send_and_receive(ServoInterface::p_Sender);
+    }
+    return;
+    
     
 }
 void ServoInterface::write(){
@@ -99,11 +103,11 @@ void ServoInterface::write(){
     int command_value = top_limit - (int) round((servo_state.command / radian_limit) * (top_limit - bottom_limit));
     // Sending command to arduino
     std::string s_Sender = "s ";
-    ROS_INFO_STREAM(command_value);
+    
     s_Sender += std::to_string(command_value);
     s_Sender +=("\n");
     char* write_pos_array = convert_to_char(s_Sender);
-    ROS_INFO_STREAM(s_Sender);
+    
   
     send_and_receive(write_pos_array);
     
@@ -123,6 +127,7 @@ char* ServoInterface::send_and_receive(char * message){
     std::string response; 
     //int size_arr = sizeof(buffer) / sizeof(char); 
     response = buffer;
+    ROS_INFO_STREAM(response);
     if(response[0] == 'l' ) {
             l_function(response);
             
@@ -145,14 +150,13 @@ char* ServoInterface::send_and_receive(char * message){
 
     else if(response == "ok") {
         previous_command = servo_state.command;
-        ROS_INFO("Position was changed successfully");
+        //ROS_INFO("Position was changed successfully");
     }
     else if(response ==""){
        
     }   
 
     else {
-        ROS_INFO_STREAM("The Error_message");
         ROS_INFO_STREAM(response);
         ROS_ERROR_STREAM("Servo controller error: Unknown error");
     }
@@ -165,9 +169,9 @@ void ServoInterface::l_function(std::string response){
             close(sockfd);
             return;
         }
-        ROS_INFO_STREAM(response);
-        response = response.substr(2, response.length() - 3);
-        ROS_INFO_STREAM(response);
+        
+        response = response.substr(2, response.length() - 2);
+        
         
         try {
             // Splitting into top bottom and resolution
@@ -186,7 +190,7 @@ void ServoInterface::l_function(std::string response){
 
             ROS_INFO_STREAM("Servo controller: Loaded limits from arduino");
             
-
+            limit_checker = 1;
             return;
         } catch(std::exception &e) {
             ROS_ERROR_STREAM("Servo controller error: Unable to parse limits from arduino -> closing");
@@ -210,7 +214,7 @@ void ServoInterface::p_function(std::string response){
     std::stringstream sstream(response);
     int value;
     sstream >> value;
-    ROS_INFO_STREAM(value);
+    //ROS_INFO_STREAM(value);
     if(sstream.fail()) {
         ROS_WARN_STREAM("Servo controller error: Failed to parse position response from arduino");
         return;

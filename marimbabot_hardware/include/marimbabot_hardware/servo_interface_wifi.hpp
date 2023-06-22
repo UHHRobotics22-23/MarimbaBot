@@ -64,11 +64,13 @@ private:
     int bottom_limit = -1;
     int resolution = -1;
     double radian_limit = -1;
+    bool limit_checker = 0;
 
     int sockfd;
     char buffer[MAXLINE];
     char *l_Sender = "l\n";
     char *p_Sender = "p\n";
+   
     
     struct sockaddr_in servaddr, cliaddr;
   
