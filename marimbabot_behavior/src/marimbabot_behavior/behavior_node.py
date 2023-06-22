@@ -30,7 +30,7 @@ class ActionDecider:
         self.planning_client = actionlib.SimpleActionClient('hit_sequence', HitSequenceAction)
 
         # action client to send the sentence to the lilypond_audio action server
-        self.lilypond_audio_client = actionlib.SimpleActionClient('lilypond_audio', LilypondAudioAction)
+        self.lilypond_audio_client = actionlib.SimpleActionClient('audio_from_lilypond', LilypondAudioAction)
 
     def callback_command(self, command):
         rospy.loginfo(f"received command: {command.data}")
@@ -72,6 +72,7 @@ class ActionDecider:
                 # check if action server is busy
                 if not self.lilypond_audio_client.gh:
                     rospy.loginfo(f"playing audio preview of notes: {self.sentence}")
+                    self.lilypond_audio_client.wait_for_server()
                     self.lilypond_audio_client.send_goal(LilypondAudioGoal(lilypond_string=self.sentence))
 
                     # Waits for the server to finish performing the action.
