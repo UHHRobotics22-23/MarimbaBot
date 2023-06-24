@@ -13,9 +13,7 @@ from sound_play.msg import SoundRequest
 from std_msgs.msg import String
 
 from marimbabot_msgs.msg import (LilypondAudioAction, LilypondAudioFeedback,
-                             LilypondAudioResult)
-
-
+                                 LilypondAudioResult)
 
 """
 Action server for audio generation from lilypond string

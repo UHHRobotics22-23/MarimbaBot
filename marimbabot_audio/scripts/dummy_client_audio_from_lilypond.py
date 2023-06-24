@@ -1,7 +1,8 @@
-import rospy
 import actionlib
-from marimbabot_msgs.msg import (LilypondAudioAction, LilypondAudioGoal)
+import rospy
 from std_msgs.msg import String
+
+from marimbabot_msgs.msg import LilypondAudioAction, LilypondAudioGoal
 
 
 def run_dummy():
