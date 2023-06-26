@@ -27,5 +27,5 @@ def run_dummy():
 
 
 if __name__ == '__main__':
-    rospy.init_node('dummy_motion_client', anonymous=True)
+    rospy.init_node('dummy_audio_from_lilypond_client', anonymous=True)
     run_dummy()

@@ -141,10 +141,9 @@ class AudioFromLilypond(object):
 
 if __name__ == '__main__':
     # initialize node
-    rosnode_name = "audio_from_lilypond_node"
-    rospy.init_node(rosnode_name, anonymous=False)
+    rospy.init_node("audio_from_lilypond_node", anonymous=False)
 
-    server = AudioFromLilypond(rosnode_name)
+    server = AudioFromLilypond("audio_from_lilypond")
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
