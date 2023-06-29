@@ -116,10 +116,6 @@ def save_midi(notes):
 
 
 def joint_states_callback(message):
-    global play_start_time
-    if play_start_time is None:
-        play_start_time = message.header.stamp.secs
-
     for i, name in enumerate(message.name):
         if name not in joint2note:
             continue
@@ -130,6 +126,9 @@ def joint_states_callback(message):
 
         vel = message.velocity[i]
         if vel > VEL_THRESHOLD:
+            global play_start_time
+            if play_start_time is None:
+                play_start_time = message.header.stamp.secs
             rospy.loginfo(f"Detected contact with {joint2note[name]} vel={vel:.5f}")
             pub.publish(joint2note[name])
             last_contact_timestamps[name] = message.header.stamp.secs
