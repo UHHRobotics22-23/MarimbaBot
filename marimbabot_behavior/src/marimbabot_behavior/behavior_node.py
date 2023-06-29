@@ -4,8 +4,9 @@ import rospy
 import actionlib
 from std_msgs.msg import String
 from marimbabot_behavior.interpreter import read_notes
-from marimbabot_msgs.msg import HitSequenceAction
 from abjad.exceptions import LilyPondParserError
+from marimbabot_msgs.msg import HitSequenceAction
+from marimbabot_msgs.msg import Command
 
 class ActionDecider:
     def __init__(self):
@@ -20,15 +21,17 @@ class ActionDecider:
         # publishes a response for the synthesized speech
         self.response_pub = rospy.Publisher('~response', String, queue_size=10) 
 
-        # listens to the recognized commands from voice_recognition_node
-        self.command_sub = rospy.Subscriber('voice_recognition_node/recognized_command', String, self.callback_command)
+        # listens to the recognized commands from speech node
+        self.command_sub = rospy.Subscriber('speech_node/command', Command, self.callback_command)
 
         # action client to send the hit sequence to the planning action server
         self.client = actionlib.SimpleActionClient('hit_sequence', HitSequenceAction)
 
-    def callback_command(self, command):
-        rospy.loginfo(f"received command: {command.data}")
-        if command.data == 'read':
+    def callback_command(self, command_msg):
+        command = command_msg.command
+        rospy.loginfo(f"received command: {command}")
+
+        if command == 'Marimbabot read':
             rospy.loginfo('reading notes')
             # update the sentence variable with the latest sentence from vision_node/recognized_sentence to signal that notes have been read
             try:
@@ -44,7 +47,7 @@ class ActionDecider:
                 rospy.logwarn('Lilypond string not valid. Make sure the note are valid and readable.')
                 self.response_pub.publish('Lilypond string not valid. Make sure the note are valid and readable.')
 
-        elif command.data == 'play':
+        elif command == 'Marimbabot play':
             # if a note sequence has been read via the 'read' command and the corresponding hit sequence is valid, the hit sequence is send to the planning action server
             if self.hit_sequence:
                 # check if action server is busy
@@ -61,7 +64,7 @@ class ActionDecider:
 
         # TODO: handle ROS exceptions from the planning side (e.g. planning failed, execution failed, ...)
 
-        # TODO: elif command.data == 'stop':
+        # TODO: elif command == 'stop':
         
         # TODO: add more cases (loop, repeat, faster, slower, save as <name_of_piece>, play <name_of_piece>, ...)
 
