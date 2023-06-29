@@ -22,7 +22,6 @@
   <build_depend>sound_play</build_depend>
 
   <exec_depend>message_runtime</exec_depend>
-  <exec_depend>audio_common</exec_depend>
   <exec_depend>fluidsynth</exec_depend>
   <exec_depend>sound_play</exec_depend>
   <exec_depend>audio_capture</exec_depend>
