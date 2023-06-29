@@ -26,8 +26,8 @@ controller_list:
       - s_model_finger_middle_joint_1
       - s_model_finger_middle_joint_2
       - s_model_finger_middle_joint_3
-  - name: mallet_holder_controller
-    action_ns: /MalletHolder/trajectory_controller
+  - name: MalletHolder/trajectory_controller
+    action_ns: follow_joint_trajectory
     type: FollowJointTrajectory
     default: True
     joints:
