@@ -23,10 +23,12 @@
   <build_depend>message_generation</build_depend>
   <build_depend>sound_play</build_depend>
   <build_depend>audio_common_msgs</build_depend>
+  <build_depend>audio_common</build_depend>
 
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>sound_play</exec_depend>
   <exec_depend>audio_common_msgs</exec_depend>
+  <exec_depend>audio_capture</exec_depend>
 </package>
