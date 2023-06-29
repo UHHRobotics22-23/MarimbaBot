@@ -57,7 +57,7 @@ private:
 
     ros::Time last_run_time;
     ros::Duration last_run_period;
-    //serial::Serial arduino_serial;
+    
     int last_arduino_error = 0;
     double previous_command = -1;
     int top_limit = -1;
@@ -68,8 +68,8 @@ private:
 
     int sockfd;
     char buffer[MAXLINE];
-    char *l_Sender = "l\n";
-    char *p_Sender = "p\n";
+    char const *l_Sender = "l\n";
+    char const *p_Sender = "p\n";
    
     
     struct sockaddr_in servaddr, cliaddr;
@@ -77,12 +77,12 @@ private:
     socklen_t len;
     int received_message;
 
-    bool try_open_udp_port();
+    void try_open_udp_port();
     char* convert_to_char(std::string str);
-    char* send_and_receive(char *);
-    void l_function(std::string response);
-    void p_function(std::string response);
-    void s_function(std::string response);
+    void send_and_receive(const char *);
+    void receive_limits_function(std::string response);
+    void receive_postion_function(std::string response);
+    void receive_changeposition_function(std::string response);
           
     
 };

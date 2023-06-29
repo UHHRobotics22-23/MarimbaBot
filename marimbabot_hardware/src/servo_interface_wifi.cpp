@@ -63,7 +63,7 @@ void ServoInterface::initialize() {
     previous_command = servo_state.command;
 }
 
-bool ServoInterface::try_open_udp_port() {
+void ServoInterface::try_open_udp_port() {
    
         //Bind the Socket with the address information
         bind(sockfd, (const struct sockaddr *)&servaddr, sizeof(servaddr)); 
@@ -71,8 +71,7 @@ bool ServoInterface::try_open_udp_port() {
         ROS_INFO("Servo controller: Successfully opened port " );
 
         len = sizeof(cliaddr);  //len is value/result
-        std::string response; 
-	    response = send_and_receive(ServoInterface::l_Sender);
+        send_and_receive(ServoInterface::l_Sender);
        
 
 }
@@ -110,11 +109,12 @@ void ServoInterface::write(){
     
   
     send_and_receive(write_pos_array);
+    delete[] write_pos_array;
     
     
 }
 
-char* ServoInterface::send_and_receive(char * message){
+void ServoInterface::send_and_receive(const char * message){
     memset(&buffer, 0, sizeof(buffer));
      //ROS_INFO_STREAM(message);
     sendto(sockfd, (const char *)message, 
@@ -129,12 +129,12 @@ char* ServoInterface::send_and_receive(char * message){
     response = buffer;
     //ROS_INFO_STREAM(response);
     if(response[0] == 'l' ) {
-            l_function(response);
+            receive_limits_function(response);
             
         }
     else if(response[0] == 'p') {
         
-         p_function(response);
+         receive_postion_function(response);
     }
     else if(response == "err_input_num") {
         ROS_ERROR_STREAM_THROTTLE(10, "Servo controller error: Number unparsable or below 0");
@@ -162,7 +162,7 @@ char* ServoInterface::send_and_receive(char * message){
     }
 
 }
-void ServoInterface::l_function(std::string response){
+void ServoInterface::receive_limits_function(std::string response){
 
          if(response.length() < 4) {
             ROS_ERROR_STREAM("Servo controller error: Unable to read limits from arduino -> closing");
@@ -186,7 +186,7 @@ void ServoInterface::l_function(std::string response){
             this->top_limit = atoi(top_limit_str.c_str());
             this->bottom_limit = atoi(bottom_limit_str.c_str());
             this->resolution = atoi(resolution_str.c_str());
-            this->radian_limit = (2 * M_PI) * ((this->top_limit - this->bottom_limit) / ((double) this->resolution));
+            this->radian_limit = (M_PI) * ((this->top_limit - this->bottom_limit) / ((double) this->resolution));
 
             ROS_INFO_STREAM("Servo controller: Loaded limits from arduino");
             
@@ -201,7 +201,7 @@ void ServoInterface::l_function(std::string response){
        
     
 }
-void ServoInterface::p_function(std::string response){
+void ServoInterface::receive_postion_function(std::string response){
     if(response.size() < 4) {
         ROS_WARN_STREAM("Servo controller error: Response from arduino is too short");
         return;
@@ -235,4 +235,5 @@ char* ServoInterface::convert_to_char(std::string str){
   // string to char array
   strcpy(char_array, str.c_str()); 
   return char_array;
+  
 }
