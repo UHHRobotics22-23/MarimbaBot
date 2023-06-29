@@ -30,5 +30,5 @@ class Measurement():
 		this_end = this_satrt + rospy.Duration(total_time)
 
 	def extract_seq_from_audio_dectection(self):
-
+		pass
 

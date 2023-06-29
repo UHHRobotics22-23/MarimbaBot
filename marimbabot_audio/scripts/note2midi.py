@@ -50,7 +50,7 @@ class MyPrettyMiDi():
         self.pm.write(self.file_path)
 
 class Onset2Midi():
-    def __init__(self, file_path: str = "./midi_files") -> None:
+    def __init__(self, file_path: str = "/tmp/midi_files") -> None:
         self.cv_bridge = cv_bridge.CvBridge()
         now = datetime.datetime.now()
         os.makedirs(file_path,exist_ok=True)
