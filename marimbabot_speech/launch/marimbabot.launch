@@ -1,5 +1,5 @@
 <launch>
-  <node name="audio_capture" pkg="audio_capture" type="audio_capture" output="screen">
+  <node name="speech_audio_capture" pkg="audio_capture" type="audio_capture" output="screen">
     <param name="device" value="" />
     <param name="format" value="wave" />
     <param name="channels" value="1" />
