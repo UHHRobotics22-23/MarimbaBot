@@ -2,14 +2,13 @@
 
 import tempfile
 import time
-import wave
 
 import actionlib
 import rospy
 from abjad import Block, LilyPondFile, Score, Staff, Voice
 from abjad.persist import as_midi
 from midi2audio import FluidSynth
-from sound_play.msg import SoundRequest
+from playsound import playsound
 from std_msgs.msg import String
 
 from marimbabot_msgs.msg import (LilypondAudioAction, LilypondAudioFeedback,
@@ -24,9 +23,6 @@ class AudioFromLilypond(object):
     _result = LilypondAudioResult()
 
     def __init__(self, name):
-        # publish to audio node (sound_play package)
-        self.pub = rospy.Publisher('robotsound', SoundRequest, queue_size=50)
-
         self._action_name = name
         self._as = actionlib.SimpleActionServer(self._action_name, LilypondAudioAction, execute_cb=self.execute_cb, auto_start = False)
         self._as.start()
@@ -63,14 +59,6 @@ class AudioFromLilypond(object):
             rospy.logerr('%s: Failed' % self._action_name)
             self._as.set_aborted(self._result)
         
-
-    def get_audio_length(self, file_path):
-        with wave.open(file_path, 'rb') as audio_file:
-            framerate = audio_file.getframerate()
-            frames = audio_file.getnframes()
-            duration = frames / float(framerate)
-            return duration
-
     # create lilypond file from sentence
     def create_lilypond_file(self, sentence):
         # generate abjad staff
@@ -128,14 +116,7 @@ class AudioFromLilypond(object):
 
         # send audio to audio node (sound_play package)
         # http://docs.ros.org/en/api/sound_play/html/msg/SoundRequest.html
-        sound_request = SoundRequest()
-        sound_request.sound = -2
-        sound_request.command = 1
-        sound_request.volume = 3
-        sound_request.arg = audio_filename
-
-        # publish audio file to audio node (sound_play package)
-        audio_publisher.publish(sound_request)
+        playsound(audio_filename)
 
         return audio_filename
 
