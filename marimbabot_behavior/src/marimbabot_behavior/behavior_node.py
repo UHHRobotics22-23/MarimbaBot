@@ -63,10 +63,18 @@ class ActionDecider:
             if self.hit_sequence:
                 # check if action server is busy
                 if not self.planning_client.gh:
+                    # preparing the hit sequence message for the audio node
+                    # hit_sequence_msg = HitSequence()
+                    # hit_sequence_msg.header.stamp = rospy.Time.now()
+                    # hit_sequence_msg.seq_id = self.id_counter
+                    # hit_sequence_msg.seq = self.hit_sequence
+                    
                     rospy.loginfo(f"playing notes: {self.sentence}")
                     rospy.loginfo(f"goal_hit_sequence: {self.hit_sequence}")
-                    self.planning_client.send_goal(self.hit_sequence)
-                else:    
+                    self.client.send_goal(self.hit_sequence)
+                #     self.hit_sequence_pub.publish(self.hit_sequence)
+                #     self.id_counter += 1
+                else:
                     rospy.logwarn('Action server is busy. Try again later.')
                     self.response_pub.publish('Action server is busy. Try again later.')
             else:
@@ -97,7 +105,7 @@ class ActionDecider:
                 self.response_pub.publish('No notes to preview. Say reed to read notes.')
 
         # increase/decrease the tempo of the active notes
-        elif command.data == 'faster' or 'slower':
+        elif command.data == 'play faster' or 'play slower':
             # check if a note sequence has been read via the 'read' command
             if self.sentence:
                 tempo = re.findall('\\tempo 4 = (.*)', self.sentence)
