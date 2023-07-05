@@ -15,11 +15,11 @@ elbow_joint:
     lower: -2.7
     upper: -2.212
 wrist_1_joint:
-    lower: -0.733
-    upper:  1.642
+    lower:  0.0
+    upper:  0.52
 wrist_2_joint:
-    lower: 0.7
-    upper: 2.2
+    lower:  -0.52
+    upper:  0.52
 wrist_3_joint:
     lower: -1.57
     upper: 1.57

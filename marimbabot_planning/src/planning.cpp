@@ -114,6 +114,9 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     // Create minimal displacement goal, so that the robot does not move too much and stays close to the start state
     ik_options.goals.emplace_back(new bio_ik::MinimalDisplacementGoal());
 
+    // @TODO : add quaternion constraints similar to plane to keep wrist_2_link in specific orientation
+
+
     // Create dummy goal pose
     geometry_msgs::Pose dummy_goal_pose;
 
@@ -172,7 +175,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
 
     // Calculate retreat trajectory
     auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), retreat_point);
-
+    
     // Concatinate trajectories
     auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
 
