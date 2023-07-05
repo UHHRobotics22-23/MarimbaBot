@@ -174,6 +174,7 @@ class ActionDecider:
         # TODO: add more cases (loop, repeat, faster, slower, save as <name_of_piece>, play <name_of_piece>, ...)
 
         else:
+            rospy.logwarn('Command not recognized.')
             self.response_pub.publish('Command not recognized.')
 
 if __name__ == '__main__':
