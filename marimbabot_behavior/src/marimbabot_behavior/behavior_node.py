@@ -62,7 +62,7 @@ class ActionDecider:
                 rospy.logwarn('No notes recognized. Make sure the notes are readable and visible to the camera.')
                 self.response_pub.publish('No notes recognized. Make sure the notes are readable and visible to the camera.')
 
-        elif command == 'Marimbabot play':
+        elif command == 'Marimbabot start playing':
             # if a note sequence has been read via the 'read' command and the corresponding hit sequence is valid, the hit sequence is send to the planning action server
             if self.hit_sequence:
                 # check if action server is busy
@@ -84,7 +84,7 @@ class ActionDecider:
                 self.response_pub.publish('No notes to play. Say reed to read notes.')
                 
         # pre play, use sound interpreted by computer
-        elif command.data == 'preview':
+        elif command.data == 'Marimbabot preview':
             # if a note sequence has been read via the 'read' command
             if self.sentence:
                 rospy.loginfo(f"playing audio preview of notes: {self.sentence}")
@@ -114,7 +114,7 @@ class ActionDecider:
                 self.response_pub.publish('No notes to preview. Say reed to read notes.')
 
         # increase/decrease the tempo of the active notes
-        elif command.data == 'play faster' or 'play slower':
+        elif command.data == 'Marimbabot play faster' or 'Marimbabot play slower':
             # check if a note sequence has been read via the 'read' command
             if self.sentence:
                 tempo = re.findall('\\tempo 4 = (.*)', self.sentence)
