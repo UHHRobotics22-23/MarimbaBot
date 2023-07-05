@@ -95,27 +95,18 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
         goal_point2.point.y,
         goal_point2.point.z);
 
-    ROS_ERROR_STREAM("Points first: " << goal_point.point.x);
-    ROS_ERROR_STREAM("Points first: " << goal_point2.point.x);
-
-
     // Use bio_ik to solve the inverse kinematics at the goal point
     bio_ik::BioIKKinematicsQueryOptions ik_options;
     ik_options.replace = true;
     ik_options.return_approximate_solution = false; // Activate for debugging if you get an error 
 
-    // auto* mallet_head_1 = new bio_ik::PositionGoal();
-    // mallet_head_1->setLinkName("mallet_head_1");
-    // mallet_head_1->setPosition(goal_position);
+    // Case that only a single point / note is hit
+    tf2::Quaternion goal_orientation;
+    goal_orientation.setRPY(0.0, 0.0, -M_PI/4); // Rotate the mallet by 45 degrees, so that head_1 should be pointed downwards?
+    ik_options.goals.emplace_back(new bio_ik::PoseGoal("mallet_head_1", goal_position, goal_orientation));
 
-    // auto* mallet_head_2 = new bio_ik::PositionGoal();
-    // mallet_head_2->setLinkName("mallet_head_2");
-    // mallet_head_2->setPosition(goal_position2);
-    // ik_options.goals.emplace_back(mallet_head_1);
-    // ik_options.goals.emplace_back(mallet_head_2);
-
-    ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_1", goal_position));
-    ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_2", goal_position2));
+    // ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_1", goal_position));
+    // ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_2", goal_position2));
 
     // Create link on plane constraint using the LinkFunctionGoal
     tf2::Vector3 plane_point(0.0, 0.0, 1.0);
