@@ -38,8 +38,27 @@ class ActionDecider:
         try:
             self.hit_sequence = read_notes(self.sentence)
         except LilyPondParserError:
-            rospy.logwarn('Lilypond string not valid. Make sure the note are valid and readable.')
-            self.response_pub.publish('Lilypond string not valid. Make sure the note sequence is valid.')
+            rospy.logwarn('Lilypond string not valid.')
+            self.response_pub.publish('Lilypond string not valid.')
+
+    def assign_tempo(self, value=60):
+        if '\\tempo' in self.sentence:
+            self.sentence = re.sub(r'\\tempo 4 = [0-9]+', '\\\\tempo 4 = {}'.format(value), self.sentence)
+        else:
+            self.sentence = '\\tempo 4 = {} '.format(value) + self.sentence
+        try:
+            self.update_hit_sequence()
+            rospy.logdebug(f'Tempo set to {value} bpm')
+            rospy.loginfo(f"updated notes: {self.sentence}")
+        except LilyPondParserError:
+            rospy.logwarn('Lilypond string not valid.')
+            self.response_pub.publish('Lilypond string not valid.')
+
+    def change_tempo(self, faster=True, value=20):
+        tempo = re.findall(r'\\tempo 4 = [0-9]+', self.sentence)
+        if len(tempo) > 0:
+            tempo = int(tempo[0].split(' ')[-1])
+            assign_tempo(tempo + value if faster else tempo - value)
 
     def play(self):
         rospy.loginfo(f"playing notes: {self.sentence}")
@@ -63,14 +82,14 @@ class ActionDecider:
             rospy.logdebug(f"Result from planning action server: {self.planning_client.get_result()}")
             # Check if we have a success
             if not self.planning_clinet.get_result().success:
-                self.response_pub.publish('The sequence could not be played. Try again later.')
+                self.response_pub.publish('The sequence could not be played.')
 
         # start thread to not block the main thread if the action server is not currently active
         if self.planning_client.simple_state == actionlib.SimpleGoalState.DONE:
             threading.Thread(target=planning_client_thread).start()
         else:    
-            rospy.logwarn('The motion is busy. Try again later.')
-            self.response_pub.publish('The motion is busy. Try again later.')
+            rospy.logwarn('The motion is busy.')
+            self.response_pub.publish('The motion is busy.')
 
     def preview(self):
         rospy.loginfo(f"playing audio preview of notes: {self.sentence}")
@@ -87,27 +106,14 @@ class ActionDecider:
             rospy.logdebug(f"Result from audio_from_lilypond action server: {self.lilypond_audio_client.get_result()}")
             # Check if we have a success
             if not self.lilypond_audio_client.get_result().success:
-                self.response_pub.publish('The audio preview could not be played. Try again later.')
+                self.response_pub.publish('The audio preview could not be played.')
 
         # start thread to not block the main thread if the action server is not currently active
         if self.lilypond_audio_client.simple_state == actionlib.SimpleGoalState.DONE:
             threading.Thread(target=audio_from_lilypond_client_thread).start()
         else:
-            rospy.logwarn('Preview is busy. Try again later.')
-            self.response_pub.publish('Preview is busy. Try again later.')
-
-    def change_tempo(self, faster=True):
-        tempo = re.findall('\\\\tempo 4 = [0-9]+', self.sentence)
-        if len(tempo) > 0:
-            tempo = tempo[0].split(' ')[-1]
-            self.sentence = re.sub('\\\\tempo 4 = [0-9]+', '\\\\tempo 4 = {}'.format(str(int(tempo) + 20)), self.sentence) if faster else re.sub('\\\\tempo 4 = [0-9]+', '\\\\tempo 4 = {}'.format(str(int(tempo) - 20)), self.sentence)
-        else:
-            self.sentence = '\\tempo 4 = 80 ' + self.sentence if faster else '\\tempo 4 = 40 ' + self.sentence
-
-        rospy.loginfo(f"updated notes: {self.sentence}")
-        self.update_hit_sequence()
-        rospy.logwarn('Tempo increased.' if faster else 'Tempo decreased.')
-        self.response_pub.publish('Tempo increased.' if faster else 'Tempo decreased.')
+            rospy.logwarn('Preview is busy.')
+            self.response_pub.publish('Preview is busy.')
 
     def callback_command(self, command_msg):
         command = command_msg.command
@@ -124,53 +130,72 @@ class ActionDecider:
                 self.response_pub.publish('Notes recognized.')
                 self.update_hit_sequence()
             except rospy.ROSException:
-                rospy.logwarn('No notes recognized. Make sure the notes are readable and visible to the camera.')
-                self.response_pub.publish('No notes recognized. Make sure the notes are readable and visible to the camera.')
+                rospy.logwarn('No notes recognized.')
+                self.response_pub.publish('No notes recognized.')
 
-        elif command == 'Marimbabot start playing':
+        elif re.match(r'Marimbabot start playing( in [0-9]+ bpm)?', command):
             # if a note sequence has been read via the 'read' command and the corresponding hit sequence is valid, the hit sequence is send to the planning action server
             if self.hit_sequence:
-               self.play()
+                if 'bpm' in command:
+                    value = int(command.split(' ')[-2])
+                    self.assign_tempo(value)
+                self.play()
             else:
                 rospy.logwarn('No notes to play. Say reed to read notes.')
                 self.response_pub.publish('No notes to play. Say reed to read notes.')
                 
+        elif re.match(r'Marimbabot play in [0-9]+ bpm', command):
+            # check if a note sequence has been read via the 'read' command
+            if self.sentence:
+                value = int(command.split(' ')[-2])
+                self.assign_tempo(value)
+                self.play()
+            else:
+                rospy.logwarn('No notes to play. Say reed to read notes.')
+                self.response_pub.publish('No notes to play. Say reed to read notes.')
+
+        # increase/decrease the tempo of the active notes
+        elif re.match(r'Marimbabot play (faster|slower)( by [0-9]+ bpm)?', command):
+            # check if a note sequence has been read via the 'read' command
+            if self.sentence:
+                value = int(command.split(' ')[-2]) if 'by' in command else 20
+                self.change_tempo(faster=True if 'faster' in command else False, value=value)
+                self.play()
+            else:
+                rospy.logwarn('No notes to play. Say reed to read notes.')
+                self.response_pub.publish('No notes to play. Say reed to read notes.')
+
         # pre play, use sound interpreted by computer
-        elif command == 'Marimbabot preview':
+        elif re.match(r'Marimbabot preview( in [0-9]+ bpm)?', command):
             # if a note sequence has been read via the 'read' command
             if self.sentence:
+                if 'bpm' in command:
+                    value = int(command.split(' ')[-2])
+                    self.assign_tempo(value)
                 self.preview()
             else:
                 rospy.logwarn('No notes to preview. Say reed to read notes.')
                 self.response_pub.publish('No notes to preview. Say reed to read notes.')
 
         elif command == 'Marimbabot stop preview':
-            rospy.logwarn('Stopping preview.')
+            rospy.loginfo('Stopping preview.')
             self.response_pub.publish('')
 
-        # increase/decrease the tempo of the active notes
-        elif command == 'Marimbabot play faster' or command == 'Marimbabot play slower':
-            # check if a note sequence has been read via the 'read' command
-            if self.sentence:
-                self.change_tempo(faster=True if command == 'Marimbabot play faster' else False)
-                self.play()
-            else:
-                rospy.logwarn('No notes to play. Say reed to read notes.')
-                self.response_pub.publish('No notes to play. Say reed to read notes.')
 
-        elif command == 'Marimbabot preview faster' or command == 'Marimbabot preview slower':
+        elif re.match(r'Marimbabot preview (faster|slower)( by [0-9]+)?', command):
             # check if a note sequence has been read via the 'read' command
             if self.sentence:
-                self.change_tempo(faster=True if command == 'Marimbabot preview faster' else False)
+                value = int(command.split(' ')[-1]) if 'by' in command else 20
+                self.change_tempo(faster=True if 'faster' in command else False, value=value)
                 self.preview()
             else:
                 rospy.logwarn('No notes to play. Say reed to read notes.')
                 self.response_pub.publish('No notes to play. Say reed to read notes.')
 
+
+
         # TODO: handle ROS exceptions from the planning side (e.g. planning failed, execution failed, ...)
 
-        # TODO: elif command == 'stop':
-        
         # TODO: add more cases (loop, repeat, faster, slower, save as <name_of_piece>, play <name_of_piece>, ...)
 
         else:
