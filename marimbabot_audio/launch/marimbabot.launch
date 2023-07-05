@@ -10,6 +10,4 @@
     </node>
     <node name="onset_detector" pkg="marimbabot_audio" type="onset_detection.py" output="screen" />
     <node name="onset_midi" pkg="marimbabot_audio" type="note2midi.py" output="screen" />
-    <node name="soundplay_node" pkg="sound_play" type="soundplay_node.py"/>
-
 </launch>

@@ -36,14 +36,9 @@ class AudioFromLilypond(object):
         rospy.logdebug("Starting " + self._action_name + " with order " + str(goal.lilypond_string)) 
         
         # start executing the action
-        audio_filename = ""
         try:
             # create audio from lilypond
-            audio_filename = self.create_and_publish_audio(goal.lilypond_string, self.pub)
-            # get audio length
-            durations_seconds = self.get_audio_length(audio_filename)
-            # wait for audio to finish playing
-            time.sleep(durations_seconds)
+            self.create_and_publish_audio(goal.lilypond_string)
         except:
             # if an error happens during audio generation, set success to false
             success = False
@@ -107,7 +102,7 @@ class AudioFromLilypond(object):
         return audio_filename
 
     # callback for vision node, includes audio publisher
-    def create_and_publish_audio(self, data: String, audio_publisher):
+    def create_and_publish_audio(self, data: String):
         rospy.logdebug("received recognized sentence")
         
         # create audio from lilypond
@@ -115,9 +110,9 @@ class AudioFromLilypond(object):
         rospy.logdebug(f"created audio file {audio_filename}")
 
         # send audio to audio node (sound_play package)
-        # http://docs.ros.org/en/api/sound_play/html/msg/SoundRequest.html
+        # http://docs.ros.org/en/api/sound_play/html/msg/SoundRequest.html-
         playsound(audio_filename)
-
+        
         return audio_filename
 
 if __name__ == '__main__':
