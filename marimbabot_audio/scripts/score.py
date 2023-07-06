@@ -132,6 +132,6 @@ class Measurement():
 
 if __name__ == '__main__':
 	rospy.init_node('score_calculator', log_level=rospy.DEBUG)
-	measurement = Measurement()
+	measurement = Measurement(windowsize=1, plan_delay=0.0)
 	measurement.score_calculation()
 	rospy.spin()
