@@ -6,7 +6,7 @@ from sensor_msgs.msg import JointState
 def JointStatePublisher():
     pub = rospy.Publisher('/joint_states', JointState, queue_size=10)
     rospy.init_node('joint_state_publisher')
-    rate = rospy.Rate(100) # 10hz
+    rate = rospy.Rate(100) # 100hz
     Joint_state_pub = JointState()
     Joint_state_pub.name.append("mallet_finger")
     Joint_state_pub.position.append(0.0)
