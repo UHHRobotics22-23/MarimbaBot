@@ -10,15 +10,19 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   <depend>audio_common_msgs</depend>
+
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>cv_bridge</depend>
   <depend>rospy</depend>
+
   <build_export_depend>fluidsynth</build_export_depend>
   <build_export_depend>sound_play</build_export_depend>
   <build_depend>message_generation</build_depend>
   <build_depend>sound_play</build_depend>
+
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>fluidsynth</exec_depend>
   <exec_depend>sound_play</exec_depend>
+  <exec_depend>audio_capture</exec_depend>
 </package>
