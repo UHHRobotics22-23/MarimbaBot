@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
     <node name="audio_from_lilypond" pkg="marimbabot_audio" type="audio_from_lilypond.py"/>
-    <node name="audio_node_capture" pkg="audio_capture" type="audio_capture" output="screen">
+    <node name="audio_audio_capture" pkg="audio_capture" type="audio_capture" output="screen">
         <param name="device" value="" />
         <param name="format" value="wave" />
         <param name="channels" value="1" />
