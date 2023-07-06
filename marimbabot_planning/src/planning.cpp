@@ -110,23 +110,23 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
 
     // Add link on plane constraint to ik_options
     ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_1_link", link_on_plane_constraint));
-    
-    // Create minimal displacement goal, so that the robot does not move too much and stays close to the start state
-    ik_options.goals.emplace_back(new bio_ik::MinimalDisplacementGoal());
 
     // @TODO : add quaternion constraints similar to plane to keep wrist_2_link in specific orientation
     auto orientation_constraint = [](const tf2::Vector3& position, const tf2::Quaternion& orientation) -> double
     {
         tf2::Quaternion desired_orientation;
-        desired_orientation.setRPY(0.0, 0.0, 1.57); // Set roll, pitch, and yaw angles
+        desired_orientation.setRPY(0.52, 0.0, 0.0); // Set roll, pitch, and yaw angles
 
         // Calculate the angular distance between the current and desired orientations
         tf2::Quaternion orientation_error = desired_orientation.inverse() * orientation;
-        double angular_distance = 1.0 - orientation_error.getW();
+        double angular_distance = 1.0 - orientation_error.dot(orientation_error);
         return std::pow(angular_distance, 2);
     };
 
     ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_2_link", orientation_constraint));
+
+    // Create minimal displacement goal, so that the robot does not move too much and stays close to the start state
+    ik_options.goals.emplace_back(new bio_ik::MinimalDisplacementGoal());
 
     // Create dummy goal pose
     geometry_msgs::Pose dummy_goal_pose;
