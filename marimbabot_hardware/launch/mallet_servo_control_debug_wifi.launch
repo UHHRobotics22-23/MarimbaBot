@@ -10,7 +10,7 @@
 
         <node name="mallet_hardware_control_node" pkg="marimbabot_hardware" type="mallet_hardware_control_node_wifi" output="screen">
             <!-- Setting device parameter -->
-            <param name="address" value="127.0.0.1"/>
+            <param name="address" value="192.168.42.1"/>
             <param name="port" value="8888"/>
           
         </node>
