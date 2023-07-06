@@ -115,7 +115,18 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     ik_options.goals.emplace_back(new bio_ik::MinimalDisplacementGoal());
 
     // @TODO : add quaternion constraints similar to plane to keep wrist_2_link in specific orientation
+    auto orientation_constraint = [](const tf2::Vector3& position, const tf2::Quaternion& orientation) -> double
+    {
+        tf2::Quaternion desired_orientation;
+        desired_orientation.setRPY(0.0, 0.0, 1.57); // Set roll, pitch, and yaw angles
 
+        // Calculate the angular distance between the current and desired orientations
+        tf2::Quaternion orientation_error = desired_orientation.inverse() * orientation;
+        double angular_distance = 1.0 - orientation_error.getW();
+        return std::pow(angular_distance, 2);
+    };
+
+    ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_2_link", orientation_constraint));
 
     // Create dummy goal pose
     geometry_msgs::Pose dummy_goal_pose;
