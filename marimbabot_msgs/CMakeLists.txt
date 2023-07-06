@@ -25,6 +25,7 @@ add_action_files(
   DIRECTORY action
   FILES
   HitSequence.action
+  LilypondAudio.action
 )
 
 ## Generate added messages and actions

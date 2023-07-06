@@ -29,4 +29,5 @@
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>sound_play</exec_depend>
   <exec_depend>audio_common_msgs</exec_depend>
+  <exec_depend>audio_capture</exec_depend>
 </package>
