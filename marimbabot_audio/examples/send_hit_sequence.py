@@ -23,27 +23,25 @@ def gererate_sequence_msg(seq:list,id=0,noisy=True):
 		# build test msg for vision
 		hit.tone_name = each[:-1]
 		hit.octave = int(each[-1])
-		interval = rospy.Duration(0.5*idx)
-		hit.start_time = time_start + interval
+		interval = rospy.Duration(0.5)
+		hit.start_time = time_start + interval*idx
 		hit.tone_duration = rospy.Duration(0.5)
 		hit.loudness = 0.5
 
 		if noisy:
-			hit.start_time += rospy.Duration(np.random.uniform(-0.2, 0.2))
-			hit.tone_duration += rospy.Duration(np.random.uniform(-0.2, 0.2))
+			hit.start_time += rospy.Duration(np.random.uniform(-1, 1))
 			hit.loudness += np.random.uniform(-0.2, 0.2)
 
 		msgs_vision.hit_sequence_elements.append(hit)
 
 		# build test msg for audio
 		msg_audio = NoteOnsetMsg()
-		msg_audio.header.stamp = time_start + interval
-		# msg_audio.header.stamp = time_start + interval + rospy.Duration(2)
+		msg_audio.header.stamp = time_start + interval*idx
 		msg_audio.loudness = 0.8
 		msg_audio.confidence = 0.8
 		msg_audio.duration = 0.5
 		if noisy:
-			msg_audio.header.stamp += rospy.Duration(np.random.uniform(-0.2,0.2))
+			msg_audio.header.stamp += rospy.Duration(np.random.uniform(-1,1))
 			msg_audio.duration += np.random.uniform(-0.2,0.2)
 
 		msg_audio.note = each

@@ -61,8 +61,7 @@ class Measurement():
 			Checks if the sequence is ready for comparison
 		'''
 		if len(self.note_seq_audio) != 0 \
-				and rospy.Time.now() > self.plan_end_time+rospy.Duration(2) \
-				and self.note_seq_audio[-1].header.stamp > self.plan_end_time:
+				and rospy.Time.now() > self.plan_end_time+rospy.Duration(2):
 
 			self.plan_start_time = None
 			self.plan_end_time = None
@@ -98,13 +97,12 @@ class Measurement():
 				audio_print = [f"{msg.note},{msg.header.stamp.to_sec()}" for msg in self.note_seq_audio]
 				vision_print = [f"{msg.tone_name + str(msg.octave)},{msg.start_time.to_sec()}" for msg in
 				                self.note_seq_vision]
-				rospy.logdebug('-------------------')
+				rospy.logdebug('-'*40)
 				rospy.logdebug(f'got audio len:{len(self.note_seq_audio)}  vision len:{len(self.note_seq_vision)}')
 				rospy.logdebug(f'extracted audio seq: {audio_print}')
 				rospy.logdebug(f'received vision seq: {vision_print}')
 				if len(self.note_seq_vision) != len(self.note_seq_vision):
 					rospy.logwarn('The length of the received sequence and the target sequence are different.')
-
 				score = self.compare()
 				msg = SequenceScoreMsg()
 				msg.sequence_id = self.vision_seq_id
