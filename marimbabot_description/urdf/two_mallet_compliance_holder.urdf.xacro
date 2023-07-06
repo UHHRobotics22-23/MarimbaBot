@@ -114,7 +114,7 @@
         <parent link="mallet_base_link"/>
         <child link="mallet_servo_box"/>
         <origin xyz="${(-77/2+10+7)/1000} 0.0 ${0.0368+(110-60)/1000}"/>
-        <limit lower="0.0" upper="0.801" effort="1.0" velocity="7.0"/>
+        <limit lower="0.0" upper="1.22" effort="1.0" velocity="7.0"/>
         <axis xyz="0.0 -1.0 0.0"/>
     </joint>
 
