@@ -4,6 +4,7 @@ marimbabot_msgs/HitSequenceElement[] hit_sequence_elements # HitSequenceElement 
 #result definition
 ---
 bool success # whether the goal was successfully achieved
+marimbabot_msgs/HitSequenceElement[] executed_sequence_elements # The sequence of HitSequenceElements that was executed, with updated timings
 
 # Define the error codes
 uint16 SUCCESS = 0
