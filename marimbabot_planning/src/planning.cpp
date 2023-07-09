@@ -18,7 +18,7 @@ Planning::Planning(const std::string planning_group) :
         false}
 {
     // Set planning pipeline and planner
-    move_group_interface_.setPlanningPipelineId("pilz_industrial_motion_planner");
+    move_group_interface_.setPlanningPipelineId("ompl");
     move_group_interface_.setPlannerId("PTP");
     move_group_interface_.startStateMonitor();
     // Move to home position
@@ -175,7 +175,10 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
 
     // Concatinate trajectories
     auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
-
+    
+    ros::Duration approach_duration = down_plan.trajectory_.joint_trajectory.points.back().time_from_start;
+    
+    this->hit_plan_durations.push_back(approach_duration);
     return plan;
 }
 
@@ -193,6 +196,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_notes(
     // Assert that there is at least one hit_point with an nice error message
     assert(points.size() > 0 && "There must be at least one hit_point");
 
+    std::vector<ros::Duration> note_hit_times;
     // Calculate hit trajectory
     auto hit_plan = hit_note(
         start_state,
@@ -220,6 +224,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_notes(
  */
 void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalConstPtr &goal)
 {
+    this->hit_plan_durations.clear();
     try {
         // Set the max velocity and acceleration scaling factors
         move_group_interface_.setMaxVelocityScalingFactor(0.9);
@@ -249,7 +254,10 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
         trajectory_publisher_.publish(display_trajectory);
 
         // Execute the plan
+        ros::Time start_time = ros::Time::now();
         auto status = move_group_interface_.execute(hit_plan);
+        ros::Duration plan_execution_time = ros::Time::now() - start_time;
+
 
         // Set the result of the action server
         if (status != moveit::planning_interface::MoveItErrorCode::SUCCESS) {
@@ -260,6 +268,32 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
             action_server_.setAborted(result);
         } else {
             marimbabot_msgs::HitSequenceResult result;
+
+            // calculate the timings from the plan hit_plan
+
+            if (goal->hit_sequence_elements.size() != hit_plan_durations.size()) {
+                ROS_ERROR("Size of hit_sequence_elements and hit_plan_durations appears to be not the same.");
+                return;
+            }
+
+            auto duration_iter = hit_plan_durations.begin();
+            for (auto& element : goal->hit_sequence_elements) {
+                // Adjust the start time of the hit sequence elements based on the execution time
+                // create new element
+                auto new_element = marimbabot_msgs::HitSequenceElement();
+                new_element.loudness = element.loudness;
+                new_element.octave = element.octave;
+                new_element.start_time = start_time + (*duration_iter);
+                new_element.tone_duration = element.tone_duration;
+                new_element.tone_name = element.tone_name;
+
+                // Add the element to the result
+                result.executed_sequence_elements.push_back(new_element);
+
+                // Step the duration_iter to the next duration
+                ++duration_iter;
+            }
+
             result.success = true;
             action_server_.setSucceeded(result);
         }
