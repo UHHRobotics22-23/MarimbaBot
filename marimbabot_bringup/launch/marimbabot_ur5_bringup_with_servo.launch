@@ -10,10 +10,28 @@
         file="$(find marimbabot_ur5_moveit_config)/launch/move_group.launch"
         if="$(eval mallet_holder_type=='static')" />
     <group if="$(eval mallet_holder_type=='flex_double')">
-    <include
-        file="$(find marimbabot_ur5_flex_double_moveit_config)/launch/move_group.launch"/> 
-    <node name="finger_joint_state_publisher" pkg="marimbabot_hardware" type="joint_state.py" respawn="true"
-          output="screen"/>
+        <include file="$(find marimbabot_ur5_flex_double_moveit_config)/launch/move_group.launch"/> 
+
+        <!-- Mallet Holder Double Hardware controller -->
+        <group ns="MalletHolder">
+            <rosparam file="$(find marimbabot_hardware)/config/controllers.yaml" command="load"/>
+            <rosparam file="$(find marimbabot_hardware)/config/joint_limits.yaml" command="load"/>
+
+            <!-- Remap is needed for the joint_state_controller /MalletHolder/joint_states -> /joint_states -->
+            <remap from="joint_states" to="/joint_states"/>
+
+            <node name="mallet_hardware_control_node" pkg="marimbabot_hardware" type="mallet_hardware_control_node" output="screen">
+            <!-- Setting device parameter -->
+            <param name="device" value="/dev/ttyACM0"/>
+            <param name="baudrate" value="115200"/>
+            </node>
+
+            <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
+            args="
+            joint_state_controller
+            trajectory_controller
+            "/>
+        </group>
     </group>
 
     <include file="$(find ur_robot_driver)/launch/ur_control.launch">
