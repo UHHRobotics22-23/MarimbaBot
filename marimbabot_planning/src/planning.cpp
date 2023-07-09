@@ -18,7 +18,7 @@ Planning::Planning(const std::string planning_group) :
         false}
 {
     // Set planning pipeline and planner
-    move_group_interface_.setPlanningPipelineId("pilz_industrial_motion_planner");
+    move_group_interface_.setPlanningPipelineId("ompl");
     move_group_interface_.setPlannerId("PTP");
     move_group_interface_.startStateMonitor();
     // Move to home position
@@ -65,7 +65,7 @@ void Planning::go_to_home_position()
  **/
 moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_position(
     const moveit_msgs::RobotState& start_state,
-    geometry_msgs::PointStamped goal_point)
+    geometry_msgs::PointStamped goal_point, geometry_msgs::PointStamped goal_point2)
 {
     // Initialize output plan
     moveit::planning_interface::MoveGroupInterface::Plan plan;
@@ -87,12 +87,18 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
         goal_point.point.y,
         goal_point.point.z + 0.1);
 
+    tf2::Vector3 goal_position2(
+        goal_point2.point.x,
+        goal_point2.point.y,
+        goal_point2.point.z + 0.1);
+
     // Use bio_ik to solve the inverse kinematics at the goal point
     bio_ik::BioIKKinematicsQueryOptions ik_options;
     ik_options.replace = true;
     ik_options.return_approximate_solution = true; // Activate for debugging if you get an error 
 
     ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_1", goal_position));
+    ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_2", goal_position2));
 
     // Create link on plane constraint using the LinkFunctionGoal
     tf2::Vector3 plane_point(0.0, 0.0, 1.3);
@@ -164,7 +170,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
 
 moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     const moveit_msgs::RobotState& start_state,
-    CartesianHitSequenceElement note)
+    CartesianHitSequenceElement note, CartesianHitSequenceElement note2)
 {
 
     moveit::core::RobotState robot_state(move_group_interface_.getRobotModel());
@@ -175,17 +181,22 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     geometry_msgs::PointStamped approach_point{note.point};
     approach_point.point.z += 0.1;
         
+    geometry_msgs::PointStamped approach_point2{note2.point};
+    approach_point2.point.z += 0.1;
+
     // Calculate retreat point
     geometry_msgs::PointStamped retreat_point{approach_point};
+    geometry_msgs::PointStamped retreat_point2{approach_point2};
+
 
     // Calculate approach trajectory
-    auto approach_plan = plan_to_mallet_position(start_state, approach_point);
+    auto approach_plan = plan_to_mallet_position(start_state, approach_point, approach_point);
 
     // Calculate down trajectory
-    auto down_plan = plan_to_mallet_position(get_robot_state_after_plan(approach_plan), note.point);
+    auto down_plan = plan_to_mallet_position(get_robot_state_after_plan(approach_plan), note.point, note2.point);
 
     // Calculate retreat trajectory
-    auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), retreat_point);
+    auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), retreat_point, retreat_point);
     
     // Concatinate trajectories
     auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
@@ -204,22 +215,21 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_notes(
     const moveit_msgs::RobotState& start_state,
     std::vector<CartesianHitSequenceElement> points)
 {
-    // Assert that there is at least one hit_point with an nice error message
     assert(points.size() > 0 && "There must be at least one hit_point");
 
-    // Calculate hit trajectory
-    auto hit_plan = hit_note(
-        start_state,
-        points.front()
-        );
+    // Initialize the accumulated plan
+    moveit::planning_interface::MoveGroupInterface::Plan hit_plan;
 
-    // Call hit_points recursively for all remaining hit_points
-    if(points.size() > 1)
+    // Calculate hit trajectory for the first point
+    hit_plan = hit_note(start_state, points.front(), points.rbegin()[1]);
+
+    // Iterate over the remaining hit points
+    for (size_t i = 1; i < points.size(); i+=2)
     {
-        auto remaining_hit_plan = hit_notes(
-            get_robot_state_after_plan(hit_plan),
-            std::vector<CartesianHitSequenceElement>(points.begin() + 1, points.end())
-            );
+        // Calculate hit trajectory for the current point
+        auto remaining_hit_plan = hit_note(get_robot_state_after_plan(hit_plan), points[i], points[i-1]);
+
+        // Concatenate the current plan with the accumulated plan
         hit_plan = concatinated_plan({hit_plan, remaining_hit_plan});
     }
 

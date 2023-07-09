@@ -34,11 +34,21 @@ class DummyMotionClient:
                         octave=octave,
                         loudness=1.0,
                         start_time=start_time))
+                # second note at the same time always a
+                goal.hit_sequence_elements.append(
+                    HitSequenceElement(
+                        tone_name="a".strip().lower().replace('#', 'is'),
+                        tone_duration=duration,
+                        octave=octave,
+                        loudness=1.0,
+                        start_time=start_time))
+
             self.client.send_goal(goal)
             self.client.wait_for_result()
             result = self.client.get_result()
             if result.success:
                 print("Success!")
+                print(result.executed_sequence_elements)
             else:
                 print(f"Failure: {['None', 'PLANNING_FAILED', 'EXECUTION_FAILED'][result.error_code]}")
 

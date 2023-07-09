@@ -1,3 +1,4 @@
 <launch>
     <node name="marimbabot_planning" pkg="marimbabot_planning" type="planning" output="screen" />
+    <include file="$(find marimbabot_ur5_flex_double_moveit_config)/launch/demo.launch"/>
 </launch>

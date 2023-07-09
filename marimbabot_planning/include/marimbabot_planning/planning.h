@@ -56,7 +56,7 @@ class Planning
          **/
         moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
             const moveit_msgs::RobotState& start_state,
-            geometry_msgs::PointStamped goal_point);
+            geometry_msgs::PointStamped goal_point, geometry_msgs::PointStamped goal_point2);
 
 
         /**
@@ -69,7 +69,7 @@ class Planning
 
         moveit::planning_interface::MoveGroupInterface::Plan hit_note(
             const moveit_msgs::RobotState& start_state,
-            CartesianHitSequenceElement note);
+            CartesianHitSequenceElement note, CartesianHitSequenceElement note2);
 
 
         /**
