@@ -18,7 +18,7 @@ Planning::Planning(const std::string planning_group) :
         false}
 {
     // Set planning pipeline and planner
-    move_group_interface_.setPlanningPipelineId("ompl");
+    move_group_interface_.setPlanningPipelineId("pilz_industrial_motion_planner");
     move_group_interface_.setPlannerId("PTP");
     move_group_interface_.startStateMonitor();
     // Move to home position
@@ -225,6 +225,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_notes(
 void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalConstPtr &goal)
 {
     this->hit_plan_durations.clear();
+
     try {
         // Set the max velocity and acceleration scaling factors
         move_group_interface_.setMaxVelocityScalingFactor(0.9);
@@ -258,7 +259,6 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
         auto status = move_group_interface_.execute(hit_plan);
         ros::Duration plan_execution_time = ros::Time::now() - start_time;
 
-
         // Set the result of the action server
         if (status != moveit::planning_interface::MoveItErrorCode::SUCCESS) {
             ROS_ERROR_STREAM("Hit sequence execution failed: " << status);
@@ -270,7 +270,6 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
             marimbabot_msgs::HitSequenceResult result;
 
             // calculate the timings from the plan hit_plan
-
             if (goal->hit_sequence_elements.size() != hit_plan_durations.size()) {
                 ROS_ERROR("Size of hit_sequence_elements and hit_plan_durations appears to be not the same.");
                 return;
