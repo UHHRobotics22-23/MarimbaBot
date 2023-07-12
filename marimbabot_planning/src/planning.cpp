@@ -92,6 +92,10 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
         goal_point2.point.y,
         goal_point2.point.z + 0.1);
 
+    // print both goal positions with ros info
+    ROS_ERROR_STREAM("Goal position 1: " << goal_point.point.x << " " << goal_point.point.y << " " << goal_point.point.z);
+    ROS_ERROR_STREAM("Goal position 2: " << goal_point2.point.x << " " << goal_point2.point.y << " " << goal_point2.point.z);
+
     // Use bio_ik to solve the inverse kinematics at the goal point
     bio_ik::BioIKKinematicsQueryOptions ik_options;
     ik_options.replace = true;
@@ -226,6 +230,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_notes(
     // Iterate over the remaining hit points
     for (size_t i = 1; i < points.size(); i+=2)
     {
+        // TODO print points hier
         // Calculate hit trajectory for the current point
         auto remaining_hit_plan = hit_note(get_robot_state_after_plan(hit_plan), points[i], points[i-1]);
 

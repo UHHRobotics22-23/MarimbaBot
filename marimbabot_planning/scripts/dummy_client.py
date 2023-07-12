@@ -45,7 +45,6 @@ class DummyMotionClient:
                     # Handle chord
                     chord_notes = note[1:-1].split(',')
                     for chord_note in chord_notes:
-                        start_time += duration
                         goal.hit_sequence_elements.append(
                             HitSequenceElement(
                                 tone_name=chord_note.strip().lower().replace('#', 'is'),
@@ -64,12 +63,12 @@ class DummyMotionClient:
                         start_time=start_time))
                     
             # send goal to server
+            print(goal)
             self.client.send_goal(goal)
             self.client.wait_for_result()
             result = self.client.get_result()
             if result.success:
                 print("Success!")
-                print(result.executed_sequence_elements)
             else:
                 print(f"Failure: {['None', 'PLANNING_FAILED', 'EXECUTION_FAILED'][result.error_code]}")
 
