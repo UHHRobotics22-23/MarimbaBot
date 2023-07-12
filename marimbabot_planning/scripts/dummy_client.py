@@ -64,11 +64,11 @@ class DummyMotionClient:
             # send goal to server
             self.client.send_goal(goal)
             self.client.wait_for_result()
-            notes_or_accords = self.client.get_result()
-            if notes_or_accords.success:
+            result = self.client.get_result()
+            if result.success:
                 print("Success!")
             else:
-                print(f"Failure: {['None', 'PLANNING_FAILED', 'EXECUTION_FAILED'][notes_or_accords.error_code]}")
+                print(f"Failure: {['None', 'PLANNING_FAILED', 'EXECUTION_FAILED'][result.error_code]}")
 
 if __name__ == '__main__':
     rospy.init_node('dummy_motion_client', anonymous=True)
