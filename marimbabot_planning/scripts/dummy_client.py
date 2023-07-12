@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
 A dummy action client to call the motions action server.
+Usage:
+Run the dummy client with `rosrun marimbabot_planning dummy_client.py`.
 """
 
 import re
