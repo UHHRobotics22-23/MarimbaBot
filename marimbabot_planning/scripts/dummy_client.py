@@ -69,7 +69,6 @@ class DummyMotionClient:
             result = self.client.get_result()
             if result.success:
                 print("Success!")
-                print(result.executed_sequence_elements)
             else:
                 print(f"Failure: {['None', 'PLANNING_FAILED', 'EXECUTION_FAILED'][result.error_code]}")
 
