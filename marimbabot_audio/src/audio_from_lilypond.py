@@ -131,7 +131,7 @@ class AudioFromLilypond(object):
         sound_request = SoundRequest()
         sound_request.sound = -2
         sound_request.command = 1
-        sound_request.volume = 3
+        sound_request.volume = 10.0
         sound_request.arg = audio_filename
 
         # publish audio file to audio node (sound_play package)
