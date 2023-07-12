@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
 A dummy action client to call the motions action server.
+Usage:
+Run the dummy client with `rosrun marimbabot_planning dummy_client.py`.
 """
 
 import re
@@ -67,6 +69,7 @@ class DummyMotionClient:
             result = self.client.get_result()
             if result.success:
                 print("Success!")
+                print(result.executed_sequence_elements)
             else:
                 print(f"Failure: {['None', 'PLANNING_FAILED', 'EXECUTION_FAILED'][result.error_code]}")
 
