@@ -101,8 +101,10 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     ik_options.replace = true;
     ik_options.return_approximate_solution = true; // Activate for debugging if you get an error 
 
+    // Make sure they are executed simultaneously   
     ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_1", goal_position));
     ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_2", goal_position2));
+
 
     // Create link on plane constraint using the LinkFunctionGoal
     tf2::Vector3 plane_point(0.0, 0.0, 1.3);
@@ -194,13 +196,14 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
 
 
     // Calculate approach trajectory
-    auto approach_plan = plan_to_mallet_position(start_state, approach_point, approach_point);
+    // two different points for the two mallets
+    auto approach_plan = plan_to_mallet_position(start_state, approach_point, approach_point2);
 
     // Calculate down trajectory
     auto down_plan = plan_to_mallet_position(get_robot_state_after_plan(approach_plan), note.point, note2.point);
 
     // Calculate retreat trajectory
-    auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), retreat_point, retreat_point);
+    auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), retreat_point, retreat_point2);
     
     // Concatinate trajectories
     auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
@@ -230,7 +233,9 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_notes(
     // Iterate over the remaining hit points
     for (size_t i = 1; i < points.size(); i+=2)
     {
-        // TODO print points hier
+        // TODO print the two points
+        ROS_ERROR_STREAM("point 1: " << points[i].point.point.x << " " << points[i].point.point.y << " " << points[i].point.point.z); 
+        ROS_ERROR_STREAM("point 2: " << points[i-1].point.point.x << " " << points[i-1].point.point.y << " " << points[i-1].point.point.z);
         // Calculate hit trajectory for the current point
         auto remaining_hit_plan = hit_note(get_robot_state_after_plan(hit_plan), points[i], points[i-1]);
 
