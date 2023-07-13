@@ -42,6 +42,22 @@ class ActionDecider:
             rospy.logwarn('Lilypond string not valid.')
             self.response_pub.publish('Lilypond string not valid.')
 
+    def increase_volume(self):
+        for hit_sequence_elem in self.hit_sequence.hit_sequence_elements:
+            if hit_sequence_elem.volume < 0.9:
+                hit_sequence_elem.volume += 0.1
+
+    def decrease_volume(self):
+        for hit_sequence_elem in self.hit_sequence.hit_sequence_elements:
+            if hit_sequence_elem.volume > 0.1:
+                hit_sequence_elem.volume -= 0.1
+
+    def set_volume(self, dynamic):
+        dynamic_to_volume = { "fff" : 1.0, "ff" : 0.8, "f" : 0.6, "mf" : 0.4, "mp" : 0.2, "p" : 0.1, "pp" : 0.05, "ppp" : 0.01 }
+        if dynamic in dynamic_to_volume:
+            for hit_sequence_elem in self.hit_sequence.hit_sequence_elements:
+                hit_sequence_elem.volume = dynamic_to_volume[dynamic]
+
     # sets the tempo of the current sequence and updates the hit sequence
     def assign_tempo(self, value=60):
         if '\\tempo' in self.note_sequence:
@@ -58,7 +74,7 @@ class ActionDecider:
         tempo = re.findall(r'\\tempo 4 = [0-9]+', self.note_sequence)
         if len(tempo) > 0:
             tempo = int(tempo[0].split(' ')[-1])
-            assign_tempo(tempo + value if faster else tempo - value)
+            self.assign_tempo(tempo + value if faster else tempo - value)
 
     # communicates with the planning action server to play the hit sequence on the marimba
     def play(self):
