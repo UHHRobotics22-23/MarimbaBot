@@ -12,8 +12,8 @@
             <!-- Setting device parameter -->
             <param name="address" value="192.168.42.1"/>
             <param name="port" value="8888"/>
-          
         </node>
+        
         <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
             args="
                 joint_state_controller
