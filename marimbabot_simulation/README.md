@@ -10,6 +10,13 @@ There are the following launch files:
 
 ## How to run
 
+Install dependencies (if not already installed):
+
+```bash
+sudo apt-get install libportaudio2
+sudo apt-get install fluidsynth
+```
+
 Launch the simulation with the following command:
 
 ```bash
