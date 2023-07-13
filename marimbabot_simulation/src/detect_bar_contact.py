@@ -15,7 +15,7 @@ from std_msgs.msg import String
 
 def find_file_directory(filename):
     home_directory = os.path.expanduser("~")
-    command = f"find {home_directory} -type f -name {filename} -exec dirname {{}} \\; -quit 2>/dev/null"
+    command = f"find {home_directory} -type f -xtype f -name {filename} -exec dirname {{}} \\; -quit 2>/dev/null"
     try:
         output = subprocess.check_output(command, shell=True, universal_newlines=True)
         directory = output.strip()
@@ -91,8 +91,8 @@ played_notes = []
 def save_midi(notes):
     """Save notes to a MIDI file using pretty_midi."""
 
-    audio_dir = find_file_directory("note_ais4.wav")
-    midi_dir = Path(audio_dir).parent / "midi"
+    src_dir = find_file_directory("detect_bar_contact.py")
+    midi_dir = Path(src_dir).parent / "midi"
     midi_dir.mkdir(exist_ok=True)
     midi_path = midi_dir / f"{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.midi"
 

@@ -10,9 +10,6 @@
     <!-- Launch bar contact detector -->
     <node name="detect_bar_contact" pkg="marimbabot_simulation" type="detect_bar_contact.py" output="screen"/>
 
-    <!-- Launch note player -->
-    <node name="play_notes" pkg="marimbabot_simulation" type="play_notes.py" output="screen"/>
-
     <!-- Plotjuggler -->
     <group if="false">
         <node name="plotjuggler_with_layout" 
