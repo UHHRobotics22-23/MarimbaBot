@@ -35,7 +35,7 @@ class DummyMotionClient:
             # create regex for splitting the notes including only the notes from the scale (C, D, E, F, G, A, B)
             # e.g. 'C, <C#, D>, C#, A' => ['C', '<C#, D>', 'C#', 'A']
             # LIMITED TO A CHORD OF 2 NOTES !!!
-            regex_pattern = r'([CDEFGAB][#b]?|[<].*?[>])'
+            regex_pattern = r'([CDEFGAB][#b]?|[<][CDEFGAB][#b]?,\s?[CDEFGAB][#b]?[>])'
             notes_or_accords = re.findall(regex_pattern, input_str)
 
             # iterate over the notes and send them to the server
