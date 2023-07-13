@@ -115,7 +115,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     auto orientation_constraint = [](const tf2::Vector3& position, const tf2::Quaternion& orientation) -> double
     {
         tf2::Quaternion desired_orientation;
-        desired_orientation.setRPY(0.52, 0.0, 0.0); // Set roll, pitch, and yaw angles
+        desired_orientation.setRPY(0.52, 0.0, 0.0); // Set roll, pitch, and yaw angles. Set Roll to 0.52 rad (30 deg)
 
         // Calculate the angular distance between the current and desired orientations
         tf2::Quaternion orientation_error = desired_orientation.inverse() * orientation;
