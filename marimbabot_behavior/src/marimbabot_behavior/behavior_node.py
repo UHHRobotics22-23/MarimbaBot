@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 
-import actionlib
+import re
 import threading
+
+import actionlib
 import rospy
 from abjad.exceptions import LilyPondParserError
 from std_msgs.msg import String
 
 from marimbabot_behavior.interpreter import read_notes
-from marimbabot_msgs.msg import LilypondAudioAction, LilypondAudioGoal
-from marimbabot_msgs.msg import HitSequenceAction
-import re
-from marimbabot_msgs.msg import Command
+from marimbabot_msgs.msg import (Command, HitSequenceAction,
+                                 LilypondAudioAction, LilypondAudioGoal)
+
 
 class ActionDecider:
     def __init__(self):
@@ -58,7 +59,7 @@ class ActionDecider:
         tempo = re.findall(r'\\tempo 4 = [0-9]+', self.note_sequence)
         if len(tempo) > 0:
             tempo = int(tempo[0].split(' ')[-1])
-            assign_tempo(tempo + value if faster else tempo - value)
+            self.assign_tempo(tempo + value if faster else tempo - value)
 
     # communicates with the planning action server to play the hit sequence on the marimba
     def play(self):
