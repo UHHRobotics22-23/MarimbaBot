@@ -17,6 +17,8 @@ add_message_files(
   Command.msg
   Speech.msg
   TmpFile.msg
+  HitSequence.msg
+  SequenceScore.msg
 )
 
 add_action_files(
