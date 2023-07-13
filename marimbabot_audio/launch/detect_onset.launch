@@ -1,4 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-  <node name="onset_detector" pkg="marimbabot_audio" type="onset_detection.py" output="screen" />
-</launch>

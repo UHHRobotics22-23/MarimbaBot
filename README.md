@@ -58,6 +58,16 @@ rosdep install serial
 # Install python dependencies
 pip3 install wheel  # firstly install the wheel for further package building if you start from a empty virtual environment.
 pip3 install -r src/marimbabot/requirements.txt
+
+# since the cudatoolkit can't be installed with pip, therefore you need to manually install the gpu version of tensorflow using anaconda by the follwoing command:
+conda install -c conda-forge cudatoolkit=11.8.0
+python3 -m pip install nvidia-cudnn-cu11==8.5.0.96 tensorflow==2.12.*
+mkdir -p $CONDA_PREFIX/etc/conda/activate.d
+echo 'CUDNN_PATH=$(dirname $(python -c "import nvidia.cudnn;print(nvidia.cudnn.__file__)"))' >> $CONDA_PREFIX/etc/conda/activate.d/env_vars.sh
+echo 'export LD_LIBRARY_PATH=$CONDA_PREFIX/lib/:$CUDNN_PATH/lib:$LD_LIBRARY_PATH' >> $CONDA_PREFIX/etc/conda/activate.d/env_vars.sh
+source $CONDA_PREFIX/etc/conda/activate.d/env_vars.sh
+# Verify install:
+python3 -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
 ```
 
 Now you are ready to go.

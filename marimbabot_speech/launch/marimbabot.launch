@@ -1,11 +1,17 @@
 <launch>
-  <node name="speech_audio_capture" pkg="audio_capture" type="audio_capture" output="screen">
-    <param name="device" value="" />
-    <param name="format" value="wave" />
-    <param name="channels" value="1" />
-    <param name="depth" value="2" />
-    <param name="sample_rate" value="16000" />
-  </node>
+    <!-- Commandline: "arecord -l" will show available input devices, use the card number as
+      the first number and the subdevice number as the second in a string
+      like hw:1,0 -->
+  <group ns="speech_node">
+    <node name="speech_audio_capture" pkg="audio_capture" type="audio_capture" output="screen">
+      <param name="device" value="plughw:2,0" />
+      <param name="format" value="wave" />
+      <param name="channels" value="1" />
+      <param name="depth" value="2" />
+      <param name="sample_rate" value="16000" />
+    </node>
+  </group>
+
   <node name="speech_tmp_node" pkg="marimbabot_speech" type="audio2tmp.py" output="screen"/>
   <node name="speech_stt_node" pkg="marimbabot_speech" type="speech2text.py" output="screen">
     <param name="commands_path"  value="$(find marimbabot_speech)/config/commands.txt"/>

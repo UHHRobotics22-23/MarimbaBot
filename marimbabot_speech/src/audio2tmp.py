@@ -11,7 +11,7 @@ class Audio2FileNode:
 		self.wav_file.remove_all_cache()
 
 		self.audio_sub = rospy.Subscriber(
-			'/audio_stamped',
+			'/speech_node/audio_stamped',
 			AudioDataStamped,
 			self.audio_callback,
 			queue_size=100,

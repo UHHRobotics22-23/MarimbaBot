@@ -167,7 +167,7 @@ class OnsetDetection:
     def start(self):
         # the spectrum for visualization
         self.pub_spectrogram = rospy.Publisher(
-            "spectrogram", Image, queue_size=1, tcp_nodelay=True
+            "/audio_node/spectrogram", Image, queue_size=1, tcp_nodelay=True
         )
         self.pub_compute_time = rospy.Publisher(
             "~compute_time", Float32, queue_size=1, tcp_nodelay=True
@@ -181,7 +181,7 @@ class OnsetDetection:
             "onsets", NoteOnset, queue_size=100, tcp_nodelay=True
         )
         self.sub = rospy.Subscriber(
-            "audio_stamped",
+            "/audio_node/audio_stamped",
             AudioDataStamped,
             self.audio_process,
             queue_size=500,
