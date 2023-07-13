@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="mallet_holder_type" default="flex_double"/>
+
+    <include file="$(find marimbabot_description)/launch/marimbabot_ur5_upload.launch">
+        <arg name="mallet_holder_type" value="$(arg mallet_holder_type)"/>
+    </include>
+
+    <include
+        file="$(find marimbabot_ur5_moveit_config)/launch/move_group.launch"
+        if="$(eval mallet_holder_type=='static')" />
+    <group if="$(eval mallet_holder_type=='flex_double')">
+        <include file="$(find marimbabot_ur5_flex_double_moveit_config)/launch/move_group.launch"/> 
+
+        <!-- Mallet Holder Double Hardware controller -->
+        <group ns="MalletHolder">
+            <rosparam file="$(find marimbabot_hardware)/config/controllers.yaml" command="load"/>
+            <rosparam file="$(find marimbabot_hardware)/config/joint_limits.yaml" command="load"/>
+
+            <!-- Remap is needed for the joint_state_controller /MalletHolder/joint_states -> /joint_states -->
+            <remap from="joint_states" to="/joint_states"/>
+
+            <node name="mallet_hardware_control_node" pkg="marimbabot_hardware" type="mallet_hardware_control_node" output="screen">
+            <!-- Setting device parameter -->
+            <param name="device" value="/dev/ttyACM0"/>
+            <param name="baudrate" value="115200"/>
+            </node>
+
+            <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
+            args="
+            joint_state_controller
+            trajectory_controller
+            "/>
+        </group>
+    </group>
+
+    <include file="$(find ur_robot_driver)/launch/ur_control.launch">
+        <arg name="headless_mode" value="true"/>
+        <arg name="tf_prefix" value="ur5_"/>
+        <arg name="robot_ip" value="192.168.1.12"/>
+        <arg name="controllers" default="pos_joint_traj_controller joint_state_controller"/>
+        <arg name="stopped_controllers" default="joint_group_vel_controller"/>
+        <arg name="controller_config_file" value="$(find marimbabot_description)/config/ur5_controllers.yaml"/>
+        <arg name="kinematics_config" value="$(find tams_ur5_setup_description)/config/tams_ur5_calibration.yaml"/>
+        <arg name="use_tool_communication" value="false"/>
+
+        <!-- detail: https://github.com/TAMS-Group/Universal_Robots_ROS_Driver/commit/0833aa340f751909f759aa2e153e69da1a1494fa-->
+        <!-- Specify gain for servoing to position in joint space.-->
+        <!-- A higher gain can sharpen the trajectory.-->
+        <arg name="servoj_gain" value="300"/>  <!-- smooth the trajectory, default 2000-->
+        <!-- Specify lookahead time for servoing to position in joint space.-->
+        <!-- A longer lookahead time can smooth the trajectory.-->
+        <arg name="servoj_lookahead_time" value="0.075"/>  <!-- smooth the trajectory, default 0.03-->
+
+    </include>
+
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true"
+          output="screen"/>
+
+    <!-- Gripper -->
+    <arg name="gripper_start_mode" default="basic"/>   <!-- basic or pinch -->
+
+    <!--  <node name="robotiqSModel" pkg="robotiq_s_model_control" type="SModelTcpNode.py" args="$(arg hand_ip)"/>-->
+    <node name="robotiq3fGripper" pkg="robotiq_3f_gripper_control" type="Robotiq3FGripperRtuNode.py"
+          args="/dev/rfcomm2"/>
+    <node name="robotiq3fGripperStatePublisher" pkg="robotiq_3f_gripper_joint_state_publisher"
+          type="robotiq_3f_gripper_joint_states">
+        <param name="prefix" value="s_model_"/>
+    </node>
+    <!-- Gripper action server-->
+    <include file="$(find robotiq_s_model_action_server)/launch/robotiq_s_model_action_server.launch">
+        <arg name="gripper_start_mode" value="$(arg gripper_start_mode)"/>
+    </include>
+
+    <!-- Force Torque 150 -->
+    <node name="forceTorque" pkg="robotiq_ft_sensor" type="rq_sensor">
+        <param name="frame_id" value="ft_robotiq_force_torque_frame_id"/>
+        <param name="serial_id" value="rfcomm1"/>
+    </node>
+</launch>

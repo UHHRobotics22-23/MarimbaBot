@@ -21,7 +21,6 @@ from matplotlib.colors import ListedColormap
     Some default parameters:
         -   Sampling rate = 44100
         -   Sampleing format = S16LE
-
 '''
 
 def hz_to_note(hz):
@@ -168,22 +167,21 @@ class OnsetDetection:
         self.reset()
 
 
-
     def start(self):
         # the spectrum for visualization
         self.pub_spectrogram = rospy.Publisher(
-            "spectrogram", Image, queue_size=1, tcp_nodelay=True
+            "/audio/spectrogram_img", Image, queue_size=1, tcp_nodelay=True
         )
         self.pub_compute_time = rospy.Publisher(
-            "~compute_time", Float32, queue_size=1, tcp_nodelay=True
+            "/audio/~compute_time", Float32, queue_size=1, tcp_nodelay=True
         )
         # signal after constant Q transform
         self.pub_cqt = rospy.Publisher(
-            "cqt", CQTStamped, queue_size=100, tcp_nodelay=True
+            "/audio/cqt", CQTStamped, queue_size=100, tcp_nodelay=True
         )
         # onset signals
         self.pub_onset = rospy.Publisher(
-            "onsets", NoteOnset, queue_size=100, tcp_nodelay=True
+            "/audio/onset_notes", NoteOnset, queue_size=100, tcp_nodelay=True
         )
         self.sub = rospy.Subscriber(
             "/audio_node/audio_stamped",

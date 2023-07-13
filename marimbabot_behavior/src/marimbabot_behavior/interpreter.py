@@ -64,5 +64,3 @@ def read_notes(notes) -> HitSequenceGoal:
                 loudness = note.velocity/127.0))
 
     return goal
-    # Sends the goal to the action server.
-    client.send_goal(note_sequence)
