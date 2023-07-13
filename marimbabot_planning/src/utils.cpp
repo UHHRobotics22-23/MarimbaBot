@@ -1,4 +1,5 @@
 #include "marimbabot_planning/utils.h"
+#include <cmath>
 
 namespace marimbabot_planning
 {
@@ -78,10 +79,14 @@ moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
     double original_length = input_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec();
 
     // Assert that the input plan is shorter than the desired length
-    assert(original_length <= length && "Input plan must be shorter than the desired length");
-
+    //assert(original_length <= length && "Input plan must be shorter than the desired length");
+    ROS_INFO("Original length: %f", original_length);
+    ROS_INFO("Desired length: %f", length);
     // Calculate the scaling factor
-    double scaling_factor = length / original_length;
+    //double scaling_factor = length / original_length;
+
+    double scaling_factor = pow(original_length,length);
+    ROS_INFO("Scaling factor: %f", scaling_factor);
 
     // Copy the input plan
     moveit::planning_interface::MoveGroupInterface::Plan output_plan{input_plan};

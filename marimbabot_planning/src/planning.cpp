@@ -186,6 +186,22 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
 
     // Calculate retreat trajectory
     auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), retreat_point);
+
+
+    // Set timing parameters
+    std::string tone_name = note.msg.tone_name;
+    int32_t octave = note.msg.octave;
+    ros::Time start_time = note.msg.start_time;
+    ros::Duration tone_duration = note.msg.tone_duration;
+    double loudness = note.msg.loudness;
+
+    ROS_INFO("Received data : (%s, %d, %f, %f, %f)", tone_name.c_str(), octave, loudness , start_time.toSec(), tone_duration.toSec());
+    // constant scale factor retreat plan to 0.5
+    retreat_plan = slow_down_plan(retreat_plan, 0.5);
+    down_plan = slow_down_plan(down_plan, loudness);
+    double timing = start_time.toSec() - down_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec() - retreat_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec();
+    ROS_INFO("time calculation : %f", abs(timing));
+    approach_plan = slow_down_plan(approach_plan, abs(timing));
     
     // Concatinate trajectories
     auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
