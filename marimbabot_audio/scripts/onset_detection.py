@@ -522,6 +522,6 @@ class OnsetDetection:
         self.pub_cqt.publish(msg)
 
 if __name__ == '__main__':
-    rospy.init_node("detect_onset",log_level=rospy.DEBUG)
+    rospy.init_node("detect_onset")
     detector = OnsetDetection()
     detector.start()
