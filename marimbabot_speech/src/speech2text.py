@@ -1,4 +1,6 @@
 import os
+from nvidia import cudnn
+os.environ['LD_LIBRARY_PATH'] = f'{os.path.dirname(cudnn.__file__)}/lib:$LD_LIBRARY_PATH'
 
 import rospy
 import whisper
