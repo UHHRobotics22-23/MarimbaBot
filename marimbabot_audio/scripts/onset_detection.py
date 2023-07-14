@@ -1,4 +1,3 @@
-# LD_LIBRARY_PATH=/home/wang/workspace/marimbabot_ws/env_this/lib/python3.8/site-packages/nvidia/cudnn/lib:$LD_LIBRARY_PATH
 from functools import reduce
 import struct
 import cv_bridge
@@ -444,10 +443,7 @@ class OnsetDetection:
             self.spectrogram = None
             return
 
-        # rospy.logdebug("update spectrogram")
-
         onsets_time = [self.onsets_to_time_in_spec(onset) for onset in onsets_cqt]
-
 
         # throw away overlap
         spec = spec[:, self.overlap_hops:-self.overlap_hops]
