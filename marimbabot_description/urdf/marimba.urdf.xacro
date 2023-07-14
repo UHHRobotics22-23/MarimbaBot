@@ -15,7 +15,6 @@ From the point of view of the marimbist:
     y: points towards the right
     z: points towards the ceiling, according to right hand rule
 
-
 Changelog:
     2023.03.02 Named and correctly positioned bar frames
                Added side boxes
@@ -389,7 +388,7 @@ Changelog:
     <xacro:bar_in_row note="fis5" parent="body_top" id="10" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
     <xacro:bar_in_row note="gis5" parent="body_top" id="11" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
     <xacro:bar_in_row note="ais5" parent="body_top" id="12" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
-    <!-- <xacro:bar_in_rbar_in_rowow note="" parent="body_top" id="13" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" /> -->
+    <!-- <xacro:bar_in_row note="" parent="body_top" id="13" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" /> -->
     <xacro:bar_in_row note="cis6" parent="body_top" id="14" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
     <xacro:bar_in_row note="dis6" parent="body_top" id="15" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
     <!-- <xacro:bar_in_row note="" parent="body_top" id="16" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" /> -->

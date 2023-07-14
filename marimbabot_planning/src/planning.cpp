@@ -85,17 +85,17 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     tf2::Vector3 goal_position(
         goal_point.point.x,
         goal_point.point.y,
-        goal_point.point.z);
+        goal_point.point.z + 0.1);
 
     // Use bio_ik to solve the inverse kinematics at the goal point
     bio_ik::BioIKKinematicsQueryOptions ik_options;
     ik_options.replace = true;
-    ik_options.return_approximate_solution = false; // Activate for debugging if you get an error 
+    ik_options.return_approximate_solution = true; // Activate for debugging if you get an error 
 
-    ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head", goal_position));
+    ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_1", goal_position));
 
     // Create link on plane constraint using the LinkFunctionGoal
-    tf2::Vector3 plane_point(0.0, 0.0, 1.0);
+    tf2::Vector3 plane_point(0.0, 0.0, 1.3);
 
     // Define lambda function for link on plane constraint
     // Requested format const std::function<double(const tf2::Vector3&, const tf2::Quaternion&)>& f
@@ -110,7 +110,21 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
 
     // Add link on plane constraint to ik_options
     ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_1_link", link_on_plane_constraint));
-    
+
+    // @TODO : add quaternion constraints similar to plane to keep wrist_2_link in specific orientation
+    auto orientation_constraint = [](const tf2::Vector3& position, const tf2::Quaternion& orientation) -> double
+    {
+        tf2::Quaternion desired_orientation;
+        desired_orientation.setRPY(0.52, 0.0, 0.0); // Set roll, pitch, and yaw angles
+
+        // Calculate the angular distance between the current and desired orientations
+        tf2::Quaternion orientation_error = desired_orientation.inverse() * orientation;
+        double angular_distance = 1.0 - orientation_error.dot(orientation_error);
+        return std::pow(angular_distance, 2);
+    };
+
+    ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_2_link", orientation_constraint));
+
     // Create minimal displacement goal, so that the robot does not move too much and stays close to the start state
     ik_options.goals.emplace_back(new bio_ik::MinimalDisplacementGoal());
 
@@ -172,7 +186,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
 
     // Calculate retreat trajectory
     auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), retreat_point);
-
+    
     // Concatinate trajectories
     auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
 
@@ -222,8 +236,8 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
 {
     try {
         // Set the max velocity and acceleration scaling factors
-        move_group_interface_.setMaxVelocityScalingFactor(0.9);
-        move_group_interface_.setMaxAccelerationScalingFactor(0.9);
+        move_group_interface_.setMaxVelocityScalingFactor(0.5);
+        move_group_interface_.setMaxAccelerationScalingFactor(0.5);
 
         auto current_state = move_group_interface_.getCurrentState();
         //convert to moveit message
