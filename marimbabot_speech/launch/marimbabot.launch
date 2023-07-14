@@ -11,7 +11,6 @@
       <param name="sample_rate" value="16000" />
     </node>
   </group>
-
   <node name="speech_tmp_node" pkg="marimbabot_speech" type="audio2tmp.py" output="screen"/>
   <node name="speech_stt_node" pkg="marimbabot_speech" type="speech2text.py" output="screen">
     <param name="commands_path"  value="$(find marimbabot_speech)/config/commands.txt"/>
