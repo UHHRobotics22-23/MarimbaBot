@@ -71,8 +71,15 @@ moveit_msgs::RobotState get_robot_state_after_plan(moveit::planning_interface::M
 
 moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
     const moveit::planning_interface::MoveGroupInterface::Plan& input_plan,
-    double length)
+    double length, const std::string& tone_name)
 {
+
+    if (tone_name == "r")
+    {
+        // Wait for 1 second
+        ros::Duration(1.0).sleep();
+    }
+
     assert(input_plan.trajectory_.joint_trajectory.points.size() > 0 && "Input plan must have at least one point");
 
     // Get the time from start of the last point

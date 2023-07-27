@@ -197,11 +197,11 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
 
     ROS_INFO("Received data : (%s, %d, %f, %f, %f)", tone_name.c_str(), octave, loudness , start_time.toSec(), tone_duration.toSec());
     // constant scale factor retreat plan to 0.5
-    retreat_plan = slow_down_plan(retreat_plan, 0.5);
-    down_plan = slow_down_plan(down_plan, loudness);
+    retreat_plan = slow_down_plan(retreat_plan, 0.5, tone_name);
+    down_plan = slow_down_plan(down_plan, loudness, tone_name);
     double timing = start_time.toSec() - down_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec() - retreat_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec();
     ROS_INFO("time calculation : %f", abs(timing));
-    approach_plan = slow_down_plan(approach_plan, abs(timing));
+    approach_plan = slow_down_plan(approach_plan, abs(timing), tone_name);
     
     // Concatinate trajectories
     auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
