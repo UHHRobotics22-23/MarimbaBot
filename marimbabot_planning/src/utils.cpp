@@ -71,15 +71,8 @@ moveit_msgs::RobotState get_robot_state_after_plan(moveit::planning_interface::M
 
 moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
     const moveit::planning_interface::MoveGroupInterface::Plan& input_plan,
-    double length, const std::string& tone_name)
+    double length)
 {
-
-    if (tone_name == "r")
-    {
-        // Wait for 1 second
-        ros::Duration(1.0).sleep();
-    }
-
     assert(input_plan.trajectory_.joint_trajectory.points.size() > 0 && "Input plan must have at least one point");
 
     // Get the time from start of the last point
@@ -126,33 +119,44 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
         geometry_msgs::PointStamped note_point;
         note_point.header.frame_id = note_frame;  // The frame of the note
         note_point.header.stamp = ros::Time(0);  // Use the latest available transform
+        // Add the cartesian point and time to the vector
+        CartesianHitSequenceElement hit_sequence_element;
 
-        try
+        // skip frame transform and stay at the same position if tone_name is "rest"
+        if (point.tone_name == "r")
         {
-            // Transform the point to the planning frame
-            note_point = tf_buffer->transform(
+            note_point.point.z += 0.04;
+            hit_sequence_element.point = note_point;
+            hit_sequence_element.msg = point;
+            cartesian_hit_sequence.push_back(hit_sequence_element);
+        }
+        else
+        {
+            try
+            {
+                // Transform the point to the planning frame
+                note_point = tf_buffer->transform(
                 note_point,
                 planning_frame,
                 ros::Duration(1.0)
                 );
 
-            // Add temporary z offset
-            note_point.point.z += 0.04;
-
-            // Add the cartesian point and time to the vector
-            CartesianHitSequenceElement hit_sequence_element;
-            hit_sequence_element.point = note_point;
-            hit_sequence_element.msg = point;
-            
-            // Add the struct to the vector
-            cartesian_hit_sequence.push_back(hit_sequence_element);
+                // Add temporary z offset
+                note_point.point.z += 0.04; 
+                hit_sequence_element.point = note_point;
+                hit_sequence_element.msg = point;
+                
+                // Add the struct to the vector
+                cartesian_hit_sequence.push_back(hit_sequence_element);
+            }
+            catch (tf2::TransformException &ex)
+            {
+                ROS_WARN("Failed to get the transformation from the robot base to the note frame on the marimba! Error: %s", ex.what());
+                ROS_WARN("Skipping note %s", point.tone_name.c_str());
+                continue;
+            }
         }
-        catch (tf2::TransformException &ex)
-        {
-            ROS_WARN("Failed to get the transformation from the robot base to the note frame on the marimba! Error: %s", ex.what());
-            ROS_WARN("Skipping note %s", point.tone_name.c_str());
-            continue;
-        }
+        
     }
     return cartesian_hit_sequence;
 }

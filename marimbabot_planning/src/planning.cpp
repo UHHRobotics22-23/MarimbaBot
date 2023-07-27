@@ -171,42 +171,78 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     robot_state.setToDefaultValues();
     moveit::core::robotStateMsgToRobotState(start_state, robot_state);
 
-    // Calculate approach point
-    geometry_msgs::PointStamped approach_point{note.point};
-    approach_point.point.z += 0.1;
-        
-    // Calculate retreat point
-    geometry_msgs::PointStamped retreat_point{approach_point};
-
-    // Calculate approach trajectory
-    auto approach_plan = plan_to_mallet_position(start_state, approach_point);
-
-    // Calculate down trajectory
-    auto down_plan = plan_to_mallet_position(get_robot_state_after_plan(approach_plan), note.point);
-
-    // Calculate retreat trajectory
-    auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), retreat_point);
-
-
     // Set timing parameters
     std::string tone_name = note.msg.tone_name;
+    ros::Duration tone_duration = note.msg.tone_duration;
     int32_t octave = note.msg.octave;
     ros::Time start_time = note.msg.start_time;
-    ros::Duration tone_duration = note.msg.tone_duration;
     double loudness = note.msg.loudness;
-
     ROS_INFO("Received data : (%s, %d, %f, %f, %f)", tone_name.c_str(), octave, loudness , start_time.toSec(), tone_duration.toSec());
-    // constant scale factor retreat plan to 0.5
-    retreat_plan = slow_down_plan(retreat_plan, 0.5, tone_name);
-    down_plan = slow_down_plan(down_plan, loudness, tone_name);
-    double timing = start_time.toSec() - down_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec() - retreat_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec();
-    ROS_INFO("time calculation : %f", abs(timing));
-    approach_plan = slow_down_plan(approach_plan, abs(timing), tone_name);
-    
-    // Concatinate trajectories
-    auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
+    moveit::planning_interface::MoveGroupInterface::Plan plan;
+    // if tone_name is "r", sleep for tone_duration
+    if (tone_name == "r")
+    {
+        
+        // create joint trajectory point, stay at the same point
+        trajectory_msgs::JointTrajectoryPoint points;
+        points.positions = start_state.joint_state.position;
+        points.time_from_start = ros::Duration(0.0);
+        plan.trajectory_.joint_trajectory.points.push_back(points);
 
-    return plan;
+        points.velocities.resize(6);
+        points.velocities[0] = 0.0;
+        points.velocities[1] = 0.0;
+        points.velocities[2] = 0.0;
+        points.velocities[3] = 0.0;
+        points.velocities[4] = 0.0;
+        points.velocities[5] = 0.0;
+        points.accelerations.resize(6);
+        points.accelerations[0] = 0.0;
+        points.accelerations[1] = 0.0;
+        points.accelerations[2] = 0.0;
+        points.accelerations[3] = 0.0;
+        points.accelerations[4] = 0.0;
+        points.accelerations[5] = 0.0;
+
+        points.positions = start_state.joint_state.position;
+        points.time_from_start = ros::Duration(tone_duration.toSec());
+        plan.trajectory_.joint_trajectory.points.push_back(points);
+        ROS_INFO("REST");
+        return plan;
+
+    }
+    else
+    {
+
+        // Calculate approach point
+        geometry_msgs::PointStamped approach_point{note.point};
+        approach_point.point.z += 0.1;
+            
+        // Calculate retreat point
+        geometry_msgs::PointStamped retreat_point{approach_point};
+
+        // Calculate approach trajectory
+        auto approach_plan = plan_to_mallet_position(start_state, approach_point);
+
+        // Calculate down trajectory
+        auto down_plan = plan_to_mallet_position(get_robot_state_after_plan(approach_plan), note.point);
+
+        // Calculate retreat trajectory
+        auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), retreat_point);
+
+        // constant scale factor retreat plan to 0.5
+        retreat_plan = slow_down_plan(retreat_plan, 0.5);
+        down_plan = slow_down_plan(down_plan, loudness);
+        double timing = start_time.toSec() - down_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec() - retreat_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec();
+        ROS_INFO("time calculation : %f", abs(timing));
+        approach_plan = slow_down_plan(approach_plan, abs(timing));
+        
+        // Concatinate trajectories
+        auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
+
+        return plan;
+    }
+    
 }
 
 /**
