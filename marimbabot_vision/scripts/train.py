@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import string
 import glob
 import os
 from typing import List, Tuple
@@ -58,17 +59,33 @@ if config['add_note_vocab']:
     note_vocab = []
     notes = "cdefgab"
     octaves = ["'", "''"]
-    durations = [1, 2, 4, 8, 16]
+    durations = [1, 2, 4, 8, 16, '']
     # Add note tokens
     for note in notes:
-        for octave in octaves:
-            for duration in durations:
-                note_vocab.append(f"{note}{octave}{duration} ")
+        for accidental in ['s', 'ss', 'f', 'ff', '']:
+            for dot in ["", "."]:
+                for octave in octaves:
+                    for duration in durations:
+                        note_vocab.append(f"{note}{accidental}{octave}{duration}{dot}")
     # Add rest tokens
     for duration in durations:
         note_vocab.append(f"r{duration} ")
+
+    # Add keywords
+    note_vocab.extend(["\\repeat ", "volta ", "\key ", "\major ", "\minor ", "- ", " ", "ff", "fff", "'"])
+    # Add artikulations
+    note_vocab.extend(['\staccato ', '\\accent ', '\\tenuto ', '\marcato ', '\stopped ', '\staccatissimo ', '\portato '])
+    # Add tempos
+    note_vocab.extend([f"\\tempo 4={tempo} " for tempo in [40, 60, 96, 120]])
+    # Add ascii as fallback
+    note_vocab.extend(string.printable)
 else:
     note_vocab = []
+
+print("Adding vocab")
+for token in note_vocab:
+    print(token)
+print("###############")
 
 model.config.pad_token_id = pre_processor.tokenizer.pad_token_id
 model.config.decoder_start_token_id = pre_processor.tokenizer.convert_tokens_to_ids([config['start_token']])[0]
