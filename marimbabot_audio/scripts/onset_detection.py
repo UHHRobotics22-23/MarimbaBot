@@ -1,4 +1,6 @@
 from functools import reduce
+import json
+import os
 import struct
 import cv_bridge
 import rospy
@@ -14,13 +16,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 
-
-''' 
-    Just keep some parameters here, it come from the configuration of ../launch/microphone.launch file.
-    Some default parameters:
-        -   Sampling rate = 44100
-        -   Sampleing format = S16LE
-'''
+WINDOWS_NOTE_CLASSIFICATION = 0.1  # sec
+CONFIDENCE_THRESHOLD = 0.3
 
 def hz_to_note(hz):
     return pretty_midi.note_number_to_name(pretty_midi.hz_to_note_number(hz))
@@ -65,29 +62,31 @@ def check_audio_format():
 
 class OnsetDetection:
     def __init__(self):
+        self.first_input = True
+        # other parameters
+        self.last_time = rospy.Time.now()
+        self.last_seq_id = 0
 
-        self._init_instrument_config()
-        self._init_audio_config()
-        self._init_detection_config()
-        self._init_visualization_config()
+        self.init_instrument_config()
+        self.init_audio_config()
+        self.init_detection_config()
+        self.init_visualization_config()
+        self.init_cache_file()
 
         if not check_audio_format():
             rospy.signal_shutdown("incompatible audio format")
             return
-
-        # other parameters
-        self.last_time = rospy.Time.now()
-        self.last_seq = 0
-
         # the buffer to read audio raw data from ros topic
         self.buffer = np.array([0.0] * self.sr, dtype=float)
-
         # warm up classifier / jit caches
         self.warm_up()
 
-        self.first_input = True
-    
-    def _init_instrument_config(self):
+    def init_cache_file(self):
+        self.onset_cache_file = "/tmp/onsets.json"
+        if os.path.exists(self.onset_cache_file):
+            os.remove(self.onset_cache_file)
+
+    def init_instrument_config(self):
         # # harp
         # self.fmin_note = "C4"
         # self.fmax_note = "C6"
@@ -110,15 +109,16 @@ class OnsetDetection:
         self.fmax = note_to_hz(self.fmax_note)
         rospy.logdebug("Instrument configuration initialized.")
 
-    def _init_audio_config(self):
+    def init_audio_config(self):
         """
             The configuration of the audio signal
         """
         self.sr = 44100
-        self.hop_length = 512
+        self.hop_length = 512  # each hop equal to one pixel in spectrum
+        self.pixels_per_sec = self.sr/self.hop_length  # careful, it is float for further precise calculation.
         rospy.logdebug(f"Audio configuration initialized.")
 
-    def _init_detection_config(self):
+    def init_detection_config(self):
         """
             confidence threshold for note classification(crepe)
         """
@@ -132,9 +132,9 @@ class OnsetDetection:
         rospy.logdebug(f"Crepe {self.crepe_model}-model loaded.")
         rospy.logdebug("Detection configuration initialized.")
 
-    def _init_visualization_config(self):
+    def init_visualization_config(self):
         """
-            config the spectrum plot of
+            config the spectrum plot
         """
         hsv = plt.get_cmap("hsv")
         self.cmap = ListedColormap(np.vstack((
@@ -144,17 +144,17 @@ class OnsetDetection:
         ))
         self.cmap.set_bad((0, 0, 0, 1))  # make sure they are visible
 
-        # number of samples for analysis window
+        # time for analysis window
         self.window_t = 1.0
-        # and overlap regions between consecutive windows
-        self.window_overlap_t = 0.5
-        self.window_all_t = self.window_t+2*self.window_overlap_t
+        self.window_overlap_t = 0.5  # and overlap regions between consecutive windows
+        self.window_all_t = self.window_t + 2*self.window_overlap_t  # window in the middle, overlap windows at both end.
 
-        self.window = int(self.sr * self.window_t)
-        self.window_overlap = int(self.sr * self.window_overlap_t)
+        # number of samples for analysis window
+        self.window_num = int(self.sr * self.window_t)
+        self.window_overlap_num = int(self.sr * self.window_overlap_t)
 
-
-        self.overlap_hops = int(self.window_overlap / self.hop_length)
+        # how much hop for overlap
+        self.overlap_hops = int(self.window_overlap_num / self.hop_length)
 
         self.cv_bridge = cv_bridge.CvBridge()
         rospy.logdebug("Visualization configuration initialized.")
@@ -165,14 +165,13 @@ class OnsetDetection:
         _ = self.onset_classification(0.0)
         self.reset()
 
-
     def start(self):
         # the spectrum for visualization
         self.pub_spectrogram = rospy.Publisher(
             "/audio/spectrogram_img", Image, queue_size=1, tcp_nodelay=True
         )
         self.pub_compute_time = rospy.Publisher(
-            "/audio/~compute_time", Float32, queue_size=1, tcp_nodelay=True
+            "/audio/compute_time", Float32, queue_size=1, tcp_nodelay=True
         )
         # signal after constant Q transform
         self.pub_cqt = rospy.Publisher(
@@ -180,7 +179,7 @@ class OnsetDetection:
         )
         # onset signals
         self.pub_onset = rospy.Publisher(
-            "/audio/onset_notes", NoteOnset, queue_size=100, tcp_nodelay=True
+            "/audio/onset_notes", NoteOnset, queue_size=10, tcp_nodelay=True
         )
         self.sub = rospy.Subscriber(
             "/audio_node/audio_stamped",
@@ -191,8 +190,6 @@ class OnsetDetection:
         )
         rospy.spin()
 
-
-
     def reset(self):
         # audio buffer
         self.buffer_time = None
@@ -202,54 +199,54 @@ class OnsetDetection:
         self.spectrogram = None
         self.previous_onsets = []
         self.onsets_times = []
-        self.previous_winner_onsets_times = []
-        self.previous_onsets_times = []
+        self.previous_winner_onsets_hops = []
+        self.previous_onsets_hops = []
         self.previous_winners = []
+        self.previous_durations = []
 
     # the most important function for signal processing logic
+    # 0.5+ sec delay for detection, detect for each 1 sec.
     def audio_process(self, msg):
         # unpack the msg
-        now = msg.header.stamp
-        seq = msg.header.seq
-        msg_data =np.array(struct.unpack(f"{int(len(msg.audio.data) / 2)}h",bytes(msg.audio.data)),dtype=float)
+        msg_time = msg.header.stamp
+        seq_id = msg.header.seq
+        # the way to decode the data from ros topic
+        msg_data = np.array(struct.unpack(f"{int(len(msg.audio.data) / 2)}h",bytes(msg.audio.data)),dtype=float)
 
         # handle bag loop graciously
-        if now < self.last_time:
+        if msg_time < self.last_time:
             rospy.logdebug("detected bag loop")
             self.reset()
         # make sure the seq in order
-        if seq > self.last_seq + 1 and not self.first_input:
-            jump = seq - self.last_seq
+        if seq_id > self.last_seq_id + 1 and not self.first_input:
+            jump = seq_id - self.last_seq_id
             rospy.logwarn(
                 f"sample drop detected: seq jumped "
-                f"from {self.last_seq} to {seq} "
+                f"from {self.last_seq_id} to {seq_id} "
                 f"(difference of {jump})"
             )
-            end_of_buffer_time = \
-                self.buffer_time + rospy.Duration(self.buffer.shape[0] / self.sr)
+            end_of_buffer_time = self.buffer_time + rospy.Duration(self.buffer.shape[0] / self.sr)
             self.reset()
-            self.buffer_time = \
-                end_of_buffer_time + rospy.Duration((jump - 1) * (len(msg_data) / self.sr))
-        elif seq != self.last_seq + 1 and not self.first_input:
-            rospy.logwarn(f"something weird happened, seq jumped from {self.last_seq} to {seq}")
+            self.buffer_time = end_of_buffer_time + rospy.Duration((jump - 1) * (len(msg_data) / self.sr))
+        elif seq_id != self.last_seq_id + 1 and not self.first_input:
+            rospy.logwarn(f"something weird happened, seq jumped from {self.last_seq_id} to {seq_id}")
 
         self.first_input = False
-        self.last_time = now
-        self.last_seq = seq
-        self.last_seq = seq
+        self.last_time = msg_time
+        self.last_seq_id = seq_id
 
         # take time from message headers and increment based on data
         if self.buffer_time is None:
-            self.buffer_time = now
+            self.buffer_time = msg_time
         self.buffer = np.concatenate([
             self.buffer,
             msg_data
         ])
 
+        # make sure buffer is full, which is 1 sec new data and 1 sec old data. aka. 1 sec per update of cqt.
         # aggregate buffer until window+2*overlaps are full, like [0.5 Sec Overlap | 1 Sec window | 0.5 Sec Overlap]
-        if self.buffer.shape[0] < self.window + 2 * self.window_overlap:
+        if self.buffer.shape[0] < self.window_num + 2 * self.window_overlap_num:
             return
-
 
         """
             constant q transform with 60 half-tones from C4,
@@ -260,67 +257,45 @@ class OnsetDetection:
         cqt = self.cqt()  # cqt ndarrary  (60,173)
         self.publish_cqt(cqt)
 
-        cqt_len = cqt.shape[1]
-        cqt_overlap_num = int(self.window_overlap_t/self.window_all_t*cqt_len)
-        _cqt = cqt[:,cqt_overlap_num:-cqt_overlap_num]
-        _cqt = _cqt[0,:]
-
-        loudness_seq = librosa.power_to_db(cqt**2)
-
-        onset_env_cqt = librosa.onset.onset_strength(
+        onset_ev_cqt = librosa.onset.onset_strength(
             sr=self.sr, S=librosa.amplitude_to_db(cqt, ref=np.max)
         )
 
-        # detect where the onset happened
-        onsets_cqt_raw = librosa.onset.onset_detect(
+        # detect when the onset happened within 2 sec cqt (60,173)
+        onsets_cqt_time_list = librosa.onset.onset_detect(
             y=self.buffer,
             sr=self.sr,
             hop_length=self.hop_length,
-            onset_envelope=onset_env_cqt,
+            onset_envelope=onset_ev_cqt,
             units="time",
             backtrack=False,
             delta=4.0,
             normalize=False,
         )
 
-        # the whole windows include 0.5 sec overlap at both end, the target windows is only 1 sec.
+        # filter out the onset in the overlap windows, to keep the long tail inside
+        # the whole windows include 0.5 sec overlap at both end, the target windows is only 1 sec at the middle.
         def in_window(o):
-            # make sure the onset inside the target windows
-            return (
-                    o >= self.window_overlap_t and
-                    o < self.window_t + self.window_overlap_t
-            )
+            # only detect the onset inside the target windows, to make sure the long tail can be included.
+            return ( o >= self.window_overlap_t and o < self.window_overlap_t + self.window_t)
+        onsets_cqt = [o for o in onsets_cqt_time_list if in_window(o)]
 
-        # filter out the onset in the overlap windows
-        onsets_cqt = [
-            o
-            for o in onsets_cqt_raw
-            if in_window(o)
-        ]
-
+        # since the onset are extracted, then we need to pass them through the classification model to get note label.
         winners_idx = []
-        winner_onsets_times = []
-        durations_len = []
-
+        winner_onsets_hops_list = []
+        durations = []
+        default_duration = 0.5
+        default_duration = 0
         # publish events and plot visualization
         for o in onsets_cqt:
-            fundamental_frequency, confidence, winner_idx, winner_pm_idx = self.onset_classification(o)
+            fundamental_frequency, confidence, winner_raw_idx_in_spec, winner_pm_idx = self.onset_classification(o)
 
-
-            if winner_idx is not None:
+            if winner_raw_idx_in_spec is not None:
                 # find the y-position of onset in spectrum
-                onset_time = self.onsets_to_time_in_spec(o)
-                # extract the duration and loudness of the onset note
-                duration, duration_len, loudness = self.extract_duration(
-                    onset_time=onset_time,
-                    winner_idx=winner_idx,
-                    cqt=cqt,
-                    loudnes_seq=loudness_seq
-                )
-
-                winners_idx.append(winner_idx)
-                winner_onsets_times.append(onset_time)
-                durations_len.append(duration_len)
+                onset_hops = self.sec2hops(o)
+                winners_idx.append(winner_raw_idx_in_spec)  # ys
+                winner_onsets_hops_list.append(onset_hops)  # xs
+                durations.append(default_duration)
 
 
                 # publish the onset note to topic
@@ -330,8 +305,8 @@ class OnsetDetection:
                 note = hz_to_note(fundamental_frequency)
                 no.note = note
                 no.confidence = confidence
-                no.duration = duration
-                no.loudness = loudness
+                no.duration = default_duration
+                no.loudness = default_duration
                 self.pub_onset.publish(no)
 
                 rospy.logdebug(
@@ -339,56 +314,40 @@ class OnsetDetection:
                     f"time:{t} "
                     f"note:{note} "
                     f"confidence:{confidence:.4f} "
-                    f"duration:{duration:.4f} "
-                    f"loudness:{loudness:.4f}"
                 )
 
         # update the sectrum visualization
         self.update_spectrogram(
             spec=cqt,
             onsets_cqt=onsets_cqt,
-            ys=winner_onsets_times,
+            ys=winner_onsets_hops_list,
             xs=winners_idx,
-            durations_len=durations_len,
+            durations=durations,
         )
-
-        if len(onsets_cqt) == 0:
-            rospy.logdebug("found no onsets")
-        else:
-            rospy.logdebug("found {} onsets".format(len(onsets_cqt)))
 
         # advance buffer, keep one overlap for next processing
         self.buffer_time += rospy.Duration(self.window_t)
-        self.buffer = self.buffer[(-2 * self.window_overlap):]
+        self.buffer = self.buffer[-(2 * self.window_overlap_num):]
 
         rospy.loginfo_once("onset detection is online")
-        compute_time = rospy.Time.now() - now
+        compute_time = rospy.Time.now() - msg_time
         self.pub_compute_time.publish(compute_time.to_sec())
-        if compute_time > rospy.Duration(self.window):
+        if compute_time > rospy.Duration(self.window_t):
             rospy.logerr("computation took longer than processed window")
 
-    def extract_duration(self, onset_time, winner_idx, cqt, loudnes_seq, frame_len=173, intensity_threshold_ratio=0.4):
-        xs = winner_idx
-        y = onset_time
-
-        max_intensity = np.max(cqt[xs, y - 5:y + 10])
-        loudness = np.max(loudnes_seq[xs, y - 5:y + 10])
-        m = 1
-        while True:
-            this_intensity = np.mean(cqt[xs, y + m - 1:y + m + 1])
-            if (this_intensity / (max_intensity + 0.00001) < intensity_threshold_ratio) or (m + y >= frame_len - 1):
-                break
-            m += 1
-        duration_hop = m
-        duration_t = duration_hop * self.hop_length / self.sr
-        return duration_t, duration_hop, loudness
-
-    def onsets_to_time_in_spec(self, onset):
+    def time_to_pixels_in_spectrum(self, onset):
         """
-            calculate the onset index for each spectrum along y-axis(time)
+            calculate the onset pixel index for each spectrum along y-axis(time)
         """
         onset = onset - self.window_overlap_t
-        return int(self.window / self.hop_length + onset * self.sr / self.hop_length)
+        return int(self.window_num / self.hop_length + onset * self.sr / self.hop_length)
+
+    def hops2sec(self,hops):
+        return hops/(self.sr/self.hop_length)
+
+    def sec2hops(self,sec):
+        return int(self.sr/self.hop_length*sec)
+
 
     def onset_classification(self, onset):
         """
@@ -432,66 +391,83 @@ class OnsetDetection:
             winner = max(buckets, key=lambda a: add_confidence(a))
             winner_freq = note_to_hz(winner)
             winner_pm_idx = note_to_pm_id(winner)
-            winner_idx_in_spec = note_to_pm_id(winner)-self.fmin_note_id
-
-            return winner_freq, max(buckets[winner]), winner_idx_in_spec, winner_pm_idx
+            winner_raw_idx_in_spec = note_to_pm_id(winner)-self.fmin_note_id
+            confidence = max(buckets[winner])
+            return winner_freq, confidence, winner_raw_idx_in_spec, winner_pm_idx
         else:
             return 0.0, 0.0, None, None
 
-    def update_spectrogram(self, spec,onsets_cqt, ys, xs, durations_len):
+    # the draw of spectrum has 1 sec delay, the spectrum include 2 sec data
+    def update_spectrogram(self, spec, onsets_cqt, ys, xs, durations):
         if self.pub_spectrogram.get_num_connections() == 0:
             self.spectrogram = None
             return
 
-        onsets_time = [self.onsets_to_time_in_spec(onset) for onset in onsets_cqt]
+        onsets_hops = [self.sec2hops(onset)+self.sec2hops(self.window_overlap_t) for onset in onsets_cqt]
 
-        # throw away overlap
+        # throw away overlap, left 1 sec frame
         spec = spec[:, self.overlap_hops:-self.overlap_hops]
 
+        # to normalize the spectrum
         log_spec = np.log(spec+1e-8)
 
         if self.spectrogram is None:
             self.spectrogram = log_spec
             return
         elif self.spectrogram.shape[1] > spec.shape[1]:
+            # sliding windows, move the old 1 sec frame to the left.
             self.spectrogram = self.spectrogram[:, -spec.shape[1]:]
+
+        # add the previous frame to current frame
         self.spectrogram = np.concatenate([self.spectrogram, log_spec], 1)
 
-        # normalizes per compute
+        # normalizes per compute over max value
         spectrogram = np.array(
             self.spectrogram / np.max(self.spectrogram) * 255, dtype=np.uint8
         )
 
         heatmap = cv2.applyColorMap(spectrogram, cv2.COLORMAP_JET)
 
-        assert len(durations_len) == len(xs)
+        assert len(durations) == len(xs)
 
         WINNER_LINECOLOR = [0, 255, 0]
-        for idx, t in enumerate(self.previous_winner_onsets_times):
-            t_end = t + self.previous_durations_len[idx]
+        for idx, t in enumerate(self.previous_winner_onsets_hops):
+            t_end = t + self.sec2hops(self.previous_durations[idx])
             if t_end < 173 and self.previous_winners[idx] < 60:
                 heatmap[self.previous_winners[idx], t:t_end][:] = WINNER_LINECOLOR
 
+        ys = [y + self.sec2hops(self.window_overlap_t) for y in ys]  # shift an overlap windows for visualization
         for idx, t in enumerate(ys):
-            t_end = t + durations_len[idx]
+            t_end = t + self.sec2hops(durations[idx])
             if t_end < 173 and xs[idx] < 60:
                 heatmap[xs[idx], t:t_end][:] = WINNER_LINECOLOR
         
         ONSET_LINECOLOR = [255, 255, 255]
-        for t in self.previous_onsets_times:
+        for t in self.previous_onsets_hops:
             heatmap[:,t] = ONSET_LINECOLOR
-        for t in onsets_time:
+        for t in onsets_hops:
             heatmap[:,t] = ONSET_LINECOLOR
-
-        # keep the histories
-        self.previous_winner_onsets_times = [winner_onset_time - int(self.window / self.hop_length) for winner_onset_time in ys]
-        self.previous_winners = xs
-        self.previous_durations_len = durations_len
-        self.previous_onsets_times = [onset_time - int(self.window / self.hop_length) for onset_time in onsets_time]
 
         self.pub_spectrogram.publish(
             self.cv_bridge.cv2_to_imgmsg(heatmap, "bgr8")
         )
+
+        # keep the histories
+        self.previous_winner_onsets_hops = []
+        self.previous_winners = []
+        self.previous_durations = []
+        for idx, winner_onset_hop in enumerate(ys):
+            hop = winner_onset_hop - int(self.window_num / self.hop_length)
+            if hop > 0:
+                self.previous_winner_onsets_hops.append(hop)
+                self.previous_winners.append(xs[idx])
+                self.previous_durations.append(durations[idx])
+
+        self.previous_onsets_hops = []
+        for onsets_hop in onsets_hops:
+            hop = onsets_hop - int(self.window_num / self.hop_length)
+            if hop > 0:
+                self.previous_onsets_hops.append(hop)
 
     def cqt(self):
         """

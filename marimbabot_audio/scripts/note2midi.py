@@ -1,7 +1,7 @@
 import os
 import datetime
 import rospy
-from  marimbabot_msgs.msg import NoteOnset, CQTStamped
+from marimbabot_msgs.msg import NoteOnset, CQTStamped
 from sensor_msgs.msg import Image
 import cv_bridge
 import numpy as np
