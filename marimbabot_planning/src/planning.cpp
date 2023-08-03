@@ -111,20 +111,9 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     // Add link on plane constraint to ik_options
     ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_1_link", link_on_plane_constraint));
 
-    // @TODO : add quaternion constraints similar to plane to keep wrist_2_link in specific orientation
-    auto orientation_constraint = [](const tf2::Vector3& position, const tf2::Quaternion& orientation) -> double
-    {
-        tf2::Quaternion desired_orientation;
-        desired_orientation.setRPY(0.52, 0.0, 0.0); // Set roll, pitch, and yaw angles. Set Roll to 0.52 rad (30 deg)
-
-        // Calculate the angular distance between the current and desired orientations
-        tf2::Quaternion orientation_error = desired_orientation.inverse() * orientation;
-        double angular_distance = 1.0 - orientation_error.dot(orientation_error);
-        return std::pow(angular_distance, 2);
-    };
-
-    ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_2_link", orientation_constraint));
-
+    // Add joint variable goal for the wrist joint to avoid unnecessary rotations
+    ik_options.goals.emplace_back(new bio_ik::JointVariableGoal("ur5_wrist_2_joint", 1.57));
+    
     // Create minimal displacement goal, so that the robot does not move too much and stays close to the start state
     ik_options.goals.emplace_back(new bio_ik::MinimalDisplacementGoal());
 
@@ -170,6 +159,22 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     moveit::core::RobotState robot_state(move_group_interface_.getRobotModel());
     robot_state.setToDefaultValues();
     moveit::core::robotStateMsgToRobotState(start_state, robot_state);
+    
+    // Calculate approach point
+    geometry_msgs::PointStamped approach_point{note.point};
+    approach_point.point.z += 0.1;
+        
+    // Calculate retreat point
+    geometry_msgs::PointStamped retreat_point{approach_point};
+
+    // Calculate approach trajectory
+    auto approach_plan = plan_to_mallet_position(start_state, approach_point);
+
+    // Calculate down trajectory
+    auto down_plan = plan_to_mallet_position(get_robot_state_after_plan(approach_plan), note.point);
+
+    // Calculate retreat trajectory
+    auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), retreat_point);
 
     // Set timing parameters
     std::string tone_name = note.msg.tone_name;
@@ -178,71 +183,31 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     ros::Time start_time = note.msg.start_time;
     double loudness = note.msg.loudness;
     ROS_INFO("Received data : (%s, %d, %f, %f, %f)", tone_name.c_str(), octave, loudness , start_time.toSec(), tone_duration.toSec());
-    moveit::planning_interface::MoveGroupInterface::Plan plan;
-    // if tone_name is "r", sleep for tone_duration
-    if (tone_name == "r")
-    {
-        
-        // create joint trajectory point, stay at the same point
-        trajectory_msgs::JointTrajectoryPoint points;
-        points.positions = start_state.joint_state.position;
-        points.time_from_start = ros::Duration(0.0);
-        plan.trajectory_.joint_trajectory.points.push_back(points);
 
-        points.velocities.resize(6);
-        points.velocities[0] = 0.0;
-        points.velocities[1] = 0.0;
-        points.velocities[2] = 0.0;
-        points.velocities[3] = 0.0;
-        points.velocities[4] = 0.0;
-        points.velocities[5] = 0.0;
-        points.accelerations.resize(6);
-        points.accelerations[0] = 0.0;
-        points.accelerations[1] = 0.0;
-        points.accelerations[2] = 0.0;
-        points.accelerations[3] = 0.0;
-        points.accelerations[4] = 0.0;
-        points.accelerations[5] = 0.0;
-
-        points.positions = start_state.joint_state.position;
-        points.time_from_start = ros::Duration(tone_duration.toSec());
-        plan.trajectory_.joint_trajectory.points.push_back(points);
-        ROS_INFO("REST");
-        return plan;
-
-    }
-    else
-    {
-
-        // Calculate approach point
-        geometry_msgs::PointStamped approach_point{note.point};
-        approach_point.point.z += 0.1;
-            
-        // Calculate retreat point
-        geometry_msgs::PointStamped retreat_point{approach_point};
-
-        // Calculate approach trajectory
-        auto approach_plan = plan_to_mallet_position(start_state, approach_point);
-
-        // Calculate down trajectory
-        auto down_plan = plan_to_mallet_position(get_robot_state_after_plan(approach_plan), note.point);
-
-        // Calculate retreat trajectory
-        auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), retreat_point);
-
-        // constant scale factor retreat plan to 0.5
-        retreat_plan = slow_down_plan(retreat_plan, 0.5);
-        down_plan = slow_down_plan(down_plan, loudness);
-        double timing = start_time.toSec() - down_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec() - retreat_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec();
-        ROS_INFO("time calculation : %f", abs(timing));
-        approach_plan = slow_down_plan(approach_plan, abs(timing));
-        
-        // Concatinate trajectories
-        auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
-
-        return plan;
-    }
+    double most_silent_hit_duration = 0.3; // in seconds
+    ros::Duration down_stroke_duration(
+        // Get the duration of the fastest possible down stroke
+        down_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec() + \
+        // Extend the duration of the down stroke by the inverse of the loudness
+        (1 - loudness) * most_silent_hit_duration);
+    down_plan = slow_down_plan(down_plan, down_stroke_duration.toSec());
+    double approach_time = start_time.toSec() - \
+        down_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec() - \
+        retreat_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec();
     
+    // Clamp the approach time to the minimum duration of the approach trajectory
+    double approach_time_clamped = std::max(approach_time, approach_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec());
+    // Show warning if the approach time was clamped
+    if(approach_time_clamped != approach_time)
+    {
+        ROS_WARN("Approach time was clamped from %f to %f", approach_time, approach_time_clamped);
+    }
+    approach_plan = slow_down_plan(approach_plan, approach_time_clamped);
+    
+    // Concatinate trajectories
+    auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
+
+    return plan;
 }
 
 /**
@@ -303,8 +268,11 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
             tf_buffer_
         );
 
+        // Convert the timing information in the hits from absolute to relative
+        auto hits_relative = hit_sequence_absolute_to_relative(hits);
+
         // Define hit plan
-        auto hit_plan = hit_notes(start_state, hits);
+        auto hit_plan = hit_notes(start_state, hits_relative);
 
         // Publish the plan for rviz
         moveit_msgs::DisplayTrajectory display_trajectory;
