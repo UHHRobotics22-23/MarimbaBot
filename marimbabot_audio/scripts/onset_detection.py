@@ -15,7 +15,8 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
-
+# TODO plot the plan in midi visualization
+# TODO put the hyperparameters in a yaml file
 def hz_to_note(hz):
 	return pretty_midi.note_number_to_name(pretty_midi.hz_to_note_number(hz))
 

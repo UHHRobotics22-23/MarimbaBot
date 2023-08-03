@@ -1,7 +1,7 @@
 import os
 import datetime
 import rospy
-from marimbabot_msgs.msg import NoteOnset, CQTStamped
+from marimbabot_msgs.msg import NoteOnset
 from sensor_msgs.msg import Image
 import cv_bridge
 import numpy as np
@@ -11,42 +11,30 @@ import pretty_midi
 
 matplotlib.use('Agg')
 
-
 class Visualization():
 	def __init__(self) -> None:
 		self.onset_list = []
-		self.plot_windows = 10  # sec
-
 		self.cv_bridge = cv_bridge.CvBridge()
-
-		self.midi = None
-		self.time_first = 0  # recorder
-
-		self.midi_fig_update_duration = 5  # 0.5 sec duration for each update
-		self.time_last_draw = 0  # a recorder
-		self.midi_fig_windows_size = 10  # 2 sec duration for whole windows
-
-		self.windows_start_time = 0  # record the start time of each figure windows
-		self.windows_end_time = 0  # record the end time of each figure windows
-
-		self.reset()
-		self.cv_bridge = cv_bridge.CvBridge()
+		# duration for whole canvas windows
+		self.midi_fig_windows_size = rospy.get_param("~canvas_size_t", default=10)
+		self.update_freq = rospy.get_param("~update_freq", default=4)
+		self.fig = plt.figure()
+		self.ax = self.fig.add_subplot(1, 1, 1)
+		self.midi_fig = None
 		self.sub = rospy.Subscriber(
 			"/audio/onset_notes",
 			NoteOnset,
 			self.onset_event,
-			queue_size=500,
+			queue_size=100,
 			tcp_nodelay=True,
 		)
 		self.pub_midi = rospy.Publisher(
 			"/audio/midi_img", Image, queue_size=1, tcp_nodelay=True
 		)
-		self.fig = plt.figure()
-		self.ax = self.fig.add_subplot(1, 1, 1)
-		self.midi_fig = None
+
 
 	def run(self):
-		rate = rospy.Rate(4)
+		rate = rospy.Rate(self.update_freq)
 		while not rospy.is_shutdown():
 			self.plot_to_img()
 			rate.sleep()
@@ -75,7 +63,7 @@ class Visualization():
 		for idx, note in enumerate(onsets_in_windows):
 			relative_time = (note["time"] - start_time_in_fig).to_sec()
 			relative_pitch = pretty_midi.note_name_to_number(note["name"])-pretty_midi.note_name_to_number("C4")
-			self.ax.bar(x=relative_time, height=1, width=note["duration"], bottom=relative_pitch - 0.5, align="edge", color='black')
+			self.ax.bar(x=relative_time, height=1, width=note["duration"], bottom=relative_pitch - 0.5, align="edge", color='blue')
 			pitchs.append(relative_pitch)
 			note_names.append(note["name"])
 
@@ -89,17 +77,13 @@ class Visualization():
 		plt.ylabel('Notes')
 		plt.xlabel('Time')
 
-		self.fig.savefig('/tmp/tmp.png')  # save the figure, to update the canvas.
+		self.fig.savefig('/tmp/tmp_vis.png')  # save the figure, to update the canvas.
 		data = np.frombuffer(self.fig.canvas.tostring_rgb(), dtype=np.uint8)
 		data = data.reshape(self.fig.canvas.get_width_height()[::-1] + (3,))
 		self.midi_fig = data
 		self.pub_midi.publish(
 			self.cv_bridge.cv2_to_imgmsg(self.midi_fig, "bgr8")
 		)
-
-
-	def reset(self):
-		self.onset_list = []
 
 	def onset_event(self, msg: NoteOnset):
 		note = {
@@ -112,8 +96,8 @@ class Visualization():
 
 if __name__ == "__main__":
 	rospy.init_node("onset2midi",log_level=rospy.DEBUG)
-	visualizer = Visualization()
-	visualizer.run()
+	real_time_vis = Visualization()
+	real_time_vis.run()
 
 
 

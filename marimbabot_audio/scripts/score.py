@@ -30,6 +30,11 @@ class Measurement():
 			SequenceScoreMsg,
 			queue_size=10,
 			tcp_nodelay=True)
+		self.score_pub = rospy.Publisher(
+			'/audio/evaluation',
+			SequenceScoreMsg,
+			queue_size=10,
+			tcp_nodelay=True)
 		self.note_sub = rospy.Subscriber(
 			'/audio/onset_notes',
 			NoteOnsetMsg,
