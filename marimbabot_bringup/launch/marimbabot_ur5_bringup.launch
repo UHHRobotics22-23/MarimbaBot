@@ -1,6 +1,20 @@
 <?xml version="1.0"?>
 <launch>
-    <include file="$(find marimbabot_description)/launch/marimbabot_ur5_upload.launch"/>
+    <arg name="mallet_holder_type" default="flex_double"/>
+
+    <include file="$(find marimbabot_description)/launch/marimbabot_ur5_upload.launch">
+        <arg name="mallet_holder_type" value="$(arg mallet_holder_type)"/>
+    </include>
+
+    <include
+        file="$(find marimbabot_ur5_moveit_config)/launch/move_group.launch"
+        if="$(eval mallet_holder_type=='static')" />
+    <group if="$(eval mallet_holder_type=='flex_double')">
+    <include
+        file="$(find marimbabot_ur5_flex_double_moveit_config)/launch/move_group.launch"/> 
+    <node name="finger_joint_state_publisher" pkg="marimbabot_hardware" type="joint_state.py" respawn="true"
+          output="screen"/>
+    </group>
 
     <include file="$(find ur_robot_driver)/launch/ur_control.launch">
         <arg name="headless_mode" value="true"/>
@@ -8,7 +22,7 @@
         <arg name="robot_ip" value="192.168.1.12"/>
         <arg name="controllers" default="pos_joint_traj_controller joint_state_controller"/>
         <arg name="stopped_controllers" default="joint_group_vel_controller"/>
-        <arg name="controller_config_file" value="$(find tams_ur5_setup_description)/config/ur5_controllers.yaml"/>
+        <arg name="controller_config_file" value="$(find marimbabot_description)/config/ur5_controllers.yaml"/>
         <arg name="kinematics_config" value="$(find tams_ur5_setup_description)/config/tams_ur5_calibration.yaml"/>
         <arg name="use_tool_communication" value="false"/>
 
@@ -45,6 +59,4 @@
         <param name="frame_id" value="ft_robotiq_force_torque_frame_id"/>
         <param name="serial_id" value="rfcomm1"/>
     </node>
-
-    <include file="$(find marimbabot_ur5_moveit_config)/launch/move_group.launch"/>
 </launch>

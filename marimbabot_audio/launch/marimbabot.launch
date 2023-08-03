@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<launch>
+
+  <!-- list the devices: arecord -l -->
+    <group ns="audio_node">
+      <node name="note_audio_capture" pkg="audio_capture" type="audio_capture" output="screen">
+          <param name="device" value="pluhw:3,0" />
+          <param name="format" value="wave" />
+          <param name="channels" value="1" />
+          <param name="depth" value="16" />
+          <param name="sample_rate" value="44100" />
+      </node>
+    </group>
+    <node name="onset_detector" pkg="marimbabot_audio" type="onset_detection.py" output="screen" />
+    <node name="onset_midi" pkg="marimbabot_audio" type="note2midi.py" output="screen" />
+    <node name="soundplay_node" pkg="sound_play" type="soundplay_node.py"/>
+    <node name="audio_from_lilypond" pkg="marimbabot_audio" type="audio_from_lilypond.py"/>
+</launch>

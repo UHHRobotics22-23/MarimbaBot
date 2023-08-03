@@ -55,6 +55,7 @@
   <parent link="${parent}"/>
   <child link="${child}"/>
   <xacro:insert_block name="origin" />
+  <limit effort="30" velocity="1.0" lower="-0.001" upper="0.001" />
 </joint>
 </xacro:macro>
 

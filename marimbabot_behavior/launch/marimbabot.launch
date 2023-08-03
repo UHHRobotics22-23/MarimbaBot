@@ -1,0 +1,3 @@
+<launch>
+<node name="behavior_node" pkg="marimbabot_behavior" type="behavior_node.py" output="screen" />
+</launch>

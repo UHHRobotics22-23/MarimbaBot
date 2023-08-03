@@ -1,7 +1,13 @@
 # TAMS Master Project 2022/2023
 
+[![CI](https://github.com/UHHRobotics22-23/marimbabot/actions/workflows/main.yml/badge.svg)](https://github.com/UHHRobotics22-23/marimbabot/actions/workflows/main.yml)
+[![ROS Version Noetic](https://img.shields.io/badge/ROS%20Version-Noetic-%2388b55a)](http://wiki.ros.org/noetic)
+
 This repository contains the codebase for a [Marimba](https://en.wikipedia.org/wiki/Marimba) playing robot developed during the TAMS Master Project 2022/2023.
 It is currently still "work in progress".
+
+## Declaration
+The file [onset_detection.py](https://github.com/UHHRobotics22-23/marimbabot/blob/main/marimbabot_audio/scripts/onset_detection.py) and sloe the [messages](https://github.com/UHHRobotics22-23/marimbabot/blob/main/marimbabot_audio/msg) in the package marimbabot_audio is a modification of [@v4hn](https://github.com/v4hn)'s base [repository](https://github.com/TAMS-Group/music_perception.git).
 
 ## Setup
 
@@ -46,8 +52,11 @@ rosdep update
 
 # Install all dependencies needed by our repository
 rosdep install --from-paths src --ignore-src -r -y
+# Unfortunately this is needed as for unknown reasons the dependency is not recognized
+rosdep install serial
 
 # Install python dependencies
+pip3 install wheel  # firstly install the wheel for further package building if you start from a empty virtual environment.
 pip3 install -r src/marimbabot/requirements.txt
 ```
 
@@ -77,6 +86,8 @@ rosdep update
 
 # Install new dependencies
 rosdep install --from-paths src --ignore-src -r -y
+# Unfortunately this is needed as for unknown reasons the dependency is not recognized
+sudo apt install ros-noetic-serial
 
 # Install new python dependencies
 pip3 install --upgrade -r requirements.txt
@@ -104,7 +115,7 @@ cd catkin_ws
 source devel/setup.bash
 ```
 
-In order to run the whole project, launch the bringup package that brings up the launch file for each package:
+In order to run the whole project on the real robot, launch the bringup package that brings up the launch file for each package:
 
 ```bash
 roslaunch marimbabot_bringup marimbabot.launch
@@ -112,6 +123,20 @@ roslaunch marimbabot_bringup marimbabot.launch
 
 
 #### Note for development: Add the main launch files to the bringup if they are created.
+
+To run the UR5 setup with the MoveIt Demo Mode run
+
+```bash
+roslaunch marimbabot_ur5_moveit_config demo.launch
+```
+
+you should be able to test simple planning things with it.
+
+To view the marimba model in RViz run
+
+```bash
+roslaunch marimbabot_description marimba_rviz.launch
+```
 
 ## Launch single packages
 
