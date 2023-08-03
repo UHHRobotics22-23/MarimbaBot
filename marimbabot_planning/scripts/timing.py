@@ -19,22 +19,18 @@ class DummyMotionClient:
         Wait for keyboard input, concatenate the input into a string, and send it to the server once the user presses enter.
         """
         octave = int(input("Enter an octave (e.g. 2, 4): "))
-        #loudness = float(input("Enter a loudness sequence : (e.g. 0.2, 1.0): "))
-        #duration = float((input("Enter a duration (e.g. 0.5 for a quarter note and 120 bpm): ")))
-        tempo = float(input("Enter a tempo (e.g. 60, 120): "))
-
+  
         while not rospy.is_shutdown():
             input_str = input("Enter a sequence of hits with corresponding duration and loudness respectively (e.g. 'C-0.5-0.8, D-0.8-0.2, A-0.2-0.5'): ")
             goal = HitSequenceGoal()
             start_time = rospy.Time(0)
-            #duration = rospy.Duration(0.5)
             for note in input_str.split(','):
                 full_tone= note.strip().lower().replace('#', 'is')
                 tone_name = full_tone.split('-')[0]
                 dur = full_tone.split('-')[1]
                 loudness = float(full_tone.split('-')[2])
-                duration = rospy.Duration(60/(tempo/float(dur)))
-                print("Tone name: ", tone_name, ", Duration: ", duration, ", Start time: ", start_time)
+                duration = rospy.Duration(float(dur)*2)
+                print("Tone name: ", tone_name, ", Duration: ", duration.to_sec(), ", Start time: ", start_time.to_sec())
                 goal.hit_sequence_elements.append(
                     HitSequenceElement(
                         tone_name=tone_name,
