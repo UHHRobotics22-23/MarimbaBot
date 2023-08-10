@@ -113,6 +113,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
 
     // Add joint variable goal for the wrist joint to avoid unnecessary rotations
     ik_options.goals.emplace_back(new bio_ik::JointVariableGoal("ur5_wrist_2_joint", 1.57));
+    ik_options.goals.emplace_back(new bio_ik::JointVariableGoal("ur5_wrist_3_joint", 0.0));
     
     // Create minimal displacement goal, so that the robot does not move too much and stays close to the start state
     ik_options.goals.emplace_back(new bio_ik::MinimalDisplacementGoal());

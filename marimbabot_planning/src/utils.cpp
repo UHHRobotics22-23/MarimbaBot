@@ -96,7 +96,8 @@ moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
     {
         output_plan.trajectory_.joint_trajectory.points[i].time_from_start *= scaling_factor;
     }
-    //interpolate trajectory
+
+    // Interpolate trajectory
     output_plan = interpolate_plan(output_plan, 100);
 
     return output_plan;   
@@ -137,7 +138,7 @@ moveit::planning_interface::MoveGroupInterface::Plan interpolate_plan(
             if (input_plan.trajectory_.joint_trajectory.points[j].time_from_start.toSec() > current_time)
             {
                 index_of_second_point = j;
-                index_of_first_point = j - 1;
+                index_of_first_point = std::max(0, j - 1);
                 break;
             }
         }
