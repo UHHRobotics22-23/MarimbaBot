@@ -18,7 +18,7 @@ add_message_files(
   Speech.msg
   TmpFile.msg
   HitSequence.msg
-  SequenceScore.msg
+  SequenceMatchResult.msg
 )
 
 add_action_files(

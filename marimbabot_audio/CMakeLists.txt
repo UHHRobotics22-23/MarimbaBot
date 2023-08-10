@@ -31,7 +31,7 @@ catkin_install_python(
 PROGRAMS
   src/audio_from_lilypond.py
   scripts/onset_detection.py
-  scripts/note2midi.py
+  scripts/onsets_visualization.py
 DESTINATION
   ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
