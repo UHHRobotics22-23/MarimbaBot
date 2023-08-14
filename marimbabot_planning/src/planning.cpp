@@ -85,7 +85,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     tf2::Vector3 goal_position(
         goal_point.point.x,
         goal_point.point.y,
-        goal_point.point.z + 0.1);
+        goal_point.point.z);
 
     // Use bio_ik to solve the inverse kinematics at the goal point
     bio_ik::BioIKKinematicsQueryOptions ik_options;
@@ -98,33 +98,31 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     tf2::Vector3 plane_point(0.0, 0.0, 1.3);
 
     // Define lambda function for link on plane constraint
-    // Requested format const std::function<double(const tf2::Vector3&, const tf2::Quaternion&)>& f
-    auto link_on_plane_constraint = [plane_point](const tf2::Vector3& position, const tf2::Quaternion& orientation) -> double
+    auto link_on_plane_constraint = [](tf2::Vector3 plane_point) -> std::function<double(const tf2::Vector3&, const tf2::Quaternion&)>
     {
-        tf2::Vector3 plane_normal(0.0, 0.0, 1.0);
-        tf2::Vector3 plane_to_position = position - plane_point;
-        double signed_dist = plane_to_position.dot(plane_normal);
-        // Take the squared value of the signed distance
-        return std::pow(signed_dist, 2);
+        return [plane_point](const tf2::Vector3& position, const tf2::Quaternion& orientation) -> double
+        {
+            tf2::Vector3 plane_normal(0.0, 0.0, 1.0);
+            tf2::Vector3 plane_to_position = position - plane_point;
+            double signed_dist = plane_to_position.dot(plane_normal);
+            // Take the squared value of the signed distance
+            return std::pow(signed_dist, 2);
+        };
     };
 
     // Add link on plane constraint to ik_options
-    ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_1_link", link_on_plane_constraint));
+    ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_1_link", link_on_plane_constraint(tf2::Vector3(0.0, 0.0, 1.3))));
 
-    // @TODO : add quaternion constraints similar to plane to keep wrist_2_link in specific orientation
-    auto orientation_constraint = [](const tf2::Vector3& position, const tf2::Quaternion& orientation) -> double
-    {
-        tf2::Quaternion desired_orientation;
-        desired_orientation.setRPY(0.52, 0.0, 0.0); // Set roll, pitch, and yaw angles
+    // Add joint variable goal for the wrist joint to avoid unnecessary rotations
+    // ik_options.goals.emplace_back(new bio_ik::JointVariableGoal("ur5_wrist_2_joint", 1.57)); // This is not needed any more if we set constrains for both malltes
+    ik_options.goals.emplace_back(new bio_ik::JointVariableGoal("ur5_wrist_3_joint", 0.0));
 
-        // Calculate the angular distance between the current and desired orientations
-        tf2::Quaternion orientation_error = desired_orientation.inverse() * orientation;
-        double angular_distance = 1.0 - orientation_error.dot(orientation_error);
-        return std::pow(angular_distance, 2);
-    };
-
-    ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_2_link", orientation_constraint));
-
+    // Double mallet specific goals that move the second mallet out of the way
+    // Add link on plane constraint to hold the second mallet head in place
+    ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("mallet_head_2", link_on_plane_constraint(tf2::Vector3(0.0, 0.0, 1.0))));
+    // Keep the double mallet joint at 70 degrees
+    ik_options.goals.emplace_back(new bio_ik::JointVariableGoal("mallet_finger", 60.0 * M_PI / 180.0));
+    
     // Create minimal displacement goal, so that the robot does not move too much and stays close to the start state
     ik_options.goals.emplace_back(new bio_ik::MinimalDisplacementGoal());
 
@@ -170,10 +168,10 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     moveit::core::RobotState robot_state(move_group_interface_.getRobotModel());
     robot_state.setToDefaultValues();
     moveit::core::robotStateMsgToRobotState(start_state, robot_state);
-
+    
     // Calculate approach point
     geometry_msgs::PointStamped approach_point{note.point};
-    approach_point.point.z += 0.1;
+    approach_point.point.z += 0.15;
         
     // Calculate retreat point
     geometry_msgs::PointStamped retreat_point{approach_point};
@@ -186,6 +184,34 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
 
     // Calculate retreat trajectory
     auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), retreat_point);
+
+    // Set timing parameters
+    std::string tone_name = note.msg.tone_name;
+    ros::Duration tone_duration = note.msg.tone_duration;
+    int32_t octave = note.msg.octave;
+    ros::Time start_time = note.msg.start_time;
+    double loudness = note.msg.loudness;
+    ROS_DEBUG("Received data : (%s, %d, %f, %f, %f)", tone_name.c_str(), octave, loudness , start_time.toSec(), tone_duration.toSec());
+
+    double most_silent_hit_duration = 0.3; // in seconds
+    ros::Duration down_stroke_duration(
+        // Get the duration of the fastest possible down stroke
+        down_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec() + \
+        // Extend the duration of the down stroke by the inverse of the loudness
+        (1 - loudness) * most_silent_hit_duration);
+    down_plan = slow_down_plan(down_plan, down_stroke_duration.toSec());
+    double approach_time = start_time.toSec() - \
+        down_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec() - \
+        retreat_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec();
+    
+    // Clamp the approach time to the minimum duration of the approach trajectory
+    double approach_time_clamped = std::max(approach_time, approach_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec());
+    // Show warning if the approach time was clamped
+    if(approach_time_clamped != approach_time)
+    {
+        ROS_WARN("Approach time was clamped from %f to %f", approach_time, approach_time_clamped);
+    }
+    approach_plan = slow_down_plan(approach_plan, approach_time_clamped);
     
     // Concatinate trajectories
     auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
@@ -251,8 +277,11 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
             tf_buffer_
         );
 
+        // Convert the timing information in the hits from absolute to relative
+        auto hits_relative = hit_sequence_absolute_to_relative(hits);
+
         // Define hit plan
-        auto hit_plan = hit_notes(start_state, hits);
+        auto hit_plan = hit_notes(start_state, hits_relative);
 
         // Publish the plan for rviz
         moveit_msgs::DisplayTrajectory display_trajectory;
@@ -298,7 +327,7 @@ int main(int argc, char **argv)
     ros::AsyncSpinner spinner(4);
     spinner.start();
 
-    marimbabot_planning::Planning planning{"arm"};
+    marimbabot_planning::Planning planning{"arm_mallets"};
 
     return 0;
 }
