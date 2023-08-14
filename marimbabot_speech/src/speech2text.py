@@ -26,8 +26,7 @@ class STT:
 
 	def generate_prompt(self):
 		commands = get_commands()
-		base_prompt = '''
-			Marimbabot is a marimba playing robot arm. You are able to give it commands, if you confuse just give it "None". The possible commands include:		
+		base_prompt = '''Marimbabot is a marimba playing robot arm. The possible commands include:		
 		'''
 		for command in commands:
 			base_prompt += ''.join(f'{command.strip()}, ')
