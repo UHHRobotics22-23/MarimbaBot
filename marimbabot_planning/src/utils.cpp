@@ -193,6 +193,9 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
             ros::Duration(1.0)
             );
 
+            // Temporary z offset
+            note_point.point.z += 0.04;
+
             // Insert the cartesian point and original message into the struct
             hit_sequence_element.point = note_point;
             hit_sequence_element.msg = point;
