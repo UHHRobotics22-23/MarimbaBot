@@ -183,7 +183,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     int32_t octave = note.msg.octave;
     ros::Time start_time = note.msg.start_time;
     double loudness = note.msg.loudness;
-    ROS_INFO("Received data : (%s, %d, %f, %f, %f)", tone_name.c_str(), octave, loudness , start_time.toSec(), tone_duration.toSec());
+    ROS_DEBUG("Received data : (%s, %d, %f, %f, %f)", tone_name.c_str(), octave, loudness , start_time.toSec(), tone_duration.toSec());
 
     double most_silent_hit_duration = 0.3; // in seconds
     ros::Duration down_stroke_duration(
