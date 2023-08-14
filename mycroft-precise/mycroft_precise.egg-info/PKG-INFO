@@ -1,0 +1,26 @@
+Metadata-Version: 2.1
+Name: mycroft-precise
+Version: 0.3.0
+Summary: Mycroft Precise Wake Word Listener
+Home-page: http://github.com/MycroftAI/mycroft-precise
+Author: Matthew Scholefield
+Author-email: matthew.scholefield@mycroft.ai
+License: Apache-2.0
+Keywords: wakeword keyword wake word listener sound
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Text Processing :: Linguistic
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.0
+Classifier: Programming Language :: Python :: 3.1
+Classifier: Programming Language :: Python :: 3.2
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+License-File: LICENSE
+
+View more info at `the GitHub page <https://github.com/mycroftai/mycroft-precise#mycroft-precise>`_
+

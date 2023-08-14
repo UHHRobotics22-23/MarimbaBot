@@ -1,4 +1,0 @@
-<launch>
-<include file="$(dirname)/marimbabot.launch"/>
-<node name="rviz" pkg="rviz" type="rviz" args="-d $(find marimbabot_vision)/config/vision_demo.rviz"/>
-</launch>

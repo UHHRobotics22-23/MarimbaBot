@@ -1,3 +1,0 @@
-<launch>
-    <node name="marimbabot_planning" pkg="marimbabot_planning" type="planning" output="screen" />
-</launch>

@@ -1,0 +1,19 @@
+[console_scripts]
+precise-add-noise = precise.scripts.add_noise:main
+precise-calc-threshold = precise.scripts.calc_threshold:main
+precise-collect = precise.scripts.collect:main
+precise-convert = precise.scripts.convert:main
+precise-engine = precise.scripts.engine:main
+precise-eval = precise.scripts.eval:main
+precise-graph = precise.scripts.graph:main
+precise-listen = precise.scripts.listen:main
+precise-listen-pocketsphinx = precise.pocketsphinx.scripts.listen:main
+precise-simulate = precise.scripts.simulate:main
+precise-test = precise.scripts.test:main
+precise-test-pocketsphinx = precise.pocketsphinx.scripts.test:main
+precise-train = precise.scripts.train:main
+precise-train-generated = precise.scripts.train_generated:main
+precise-train-incremental = precise.scripts.train_incremental:main
+precise-train-optimize = precise.scripts.train_optimize:main
+precise-train-sampled = precise.scripts.train_sampled:main
+
