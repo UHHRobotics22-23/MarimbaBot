@@ -22,7 +22,7 @@
             <!-- Remap is needed for the joint_state_controller /MalletHolder/joint_states -> /joint_states -->
             <remap from="joint_states" to="/joint_states"/>
             <!-- Decide wifi or serial hardware control -->
-            <group if="$(arg mallet_joint_wifi">
+            <group if="$(arg mallet_joint_wifi)">
                 <node name="mallet_hardware_control_node" pkg="marimbabot_hardware" type="mallet_hardware_control_node_wifi" output="screen">
                     <!-- Setting device parameter -->
                     <param name="address" value="192.168.42.1"/>
