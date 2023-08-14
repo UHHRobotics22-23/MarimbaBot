@@ -94,7 +94,7 @@ class DummyMotionClient:
             melody = MELODIES[list(MELODIES.keys())[melody_index]]
             goal = HitSequenceGoal()
             start_time = rospy.Time(0)
-            duration = rospy.Duration(0.5)
+            duration = rospy.Duration(1.0)
             for note, octave in melody:
                 start_time += duration
                 goal.hit_sequence_elements.append(
