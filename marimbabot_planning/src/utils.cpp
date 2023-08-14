@@ -77,16 +77,11 @@ moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
 
     // Get the time from start of the last point
     double original_length = input_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec();
-    ROS_INFO("Original length: %f", original_length);
-    ROS_INFO("Desired length: %f", length);
     // Assert that the input plan is shorter than the desired length
     assert(original_length <= length && "Input plan must be shorter than the desired length");
     
     // Calculate the scaling factor
     double scaling_factor = length / original_length;
-
-    //double scaling_factor = pow(original_length,length);
-    ROS_INFO("Scaling factor: %f", scaling_factor);
 
     // Copy the input plan
     moveit::planning_interface::MoveGroupInterface::Plan output_plan{input_plan};
@@ -163,7 +158,6 @@ moveit::planning_interface::MoveGroupInterface::Plan interpolate_plan(
         interpolated_point.time_from_start = ros::Duration(current_time);
         interpolated_plan.trajectory_.joint_trajectory.points.push_back(interpolated_point);
     }
-    ROS_INFO("interpolation executed");
     return interpolated_plan;
 }
 
@@ -189,39 +183,28 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
         // Add the cartesian point and time to the vector
         CartesianHitSequenceElement hit_sequence_element;
 
-        // skip frame transform and stay at the same position if tone_name is "rest"
-        if (point.tone_name == "r")
+        // Get the position of the note in the planning frame by transforming a point in the origin of the note frame to the planning frame
+        try
         {
-            note_point.point.z += 0.04;
+            // Transform the point to the planning frame
+            note_point = tf_buffer->transform(
+            note_point,
+            planning_frame,
+            ros::Duration(1.0)
+            );
+
+            // Insert the cartesian point and original message into the struct
             hit_sequence_element.point = note_point;
             hit_sequence_element.msg = point;
+            
+            // Add the struct to the vector
             cartesian_hit_sequence.push_back(hit_sequence_element);
         }
-        else
+        catch (tf2::TransformException &ex)
         {
-            try
-            {
-                // Transform the point to the planning frame
-                note_point = tf_buffer->transform(
-                note_point,
-                planning_frame,
-                ros::Duration(1.0)
-                );
-
-                // Add temporary z offset
-                note_point.point.z += 0.04; 
-                hit_sequence_element.point = note_point;
-                hit_sequence_element.msg = point;
-                
-                // Add the struct to the vector
-                cartesian_hit_sequence.push_back(hit_sequence_element);
-            }
-            catch (tf2::TransformException &ex)
-            {
-                ROS_WARN("Failed to get the transformation from the robot base to the note frame on the marimba! Error: %s", ex.what());
-                ROS_WARN("Skipping note %s", point.tone_name.c_str());
-                continue;
-            }
+            ROS_WARN("Failed to get the transformation from the robot base to the note frame on the marimba! Error: %s", ex.what());
+            ROS_WARN("Skipping note %s", point.tone_name.c_str());
+            continue;
         }
         
     }
