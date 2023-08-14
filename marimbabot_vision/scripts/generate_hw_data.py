@@ -29,7 +29,7 @@ SAMPLE_WIDTH = 583 # same dimensions as data generated with generate_data.py
 MIN_SYMBOL_DIST = 20
 MAX_SYMBOL_DIST = 50
 
-head_positions = {'c': 130, 'd': 125, 'e': 120, 'f': 115, 'g': 110, 'a': 105, 'b': 100, 'r': 50}
+head_positions = {'c': 130, 'd': 125, 'e': 120, 'f': 115, 'g': 110, 'a': 105, 'b': 100}
 
 key_sharps_order = ['f\'\'', 'c\'\'', 'g\'\'', 'd\'\'', 'a\'']
 key_flats_order = ['b\'', 'e\'\'', 'a\'', 'd\'\'', 'g\'', 'c\'\'']
@@ -162,114 +162,113 @@ def draw_piece(string, sample_name, args):
         # check if end of page is reached
         x_pos, y_offset = check_space(sample_im, x_pos, y_offset, key, args)
         
-        # draw single note or rest
+        if rule == 'repeat':
+            index += 1
+            continue
+
+        if rule[0] == 'r':
+            duration = int((re.findall(r'\d+', rule)[0]))
+            draw_symbol(sample_im, f'{args.hw_symbols_dir}/rest/{duration}', (x_pos, 50 + y_offset))
+
+            # update position, duration, and index counter
+            x_pos += randint(args.min_symbol_dist, args.max_symbol_dist)
+            duration_counter += 1/duration
+            index += 1
+
+        # draw note or chord
         if rule[0] in head_positions.keys() or rule[0] == '<':
-            if rule[0] == 'r':
-                duration = int((re.findall(r'\d+', rule)[0]))
-                draw_symbol(sample_im, f'{args.hw_symbols_dir}/rest/{duration}', (x_pos, head_positions['r'] + y_offset))
-        
+            # check if note is chord
+            if rule[0] == '<':
+                rule2 = piece[index+1]
+                tones = [rule[1], rule2[0]]
+                accidentals = [rule[2], rule2[1]]
+                octaves = [rule.count('\''), rule2.count('\'')]
+                y_head_poses = [head_positions[tones[0]] - octaves[0]*35 + y_offset, head_positions[tones[1]] - octaves[1]*35 + y_offset]
+                duration = int((re.findall(r'\d+', rule2)[0]))
+                dot = rule2.count('.')
+                # sort chord by y position (1st low note, 2nd high note)
+                if y_head_poses[0] < y_head_poses[1]:
+                    tones.reverse()
+                    accidentals.reverse()
+                    octaves.reverse()
+                    y_head_poses.reverse()
+                is_flipped = True if y_head_poses[0] - y_offset < 70 else False
+            # non-chord note
             else:
-                # check if note is chord
-                if rule[0] == '<':
-                    rule2 = piece[index+1]
+                tones = [rule[0]]
+                accidentals = [rule[1]]
+                octaves = [rule.count('\'')]
+                duration = int((re.findall(r'\d+', rule)[0]))
+                dot = rule.count('.')
+                y_head_poses = [head_positions[tones[0]] - octaves[0]*35 + y_offset]
+                is_flipped = True if y_head_poses[0] - y_offset < 70 else False
 
-                    tones = [rule[1], rule2[0]]
-                    accidentals = [rule[2], rule2[1]]
-                    octaves = [rule.count('\''), rule2.count('\'')]
-                    y_head_poses = [head_positions[tones[0]] - octaves[0]*35 + y_offset, head_positions[tones[1]] - octaves[1]*35 + y_offset]
-                    duration = int((re.findall(r'\d+', rule2)[0]))
-                    dot = rule2.count('.')
+            # draw accidental(s)
+            for i in range(len(tones)):
+                # prevent overlapping accidentals if notes are too close
+                if i == 1 and accidentals[i] in ['f', 's', 'n'] and y_head_poses[i] - y_head_poses[i-1] < 10:
+                    x_pos += 15
+                if accidentals[i] == 'f':
+                    if tones[i] not in key_flats:
+                        draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/flat', (x_pos, y_head_poses[i]-5))
+                    else:
+                        accidentals[i] = ''
+                elif accidentals[i] == 's':
+                    if tones[i] not in key_sharps:
+                        draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/sharp', (x_pos, y_head_poses[i]-5))
+                    else:
+                        accidentals[i] = ''
+                elif tones[i] in key_sharps or tones[i] in key_flats:
+                    accidentals[i] = 'n'
+                    draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/natural', (x_pos, y_head_poses[i]-5))
+            x_pos += 20 if 'f' in accidentals or 's' in accidentals or 'n' in accidentals else 0
 
-                    # sort chord by y position (1st low note, 2nd high note)
-                    if y_head_poses[0] < y_head_poses[1]:
-                        tones.reverse()
-                        accidentals.reverse()
-                        octaves.reverse()
-                        y_head_poses.reverse()
-
-                    is_flipped = True if y_head_poses[1] < 70 else False
-
-                # non-chord note
+            # draw note head(s)
+            for i in range(len(tones)):
+                # prevent overlapping note heads if notes are too close
+                note_is_flipped = is_flipped
+                if i == 1 and y_head_poses[0] - y_head_poses[1] <= 5:
+                    x_pos += 15
+                    note_is_flipped = True
+                    
+                extend_staff(sample_im, x_pos, y_head_poses[i], y_offset, True, args)
+                if duration < 4:
+                    draw_symbol(sample_im, f'{args.hw_symbols_dir}/head/empty', (x_pos, y_head_poses[i]), note_is_flipped)
                 else:
-                    tones = [rule[0]]
-                    accidentals = [rule[1]]
-                    octaves = [rule.count('\'')]
-                    duration = int((re.findall(r'\d+', rule)[0]))
-                    dot = rule.count('.')
-                    y_head_poses = [head_positions[tones[0]] - octaves[0]*35 + y_offset]
-                    is_flipped = True if y_head_poses[0] < 70 else False
-
-                # draw accidental(s)
-                for i in range(len(tones)):
-                    # prevent overlapping accidentals if notes are too close
-                    if i == 1 and accidentals[i] in ['f', 's', 'n'] and y_head_poses[i] - y_head_poses[i-1] < 10:
-                        x_pos += 10
-
-                    if accidentals[i] == 'f':
-                        if tones[i] not in key_flats:
-                            draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/flat', (x_pos, y_head_poses[i]-5))
-                            x_pos += 20 if i == 1 or len(tones) == 1 else 0
-                        else:
-                            accidentals[i] = ''
-
-                    elif accidentals[i] == 's':
-                        if tones[i] not in key_sharps:
-                            draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/sharp', (x_pos, y_head_poses[i]-5))
-                            x_pos += 20 if i == 1 or len(tones) == 1 else 0
-                        else:
-                            accidentals[i] = ''
-
-                    elif tones[i] in key_sharps or tones[i] in key_flats:
-                        accidentals[i] = 'n'
-                        draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/natural', (x_pos, y_head_poses[i]-5))
-                        x_pos += 20 if i == 1 or len(tones) == 1 else 0
-
-                # draw note head(s)
-                for i in range(len(tones)):
-                    # prevent overlapping note heads if notes are too close
-                    if i == 1 and y_head_poses[0] - y_head_poses[1] <= 5:
-                        x_pos += 10
-
-                    extend_staff(sample_im, x_pos, y_head_poses[i], y_offset, True, args)
-                    if duration < 4:
-                        draw_symbol(sample_im, f'{args.hw_symbols_dir}/head/empty', (x_pos, y_head_poses[i]), is_flipped)
+                    draw_symbol(sample_im, f'{args.hw_symbols_dir}/head/full', (x_pos, y_head_poses[i]), note_is_flipped)
+            # draw note stem
+            if duration > 1:
+                # check if distance between note heads too small for a connecting line
+                if len(tones) > 1 and y_head_poses[0] - y_head_poses[1] <= 5:
+                    # attach stem with correct flag between note heads
+                    attachment_point = (x_pos-10, y_head_poses[1]) if is_flipped else (x_pos-10, y_head_poses[0]-30)
+                # check if distance between note heads is big enough for a connecting line
+                elif len(tones) > 1 and y_head_poses[0] - y_head_poses[1] > 5:
+                    # connect the note heads of the chord
+                    draw = ImageDraw.Draw(sample_im)
+                    if is_flipped:
+                        draw.line((x_pos, y_head_poses[0]+5, x_pos, y_head_poses[1]+5), fill=(0, 0, 0, 255), width=2)
                     else:
-                        draw_symbol(sample_im, f'{args.hw_symbols_dir}/head/full', (x_pos, y_head_poses[i]), is_flipped)
+                        draw.line((x_pos+15, y_head_poses[0]+5, x_pos+15, y_head_poses[1]+5), fill=(0, 0, 0, 255), width=2)
 
-                # draw note stem
-                if duration > 1:
-                    # check if distance between note heads too small for a connecting line
-                    if len(tones) > 1 and y_head_poses[0] - y_head_poses[1] <= 5:
-                        # attach stem with correct flag between note heads
-                        attachment_point = (x_pos-10, y_head_poses[1]) if is_flipped else (x_pos+5, y_head_poses[0]-30)
+                    # identify attachment point for stem
+                    attachment_point = (x_pos-10, y_head_poses[0]) if is_flipped else (x_pos+5, y_head_poses[1]-30)
 
-                    # check if distance between note heads is big enough for a connecting line
-                    elif len(tones) > 1 and y_head_poses[0] - y_head_poses[1] > 5:
-                        # connect the note heads of the chord
-                        draw = ImageDraw.Draw(sample_im)
-                        if y_head_poses[1] < 70:
-                            draw.line((x_pos, y_head_poses[0]+5, x_pos, y_head_poses[1]+5), fill=(0, 0, 0, 255), width=2)
-                        else:
-                            draw.line((x_pos+10, y_head_poses[0]+5, x_pos+10, y_head_poses[1]+5), fill=(0, 0, 0, 255), width=2)
+                # handle single note
+                else:
+                    attachment_point = (x_pos-10, y_head_poses[0]) if is_flipped else (x_pos+5, y_head_poses[0]-30)
+                
+                # draw stem with correct amount of flags
+                if duration <=4:
+                    draw_symbol(sample_im, f'{args.hw_symbols_dir}/stem/4', attachment_point, is_flipped, True)
+                else:
+                    draw_symbol(sample_im, f'{args.hw_symbols_dir}/stem/{duration}', attachment_point, is_flipped, True)
 
-                        # identify attachment point for stem
-                        attachment_point = (x_pos-10, y_head_poses[0]) if is_flipped else (x_pos+5, y_head_poses[1]-30)
-
-                    # handle single note
-                    else:
-                        attachment_point = (x_pos-10, y_head_poses[0]) if is_flipped else (x_pos+5, y_head_poses[0]-30)
-
-                    # draw stem with correct amount of flags
-                    if duration <=4:
-                        draw_symbol(sample_im, f'{args.hw_symbols_dir}/stem/4', attachment_point, is_flipped, True)
-                    else:
-                        draw_symbol(sample_im, f'{args.hw_symbols_dir}/stem/{duration}', attachment_point, is_flipped, True)
-
-                # draw dot
-                if dot == 1:
-                    draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos+10, y_head_poses[0]))
-                    if len(tones) > 1:
-                        draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos+10, y_head_poses[1]))
+            # draw dot
+            if dot == 1:
+                draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos+10, y_head_poses[0]))
+                if len(tones) > 1:
+                    draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos+10, y_head_poses[1]))
 
             # update position, duration, and index counter
             x_pos += randint(args.min_symbol_dist, args.max_symbol_dist)
