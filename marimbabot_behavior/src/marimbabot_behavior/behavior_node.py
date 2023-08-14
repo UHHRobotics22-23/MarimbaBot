@@ -119,11 +119,11 @@ class ActionDecider:
             self.response_pub.publish('Preview is busy.')
 
     def callback_command(self, command_msg):
-        command = command_msg.command
+        command = command_msg.command.lower()
         rospy.loginfo(f"received command: {command}")
 
         # read notes on the whiteboard
-        if command == 'Marimbabot read':
+        if command == 'marimbabot read':
             rospy.loginfo('reading notes')
             # update the note_sequence variable with the latest note sequence from vision_node/recognized_notes to signal that notes have been read
             try:
@@ -137,7 +137,7 @@ class ActionDecider:
                 self.response_pub.publish('No notes recognized.')
 
         # play the notes on the marimba using the UR5
-        elif command == 'Marimbabot start playing':
+        elif command == 'marimbabot start playing':
             # if a note sequence has been read via the 'read' command and the corresponding hit sequence is valid, the hit sequence is send to the planning action server
             if self.hit_sequence:
                 self.play()
@@ -146,7 +146,7 @@ class ActionDecider:
                 self.response_pub.publish('No notes to play. Say reed to read notes.')
         
         # play in specified tempo
-        elif re.match(r'Marimbabot play in [0-9]+ bpm', command):
+        elif re.match(r'marimbabot play in [0-9]+ bpm', command):
             # check if a note sequence has been read via the 'read' command
             if self.note_sequence:
                 value = int(command.split(' ')[-2])
@@ -157,7 +157,7 @@ class ActionDecider:
                 self.response_pub.publish('No notes to play. Say reed to read notes.')
 
         # play faster or slower than the current tempo (by specified bpm value, default = 20)
-        elif re.match(r'Marimbabot play (faster|slower)( by [0-9]+ bpm)?', command):
+        elif re.match(r'marimbabot play (faster|slower)( by [0-9]+ bpm)?', command):
             # check if a note sequence has been read via the 'read' command
             if self.note_sequence:
                 value = int(command.split(' ')[-2]) if 'by' in command else 20
@@ -168,7 +168,7 @@ class ActionDecider:
                 self.response_pub.publish('No notes to play. Say reed to read notes.')
 
         # preview using sound interpreted by computer (MIDI)
-        elif re.match(r'Marimbabot preview( in [0-9]+ bpm)?', command):
+        elif re.match(r'marimbabot preview( in [0-9]+ bpm)?', command):
             # if a note sequence has been read via the 'read' command
             if self.note_sequence:
                 if 'bpm' in command:
@@ -180,7 +180,7 @@ class ActionDecider:
                 self.response_pub.publish('No notes to preview. Say reed to read notes.')
 
         # preview faster or slower than the current tempo (by specified bpm value, default = 20)
-        elif re.match(r'Marimbabot preview (faster|slower)( by [0-9]+)?', command):
+        elif re.match(r'marimbabot preview (faster|slower)( by [0-9]+)?', command):
             # check if a note sequence has been read via the 'read' command
             if self.note_sequence:
                 value = int(command.split(' ')[-1]) if 'by' in command else 20
@@ -191,7 +191,7 @@ class ActionDecider:
                 self.response_pub.publish('No notes to play. Say reed to read notes.')
 
         # stop preview
-        elif command == 'Marimbabot stop preview':
+        elif command == 'marimbabot stop preview':
             rospy.loginfo('Stopping preview.')
             self.response_pub.publish('')
 
