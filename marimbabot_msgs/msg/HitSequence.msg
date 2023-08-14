@@ -1,0 +1,3 @@
+std_msgs/Header header
+int32 sequence_id
+marimbabot_msgs/HitSequenceElement[] hit_sequence_elements

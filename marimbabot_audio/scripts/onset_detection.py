@@ -5,7 +5,7 @@ import rospy
 from audio_common_msgs.msg import AudioDataStamped, AudioInfo
 from sensor_msgs.msg import Image
 from std_msgs.msg import Float32
-from  marimbabot_msgs.msg import NoteOnset, CQTStamped
+from marimbabot_msgs.msg import NoteOnset, CQTStamped
 import pretty_midi
 import librosa
 import crepe
@@ -20,7 +20,6 @@ from matplotlib.colors import ListedColormap
     Some default parameters:
         -   Sampling rate = 44100
         -   Sampleing format = S16LE
-
 '''
 
 def hz_to_note(hz):
@@ -41,7 +40,7 @@ def check_audio_format():
     :return:
     """
     rospy.logdebug("Waiting for Audio Info")
-    info = rospy.wait_for_message("audio_info", AudioInfo)
+    info = rospy.wait_for_message("/audio_node/audio_info", AudioInfo)
     if info.channels != 1:
         rospy.logfatal(
             "audio data has more than one channel,"
@@ -109,6 +108,7 @@ class OnsetDetection:
         # convert the western notation to the corresponding frequency
         self.fmin = note_to_hz(self.fmin_note)
         self.fmax = note_to_hz(self.fmax_note)
+        rospy.logdebug("Instrument configuration initialized.")
 
     def _init_audio_config(self):
         """
@@ -116,6 +116,7 @@ class OnsetDetection:
         """
         self.sr = 44100
         self.hop_length = 512
+        rospy.logdebug(f"Audio configuration initialized.")
 
     def _init_detection_config(self):
         """
@@ -129,6 +130,7 @@ class OnsetDetection:
         rospy.logdebug(f"Loading crepe {self.crepe_model}-model...")
         crepe.core.build_and_load_model(self.crepe_model)
         rospy.logdebug(f"Crepe {self.crepe_model}-model loaded.")
+        rospy.logdebug("Detection configuration initialized.")
 
     def _init_visualization_config(self):
         """
@@ -155,6 +157,7 @@ class OnsetDetection:
         self.overlap_hops = int(self.window_overlap / self.hop_length)
 
         self.cv_bridge = cv_bridge.CvBridge()
+        rospy.logdebug("Visualization configuration initialized.")
 
     def warm_up(self):
         # warm up classifier / jit caches
@@ -163,25 +166,24 @@ class OnsetDetection:
         self.reset()
 
 
-
     def start(self):
         # the spectrum for visualization
         self.pub_spectrogram = rospy.Publisher(
-            "spectrogram", Image, queue_size=1, tcp_nodelay=True
+            "/audio/spectrogram_img", Image, queue_size=1, tcp_nodelay=True
         )
         self.pub_compute_time = rospy.Publisher(
-            "~compute_time", Float32, queue_size=1, tcp_nodelay=True
+            "/audio/~compute_time", Float32, queue_size=1, tcp_nodelay=True
         )
         # signal after constant Q transform
         self.pub_cqt = rospy.Publisher(
-            "cqt", CQTStamped, queue_size=100, tcp_nodelay=True
+            "/audio/cqt", CQTStamped, queue_size=100, tcp_nodelay=True
         )
         # onset signals
         self.pub_onset = rospy.Publisher(
-            "onsets", NoteOnset, queue_size=100, tcp_nodelay=True
+            "/audio/onset_notes", NoteOnset, queue_size=100, tcp_nodelay=True
         )
         self.sub = rospy.Subscriber(
-            "audio_stamped",
+            "/audio_node/audio_stamped",
             AudioDataStamped,
             self.audio_process,
             queue_size=500,
@@ -440,10 +442,8 @@ class OnsetDetection:
         if self.pub_spectrogram.get_num_connections() == 0:
             self.spectrogram = None
             return
-        
 
         onsets_time = [self.onsets_to_time_in_spec(onset) for onset in onsets_cqt]
-
 
         # throw away overlap
         spec = spec[:, self.overlap_hops:-self.overlap_hops]
