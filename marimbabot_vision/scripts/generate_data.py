@@ -11,7 +11,9 @@ import tqdm
 from abjad import Block, LilyPondFile, Staff, Voice
 from abjad.persist import as_png
 from numpy.random import choice
+from PIL import Image
 
+# CONSTANTS
 NUM_SAMPLES = 10000
 NUM_WORKER = 24
 OUTPUT_DIR = "data"
@@ -23,7 +25,10 @@ INCLUDE_SCALES = True
 INCLUDE_REPEATS = True
 INCLUDE_CHORDS = True
 
-
+"""
+This script generates random music scores in lilypond format.
+The scores are generated using the abjad library.
+"""
 class LilypondGenerator():
     def __init__(self, include_dynamics=True, include_slurs=True, include_articulations=True,\
                   include_scales=True, include_repeat=True, include_chords=True, min_duration=8) -> None:
@@ -37,10 +42,12 @@ class LilypondGenerator():
         self.rests = ['r']
         self.accidentals = ['s', 'ss', 'f', 'ff']
         self.min_duration = min_duration
+
         # OPTIONAL: one could add more articulations to the notes
         # marcato, stopped, tenuto, staccatissimo, accent, staccato, and portato
         # http://lilypond.org/doc/v2.22/Documentation/notation/expressive-marks-attached-to-notes
         self.articulations = ['staccato', 'accent', 'tenuto', 'marcato', 'stopped', 'staccatissimo', 'portato']
+
         self.dynamics = ['ppp', 'pp', 'p', 'mp', 'mf', 'f', 'ff', 'fff']
         self.tempos = [40, 60, 96, 120]
 
@@ -197,7 +204,14 @@ def generate_sample(i, args):
             staff,
         ],
     )
+    # save the lilypond file and rotate by 90 degrees
     as_png(lilypond_file, f"{args.output_dir}/{i}/staff_1.png", resolution=200)
+    # turn png by 90 degrees
+    im = Image.open(f"{args.output_dir}/{i}/staff_1.png")
+    im = im.rotate(-90, expand=True)
+    im.save(f"{args.output_dir}/{i}/staff_1.png")
+
+    # save the lilypond file
     with open(f"{args.output_dir}/{i}/staff_1.txt", 'w') as f:
         f.write(string)
 
