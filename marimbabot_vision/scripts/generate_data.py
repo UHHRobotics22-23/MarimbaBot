@@ -18,12 +18,13 @@ NUM_SAMPLES = 10000
 NUM_WORKER = 24
 OUTPUT_DIR = "data"
 MIN_DURATION = 8 # 1/8th note
-INCLUDE_DYNAMICS = True
+INCLUDE_DYNAMICS = False
 INCLUDE_SLURS = False
 INCLUDE_ARTICULATIONS = False
 INCLUDE_SCALES = True
 INCLUDE_REPEATS = True
 INCLUDE_CHORDS = True
+INCLUDE_TEMPO = True
 
 """
 This script generates random music scores in lilypond format.
@@ -31,16 +32,17 @@ The scores are generated using the abjad library.
 """
 class LilypondGenerator():
     def __init__(self, include_dynamics=True, include_slurs=True, include_articulations=True,\
-                  include_scales=True, include_repeat=True, include_chords=True, min_duration=8) -> None:
-        self.dynamics = include_dynamics
+                  include_scales=True, include_repeat=True, include_chords=True, include_tempo=True, min_duration=8) -> None:
+        self.include_dynamics = include_dynamics
         self.slurs = include_slurs
         self.repeat = include_repeat
         self.scale = include_scales
-        self.articulations = include_articulations
+        self.include_articulations = include_articulations
         self.chords = include_chords
         self.music_notes = ['c', 'd', 'e', 'f', 'g', 'a', 'b']
         self.rests = ['r']
         self.accidentals = ['s', 'ss', 'f', 'ff']
+        self.include_tempo = include_tempo
         self.min_duration = min_duration
 
         # OPTIONAL: one could add more articulations to the notes
@@ -166,17 +168,19 @@ class LilypondGenerator():
         string = ' '.join([self.bar_sampler() for _ in range(num_bars)])
 
         voice_1 = Voice(string, name="Voice_1")
-        self.add_tempo(voice_1)
+        
+        if self.include_tempo:
+            self.add_tempo(voice_1)
 
         if self.slurs:
             self.add_slurs(voice_1)
-        if self.articulations:
+        if self.include_articulations:
             self.add_articulation(voice_1)
         if self.repeat:
             self.add_repeat(voice_1)
         if self.scale:
             self.add_major_minor_scales(voice_1)
-        if self.dynamics:
+        if self.include_dynamics:
             self.add_dynamics(voice_1)
 
         staff_1 = Staff([voice_1], name="Staff_1")
@@ -227,13 +231,17 @@ if __name__ == "__main__":
     parser.add_argument("--articulations", type=bool, required=False, help="Determine whether to sample data that includes dynamics articulations.", default=INCLUDE_ARTICULATIONS)
     parser.add_argument("--chords", type=bool, required=False, help="Determine whether to sample data that includes dynamics chords.", default=INCLUDE_CHORDS)
     parser.add_argument("--repeats", type=bool, required=False, help="Determine whether to sample data that includes dynamics repeats.", default=INCLUDE_REPEATS)
+    parser.add_argument("--tempo", type=bool, required=False, help="Determine whether to sample data that includes dynamics tempo.", default=INCLUDE_TEMPO)
 
 
     args = parser.parse_args()
     args.lilypondGenerator = LilypondGenerator(include_dynamics=args.dynamics, include_articulations=args.articulations,\
-                                               include_chords=args.chords, include_scales=args.scales,\
-                                                include_repeat=args.repeats, include_slurs=args.slurs, min_duration=args.min_duration)
-    print(args.output_dir)
+                                                include_chords=args.chords, include_scales=args.scales,\
+                                                include_repeat=args.repeats, include_slurs=args.slurs, include_tempo=args.tempo,\
+                                                min_duration=args.min_duration
+                                            )
+    print("DEBUG: ARGS: ", args)
+    print("Generating samples in folder: ", args.output_dir)
 
     # Call generate_sample on ids with tqdm and multiprocessing (lilypond is single threaded)
     with Pool(args.num_worker) as pool:
