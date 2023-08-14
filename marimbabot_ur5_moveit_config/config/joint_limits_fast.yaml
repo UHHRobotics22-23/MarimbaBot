@@ -102,3 +102,9 @@ joint_limits:
     <<: *max_arm_velocity
     has_acceleration_limits: true
     <<: *max_arm_acceleration
+  mallet_finger:
+    has_velocity_limits: true
+    # radians / sec
+    max_velocity: 7.0
+    has_acceleration_limits: true
+    max_acceleration: 20.0
