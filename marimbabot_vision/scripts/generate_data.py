@@ -53,23 +53,26 @@ class LilypondGenerator():
         self.dynamics = ['ppp', 'pp', 'p', 'mp', 'mf', 'f', 'ff', 'fff']
         self.tempos = [40, 60, 96, 120]
 
-    def note_sampler(self, duration, ):
-        """Sample a note, dynamics or rest given a duration"""
+    """
+    samples a note, dynamics or rest given a duration
+    """
+    def note_sampler(self, duration, is_dotted = False):
         first_note = random.choice(self.music_notes + self.rests)
        
         octave = choice(["", "'", "''"], p=[0.0, 0.8, 0.2]) if first_note != 'r' else ''
         note = first_note + random.choice(self.accidentals) if first_note != 'r' and random.random() < 0.2 else first_note
-        dot = "." if random.random() < 0.1 else ""
+
         retNote = note + octave
 
         if self.chords and random.random() < 0.1 and note != 'r':
             second_note = random.choice([n for n in self.music_notes if n != first_note])
             second_note = second_note + random.choice(self.accidentals) if random.random() < 0.2 else second_note
             retNote = "<" + note + octave + " " + second_note + octave + ">"
-        return retNote + duration + dot
 
+        return retNote + duration + "." if is_dotted else retNote + duration
+
+    """Sample a bar of notes, rests or chords"""
     def bar_sampler(self,):
-        """Sample a bar of notes, rests or chords"""
         def sample_duration(durations, level=0):
             """Randomly subdivides a list of durations into smaller durations"""
             prop = 1/3
@@ -78,11 +81,30 @@ class LilypondGenerator():
                 if duration < self.min_duration and random.random() > prop:
                     new_durations.extend(sample_duration([duration * 2, duration * 2], level + 1))
                 else:
-                    new_durations.append(duration)
+                    # add dot to note with a certain probability
+                    # Since there is no full note with a dot (does not make sense)
+                    # we half the duration first and then add a dot
+                    # to keep the original duration the same
+                    # we need to add the remaining duration
+
+                    # e.g. Input Duration: full note
+                    #      Then we half the duration, so we have a dotted half note
+                    #      After that, we have to add a 1/4 in order to get a duration of afull note
+                    #      Calculation: Dotted Half note (1/2 + 1/4) + 1/4 = 1
+                    if random.random() < 0.1 and duration < self.min_duration:
+                        new_duration = duration * 2
+                        new_durations.append((new_duration, True))
+
+                        new_durations.append((new_duration * 2, False))
+                    else:
+                        new_durations.append((duration, False))
             return new_durations
 
-        return ' '.join([self.note_sampler(str(duration), ) for duration in sample_duration([1,])])
+        return ' '.join([self.note_sampler(str(duration), is_dotted=is_dotted) for duration, is_dotted in sample_duration([1,])])
     
+    """
+    creates a random number of articulations
+    """
     def add_articulation(self, voice):
         result = abjad.select(voice).leaves()
         result = result.group_by_measure()
@@ -168,10 +190,9 @@ class LilypondGenerator():
         string = ' '.join([self.bar_sampler() for _ in range(num_bars)])
 
         voice_1 = Voice(string, name="Voice_1")
-        
+
         if self.include_tempo:
             self.add_tempo(voice_1)
-
         if self.slurs:
             self.add_slurs(voice_1)
         if self.include_articulations:
@@ -193,8 +214,9 @@ class LilypondGenerator():
 
         return string, staff_1
 
+    
+"""Generate a sample and save it to disk"""
 def generate_sample(i, args):
-    """Generate a sample and save it to disk"""
     lilypondGenerator = args.lilypondGenerator
     string, staff = lilypondGenerator.generate_piece()
     os.makedirs(f"{args.output_dir}/{i}", exist_ok=True)
@@ -240,7 +262,6 @@ if __name__ == "__main__":
                                                 include_repeat=args.repeats, include_slurs=args.slurs, include_tempo=args.tempo,\
                                                 min_duration=args.min_duration
                                             )
-    print("DEBUG: ARGS: ", args)
     print("Generating samples in folder: ", args.output_dir)
 
     # Call generate_sample on ids with tqdm and multiprocessing (lilypond is single threaded)
