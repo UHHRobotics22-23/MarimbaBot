@@ -224,7 +224,13 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_notes(
  */
 void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalConstPtr &goal)
 {
+    // clear the hit plan durations
     this->hit_plan_durations.clear();
+
+    // initialize feedback
+    marimbabot_msgs::HitSequenceFeedback feedback;
+    feedback.playing = true;
+    feedback.executed_sequence_elements.clear();
 
     try {
         // Set the max velocity and acceleration scaling factors
@@ -245,7 +251,7 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
 
         // Define hit plan
         auto hit_plan = hit_notes(start_state, hits);
-
+  
         // Publish the plan for rviz
         moveit_msgs::DisplayTrajectory display_trajectory;
         moveit_msgs::RobotTrajectory trajectory;
@@ -254,9 +260,37 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
         display_trajectory.trajectory.push_back(trajectory);
         trajectory_publisher_.publish(display_trajectory);
 
-        // Execute the plan
+
+        // set the start time of execution
         ros::Time start_time = ros::Time::now();
+
+        // set the feedback based on the hit plan
+        auto duration_iter = hit_plan_durations.begin();
+        for (auto& element : goal->hit_sequence_elements) {
+            // Adjust the start time of the hit sequence elements based on the execution time
+            // create new element
+            auto new_element = marimbabot_msgs::HitSequenceElement();
+            new_element.loudness = element.loudness;
+            new_element.octave = element.octave;
+            new_element.start_time = start_time + (*duration_iter);
+            new_element.tone_duration = element.tone_duration;
+            new_element.tone_name = element.tone_name;
+
+            // Add the element to the feedback
+            feedback.executed_sequence_elements.push_back(new_element);
+
+            // Step the duration_iter to the next duration
+            ++duration_iter;
+        }
+
+        // Publish the feedback
+        action_server_.publishFeedback(feedback);
+
+        // Execute the plan
         auto status = move_group_interface_.execute(hit_plan);
+        // Set playing to false
+        feedback.playing = false;
+
         ros::Duration plan_execution_time = ros::Time::now() - start_time;
 
         // Set the result of the action server
@@ -269,30 +303,15 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
         } else {
             marimbabot_msgs::HitSequenceResult result;
 
-            // calculate the timings from the plan hit_plan
+            // Check if the size of the hit_sequence_elements and the hit_plan_durations was the same
+            // If not, we cannot set the executed_sequence_elements for the result 
+            // and success is kept to false
             if (goal->hit_sequence_elements.size() != hit_plan_durations.size()) {
                 ROS_ERROR("Size of hit_sequence_elements and hit_plan_durations appears to be not the same.");
                 return;
             }
 
-            auto duration_iter = hit_plan_durations.begin();
-            for (auto& element : goal->hit_sequence_elements) {
-                // Adjust the start time of the hit sequence elements based on the execution time
-                // create new element
-                auto new_element = marimbabot_msgs::HitSequenceElement();
-                new_element.loudness = element.loudness;
-                new_element.octave = element.octave;
-                new_element.start_time = start_time + (*duration_iter);
-                new_element.tone_duration = element.tone_duration;
-                new_element.tone_name = element.tone_name;
-
-                // Add the element to the result
-                result.executed_sequence_elements.push_back(new_element);
-
-                // Step the duration_iter to the next duration
-                ++duration_iter;
-            }
-
+            result.executed_sequence_elements = feedback.executed_sequence_elements;
             result.success = true;
             action_server_.setSucceeded(result);
         }
