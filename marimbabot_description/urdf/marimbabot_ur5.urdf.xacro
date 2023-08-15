@@ -7,7 +7,7 @@
   <!-- Use 'static' for one mallet static holder -->
   <!-- Use 'flex' for a flexible one mallet holder -->
   <!-- Use 'flex_double' for the movable two mallet assembly with the flex holders -->
-  <xacro:arg name="mallet_holder_type" default="static" />
+  <xacro:arg name="mallet_holder_type" default="flex_double" />
   <xacro:property name="mallet_holder_type_param" value="$(arg mallet_holder_type)" />
 
   <!-- tams corner -->

@@ -1,10 +1,48 @@
 <?xml version="1.0"?>
 <launch>
-    <arg name="mallet_holder_type" default="static"/>
+    <arg name="mallet_holder_type" default="flex_double"/>
+    <arg name="mallet_joint_wifi" default="true"/>  <!-- wifi or serial -->
 
     <include file="$(find marimbabot_description)/launch/marimbabot_ur5_upload.launch">
         <arg name="mallet_holder_type" value="$(arg mallet_holder_type)"/>
     </include>
+
+    <include
+        file="$(find marimbabot_ur5_moveit_config)/launch/move_group.launch"
+        if="$(eval mallet_holder_type=='static')" />
+
+    <group if="$(eval mallet_holder_type=='flex_double')">
+        <include
+            file="$(find marimbabot_ur5_flex_double_moveit_config)/launch/move_group.launch"/> 
+
+        <!-- Mallet Holder Double Hardware controller -->
+        <group ns="MalletHolder">
+            <rosparam file="$(find marimbabot_hardware)/config/controllers.yaml" command="load"/>
+            <rosparam file="$(find marimbabot_hardware)/config/joint_limits.yaml" command="load"/>
+            <!-- Remap is needed for the joint_state_controller /MalletHolder/joint_states -> /joint_states -->
+            <remap from="joint_states" to="/joint_states"/>
+            <!-- Decide wifi or serial hardware control -->
+            <group if="$(arg mallet_joint_wifi)">
+                <node name="mallet_hardware_control_node" pkg="marimbabot_hardware" type="mallet_hardware_control_node_wifi" output="screen">
+                    <!-- Setting device parameter -->
+                    <param name="address" value="192.168.42.1"/>
+                    <param name="port" value="8888"/>
+                </node>
+            </group>
+            <group unless="$(arg mallet_joint_wifi)">
+                <node name="mallet_hardware_control_node" pkg="marimbabot_hardware" type="mallet_hardware_control_node" output="screen">
+                    <!-- Setting device parameter -->
+                    <param name="device" value="/dev/ttyACM0"/>
+                    <param name="baudrate" value="115200"/>
+                </node>
+            </group>
+            <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
+                args="
+                joint_state_controller
+                trajectory_controller"/>
+        </group>
+    </group>
+
     <include file="$(find ur_robot_driver)/launch/ur_control.launch">
         <arg name="headless_mode" value="true"/>
         <arg name="tf_prefix" value="ur5_"/>
@@ -48,6 +86,4 @@
         <param name="frame_id" value="ft_robotiq_force_torque_frame_id"/>
         <param name="serial_id" value="rfcomm1"/>
     </node>
-
-    <include file="$(find marimbabot_ur5_moveit_config)/launch/move_group.launch"/>
 </launch>

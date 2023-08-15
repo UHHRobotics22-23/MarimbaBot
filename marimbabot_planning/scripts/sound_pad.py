@@ -12,7 +12,7 @@ from marimbabot_msgs.msg import (HitSequenceAction, HitSequenceElement,
 MELODIES = {
     'chromatic_scale':
         [
-                      ('C#', 4), ('D', 4), ('D#', 4), ('E', 4), ('F', 4), ('F#', 4), ('G', 4), ('G#', 4), ('A', 4), ('A#', 4), ('B', 4),
+            ('C', 4), ('C#', 4), ('D', 4), ('D#', 4), ('E', 4), ('F', 4), ('F#', 4), ('G', 4), ('G#', 4), ('A', 4), ('A#', 4), ('B', 4),
             ('C', 5), ('C#', 5), ('D', 5), ('D#', 5), ('E', 5), ('F', 5), ('F#', 5), ('G', 5), ('G#', 5), ('A', 5), ('A#', 5), ('B', 5),
             ('C', 6), ('C#', 6), ('D', 6), ('D#', 6), ('E', 6), ('F', 6), ('F#', 6), ('G', 6), ('G#', 6), ('A', 6), ('A#', 6), ('B', 6),
             ('C', 7)
@@ -51,7 +51,7 @@ MELODIES = {
         ],
     'all_white_keys':
         [
-            ('D', 4), ('E', 4), ('F', 4), ('G', 4), ('A', 4), ('B', 4), ('C', 5), ('D', 5), ('E', 5), ('F', 5), ('G', 5), ('A', 5), ('B', 5), ('C', 6), ('D', 6), ('E', 6), ('F', 6), ('G', 6), ('A', 6), ('B', 6), ('C', 7)
+            ('C', 4), ('D', 4), ('E', 4), ('F', 4), ('G', 4), ('A', 4), ('B', 4), ('C', 5), ('D', 5), ('E', 5), ('F', 5), ('G', 5), ('A', 5), ('B', 5), ('C', 6), ('D', 6), ('E', 6), ('F', 6), ('G', 6), ('A', 6), ('B', 6), ('C', 7)
         ],
     'all_black_keys':
         [
@@ -94,7 +94,7 @@ class DummyMotionClient:
             melody = MELODIES[list(MELODIES.keys())[melody_index]]
             goal = HitSequenceGoal()
             start_time = rospy.Time(0)
-            duration = rospy.Duration(0.5)
+            duration = rospy.Duration(1.0)
             for note, octave in melody:
                 start_time += duration
                 goal.hit_sequence_elements.append(

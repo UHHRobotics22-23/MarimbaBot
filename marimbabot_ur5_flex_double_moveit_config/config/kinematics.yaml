@@ -1,0 +1,16 @@
+arm:
+  kinematics_solver: bio_ik/BioIKKinematicsPlugin
+  kinematics_solver_search_resolution: 0.005
+  kinematics_solver_timeout: 0.005
+gripper:
+  kinematics_solver: bio_ik/BioIKKinematicsPlugin
+  kinematics_solver_search_resolution: 0.005
+  kinematics_solver_timeout: 0.005
+mallet_only:
+  kinematics_solver: bio_ik/BioIKKinematicsPlugin
+  kinematics_solver_search_resolution: 0.005
+  kinematics_solver_timeout: 0.005
+arm_mallets:
+  kinematics_solver: bio_ik/BioIKKinematicsPlugin
+  kinematics_solver_search_resolution: 0.005
+  kinematics_solver_timeout: 0.005
