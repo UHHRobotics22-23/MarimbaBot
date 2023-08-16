@@ -39,7 +39,7 @@ key_flats_num = {'f\major': 1, 'd\minor': 1, 'bf\major': 2, 'g\minor': 2, 'ef\ma
 
 def check_space(image, x_pos, y_offset, key, args):
     # check if end of page is reached
-    if x_pos > SAMPLE_WIDTH-60:
+    if x_pos > SAMPLE_WIDTH-70:
         key_num = key_sharps_num[key] if key in key_sharps_num.keys() else key_flats_num[key]
         x_pos = 40 + key_num*20 + randint(args.min_symbol_dist, args.max_symbol_dist)
         y_offset += 90
@@ -57,7 +57,7 @@ def get_key_accidentals(key):
 
 def check_bar(image, x_pos, y_offset, duration_counter, key, bar_accidentals, args):
     # check if current bar is full
-    if duration_counter > 1:
+    if duration_counter >= 1:
         draw_symbol(image, f'{args.hw_symbols_dir}/bar', (x_pos,50+y_offset))
         x_pos += randint(args.min_symbol_dist, args.max_symbol_dist)
         duration_counter = 0
@@ -171,11 +171,11 @@ def draw_piece(string, sample_name, args):
     while index < len(piece):
         rule = piece[index]
 
-        # check if current bar is full
-        x_pos, y_offset, duration_counter, bar_accidentals = check_bar(sample_im, x_pos, y_offset, duration_counter, key, bar_accidentals, args)
-
         # check if end of page is reached
         x_pos, y_offset = check_space(sample_im, x_pos, y_offset, key, args)
+
+        # check if current bar is full
+        x_pos, y_offset, duration_counter, bar_accidentals = check_bar(sample_im, x_pos, y_offset, duration_counter, key, bar_accidentals, args)
         
         if rule == 'repeat':
             index += 1
@@ -290,9 +290,13 @@ def draw_piece(string, sample_name, args):
 
             # draw dot
             if dot == 1:
-                draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos+10, y_head_poses[0]))
+                y_pos = y_head_poses[0] - 5 if y_head_poses[0] % 10 else y_head_poses[0]
+                x_pos += 25 if duration > 4 and not is_flipped and not len(tones) > 1 else 20
+                draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos, y_pos))
                 if len(tones) > 1:
-                    draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos+10, y_head_poses[1]))
+                    x_pos += 5 if duration > 4 and not is_flipped else 0     
+                    y_pos = y_head_poses[1] - 5 if y_head_poses[1] % 10 else y_head_poses[1]
+                    draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos, y_pos))
 
             # update position, duration, and index counter
             x_pos += randint(args.min_symbol_dist, args.max_symbol_dist)
