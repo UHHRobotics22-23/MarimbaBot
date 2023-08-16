@@ -90,7 +90,7 @@ class ActionDecider:
              # Waits until the action server has started up and started
             self.planning_client.wait_for_server()
             # Sends the goal to the action server.
-            self.planning_client.send_goal(self.hit_sequence, feedback_cb=None)
+            self.planning_client.send_goal(self.hit_sequence, feedback_cb=self.planning_feedback_cb)
             # Waits for the server to finish performing the action.
             # Includes that the audio file is generated and was played
             self.planning_client.wait_for_result()
