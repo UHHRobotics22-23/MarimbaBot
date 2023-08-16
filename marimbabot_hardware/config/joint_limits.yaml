@@ -6,6 +6,7 @@ joint_limits:
     has_velocity_limits: true
     # radians / sec
     max_velocity: 7.0
-    has_acceleration_limits: false
+    has_acceleration_limits: true
+    max_acceleration: 20.0
     has_jerk_limits: false
     has_effort_limits: false

@@ -1,4 +1,5 @@
 #include "marimbabot_planning/utils.h"
+#include <cmath>
 
 namespace marimbabot_planning
 {
@@ -76,10 +77,9 @@ moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
 
     // Get the time from start of the last point
     double original_length = input_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec();
-
     // Assert that the input plan is shorter than the desired length
     assert(original_length <= length && "Input plan must be shorter than the desired length");
-
+    
     // Calculate the scaling factor
     double scaling_factor = length / original_length;
 
@@ -92,7 +92,73 @@ moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
         output_plan.trajectory_.joint_trajectory.points[i].time_from_start *= scaling_factor;
     }
 
+    // Interpolate trajectory
+    output_plan = interpolate_plan(output_plan, 100);
+
     return output_plan;   
+}
+
+
+/**
+ * @brief Interpolate a trajectory with a given number of points per second
+ *
+ * @param input_plan
+ * @param points_per_second
+ * @return moveit::planning_interface::MoveGroupInterface::Plan
+ **/
+moveit::planning_interface::MoveGroupInterface::Plan interpolate_plan(
+    const moveit::planning_interface::MoveGroupInterface::Plan& input_plan,
+    double points_per_second)
+{
+    assert(input_plan.trajectory_.joint_trajectory.points.size() > 0 && "Input plan must have at least one point");
+
+    // Calculate the number of points
+    double original_length = input_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec();
+    int original_number_of_points = input_plan.trajectory_.joint_trajectory.points.size();
+    int desired_number_of_points = original_length * points_per_second;
+    int number_of_points_to_add = desired_number_of_points - original_number_of_points;
+
+    // Create a linear interpolation of the input plan
+    moveit::planning_interface::MoveGroupInterface::Plan interpolated_plan{input_plan};
+    interpolated_plan.trajectory_.joint_trajectory.points.clear();
+    for (auto i = 0; i < desired_number_of_points; i++)
+    {
+        double current_time = i * original_length / desired_number_of_points;
+
+        // Find the two points to interpolate between
+        int index_of_first_point = 0;
+        int index_of_second_point = 0;
+        for (auto j = 0; j < original_number_of_points; j++)
+        {
+            if (input_plan.trajectory_.joint_trajectory.points[j].time_from_start.toSec() > current_time)
+            {
+                index_of_second_point = j;
+                index_of_first_point = std::max(0, j - 1);
+                break;
+            }
+        }
+
+        // Calculate the interpolation factor
+        double interpolation_factor = (current_time - input_plan.trajectory_.joint_trajectory.points[index_of_first_point].time_from_start.toSec()) /
+                                      (input_plan.trajectory_.joint_trajectory.points[index_of_second_point].time_from_start.toSec() - input_plan.trajectory_.joint_trajectory.points[index_of_first_point].time_from_start.toSec());
+
+        // Interpolate between the two points
+        trajectory_msgs::JointTrajectoryPoint interpolated_point;
+
+        // Interpolate joint positions
+        for (auto j = 0; j < input_plan.trajectory_.joint_trajectory.points[index_of_first_point].positions.size(); j++)
+        {
+            double first_point_position = input_plan.trajectory_.joint_trajectory.points[index_of_first_point].positions[j];
+            double second_point_position = input_plan.trajectory_.joint_trajectory.points[index_of_second_point].positions[j];
+            double interpolated_position = first_point_position + interpolation_factor * (second_point_position - first_point_position);
+            interpolated_point.positions.push_back(interpolated_position);
+        }
+
+        // Add the interpolated point to the plan
+        interpolated_point.time_from_start = ros::Duration(current_time);
+        interpolated_plan.trajectory_.joint_trajectory.points.push_back(interpolated_point);
+    }
+    return interpolated_plan;
 }
 
 
@@ -114,21 +180,20 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
         geometry_msgs::PointStamped note_point;
         note_point.header.frame_id = note_frame;  // The frame of the note
         note_point.header.stamp = ros::Time(0);  // Use the latest available transform
+        // Add the cartesian point and time to the vector
+        CartesianHitSequenceElement hit_sequence_element;
 
+        // Get the position of the note in the planning frame by transforming a point in the origin of the note frame to the planning frame
         try
         {
             // Transform the point to the planning frame
             note_point = tf_buffer->transform(
-                note_point,
-                planning_frame,
-                ros::Duration(1.0)
-                );
-
-            // Add temporary z offset
-            note_point.point.z += 0.04;
-
-            // Add the cartesian point and time to the vector
-            CartesianHitSequenceElement hit_sequence_element;
+            note_point,
+            planning_frame,
+            ros::Duration(1.0)
+            );
+            
+            // Insert the cartesian point and original message into the struct
             hit_sequence_element.point = note_point;
             hit_sequence_element.msg = point;
             
@@ -141,9 +206,40 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
             ROS_WARN("Skipping note %s", point.tone_name.c_str());
             continue;
         }
+        
     }
     return cartesian_hit_sequence;
 }
 
-} // namespace marimbabot_planning
 
+std::vector<CartesianHitSequenceElement> hit_sequence_absolute_to_relative(
+            const std::vector<CartesianHitSequenceElement>& hit_sequence_absolute)
+{
+    // Create a vector of CartesianHitSequenceElements
+    std::vector<CartesianHitSequenceElement> hit_sequence_relative;
+
+    // Keep track of the current time
+    double current_time = 0.0;
+
+    // Add the goal point to the vector
+    for (auto absolute_hit_sequence_element : hit_sequence_absolute)
+    {
+        // Add the struct to the vector
+        auto relative_hit_sequence_element{absolute_hit_sequence_element};
+
+        // Store the time of the current point
+        auto current_element_time = absolute_hit_sequence_element.msg.start_time;
+
+        // Set the time from start
+        relative_hit_sequence_element.msg.start_time -= ros::Duration(current_time);
+
+        // Update the current time
+        current_time = current_element_time.toSec();
+
+        // Add the struct to the vector
+        hit_sequence_relative.push_back(relative_hit_sequence_element);
+    }
+    return hit_sequence_relative;
+}
+
+} // namespace marimbabot_planning

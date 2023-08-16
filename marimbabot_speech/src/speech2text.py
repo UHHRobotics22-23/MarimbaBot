@@ -1,20 +1,15 @@
 import os
 from nvidia import cudnn
-
 os.environ['LD_LIBRARY_PATH'] = f'{os.path.dirname(cudnn.__file__)}/lib:$LD_LIBRARY_PATH'
 # since I haven't specified the version of TensorFlow, it seems to install the newest version,
 # so according to official instruction, the environment needs to be configured.
-from precise_runner import PreciseEngine, PreciseRunner, ReadWriteStream
-from audio_common_msgs.msg import AudioDataStamped
-from marimbabot_msgs.msg import Command as CommandMsg
 from marimbabot_msgs.msg import Speech as SpeechMsg
 from marimbabot_msgs.srv import SpeechRecognition,SpeechRecognitionResponse
 import rospy
 import whisper
-import webrtcvad
 import numpy as np
 import struct
-from utils.command import get_commands
+
 
 
 # Speech to text recognition, it is a wrapper of whisper
@@ -70,6 +65,7 @@ class STT:
 		# rospy.logdebug(f"Generate prompt as: {base_prompt}.")
 		# return base_prompt
 		return "Marimbabot is a instrument playing robot arm. You are able to give it several common robot's commands"
+
 
 	def run(self):
 		rospy.spin()
