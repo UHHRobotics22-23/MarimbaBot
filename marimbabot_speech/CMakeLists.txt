@@ -32,7 +32,7 @@ include_directories(
 
 catkin_install_python(
 PROGRAMS
-  src/audio2tmp.py
+  src/keyowrd_spotting.py
   src/speech2text.py
   src/text2command.py
   src/text2speech.py

@@ -1,4 +1,4 @@
 std_msgs/Header header
 string speech
-bool is_finished
+float32 no_speech_prob
 

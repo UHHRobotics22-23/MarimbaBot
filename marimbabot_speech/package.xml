@@ -3,6 +3,7 @@
   <name>marimbabot_speech</name>
   <version>0.0.0</version>
   <description>
+<!--      TODO: modifiy this after update-->
   The marimbabot_speech package is designed to recognize and extract the command from the human voice, and also speech synthesis.
     It consists of the following nodes:
     - audio_capture: capture audio from microphone (from ros audio_common package)

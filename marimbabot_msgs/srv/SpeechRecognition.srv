@@ -1,0 +1,7 @@
+# silent_time is the time in seconds that the STT will take as the end of your speaking
+audio_common_msgs/AudioData audio
+---
+# the text that the STT has recognized
+string text
+float32 no_speech_prob
+
