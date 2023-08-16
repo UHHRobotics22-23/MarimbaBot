@@ -235,29 +235,34 @@ def draw_piece(string, sample_name, args):
 
             # draw accidental(s)
             for i in range(len(tones)):
+                # draw flat
                 if accidentals[i] == 'f':
                     if tones[i] not in bar_accidentals['flats']:
                         # prevent overlapping accidentals if notes are too close
                         if i > 0 and accidentals[i-1] in ['f', 's', 'n'] and y_head_poses[i] - y_head_poses[i-1] < 10:
-                            x_pos += 15
+                            x_pos += 20
                             draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/flat', (x_pos, y_head_poses[i]-10))
                         bar_accidentals['flats'].append(tones[i])
                     else:
                         accidentals[i] = ''
+
+                # draw sharp
                 elif accidentals[i] == 's':
                     if tones[i] not in bar_accidentals['sharps']:
                         # prevent overlapping accidentals if notes are too close
                         if i > 0 and accidentals[i-1] in ['f', 's', 'n'] and y_head_poses[i] - y_head_poses[i-1] < 10:
-                            x_pos += 15
+                            x_pos += 20
                         draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/sharp', (x_pos, y_head_poses[i]-10))
                         bar_accidentals['sharps'].append(tones[i])
                     else:
                         accidentals[i] = ''
+
+                # draw natural
                 elif tones[i] in bar_accidentals['flats'] or tones[i] in bar_accidentals['sharps']:
                     accidentals[i] = 'n'
                     # prevent overlapping accidentals if notes are too close
                     if i > 0 and accidentals[i-1] in ['f', 's', 'n'] and y_head_poses[i] - y_head_poses[i-1] < 10:
-                        x_pos += 15
+                        x_pos += 20
                     draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/natural', (x_pos, y_head_poses[i]-10))
                     bar_accidentals['sharps'].remove(tones[i]) if tones[i] in bar_accidentals['sharps'] else bar_accidentals['flats'].remove(tones[i])
             
