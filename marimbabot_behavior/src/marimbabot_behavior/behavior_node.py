@@ -83,7 +83,7 @@ class ActionDecider:
             # Prints out the result of executing the action
             rospy.logdebug(f"Result from planning action server: {self.planning_client.get_result()}")
             # Check if we have a success
-            if not self.planning_clinet.get_result().success:
+            if not self.planning_client.get_result().success:
                 self.response_pub.publish('The sequence could not be played.')
 
         # start thread to not block the main thread if the action server is not currently active
