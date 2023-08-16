@@ -26,7 +26,7 @@ OUTPUT_DIR = 'data_hw'
 
 SAMPLE_HEIGHT = 409
 SAMPLE_WIDTH = 583 # same dimensions as data generated with generate_data.py
-MIN_SYMBOL_DIST = 20
+MIN_SYMBOL_DIST = 30
 MAX_SYMBOL_DIST = 50
 
 head_positions = {'c': 130, 'd': 125, 'e': 120, 'f': 115, 'g': 110, 'a': 105, 'b': 100}
@@ -37,24 +37,33 @@ key_flats_order = ['b\'', 'e\'\'', 'a\'', 'd\'\'', 'g\'', 'c\'\'']
 key_sharps_num = {'c\major': 0, 'a\minor': 0, 'g\major': 1, 'e\minor': 1, 'd\major': 2, 'b\minor': 2, 'a\major': 3, 'fs\minor': 3, 'e\major': 4, 'cs\minor': 4, 'b\major': 5, 'gs\minor': 5}
 key_flats_num = {'f\major': 1, 'd\minor': 1, 'bf\major': 2, 'g\minor': 2, 'ef\major': 3, 'c\minor': 3, 'af\major': 4, 'f\minor': 4, 'df\major': 5, 'bf\minor': 5, 'gf\major': 6, 'ef\minor': 6}
 
-
 def check_space(image, x_pos, y_offset, key, args):
     # check if end of page is reached
-    if x_pos > SAMPLE_WIDTH-50:
+    if x_pos > SAMPLE_WIDTH-60:
         key_num = key_sharps_num[key] if key in key_sharps_num.keys() else key_flats_num[key]
         x_pos = 40 + key_num*20 + randint(args.min_symbol_dist, args.max_symbol_dist)
         y_offset += 90
         draw_staff(image, y_offset, key, args)
     return x_pos, y_offset
 
-def check_bar(image, x_pos, y_offset, duration_counter, key, args):
+def get_key_accidentals(key):
+    # define notes influenced by key
+    key_accidentals = {'sharps': [], 'flats': []}
+    if key in key_sharps_num.keys():
+        key_sharps = [key_note[0] for key_note in [key_sharps_order[x] for x in range(key_sharps_num[key])]]
+    elif key in key_flats_num.keys():
+        key_flats = [key_note[0] for key_note in [key_flats_order[x] for x in range(key_flats_num[key])]]
+    return key_accidentals
+
+def check_bar(image, x_pos, y_offset, duration_counter, key, bar_accidentals, args):
     # check if current bar is full
-    if duration_counter == 1:
+    if duration_counter > 1:
         draw_symbol(image, f'{args.hw_symbols_dir}/bar', (x_pos,50+y_offset))
         x_pos += randint(args.min_symbol_dist, args.max_symbol_dist)
         duration_counter = 0
         x_pos, y_offset = check_space(image, x_pos, y_offset, key, args)
-    return x_pos, y_offset, duration_counter
+        bar_accidentals = get_key_accidentals(key)
+    return x_pos, y_offset, duration_counter, bar_accidentals
 
 def get_note_pose(note, octave):
     # head_pos: y-position of the note head, y_pos: y-position of the note image
@@ -63,16 +72,21 @@ def get_note_pose(note, octave):
     y_pos = head_pos if is_flipped else head_pos-30
     return y_pos, is_flipped 
 
-def extend_staff(image, x_pos, y_pos, y_offset, is_flipped, args):
+def extend_staff(image, x_pos, y_pos, y_offset, args):
     # draw extra lines above staff for notes higher than g''
-    if y_pos <= 35:
-        for y in range(y_pos if y_pos%10 else y_pos+5, 45, 10):
-            draw_symbol(image, f'{args.hw_symbols_dir}/extra', (x_pos, y+y_offset))
+    draw = ImageDraw.Draw(image)
+    if y_pos - y_offset <= 35:
+        for y in range(y_pos+5 if y_pos%10 else y_pos+10, 50+y_offset, 10):
+            draw.line((x_pos-5, y, x_pos+20, y), fill=(0, 0, 0, 255))
+
+            # draw_symbol(image, f'{args.hw_symbols_dir}/extra', (x_pos, y+y_offset))
 
     # draw extra lines below staff for notes lower than d'
-    elif y_pos > 70 and not is_flipped:
-        for y in range(y_pos+30 if y_pos%10 else y_pos-5, 85, -10):
-            draw_symbol(image, f'{args.hw_symbols_dir}/extra', (x_pos, y+y_offset))
+    elif y_pos - y_offset >= 95:
+        # for y in range(y_pos+5 if y_pos%10 else y_pos+5, 100, 110):
+        for y in range(y_pos+5 if y_pos%10 else y_pos+15, 90+y_offset, -10):
+            draw.line((x_pos-5, y, x_pos+20, y), fill=(0, 0, 0, 255))
+            # draw_symbol(image, f'{args.hw_symbols_dir}/extra', (x_pos, y+y_offset))
 
 def draw_key(image, y_offset, key, args):
     x_pos = 60
@@ -82,7 +96,7 @@ def draw_key(image, y_offset, key, args):
             tone = key_flat[0]
             octave = key_flat.count('\'')
             y_pos = head_positions[tone] - octave*35 + y_offset
-            draw_symbol(image, f'{args.hw_symbols_dir}/accidental/flat', (x_pos, y_pos-5))
+            draw_symbol(image, f'{args.hw_symbols_dir}/accidental/flat', (x_pos, y_pos-10))
             x_pos += 20
     elif key in key_sharps_num.keys():
         for i in range(key_sharps_num[key]):
@@ -90,7 +104,7 @@ def draw_key(image, y_offset, key, args):
             tone = key_sharp[0]
             octave = key_sharp.count('\'')
             y_pos = head_positions[tone] - octave*35 + y_offset
-            draw_symbol(image, f'{args.hw_symbols_dir}/accidental/sharp', (x_pos, y_pos-5))
+            draw_symbol(image, f'{args.hw_symbols_dir}/accidental/sharp', (x_pos, y_pos-10))
             x_pos += 20
 
 def draw_staff(image, y_offset, key, args):
@@ -116,13 +130,14 @@ def draw_note(image, position, is_flipped, duration, args):
     else:
         draw_symbol(image, f'{args.hw_symbols_dir}/note/{duration}', position, is_flipped)
 
-def generate_sample_image(key, args):
+def generate_sample_image(key, tempo, args):
     image = Image.new('RGBA', (SAMPLE_WIDTH, SAMPLE_HEIGHT), (255, 255, 255, 255))
     draw_staff(image, 0, key, args)
-    if key in key_sharps_num.keys():
-        draw_symbol(image, f'{args.hw_symbols_dir}/time', (70 + key_sharps_num[key]*20, 50))
-    else:
-        draw_symbol(image, f'{args.hw_symbols_dir}/time', (70 + key_flats_num[key]*20, 50))
+    x_pos = 70 + (key_flats_num[key] if key in key_flats_num.keys() else key_sharps_num[key])*20
+    draw_symbol(image, f'{args.hw_symbols_dir}/time', (x_pos, 50))
+    if tempo:
+        draw_symbol(image, f'{args.hw_symbols_dir}/tempo/{tempo[:2]}', (x_pos, 10))
+        draw_symbol(image, f'{args.hw_symbols_dir}/tempo/{tempo[2:]}', (x_pos+30, 10))
     return image
 
 def draw_piece(string, sample_name, args):
@@ -135,29 +150,29 @@ def draw_piece(string, sample_name, args):
         key = piece[key_index + 1] + piece[key_index + 2]
         piece = piece[:key_index] + piece[key_index + 3:]
 
-    # define notes influenced by key
-    key_sharps = []
-    key_flats = []
-    if key in key_sharps_num.keys():
-        key_sharps = [key_note[0] for key_note in [key_sharps_order[x] for x in range(key_sharps_num[key])]]
-    elif key in key_flats_num.keys():
-        key_flats = [key_note[0] for key_note in [key_flats_order[x] for x in range(key_flats_num[key])]]
+    # get tempo
+    tempo = None
+    if '\\tempo' in piece:
+        tempo_index = piece.index('\\tempo')
+        tempo = piece[tempo_index + 1]
+        piece = piece[:tempo_index] + piece[tempo_index + 2:]
 
-    x_pos = 70 + len(key_flats)*20 + len(key_sharps)*20 + randint(args.min_symbol_dist, args.max_symbol_dist) 
+    # initialize variables   
+    x_pos = 70 + (key_flats_num[key] if key in key_flats_num.keys() else key_sharps_num[key])*20 + (30 if tempo else 0) + randint(args.min_symbol_dist, args.max_symbol_dist)
+    bar_accidentals = get_key_accidentals(key)
     y_offset = 0
     duration_counter = 0
     index = 0
 
     # generate sample image
-    sample_im = generate_sample_image(key, args)
+    sample_im = generate_sample_image(key, tempo, args)
     # piece = [(n[0], n[1], n.count('\''), int((re.findall(r'\d+', n)[0])), n.count('.')) for n in string.split()]
-
     
     while index < len(piece):
         rule = piece[index]
 
         # check if current bar is full
-        x_pos, y_offset, duration_counter = check_bar(sample_im, x_pos, y_offset, duration_counter, key, args)
+        x_pos, y_offset, duration_counter, bar_accidentals = check_bar(sample_im, x_pos, y_offset, duration_counter, key, bar_accidentals, args)
 
         # check if end of page is reached
         x_pos, y_offset = check_space(sample_im, x_pos, y_offset, key, args)
@@ -166,7 +181,8 @@ def draw_piece(string, sample_name, args):
             index += 1
             continue
 
-        if rule[0] == 'r':
+        # draw rest
+        elif rule[0] == 'r':
             duration = int((re.findall(r'\d+', rule)[0]))
             draw_symbol(sample_im, f'{args.hw_symbols_dir}/rest/{duration}', (x_pos, 50 + y_offset))
 
@@ -176,7 +192,7 @@ def draw_piece(string, sample_name, args):
             index += 1
 
         # draw note or chord
-        if rule[0] in head_positions.keys() or rule[0] == '<':
+        elif rule[0] in head_positions.keys() or rule[0] == '<':
             # check if note is chord
             if rule[0] == '<':
                 rule2 = piece[index+1]
@@ -209,18 +225,21 @@ def draw_piece(string, sample_name, args):
                 if i == 1 and accidentals[i] in ['f', 's', 'n'] and y_head_poses[i] - y_head_poses[i-1] < 10:
                     x_pos += 15
                 if accidentals[i] == 'f':
-                    if tones[i] not in key_flats:
-                        draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/flat', (x_pos, y_head_poses[i]-5))
+                    if tones[i] not in bar_accidentals['flats']:
+                        draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/flat', (x_pos, y_head_poses[i]-10))
+                        bar_accidentals['flats'].append(tones[i])
                     else:
                         accidentals[i] = ''
                 elif accidentals[i] == 's':
-                    if tones[i] not in key_sharps:
-                        draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/sharp', (x_pos, y_head_poses[i]-5))
+                    if tones[i] not in bar_accidentals['sharps']:
+                        draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/sharp', (x_pos, y_head_poses[i]-10))
+                        bar_accidentals['sharps'].append(tones[i])
                     else:
                         accidentals[i] = ''
-                elif tones[i] in key_sharps or tones[i] in key_flats:
+                elif tones[i] in bar_accidentals['flats'] or tones[i] in bar_accidentals['sharps']:
                     accidentals[i] = 'n'
-                    draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/natural', (x_pos, y_head_poses[i]-5))
+                    draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/natural', (x_pos, y_head_poses[i]-10))
+                    bar_accidentals['sharps'].remove(tones[i]) if tones[i] in bar_accidentals['sharps'] else bar_accidentals['flats'].remove(tones[i])
             x_pos += 20 if 'f' in accidentals or 's' in accidentals or 'n' in accidentals else 0
 
             # draw note head(s)
@@ -231,17 +250,22 @@ def draw_piece(string, sample_name, args):
                     x_pos += 15
                     note_is_flipped = True
                     
-                extend_staff(sample_im, x_pos, y_head_poses[i], y_offset, True, args)
+                extend_staff(sample_im, x_pos, y_head_poses[i], y_offset, args)
                 if duration < 4:
                     draw_symbol(sample_im, f'{args.hw_symbols_dir}/head/empty', (x_pos, y_head_poses[i]), note_is_flipped)
                 else:
                     draw_symbol(sample_im, f'{args.hw_symbols_dir}/head/full', (x_pos, y_head_poses[i]), note_is_flipped)
+
             # draw note stem
             if duration > 1:
                 # check if distance between note heads too small for a connecting line
                 if len(tones) > 1 and y_head_poses[0] - y_head_poses[1] <= 5:
-                    # attach stem with correct flag between note heads
-                    attachment_point = (x_pos-10, y_head_poses[1]) if is_flipped else (x_pos-10, y_head_poses[0]-30)
+                    # draw vertical line between note heads
+                    draw = ImageDraw.Draw(sample_im)
+                    draw.line((x_pos, y_head_poses[0]+5, x_pos, y_head_poses[1]+5), fill=(0, 0, 0, 255), width=2)
+
+                    attachment_point = (x_pos-10, y_head_poses[0]) if is_flipped else (x_pos-10, y_head_poses[1]-30)
+
                 # check if distance between note heads is big enough for a connecting line
                 elif len(tones) > 1 and y_head_poses[0] - y_head_poses[1] > 5:
                     # connect the note heads of the chord
