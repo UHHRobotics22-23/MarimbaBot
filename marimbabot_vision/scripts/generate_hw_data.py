@@ -203,6 +203,7 @@ def draw_piece(string, sample_name, args):
                     octaves.reverse()
                     y_head_poses.reverse()
                 is_flipped = True if y_head_poses[0] - y_offset < 70 else False
+
             # non-chord note
             else:
                 tones = [rule[0]]
@@ -283,6 +284,18 @@ def draw_piece(string, sample_name, args):
                 else:
                     draw_symbol(sample_im, f'{args.hw_symbols_dir}/stem/{duration}', attachment_point, is_flipped, True)
 
+            # draw dynamics
+            # (necessary here, because dynamics are written behind the note in the piece string but should appear directly underneath)
+            dynamics = 0
+            if index < len(piece) -1 and piece[index+1][:2] in ['\\f', '\\p', '\\m']:
+                dynamics = 1
+                dynamics_x_pos = x_pos -10
+                dynamics_y_pos = (90 if y_head_poses[0] - y_offset < 80 else y_head_poses[0] + 10) + y_offset 
+                for symbol in piece[index+1][1:]:
+                    print(symbol)
+                    draw_symbol(sample_im, f'{args.hw_symbols_dir}/dynamics/{symbol}', (dynamics_x_pos, dynamics_y_pos))
+                    dynamics_x_pos += 15
+
             # draw dot
             if dot >= 1:
                 y_pos = y_head_poses[0] - 5 if y_head_poses[0] % 10 else y_head_poses[0]
@@ -296,7 +309,7 @@ def draw_piece(string, sample_name, args):
             # update position, duration, and index counter
             x_pos += randint(args.min_symbol_dist, args.max_symbol_dist)
             duration_counter += 1/duration + dot * (0.5/duration)
-            index += len(tones)
+            index += len(tones) + dynamics
 
         else:
             print('unrecognized_symbol: ', rule)
