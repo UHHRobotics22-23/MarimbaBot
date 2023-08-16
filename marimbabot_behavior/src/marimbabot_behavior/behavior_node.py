@@ -10,7 +10,8 @@ from std_msgs.msg import String
 
 from marimbabot_behavior.interpreter import read_notes
 from marimbabot_msgs.msg import (Command, HitSequenceAction,
-                                 LilypondAudioAction, LilypondAudioGoal)
+                                 HitSequenceElementList, LilypondAudioAction,
+                                 LilypondAudioGoal)
 
 
 class ActionDecider:
@@ -28,6 +29,9 @@ class ActionDecider:
 
         # listens to the recognized commands from speech node
         self.command_sub = rospy.Subscriber('speech_node/command', Command, self.callback_command)
+
+        # publisher for audio/hit_sequence
+        self.hit_sequence_pub = rospy.Publisher('audio/hit_sequence', HitSequenceElementList, queue_size=10)
 
         # action client to send the hit sequence to the planning action server
         self.planning_client = actionlib.SimpleActionClient('hit_sequence', HitSequenceAction)
@@ -61,6 +65,16 @@ class ActionDecider:
             tempo = int(tempo[0].split(' ')[-1])
             self.assign_tempo(tempo + value if faster else tempo - value)
 
+    """
+    Callback function for the feedback from the planning action server.
+    Forwards the feedback to the audio node.
+    """
+    def planning_feedback_cb(self, feedback_msg):
+        rospy.logdebug(f"Feedback from planning action server: {feedback_msg}")
+        # send it to audio '/audio/hit_sequence' topic
+        self.hit_sequence_pub.publish(feedback_msg)
+        
+
     # communicates with the planning action server to play the hit sequence on the marimba
     def play(self):
         rospy.loginfo(f"playing notes: {self.note_sequence}")
@@ -76,7 +90,7 @@ class ActionDecider:
              # Waits until the action server has started up and started
             self.planning_client.wait_for_server()
             # Sends the goal to the action server.
-            self.planning_client.send_goal(self.hit_sequence)
+            self.planning_client.send_goal(self.hit_sequence, feedback_cb=None)
             # Waits for the server to finish performing the action.
             # Includes that the audio file is generated and was played
             self.planning_client.wait_for_result()
