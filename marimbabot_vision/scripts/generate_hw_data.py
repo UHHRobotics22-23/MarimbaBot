@@ -72,7 +72,7 @@ def get_note_pose(note, octave):
     y_pos = head_pos if is_flipped else head_pos-30
     return y_pos, is_flipped 
 
-def extend_staff(image, x_pos, y_pos, y_offset, args):
+def extend_staff(image, x_pos, y_pos, y_offset):
     # draw extra lines above staff for notes higher than g''
     draw = ImageDraw.Draw(image)
     if y_pos - y_offset <= 35:
@@ -87,6 +87,11 @@ def extend_staff(image, x_pos, y_pos, y_offset, args):
         for y in range(y_pos+5 if y_pos%10 else y_pos+15, 90+y_offset, -10):
             draw.line((x_pos-5, y, x_pos+20, y), fill=(0, 0, 0, 255))
             # draw_symbol(image, f'{args.hw_symbols_dir}/extra', (x_pos, y+y_offset))
+
+def draw_dynamics(image, rule, x_pos, y_pos, args):
+    for symbol in rule[1:]:
+        draw_symbol(image, f'{args.hw_symbols_dir}/dynamics/{symbol}', (x_pos, y_pos))
+        x_pos += 15
 
 def draw_key(image, y_offset, key, args):
     x_pos = 60
@@ -171,21 +176,35 @@ def draw_piece(string, sample_name, args):
     while index < len(piece):
         rule = piece[index]
 
-        if rule == 'repeat':
-            index += 1
-            continue
+        n_indices = 0       
 
         # draw rest
-        elif rule[0] == 'r':
+        if rule[0] == 'r' and not rule == 'repeat':
             duration = int((re.findall(r'\d+', rule)[0]))
+            dot = rule.count('.')
             draw_symbol(sample_im, f'{args.hw_symbols_dir}/rest/{duration}', (x_pos, 50 + y_offset))
 
-            # update position, duration, and index counter
-            x_pos += randint(args.min_symbol_dist, args.max_symbol_dist)
-            duration_counter += 1/duration
-            index += 1
+            # check for dynamics
+            # (necessary here, because dynamics are written behind the rest in the piece string but should appear directly underneath)
+            if index < len(piece) -1 and piece[index+1][:2] in ['\\f', '\\p', '\\m']:
+                draw_dynamics(sample_im, piece[index+1], x_pos-10, 90 + y_offset, args)
+                n_indices += 1
 
-        # draw note or chord
+            # check for accents
+            # (necessary here, because accents are written behind the rest in the piece string but should appear directly above/underneath)
+            if index < len(piece) -2 and piece[index+1] + piece[index+2] == '-\marcato':
+                draw_symbol(sample_im, f'{args.hw_symbols_dir}/accents/marcato', (x_pos + 5, 40 + y_offset))
+                n_indices += 2 
+
+            # draw dot
+            if dot >= 1:
+                draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos+20, 60 + y_offset))
+
+            # update duration, and index counter
+            duration_counter += 1/duration + dot * (0.5/duration)
+            n_indices += 1
+
+        # draw note, chord
         elif rule[0] in head_positions.keys() or rule[0] == '<':
             # check if note is chord
             if rule[0] == '<':
@@ -216,27 +235,46 @@ def draw_piece(string, sample_name, args):
 
             # draw accidental(s)
             for i in range(len(tones)):
-                # prevent overlapping accidentals if notes are too close
-                if i > 0 and accidentals[i-1] in ['f', 's', 'n'] and y_head_poses[i] - y_head_poses[i-1] < 10:
-                    x_pos += 15
                 if accidentals[i] == 'f':
                     if tones[i] not in bar_accidentals['flats']:
-                        draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/flat', (x_pos, y_head_poses[i]-10))
+                        # prevent overlapping accidentals if notes are too close
+                        if i > 0 and accidentals[i-1] in ['f', 's', 'n'] and y_head_poses[i] - y_head_poses[i-1] < 10:
+                            x_pos += 15
+                            draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/flat', (x_pos, y_head_poses[i]-10))
                         bar_accidentals['flats'].append(tones[i])
                     else:
                         accidentals[i] = ''
                 elif accidentals[i] == 's':
                     if tones[i] not in bar_accidentals['sharps']:
+                        # prevent overlapping accidentals if notes are too close
+                        if i > 0 and accidentals[i-1] in ['f', 's', 'n'] and y_head_poses[i] - y_head_poses[i-1] < 10:
+                            x_pos += 15
                         draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/sharp', (x_pos, y_head_poses[i]-10))
                         bar_accidentals['sharps'].append(tones[i])
                     else:
                         accidentals[i] = ''
                 elif tones[i] in bar_accidentals['flats'] or tones[i] in bar_accidentals['sharps']:
                     accidentals[i] = 'n'
+                    # prevent overlapping accidentals if notes are too close
+                    if i > 0 and accidentals[i-1] in ['f', 's', 'n'] and y_head_poses[i] - y_head_poses[i-1] < 10:
+                        x_pos += 15
                     draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/natural', (x_pos, y_head_poses[i]-10))
                     bar_accidentals['sharps'].remove(tones[i]) if tones[i] in bar_accidentals['sharps'] else bar_accidentals['flats'].remove(tones[i])
             
             x_pos += 20 if 'f' in accidentals or 's' in accidentals or 'n' in accidentals else 0
+
+            # check for dynamics
+            # (necessary here, because dynamics are written behind the note in the piece string but should appear directly underneath)
+            if index < len(piece) -1 and piece[index+1][:2] in ['\\f', '\\p', '\\m']:
+                draw_dynamics(sample_im, piece[index+1], x_pos-10, (90 + 0 if y_head_poses[0] < 80 else y_head_poses[0] + 10) + y_offset, args)
+                n_indices += 1
+
+            # check for accents
+            # (necessary here, because accents are written behind the note in the piece string but should appear directly above/underneath)
+            if index < len(piece) -2 and piece[index+1] + piece[index+2] == '-\marcato':
+                accent_y_pos = y_head_poses[0] + 15 if not is_flipped else (y_head_poses[0] - 15 if len(tones) == 1 else y_head_poses[-1] + 15)
+                draw_symbol(sample_im, f'{args.hw_symbols_dir}/accents/marcato', (x_pos+5, accent_y_pos))
+                n_indices += 2
 
             # draw note head(s)
             for i in range(len(tones)):
@@ -246,7 +284,7 @@ def draw_piece(string, sample_name, args):
                     x_pos += 15
                     note_is_flipped = True
                     
-                extend_staff(sample_im, x_pos, y_head_poses[i], y_offset, args)
+                extend_staff(sample_im, x_pos, y_head_poses[i], y_offset)
                 if duration < 4:
                     draw_symbol(sample_im, f'{args.hw_symbols_dir}/head/empty', (x_pos, y_head_poses[i]), note_is_flipped)
                 else:
@@ -284,18 +322,6 @@ def draw_piece(string, sample_name, args):
                 else:
                     draw_symbol(sample_im, f'{args.hw_symbols_dir}/stem/{duration}', attachment_point, is_flipped, True)
 
-            # draw dynamics
-            # (necessary here, because dynamics are written behind the note in the piece string but should appear directly underneath)
-            dynamics = 0
-            if index < len(piece) -1 and piece[index+1][:2] in ['\\f', '\\p', '\\m']:
-                dynamics = 1
-                dynamics_x_pos = x_pos -10
-                dynamics_y_pos = (90 if y_head_poses[0] - y_offset < 80 else y_head_poses[0] + 10) + y_offset 
-                for symbol in piece[index+1][1:]:
-                    print(symbol)
-                    draw_symbol(sample_im, f'{args.hw_symbols_dir}/dynamics/{symbol}', (dynamics_x_pos, dynamics_y_pos))
-                    dynamics_x_pos += 15
-
             # draw dot
             if dot >= 1:
                 y_pos = y_head_poses[0] - 5 if y_head_poses[0] % 10 else y_head_poses[0]
@@ -306,15 +332,18 @@ def draw_piece(string, sample_name, args):
                     y_pos = y_head_poses[1] - 5 if y_head_poses[1] % 10 else y_head_poses[1]
                     draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos, y_pos))
 
-            # update position, duration, and index counter
-            x_pos += randint(args.min_symbol_dist, args.max_symbol_dist)
             duration_counter += 1/duration + dot * (0.5/duration)
-            index += len(tones) + dynamics
+            n_indices += len(tones)
 
         else:
             print('unrecognized_symbol: ', rule)
             index += 1
             continue
+
+        index += n_indices
+
+        # update position, duration, and index counter
+        x_pos += randint(args.min_symbol_dist, args.max_symbol_dist)
 
         # check if end of page is reached
         x_pos, y_offset = check_space(sample_im, x_pos, y_offset, key, args)
