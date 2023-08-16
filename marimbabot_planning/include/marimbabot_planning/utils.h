@@ -64,6 +64,17 @@ moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
     double length);
 
 
+ /**
+ * @brief Interpolate a trajectory with a given number of points per second
+ *
+ * @param input_plan
+ * @param points_per_second
+ * @return moveit::planning_interface::MoveGroupInterface::Plan
+ **/
+moveit::planning_interface::MoveGroupInterface::Plan interpolate_plan(
+    const moveit::planning_interface::MoveGroupInterface::Plan& input_plan,
+    double points_per_second);
+
 /**
  * @brief Convert a hit sequence elements to a vector of HitSequenceElement structs containing the points 
  * 
@@ -77,4 +88,13 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
     std::string planning_frame,
     std::shared_ptr<tf2_ros::Buffer> tf_buffer);
 
+
+/**
+ * @brief Convert the timing information of a hit sequence from absolute to relative timings
+ * 
+ * @param hit_sequence
+ * @return std::vector<CartesianHitSequenceElement>
+ **/
+std::vector<CartesianHitSequenceElement> hit_sequence_absolute_to_relative(
+    const std::vector<CartesianHitSequenceElement>& hit_sequence);
 } 
