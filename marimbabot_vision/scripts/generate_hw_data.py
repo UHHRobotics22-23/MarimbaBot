@@ -50,9 +50,9 @@ def get_key_accidentals(key):
     # define notes influenced by key
     key_accidentals = {'sharps': [], 'flats': []}
     if key in key_sharps_num.keys():
-        key_sharps = [key_note[0] for key_note in [key_sharps_order[x] for x in range(key_sharps_num[key])]]
+        key_accidentals['sharps'] = [key_note[0] for key_note in [key_sharps_order[x] for x in range(key_sharps_num[key])]]
     elif key in key_flats_num.keys():
-        key_flats = [key_note[0] for key_note in [key_flats_order[x] for x in range(key_flats_num[key])]]
+        key_accidentals['flats'] = [key_note[0] for key_note in [key_flats_order[x] for x in range(key_flats_num[key])]]
     return key_accidentals
 
 def check_bar(image, x_pos, y_offset, duration_counter, key, bar_accidentals, args):
@@ -171,12 +171,6 @@ def draw_piece(string, sample_name, args):
     while index < len(piece):
         rule = piece[index]
 
-        # check if end of page is reached
-        x_pos, y_offset = check_space(sample_im, x_pos, y_offset, key, args)
-
-        # check if current bar is full
-        x_pos, y_offset, duration_counter, bar_accidentals = check_bar(sample_im, x_pos, y_offset, duration_counter, key, bar_accidentals, args)
-        
         if rule == 'repeat':
             index += 1
             continue
@@ -222,7 +216,7 @@ def draw_piece(string, sample_name, args):
             # draw accidental(s)
             for i in range(len(tones)):
                 # prevent overlapping accidentals if notes are too close
-                if i == 1 and accidentals[i] in ['f', 's', 'n'] and y_head_poses[i] - y_head_poses[i-1] < 10:
+                if i > 0 and accidentals[i-1] in ['f', 's', 'n'] and y_head_poses[i] - y_head_poses[i-1] < 10:
                     x_pos += 15
                 if accidentals[i] == 'f':
                     if tones[i] not in bar_accidentals['flats']:
@@ -240,6 +234,7 @@ def draw_piece(string, sample_name, args):
                     accidentals[i] = 'n'
                     draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/natural', (x_pos, y_head_poses[i]-10))
                     bar_accidentals['sharps'].remove(tones[i]) if tones[i] in bar_accidentals['sharps'] else bar_accidentals['flats'].remove(tones[i])
+            
             x_pos += 20 if 'f' in accidentals or 's' in accidentals or 'n' in accidentals else 0
 
             # draw note head(s)
@@ -289,7 +284,7 @@ def draw_piece(string, sample_name, args):
                     draw_symbol(sample_im, f'{args.hw_symbols_dir}/stem/{duration}', attachment_point, is_flipped, True)
 
             # draw dot
-            if dot == 1:
+            if dot >= 1:
                 y_pos = y_head_poses[0] - 5 if y_head_poses[0] % 10 else y_head_poses[0]
                 x_pos += 25 if duration > 4 and not is_flipped and not len(tones) > 1 else 20
                 draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos, y_pos))
@@ -308,7 +303,12 @@ def draw_piece(string, sample_name, args):
             index += 1
             continue
 
-    draw_symbol(sample_im, f'{args.hw_symbols_dir}/bar', (x_pos,50+y_offset))
+        # check if end of page is reached
+        x_pos, y_offset = check_space(sample_im, x_pos, y_offset, key, args)
+
+        # check if current bar is full
+        x_pos, y_offset, duration_counter, bar_accidentals = check_bar(sample_im, x_pos, y_offset, duration_counter, key, bar_accidentals, args)
+        
 
     os.makedirs(f'{args.output_dir}/{sample_name}', exist_ok=True)    
     sample_im.convert('RGB').save(f'{args.output_dir}/{sample_name}/{args.name_prefix}.png','PNG')
