@@ -79,7 +79,7 @@ class ActionDecider:
             self.planning_client.send_goal(self.hit_sequence)
             # Waits for the server to finish performing the action.
             # Includes that the audio file is generated and was played
-            self.planning_clinet.wait_for_result()
+            self.planning_client.wait_for_result()
             # Prints out the result of executing the action
             rospy.logdebug(f"Result from planning action server: {self.planning_client.get_result()}")
             # Check if we have a success
