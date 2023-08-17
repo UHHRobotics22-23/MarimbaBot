@@ -8,7 +8,7 @@
   -->
   <arg name="transmission_hw_interface" default="hardware_interface/EffortJointInterface" />
 
-  <arg name="mallet_holder_type" default="double_flex" doc="Type of mallet holder: static, flex or flex_double" />
+  <arg name="mallet_holder_type" default="flex_double" doc="Type of mallet holder: static, flex or flex_double" />
 
   <arg name="bars_fixed_joint" default="true" doc="Whether to use prismatic or fixed joints for marimba bars. Set to true for real robot and false for gazebo simulation" />
 

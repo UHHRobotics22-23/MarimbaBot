@@ -1,0 +1,56 @@
+# fake "all-joints-active" JointTrajectoryController for Gazebo simulation
+# of the Robotiq 3-finger hand.
+#
+# gripper_controller:
+  #type: effort_controllers/GripperActionController
+  # type: position_controllers/GripperActionController
+  # joint: s_model_finger_1_joint_1
+
+# it would be more standard to call this "gripper_controller", but for
+# historical reason the thing has been called "gripper_action" in the
+# TAMS UR5 setup moveit config.
+#
+# gripper_controller:
+gripper_controller:
+  type: effort_controllers/JointTrajectoryController
+  # action_ns: ""
+  joints:
+    - s_model_finger_1_joint_1
+    - s_model_finger_1_joint_2
+    - s_model_finger_1_joint_3
+    - s_model_finger_2_joint_1
+    - s_model_finger_2_joint_2
+    - s_model_finger_2_joint_3 
+    - s_model_finger_middle_joint_1
+    - s_model_finger_middle_joint_2
+    - s_model_finger_middle_joint_3
+    - s_model_palm_finger_1_joint
+    - s_model_palm_finger_2_joint
+  gains:
+    s_model_finger_1_joint_1:      { p: 100.0, d:  0.0, i: 10.0, i_clamp: 20.0 }
+    s_model_finger_1_joint_2:      { p: 100.0, d:  0.0, i: 10.0, i_clamp: 20.0 }
+    s_model_finger_1_joint_3:      { p: 100.0, d:  0.0, i: 10.0, i_clamp: 20.0 }
+    s_model_finger_2_joint_1:      { p: 100.0, d:  0.0, i: 10.0, i_clamp: 20.0 }
+    s_model_finger_2_joint_2:      { p: 100.0, d:  0.0, i: 10.0, i_clamp: 20.0 }
+    s_model_finger_2_joint_3:      { p: 100.0, d:  0.0, i: 10.0, i_clamp: 20.0 }
+    s_model_finger_middle_joint_1: { p: 100.0, d:  0.0, i: 10.0, i_clamp: 20.0 }
+    s_model_finger_middle_joint_2: { p: 100.0, d:  0.0, i: 10.0, i_clamp: 20.0 }
+    s_model_finger_middle_joint_3: { p: 100.0, d:  0.0, i: 10.0, i_clamp: 20.0 }
+    s_model_palm_finger_1_joint:   { p: 100.0, d:  0.0, i: 10.0, i_clamp: 20.0 }
+    s_model_palm_finger_2_joint:   { p: 100.0, d:  0.0, i: 10.0, i_clamp: 20.0 }
+  constraints:
+    goal_time: 0.6
+    stopped_velocity_tolerance: 0.05
+    s_model_finger_1_joint_1: {trajectory: 0.1, goal: 0.01}
+    s_model_finger_1_joint_2: {trajectory: 0.1, goal: 0.01}
+    s_model_finger_1_joint_3: {trajectory: 0.1, goal: 0.01}
+    s_model_finger_2_joint_1: {trajectory: 0.1, goal: 0.01}
+    s_model_finger_2_joint_2: {trajectory: 0.1, goal: 0.01}
+    s_model_finger_2_joint_3: {trajectory: 0.1, goal: 0.01}
+    s_model_finger_middle_joint_1: {trajectory: 0.1, goal: 0.01}
+    s_model_finger_middle_joint_2: {trajectory: 0.1, goal: 0.01}
+    s_model_finger_middle_joint_3: {trajectory: 0.1, goal: 0.01}
+  stop_trajctory_duration: 0.5
+  state_publish_rate: 100
+  action_monitor_rate: 20
+

@@ -1,0 +1,21 @@
+<launch>
+    <group ns="MalletHolder">
+        <rosparam file="$(find marimbabot_hardware)/config/controllers.yaml" command="load"/>
+        <rosparam file="$(find marimbabot_hardware)/config/joint_limits.yaml" command="load"/>
+        
+        <!-- ! This is only for demo setups START -->
+        <!-- <param name="robot_description" command="cat $(find marimbabot_hardware)/urdf/two_mallet_holder.urdf"/>
+        <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/> -->
+        <!-- ! This is only for demo setups END -->
+
+        <node name="mallet_hardware_control_node" pkg="marimbabot_hardware" type="mallet_hardware_control_node_dummy" output="screen" />
+        <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
+            args="
+                joint_state_controller
+                trajectory_controller
+            "/> 
+            <!-- Use this for easy debugging -->
+            <!-- position_controller -->
+    </group>
+
+</launch>
