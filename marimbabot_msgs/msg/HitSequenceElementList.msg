@@ -1,1 +1,0 @@
-marimbabot_msgs/HitSequenceElement[] hit_sequence_elements # This message is used to publish the feedback from the HitSequence.action to the audio node.
