@@ -10,7 +10,7 @@ from std_msgs.msg import String
 
 from marimbabot_behavior.interpreter import read_notes
 from marimbabot_msgs.msg import (Command, HitSequenceAction,
-                                 HitSequenceElementList, LilypondAudioAction,
+                                 HitSequence, LilypondAudioAction,
                                  LilypondAudioGoal)
 
 
@@ -31,7 +31,9 @@ class ActionDecider:
         self.command_sub = rospy.Subscriber('speech_node/command', Command, self.callback_command)
 
         # publisher for audio/hit_sequence
-        self.hit_sequence_pub = rospy.Publisher('audio/hit_sequence', HitSequenceElementList, queue_size=10)
+        self.hit_sequence_pub = rospy.Publisher('audio/hit_sequence', HitSequence, queue_size=10)
+        # sequence_id counter
+        self.sequence_id_counter = 0
 
         # action client to send the hit sequence to the planning action server
         self.planning_client = actionlib.SimpleActionClient('hit_sequence', HitSequenceAction)
@@ -72,19 +74,19 @@ class ActionDecider:
     def planning_feedback_cb(self, feedback_msg):
         rospy.logdebug(f"Feedback from planning action server: {feedback_msg}")
         # send it to audio '/audio/hit_sequence' topic
-        self.hit_sequence_pub.publish(feedback_msg)
+        hit_sequence_msg = HitSequence()
+        hit_sequence_msg.header.stamp = rospy.Time.now()
+        hit_sequence_msg.sequence_id = self.sequence_id_counter
+        hit_sequence_msg.hit_sequence_elements = feedback_msg
+
+        self.sequence_id_counter += 1
+        self.hit_sequence_pub.publish(hit_sequence_msg)
         
 
     # communicates with the planning action server to play the hit sequence on the marimba
     def play(self):
         rospy.loginfo(f"playing notes: {self.note_sequence}")
         rospy.loginfo(f"goal_hit_sequence: {self.hit_sequence}")
-
-        # preparing the hit sequence message for the audio node
-            # hit_sequence_msg = HitSequence()
-            # hit_sequence_msg.header.stamp = rospy.Time.now()
-            # hit_sequence_msg.seq_id = self.id_counter
-            # hit_sequence_msg.seq = self.hit_sequenc
 
         def planning_client_thread():
              # Waits until the action server has started up and started
