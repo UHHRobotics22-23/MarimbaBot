@@ -98,6 +98,10 @@ class LilypondGenerator():
                         new_durations.append((new_duration * 2, False))
                     else:
                         new_durations.append((duration, False))
+                        
+            # shuffle the durations
+            random.shuffle(new_durations)
+
             return new_durations
 
         return ' '.join([self.note_sampler(str(duration), is_dotted=is_dotted) for duration, is_dotted in sample_duration([1,])])
