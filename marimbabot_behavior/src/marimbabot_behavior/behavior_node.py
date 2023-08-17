@@ -53,9 +53,8 @@ class ActionDecider:
         # if there is already a tempo symbol in the sequence, replace it with the new tempo value
         if '\\tempo' in self.note_sequence:
             self.note_sequence = re.sub(r'\\tempo 4=[0-9]+', '\\\\tempo 4={}'.format(value), self.note_sequence)
-           
-        self.note_sequence = '\\tempo 4={} '.format(value) + self.note_sequence
-        rospy.logdebug(f'Tempo set to {value} bpm')
+        else:
+            self.note_sequence = '\\tempo 4={} '.format(value) + self.note_sequence
         rospy.loginfo(f"updated notes: {self.note_sequence}")
         self.update_hit_sequence()
         return 'success'
@@ -64,13 +63,13 @@ class ActionDecider:
     def change_tempo(self, faster=True, value=20):
         tempo = re.findall(r'\\tempo 4=[0-9]+', self.note_sequence)
         bpm = int(tempo[0].split('=')[-1]) if len(tempo) > 0 else 60
-        new_bpm = tempo + value if faster else tempo - value
+        new_bpm = bpm + value if faster else bpm - value
         if new_bpm < 20 or new_bpm > 120:
             rospy.logwarn('Tempo can only be increased by {} bpm'.format(120-bpm) if faster else 'Tempo can only be decreased by {} bpm.'.format(bpm)-20)
             self.response_pub.publish('Tempo can only be increased by {} B P M'.format(120-bpm) if faster else 'Tempo can only be decreased by {} B P M.'.format(bpm)-20)
             return 'fail' 
         else:
-            return self.assign_tempo(tempo + value if faster else tempo - value)
+            return self.assign_tempo(new_bpm)
 
     # changes the volume of the current sequence and updates the hit sequence
     def change_volume(self, louder=True, value=1):
