@@ -62,7 +62,7 @@ def check_bar(image, x_pos, y_offset, duration_counter, key, bar_accidentals, ar
         x_pos += randint(args.min_symbol_dist, args.max_symbol_dist)
         duration_counter = 0
         x_pos, y_offset = check_space(image, x_pos, y_offset, key, args)
-        bar_accidentals = get_key_accidentals(key)
+        bar_accidentals = {'sharps': [], 'flats': [], 'naturals': []}
     return x_pos, y_offset, duration_counter, bar_accidentals
 
 def get_note_pose(note, octave):
@@ -170,7 +170,8 @@ def draw_piece(string, sample_name, args):
 
     # initialize variables   
     x_pos = 70 + (key_flats_num[key] if key in key_flats_num.keys() else key_sharps_num[key])*20 + (30 if tempo else 0) + randint(args.min_symbol_dist, args.max_symbol_dist)
-    bar_accidentals = get_key_accidentals(key)
+    key_accidentals = get_key_accidentals(key)
+    bar_accidentals = {'sharps': [], 'flats': [], 'naturals': []}
     y_offset = 0
     duration_counter = 0
     index = 0
@@ -199,7 +200,7 @@ def draw_piece(string, sample_name, args):
             # check for accents
             # (necessary here, because accents are written behind the rest in the piece string but should appear directly above/underneath)
             if index < len(piece) -2 and piece[index+1] + piece[index+2] == '-\marcato':
-                draw_symbol(sample_im, f'{args.hw_symbols_dir}/accents/marcato', (x_pos + 5, 40 + y_offset))
+                draw_symbol(sample_im, f'{args.hw_symbols_dir}/accents/marcato', (x_pos + 5, 40 + y_offset), True)
                 n_indices += 2 
 
             # draw dot
@@ -243,34 +244,39 @@ def draw_piece(string, sample_name, args):
             for i in range(len(tones)):
                 # draw flat
                 if accidentals[i] == 'f':
-                    if tones[i] not in bar_accidentals['flats']:
+                    if tones[i]+str(octaves[i]) not in key_accidentals['flats'] or tones[i]+str(octaves[i]) in bar_accidentals['flats']:
                         # prevent overlapping accidentals if notes are too close
                         if i > 0 and accidentals[i-1] in ['f', 's', 'n'] and y_head_poses[i] - y_head_poses[i-1] < 10:
                             x_pos += 20
-                            draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/flat', (x_pos, y_head_poses[i]-10))
-                        bar_accidentals['flats'].append(tones[i])
+                        draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/flat', (x_pos, y_head_poses[i]-10))
+                        bar_accidentals['flats'].append(tones[i]+str(octaves[i]))
                     else:
                         accidentals[i] = ''
 
                 # draw sharp
                 elif accidentals[i] == 's':
-                    if tones[i] not in bar_accidentals['sharps']:
+                    if tones[i] not in key_accidentals['sharps'] or tones[i]+str(octaves[i]) in bar_accidentals['sharps']:
                         # prevent overlapping accidentals if notes are too close
                         if i > 0 and accidentals[i-1] in ['f', 's', 'n'] and y_head_poses[i] - y_head_poses[i-1] < 10:
                             x_pos += 20
                         draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/sharp', (x_pos, y_head_poses[i]-10))
-                        bar_accidentals['sharps'].append(tones[i])
+                        bar_accidentals['sharps'].append(tones[i]+str(octaves[i]))
                     else:
                         accidentals[i] = ''
 
                 # draw natural
-                elif tones[i] in bar_accidentals['flats'] or tones[i] in bar_accidentals['sharps']:
+                elif (tones[i] in key_accidentals['sharps'] or tones[i] in key_accidentals['flats'] or tones[i]+str(octaves[i]) in bar_accidentals['flats'] or tones[i]+str(octaves[i]) in bar_accidentals['sharps']) and tones[i]+str(octaves[i]) not in bar_accidentals['naturals']:
                     accidentals[i] = 'n'
                     # prevent overlapping accidentals if notes are too close
                     if i > 0 and accidentals[i-1] in ['f', 's', 'n'] and y_head_poses[i] - y_head_poses[i-1] < 10:
                         x_pos += 20
                     draw_symbol(sample_im, f'{args.hw_symbols_dir}/accidental/natural', (x_pos, y_head_poses[i]-10))
-                    bar_accidentals['sharps'].remove(tones[i]) if tones[i] in bar_accidentals['sharps'] else bar_accidentals['flats'].remove(tones[i])
+                    if tones[i]+str(octaves[i]) in bar_accidentals['flats'] or tones[i]+str(octaves[i]) in bar_accidentals['sharps']:
+                        bar_accidentals['sharps'].remove(tones[i]+str(octaves[i])) if tones[i]+str(octaves[i]) in bar_accidentals['sharps'] else bar_accidentals['flats'].remove(tones[i]+str(octaves[i]))
+                    bar_accidentals['naturals'].append(tones[i]+str(octaves[i]))
+
+                else:
+                    accidentals[i] = ''
             
             x_pos += 20 if 'f' in accidentals or 's' in accidentals or 'n' in accidentals else 0
 
@@ -284,7 +290,7 @@ def draw_piece(string, sample_name, args):
             # (necessary here, because accents are written behind the note in the piece string but should appear directly above/underneath)
             if index < len(piece) -2 and piece[index+1] + piece[index+2] == '-\marcato':
                 accent_y_pos = y_head_poses[0] + 15 if not is_flipped else (y_head_poses[0] - 15 if len(tones) == 1 else y_head_poses[-1] + 15)
-                draw_symbol(sample_im, f'{args.hw_symbols_dir}/accents/marcato', (x_pos+5, accent_y_pos))
+                draw_symbol(sample_im, f'{args.hw_symbols_dir}/accents/marcato', (x_pos+5, accent_y_pos), is_flipped)
                 n_indices += 2
 
             # draw note head(s)
