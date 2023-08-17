@@ -8,51 +8,38 @@ from precise_runner import PreciseEngine, PreciseRunner, ReadWriteStream
 from audio_common_msgs.msg import AudioDataStamped,AudioData
 from marimbabot_msgs.srv import SpeechRecognition,SpeechRecognitionResponse
 from std_msgs.msg import Float32
-from sound_play.msg import SoundRequest
-from sound_play.libsoundplay import SoundClient
 import rospy
 import webrtcvad
+from playsound import playsound
 
 VAD_ON = False
 KWS_ON = True
-
-class TTS:
-	def __init__(self):
-		self.soundhandle = SoundClient()
-		self.voice = 'voice_kal_diphone'
-		self.volume = 1.0
-
-	def say(self, text, blocking=False):
-		self.soundhandle.say(text, self.voice, self.volume, blocking=blocking)
-
 
 class KeywordSpotting:
 	"""
 		Keyword spotting is a class to detect the keyword from the audio stream.
 		It is based on the precise-engine, which is a RNN-based lightweight wake word listener.
 	"""
-
 	def __init__(self,
 	             sensitivity=0.5,
 	             log_level=rospy.DEBUG,
 	             engine_path=None,
 	             model_path=None,
-	             silence_t=1):
+	             silence_t=1,
+	             remind_sound_path=None):
 		self.log_level = log_level
 		self.sensitivity = sensitivity
+		self.remind_sound_path = remind_sound_path
 		self.stream = None
 		self.init_audio()
 		try:
-			rospy.wait_for_service('/speech_node/speech_recognition', timeout=20)  # STT must on before KWS
+			rospy.wait_for_service('/speech_node/speech_recognition', timeout=60)  # STT must on before KWS
 		except rospy.ROSException:
 			rospy.logerr("STT service is not available!")
 			raise rospy.ROSException("STT service is not available!")
-
 		self.init_kws(engine_path, model_path)
 		self.init_wad(silence_t=silence_t)
-		self.tts = TTS()
 		self.warmup()
-
 
 	def init_audio(self):
 		self.buffer = b''  # buffer for audio data
@@ -99,33 +86,27 @@ class KeywordSpotting:
 		VAD_ON = False
 		KWS_ON = True
 
-
 	def start(self):
 		self.runner.start()
-
-	# use the sound_play to let the robot say something
-	def say(self, text):
-		self.tts.say(text,blocking=True)
-		rospy.logdebug(f"Say: {text}")
 
 	# triggered for keyword activation, condition refer to the trigger_level
 	def on_activation(self):
 		global KWS_ON
 		global VAD_ON
-		# while not KWS_ON:
-		# 	pass
 		if self.log_level == rospy.DEBUG:
-			rospy.logdebug("Keyword Spotting is activated.")
-		self.say("Yes?")
+			rospy.logdebug("Keyword Spotting is activated!!!")
 		VAD_ON = True
 		KWS_ON = False
+		# TODO check if it works
+		playsound(self.remind_sound_path)
+		print("hi, I am here")
 
 	def warmup(self):
 		pass
 
 	# triggered for each prediction
 	def on_prediction(self, prob):
-		rospy.loginfo_once("Keyword Spotting is on.")
+		rospy.loginfo_once("Keyword Spotting is started.")
 		if prob > self.sensitivity:
 			self.prob_pub.publish(prob)
 
@@ -151,7 +132,6 @@ class KeywordSpotting:
 			return resp.text
 		except rospy.ServiceException as e:
 			print("Service call failed: %s" % e)
-
 
 	def audio_stream_callback(self, msg):
 		global KWS_ON
@@ -187,16 +167,23 @@ class KeywordSpotting:
 			# froward th stream from ros to precise-engine
 			self.stream.write(msg.audio.data)
 
-
-
 if __name__ == '__main__':
+	# TODO: reset the way to load precise-engine
 	log_level = rospy.DEBUG
 	rospy.init_node('keyword_spotting_node', anonymous=True, log_level=log_level)
 	engine_path_default = "/home/wang/workspace/marimbabot_ws/env_this/bin/precise-engine"
 	model_path_default = '/home/wang/workspace/marimbabot_ws/kws_ws/src/marimbabot/marimbabot_speech/hi-marimbabot.pb'
+	remind_sound_path_default = "/home/wang/workspace/marimbabot_ws/kws_ws/src/marimbabot/marimbabot_speech/src/resource/kws/reminder.wav"
+
 	# start the keyword spotting
-	engine_path = rospy.get_param('~engine_path', default=engine_path_default)
-	model_path = rospy.get_param('~model_path', default=model_path_default)
-	keyword_spotting = KeywordSpotting(engine_path=engine_path, model_path=model_path, log_level=log_level)
+	engine_path = rospy.get_param('~engine_path', default=engine_path_default)  # engine of KWS
+	model_path = rospy.get_param('~model_path', default=model_path_default)  # model of KWS
+	remind_sound_path = rospy.get_param('~remind_sound_path', default=remind_sound_path_default)  # remind sound for when KWS is activated
+	keyword_spotting = KeywordSpotting(
+		engine_path=engine_path,
+		model_path=model_path,
+		log_level=log_level,
+		remind_sound_path=remind_sound_path,
+	)
 	keyword_spotting.start()
 	rospy.spin()

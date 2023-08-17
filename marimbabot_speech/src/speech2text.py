@@ -10,8 +10,6 @@ import whisper
 import numpy as np
 import struct
 
-
-
 # Speech to text recognition, it is a wrapper of whisper
 class STT:
 	def __init__(self, log_level=rospy.INFO):
@@ -22,7 +20,6 @@ class STT:
 		self.init_whisper_model()
 		self.warm_up()  # warm up the whisper model
 		self.init_ros_node()
-
 
 	def init_audio_config(self):
 		self.sr = rospy.get_param('~sr', 16000)
@@ -66,7 +63,6 @@ class STT:
 		# return base_prompt
 		return "Marimbabot is a instrument playing robot arm. You are able to give it several common robot's commands"
 
-
 	def run(self):
 		rospy.spin()
 
@@ -104,14 +100,13 @@ class STT:
 			self.speech_pub.publish(
 				SpeechMsg(
 					header=rospy.Time.now(),
-					text=text,
+					speech=text,
 					no_speech_prob=no_speech_prob)
 			)
 		return text, no_speech_prob
 
 if __name__ == '__main__':
 	# TODO: Finish the command extraction
-	# TODO: reset the way to load precise-engine
 	# TODO: consider the voice from other group members, i.e. change the dataset and retrain the model
 	log_level = rospy.DEBUG
 	rospy.init_node('speech_recognition_node', log_level=log_level)
