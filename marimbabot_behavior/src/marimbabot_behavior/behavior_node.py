@@ -50,22 +50,80 @@ class ActionDecider:
 
     # sets the tempo of the current sequence and updates the hit sequence
     def assign_tempo(self, value=60):
+        # if there is already a tempo symbol in the sequence, replace it with the new tempo value
         if '\\tempo' in self.note_sequence:
-            self.note_sequence = re.sub(r'\\tempo 4 = [0-9]+', '\\\\tempo 4 = {}'.format(value), self.note_sequence)
-        else:
-            self.note_sequence = '\\tempo 4 = {} '.format(value) + self.note_sequence
-        
+            self.note_sequence = re.sub(r'\\tempo 4=[0-9]+', '\\\\tempo 4={}'.format(value), self.note_sequence)
+           
+        self.note_sequence = '\\tempo 4={} '.format(value) + self.note_sequence
         rospy.logdebug(f'Tempo set to {value} bpm')
         rospy.loginfo(f"updated notes: {self.note_sequence}")
         self.update_hit_sequence()
+        return 'success'
 
     # changes the tempo of the current sequence and updates the hit sequence
     def change_tempo(self, faster=True, value=20):
-        tempo = re.findall(r'\\tempo 4 = [0-9]+', self.note_sequence)
-        if len(tempo) > 0:
-            tempo = int(tempo[0].split(' ')[-1])
-            self.assign_tempo(tempo + value if faster else tempo - value)
+        tempo = re.findall(r'\\tempo 4=[0-9]+', self.note_sequence)
+        bpm = int(tempo[0].split('=')[-1]) if len(tempo) > 0 else 60
+        new_bpm = tempo + value if faster else tempo - value
+        if new_bpm < 20 or new_bpm > 120:
+            rospy.logwarn('Tempo can only be increased by {} bpm'.format(120-bpm) if faster else 'Tempo can only be decreased by {} bpm.'.format(bpm)-20)
+            self.response_pub.publish('Tempo can only be increased by {} B P M'.format(120-bpm) if faster else 'Tempo can only be decreased by {} B P M.'.format(bpm)-20)
+            return 'fail' 
+        else:
+            return self.assign_tempo(tempo + value if faster else tempo - value)
 
+    # changes the volume of the current sequence and updates the hit sequence
+    def change_volume(self, louder=True, value=1):
+        dynamics = ['\\ppp', '\\pp', '\\p', '\\mp', '\\mf', '\\f', '\\ff', '\\fff']
+        sequence_list = self.note_sequence.split(' ')
+        sequence_dynamics = [(i,x) for i, x in enumerate(sequence_list) if x in dynamics]
+
+        # if there are already dynamic symbols in the sequence, swap them with the next louder/softer dynamic symbol
+        if len(sequence_dynamics) > 0:
+            # check if the volume can be increased/decreased by the specified value for all dynamic symbols
+            if (louder and any(dynamics.index(x[1])+value > 7 for x in sequence_dynamics)) or (not louder and any(dynamics.index(x[1])-value < 0 for x in sequence_dynamics)):
+                if louder:
+                    max_steps = min(7-dynamics.index(x[1]) for x in sequence_dynamics)
+                    if max_steps == 0:
+                        rospy.logwarn('Volume can not be increased any further.')
+                        self.response_pub.publish('Volume can not be increased any further.')
+                    else:
+                        rospy.logwarn('Volume can only be increased by {} steps.'.format(min(7-dynamics.index(x[1]) for x in sequence_dynamics)))
+                        self.response_pub.publish('Volume can only be increased by {} steps.'.format(min(7-dynamics.index(x[1]) for x in sequence_dynamics)))
+                else:
+                    max_steps = min(dynamics.index(x[1]) for x in sequence_dynamics)
+                    if max_steps == 0:
+                        rospy.logwarn('Volume can not be decreased any further.')
+                        self.response_pub.publish('Volume can not be decreased any further.')
+                    else:
+                        rospy.logwarn('Volume can only be decreased by {} steps.'.format(max(dynamics.index(x[1]) for x in sequence_dynamics)))
+                        self.response_pub.publish('Volume can only be decreased by {} steps.'.format(max(dynamics.index(x[1]) for x in sequence_dynamics)))
+                return 'fail'
+            
+            # change the volume of all dynamic symbols in the sequence
+            for i, x in sequence_dynamics:
+                new_dynamic = dynamics[min(dynamics.index(x)+value, 7)] if louder else dynamics[max(dynamics.index(x)-value, 0)]
+                sequence_list[i] = new_dynamic
+            self.note_sequence = ' '.join(sequence_list)
+            
+            rospy.logdebug(f'Volume changed by {value} steps')
+            rospy.loginfo(f"updated notes: {self.note_sequence}")
+            self.update_hit_sequence()
+            return 'success'
+
+        # if there are no dynamic symbols in the sequence, add the next louder/softer dynamic symbol at the beginning of the sequence (default: mp)
+        else:
+            volume = ' {} '.format(dynamics[4+value] if louder else dynamics[4-value])
+            # get the position after the first note
+            dynamic_index = re.search(r'[^\\][a-g]\'*[0-9]+', self.note_sequence).end()
+            
+            # insert volume symbol after first note
+            self.note_sequence = self.note_sequence[:dynamic_index] + volume + self.note_sequence[dynamic_index+1:]
+            rospy.logdebug(f'Volume set to {volume}')
+            rospy.loginfo(f"updated notes: {self.note_sequence}")
+            self.update_hit_sequence()
+            return 'success'
+            
     """
     Callback function for the feedback from the planning action server.
     Forwards the feedback to the audio node.
@@ -176,8 +234,20 @@ class ActionDecider:
             # check if a note sequence has been read via the 'read' command
             if self.note_sequence:
                 value = int(command.split(' ')[-2]) if 'by' in command else 20
-                self.change_tempo(faster=True if 'faster' in command else False, value=value)
-                self.play()
+                result = self.change_tempo(faster=True if 'faster' in command else False, value=value)
+                if result == 'success':
+                    self.play()
+            else:
+                rospy.logwarn('No notes to play. Say reed to read notes.')
+                self.response_pub.publish('No notes to play. Say reed to read notes.')
+
+        elif re.match(r'marimbabot play (louder|softer)( by [0-9]+ steps)?', command):
+            # check if a note sequence has been read via the 'read' command
+            if self.note_sequence:
+                value = int(command.split(' ')[-2]) if 'by' in command else 1
+                result = self.change_volume(louder=(True if 'louder' in command else False), value=value)
+                if result == 'success':
+                    self.play()
             else:
                 rospy.logwarn('No notes to play. Say reed to read notes.')
                 self.response_pub.publish('No notes to play. Say reed to read notes.')
@@ -188,22 +258,37 @@ class ActionDecider:
             if self.note_sequence:
                 if 'bpm' in command:
                     value = int(command.split(' ')[-2])
-                    self.assign_tempo(value)
-                self.preview()
+                    result = self.assign_tempo(value)
+                    if result == 'success':
+                        self.preview()
+                else:
+                    self.preview()
             else:
                 rospy.logwarn('No notes to preview. Say reed to read notes.')
                 self.response_pub.publish('No notes to preview. Say reed to read notes.')
 
         # preview faster or slower than the current tempo (by specified bpm value, default = 20)
-        elif re.match(r'marimbabot preview (faster|slower)( by [0-9]+)?', command):
+        elif re.match(r'marimbabot preview (faster|slower)( by [0-9]+) bpm?', command):
             # check if a note sequence has been read via the 'read' command
             if self.note_sequence:
-                value = int(command.split(' ')[-1]) if 'by' in command else 20
-                self.change_tempo(faster=True if 'faster' in command else False, value=value)
-                self.preview()
+                value = int(command.split(' ')[-2]) if 'by' in command else 20
+                result = self.change_tempo(faster=True if 'faster' in command else False, value=value)
+                if result == 'success':
+                    self.preview()
             else:
-                rospy.logwarn('No notes to play. Say reed to read notes.')
-                self.response_pub.publish('No notes to play. Say reed to read notes.')
+                rospy.logwarn('No notes to preview. Say reed to read notes.')
+                self.response_pub.publish('No notes to preview. Say reed to read notes.')
+
+        elif re.match(r'marimbabot preview (louder|softer)( by [0-9]+ steps)?', command):
+            # check if a note sequence has been read via the 'read' command
+            if self.note_sequence:
+                value = int(command.split(' ')[-2]) if 'by' in command else 1
+                result = self.change_volume(louder=(True if 'louder' in command else False), value=value)
+                if result == 'success':
+                    self.preview()
+            else:
+                rospy.logwarn('No notes to preview. Say reed to read notes.')
+                self.response_pub.publish('No preview to play. Say reed to read notes.')
 
         # stop preview
         elif command == 'marimbabot stop preview':
