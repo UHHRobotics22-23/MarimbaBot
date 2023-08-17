@@ -50,10 +50,18 @@ class ActionDecider:
 
     # sets the tempo of the current sequence and updates the hit sequence
     def assign_tempo(self, value=60):
-        if '\\tempo' in self.note_sequence:
-            self.note_sequence = re.sub(r'\\tempo 4 = [0-9]+', '\\\\tempo 4 = {}'.format(value), self.note_sequence)
+        # set upper limit as 120
+        if value < 20:
+            value=20
+        elif value > 120:
+            value=120
         else:
-            self.note_sequence = '\\tempo 4 = {} '.format(value) + self.note_sequence
+            value=value
+        
+        if '\\tempo' in self.note_sequence:
+            self.note_sequence = re.sub(r'\\tempo 4=[0-9]+', '\\\\tempo 4={}'.format(value), self.note_sequence)
+        else:
+            self.note_sequence = '\\tempo 4={} '.format(value) + self.note_sequence
         
         rospy.logdebug(f'Tempo set to {value} bpm')
         rospy.loginfo(f"updated notes: {self.note_sequence}")
@@ -61,9 +69,9 @@ class ActionDecider:
 
     # changes the tempo of the current sequence and updates the hit sequence
     def change_tempo(self, faster=True, value=20):
-        tempo = re.findall(r'\\tempo 4 = [0-9]+', self.note_sequence)
+        tempo = re.findall(r'\\tempo 4=[0-9]+', self.note_sequence)
         if len(tempo) > 0:
-            tempo = int(tempo[0].split(' ')[-1])
+            tempo = int(tempo[0].split('=')[-1])
             self.assign_tempo(tempo + value if faster else tempo - value)
 
     """
