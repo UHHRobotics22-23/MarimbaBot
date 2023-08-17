@@ -9,9 +9,8 @@ from abjad.exceptions import LilyPondParserError
 from std_msgs.msg import String
 
 from marimbabot_behavior.interpreter import read_notes
-from marimbabot_msgs.msg import (Command, HitSequenceAction,
-                                 HitSequence, LilypondAudioAction,
-                                 LilypondAudioGoal)
+from marimbabot_msgs.msg import (Command, HitSequence, HitSequenceAction,
+                                 LilypondAudioAction, LilypondAudioGoal)
 
 
 class ActionDecider:
