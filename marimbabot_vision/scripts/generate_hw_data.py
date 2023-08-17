@@ -162,6 +162,12 @@ def draw_piece(string, sample_name, args):
         tempo = piece[tempo_index + 1]
         piece = piece[:tempo_index] + piece[tempo_index + 2:]
 
+    repeat = False
+    if '\\repeat' in piece or 'repeat' in piece:
+        repeat_index = piece.index('\\repeat') if '\\repeat' in piece else piece.index('repeat')
+        repeat = True
+        piece = piece[:repeat_index] + piece[repeat_index + 1:]
+
     # initialize variables   
     x_pos = 70 + (key_flats_num[key] if key in key_flats_num.keys() else key_sharps_num[key])*20 + (30 if tempo else 0) + randint(args.min_symbol_dist, args.max_symbol_dist)
     bar_accidentals = get_key_accidentals(key)
@@ -179,7 +185,7 @@ def draw_piece(string, sample_name, args):
         n_indices = 0       
 
         # draw rest
-        if rule[0] == 'r' and not rule == 'repeat':
+        if rule[0] == 'r':
             duration = int((re.findall(r'\d+', rule)[0]))
             dot = rule.count('.')
             draw_symbol(sample_im, f'{args.hw_symbols_dir}/rest/{duration}', (x_pos, 50 + y_offset))
@@ -354,9 +360,20 @@ def draw_piece(string, sample_name, args):
         x_pos, y_offset = check_space(sample_im, x_pos, y_offset, key, args)
 
         # check if current bar is full
-        x_pos, y_offset, duration_counter, bar_accidentals = check_bar(sample_im, x_pos, y_offset, duration_counter, key, bar_accidentals, args)
+        if index < len(piece):
+            x_pos, y_offset, duration_counter, bar_accidentals = check_bar(sample_im, x_pos, y_offset, duration_counter, key, bar_accidentals, args)
         
-
+        # draw final bar line 
+        elif repeat == False:
+            draw_symbol(sample_im, f'{args.hw_symbols_dir}/big-bar', (x_pos,50+y_offset))
+        
+        # draw repeat sign
+        else:
+            draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos,60+y_offset))
+            draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos,70+y_offset))
+            draw_symbol(sample_im, f'{args.hw_symbols_dir}/bar', (x_pos,50+y_offset))
+            draw_symbol(sample_im, f'{args.hw_symbols_dir}/big-bar', (x_pos+10,50+y_offset))
+            
     os.makedirs(f'{args.output_dir}/{sample_name}', exist_ok=True)    
     sample_im.convert('RGB').save(f'{args.output_dir}/{sample_name}/{args.name_prefix}.png','PNG')
     shutil.copyfile(f'{args.input_dir}/{sample_name}/{args.name_prefix}.txt', f'{args.output_dir}/{sample_name}/{args.name_prefix}.txt')
