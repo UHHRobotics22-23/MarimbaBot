@@ -49,5 +49,5 @@ The number inside of `dataset/wake_words` or `dataset/not_wake_words` means:
 
 -   "robot"  *5
 -   "hi" *5
--   "hello" *10
--   "marimba" *10
+-   "hello" *5
+-   "marimba" *5
