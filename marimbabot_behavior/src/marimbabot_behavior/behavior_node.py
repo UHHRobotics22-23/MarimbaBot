@@ -105,7 +105,6 @@ class ActionDecider:
                 sequence_list[i] = new_dynamic
             self.note_sequence = ' '.join(sequence_list)
             
-            rospy.logdebug(f'Volume changed by {value} steps')
             rospy.loginfo(f"updated notes: {self.note_sequence}")
             self.update_hit_sequence()
             return 'success'
@@ -118,7 +117,6 @@ class ActionDecider:
             
             # insert volume symbol after first note
             self.note_sequence = self.note_sequence[:dynamic_index] + volume + self.note_sequence[dynamic_index+1:]
-            rospy.logdebug(f'Volume set to {volume}')
             rospy.loginfo(f"updated notes: {self.note_sequence}")
             self.update_hit_sequence()
             return 'success'
