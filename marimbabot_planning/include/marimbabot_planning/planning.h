@@ -1,9 +1,11 @@
+#include "matplotlibcpp.h"
 #include <actionlib/server/simple_action_server.h>
 #include <bio_ik/bio_ik.h>
 #include <geometry_msgs/PointStamped.h>
 #include <geometry_msgs/Pose.h>
 #include <iostream>
 #include <marimbabot_msgs/HitSequenceAction.h>
+#include <marimbabot_planning/double_mallet.h>
 #include <marimbabot_planning/utils.h>
 #include <moveit_msgs/DisplayTrajectory.h>
 #include <moveit_msgs/RobotState.h>
@@ -23,7 +25,7 @@ namespace marimbabot_planning
 class Planning
 {
     private:
-        // Initialize node handle and tf 
+        // Initialize node handle and tf
         ros::NodeHandle nh_;
         std::shared_ptr<tf2_ros::Buffer> tf_buffer_ = std::make_shared<tf2_ros::Buffer>();
         tf2_ros::TransformListener tf_listener_;
@@ -42,7 +44,7 @@ class Planning
 
         /**
          * @brief Move the robot to its idle/home position
-         * 
+         *
         */
         void go_to_home_position();
 
@@ -86,7 +88,7 @@ class Planning
 
         /**
          * @brief Callback for the action server
-         * 
+         *
          * @param goal
          * @param action_server
          */
@@ -95,4 +97,4 @@ class Planning
     public:
         Planning(const std::string planning_group);
 };
-} 
+}

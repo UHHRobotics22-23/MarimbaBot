@@ -7,14 +7,14 @@ namespace marimbabot_planning
  * @brief Construct a new Planning:: Planning object
  *
 **/
-Planning::Planning(const std::string planning_group) : 
-    nh_{}, 
+Planning::Planning(const std::string planning_group) :
+    nh_{},
     tf_listener_{*tf_buffer_},
-    move_group_interface_{planning_group}, 
+    move_group_interface_{planning_group},
     action_server_{
-        nh_, 
-        "hit_sequence", 
-        boost::bind(&Planning::action_server_callback, this, _1), 
+        nh_,
+        "hit_sequence",
+        boost::bind(&Planning::action_server_callback, this, _1),
         false}
 {
     // Set planning pipeline and planner
@@ -90,7 +90,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     // Use bio_ik to solve the inverse kinematics at the goal point
     bio_ik::BioIKKinematicsQueryOptions ik_options;
     ik_options.replace = true;
-    ik_options.return_approximate_solution = true; // Activate for debugging if you get an error 
+    ik_options.return_approximate_solution = true; // Activate for debugging if you get an error
 
     ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_1", goal_position));
 
@@ -174,7 +174,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     // Calculate approach point
     geometry_msgs::PointStamped approach_point{note.point};
     approach_point.point.z += 0.1;
-        
+
     // Calculate retreat point
     geometry_msgs::PointStamped retreat_point{approach_point};
 
@@ -186,7 +186,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
 
     // Calculate retreat trajectory
     auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), retreat_point);
-    
+
     // Concatinate trajectories
     auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
 
@@ -246,7 +246,7 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
 
         // Gets the hit points in cartesian space for every note
         auto hits = hit_sequence_to_points(
-            goal->hit_sequence_elements, 
+            goal->hit_sequence_elements,
             move_group_interface_.getPlanningFrame(),
             tf_buffer_
         );
@@ -294,11 +294,54 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "marimba_move");
-    ros::AsyncSpinner spinner(4);
-    spinner.start();
+    //ros::init(argc, argv, "marimba_move");
+    //ros::AsyncSpinner spinner(4);
+    //spinner.start();
+//
+    //marimbabot_planning::Planning planning{"arm"};
 
-    marimbabot_planning::Planning planning{"arm"};
+
+
+    // Create a number of dummy hit points (vector of eigen vectors4f) (x,y,z,t)
+    std::vector<Eigen::Vector4f> hit_points;
+    hit_points.push_back(Eigen::Vector4f(0.1, 0.0, 0.0, 0.0));
+    hit_points.push_back(Eigen::Vector4f(0.2, 0.0, 0.0, 1.0));
+    hit_points.push_back(Eigen::Vector4f(0.3, 0.2, 0.0, 2.0));
+    hit_points.push_back(Eigen::Vector4f(1.0, 0.0, 0.0, 3.0));
+    hit_points.push_back(Eigen::Vector4f(1.1, 0.0, 0.0, 3.0));
+
+    // Pass hitpoints to the double mallet trajectory planner
+    auto key_points = marimbabot_planning::generate_double_trajectory(hit_points);
+
+    // Print the key points
+    for (auto& mallet : {marimbabot_planning::Mallet::LEFT, marimbabot_planning::Mallet::RIGHT}) {
+        std::cout << "---------------" << std::endl;
+        for (auto& key_point : key_points[mallet]) {
+            std::cout << key_point.transpose() << std::endl;
+        }
+    }
+
+    for (auto& mallet : {marimbabot_planning::Mallet::LEFT, marimbabot_planning::Mallet::RIGHT}) {
+        std::vector<double> key_points_x, key_points_y, key_points_z;
+        for (auto& key_point : key_points[mallet]) {
+            key_points_x.push_back(key_point[0]);
+            key_points_y.push_back(key_point[1]);
+            key_points_z.push_back(key_point[2]);
+        }
+        matplotlibcpp::plot(key_points_x, key_points_z);
+    }
+    matplotlibcpp::show();
+
+    for (auto& mallet : {marimbabot_planning::Mallet::LEFT, marimbabot_planning::Mallet::RIGHT}) {
+        std::vector<double> key_points_x, key_points_y, key_points_z;
+        for (auto& key_point : key_points[mallet]) {
+            key_points_x.push_back(key_point[0]);
+            key_points_y.push_back(key_point[1]);
+            key_points_z.push_back(key_point[2]);
+        }
+        matplotlibcpp::plot(key_points_x, key_points_y);
+    }
+    matplotlibcpp::show();
 
     return 0;
 }

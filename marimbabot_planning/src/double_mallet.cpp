@@ -3,52 +3,39 @@
 namespace marimbabot_planning
 {
 
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <algorithm>
-#include <numeric>
-#include <iterator>
-
-#include <Eigen/Dense>
-
-using namespace std;
-using namespace Eigen;
-
-vector<Vector4f> generate_base_trajectory(const vector<Vector4f>& hit_points, float down_stroke_speed, float retreat_speed, float travel_height) {
-    vector<Vector4f> result;
+std::vector<Eigen::Vector4f> generate_base_trajectory(const std::vector<Eigen::Vector4f>& hit_points, float down_stroke_speed, float retreat_speed, float travel_height) {
+    std::vector<Eigen::Vector4f> result;
 
     for (int i = 0; i < hit_points.size(); ++i) {
         // Create the approach point
-        result.push_back(points[i] + Vector4f(0.0, 0.0, travel_height, -travel_height / down_stroke_speed));
+        result.push_back(hit_points[i] + Eigen::Vector4f(0.0, 0.0, travel_height, -travel_height / down_stroke_speed));
         // Copy over the hit point
-        result.push_back(points[i]);
+        result.push_back(hit_points[i]);
         // Create the retreat point
-        result.push_back(points[i] + Vector4f(0.0, 0.0, travel_height, travel_height / retreat_speed));
+        result.push_back(hit_points[i] + Eigen::Vector4f(0.0, 0.0, travel_height, travel_height / retreat_speed));
     }
 
     return result;
 }
 
-map<Mallet, vector<Vector4f>> generate_double_trajectory(const vector<Vector4f>& hit_points, float down_stroke_speed = 2.0, float retreat_speed = 2.0, float travel_height = 0.2, float time_resolution = 0.01, float max_distance = 0.2) {
+std::map<Mallet, std::vector<Eigen::Vector4f>> generate_double_trajectory(const std::vector<Eigen::Vector4f>& hit_points, float down_stroke_speed, float retreat_speed, float travel_height, float time_resolution, float max_distance) {
 
     // Assign each hit point a mallet
-    vector<Mallet> mallet_assignment = assign_mallets(hit_points);
+    std::vector<Mallet> mallet_assignment = assign_mallets(hit_points);
 
     // Split the hit points into two vectors based on the mallet assignment
-    vector<vector<Vector4f>> split_hit_points = split_notes_based_on_mallet(hit_points, mallet_assignment);
-
+    auto split_hit_points = split_notes_based_on_mallet(hit_points, mallet_assignment);
 
     // Create a mapping from mallet (enum) to base trajectory
-    map<Mallet, vector<Vector4f>> mallet_base_trajectories = {
-        {Mallet::LEFT, generate_base_trajectory(mallet_0_notes, down_stroke_speed, retreat_speed, travel_height)},
-        {Mallet::RIGHT, generate_base_trajectory(mallet_1_notes, down_stroke_speed, retreat_speed, travel_height)}};
+    std::map<Mallet, std::vector<Eigen::Vector4f>> mallet_base_trajectories = {
+        {Mallet::LEFT, generate_base_trajectory(split_hit_points[Mallet::LEFT], down_stroke_speed, retreat_speed, travel_height)},
+        {Mallet::RIGHT, generate_base_trajectory(split_hit_points[Mallet::RIGHT], down_stroke_speed, retreat_speed, travel_height)}};
 
 
-    int maximum_number_of_timestamps = max(
+    int maximum_number_of_timestamps = std::max(
         mallet_base_trajectories[Mallet::LEFT].size(),
         mallet_base_trajectories[Mallet::RIGHT].size());
-        
+
     for (int i = 0; i < maximum_number_of_timestamps; ++i) {
 
         // Check if we've reached the end of one of the trajectories (no more double planning is needed for the rest)
@@ -72,16 +59,18 @@ map<Mallet, vector<Vector4f>> generate_double_trajectory(const vector<Vector4f>&
             continue;
         }
 
-        Vector4f current_mallet_state = mallet_base_trajectories[current_mallet][i];
-        Vector4f other_mallet_previous_state = mallet_base_trajectories[other_mallet_number][max(i - 1, 0)];
-        Vector4f other_mallet_next_state = mallet_base_trajectories[other_mallet_number][i];
+        Eigen::Vector4f current_mallet_state = mallet_base_trajectories[current_mallet][i];
+        Eigen::Vector4f other_mallet_previous_state = mallet_base_trajectories[other_mallet_number][std::max(i - 1, 0)];
+        Eigen::Vector4f other_mallet_next_state = mallet_base_trajectories[other_mallet_number][i];
 
-        Vector4f other_mallet_current_state;
+        Eigen::Vector4f other_mallet_current_state;
 
         // Check if the other mallet previous state and future state are the same
         if (other_mallet_previous_state(3) == other_mallet_next_state(3)) {
-            // Copy over the previous state
+            // Copy over the previous state. Do not pass the reference, as we will modify it!
             other_mallet_current_state = other_mallet_previous_state;
+            // Update the timestamp
+            other_mallet_current_state(3) = current_mallet_state(3);
 
         } else {
             // We can interpolate the other mallet's state
@@ -101,8 +90,8 @@ map<Mallet, vector<Vector4f>> generate_double_trajectory(const vector<Vector4f>&
     return mallet_base_trajectories;
 }
 
-vector<Mallet> assign_mallets(const vector<Vector4f>& notes) {
-    vector<Mallet> mallet_assignment;
+std::vector<Mallet> assign_mallets(const std::vector<Eigen::Vector4f>& notes) {
+    std::vector<Mallet> mallet_assignment;
 
     for (int i = 0; i < notes.size(); ++i) {
         if (i == 0) {
@@ -136,12 +125,12 @@ vector<Mallet> assign_mallets(const vector<Vector4f>& notes) {
     return mallet_assignment;
 }
 
-map<Mallet, vector<Vector4f>> split_notes_based_on_mallet(const vector<Vector4f>& notes, const vector<Mallet>& mallet_assignment) {
-    map<Mallet, vector<Vector4f>> notes_per_mallet = {
+std::map<Mallet, std::vector<Eigen::Vector4f>> split_notes_based_on_mallet(const std::vector<Eigen::Vector4f>& notes, const std::vector<Mallet>& mallet_assignment) {
+    std::map<Mallet, std::vector<Eigen::Vector4f>> notes_per_mallet = {
         {Mallet::LEFT, {}},
         {Mallet::RIGHT, {}}};
 
-    for (int i = 0; i < notes.rows(); ++i) {
+    for (int i = 0; i < notes.size(); ++i) {
         Mallet mallet = mallet_assignment[i];
         notes_per_mallet[mallet].push_back(notes[i]);
     }
@@ -149,4 +138,3 @@ map<Mallet, vector<Vector4f>> split_notes_based_on_mallet(const vector<Vector4f>
     return notes_per_mallet;
 }
 } // namespace marimbabot_planning
-
