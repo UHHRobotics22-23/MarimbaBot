@@ -65,7 +65,7 @@ void Planning::go_to_home_position()
  **/
 moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_position(
     const moveit_msgs::RobotState& start_state,
-    geometry_msgs::PointStamped goal_point)
+    DoubleMalletKeyframe goal)
 {
     // Initialize output plan
     moveit::planning_interface::MoveGroupInterface::Plan plan;
@@ -79,51 +79,75 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     move_group_interface_.setStartState(start_state);
 
     // Check if goal point is in the same frame as the planning frame
-    assert(goal_point.header.frame_id == move_group_interface_.getPlanningFrame());
+    assert(goal.left_mallet_active && (goal.left_mallet_position.header.frame_id == move_group_interface_.getPlanningFrame()));
+    assert(goal.right_mallet_active && (goal.right_mallet_position.header.frame_id == move_group_interface_.getPlanningFrame()));
 
-    // Copy goal point geometry_msgs::PointStamped to tf2::Vector3
-    tf2::Vector3 goal_position(
-        goal_point.point.x,
-        goal_point.point.y,
-        goal_point.point.z + 0.1);
+    // Check if none of the mallets is defined else print error
+    assert(goal.left_mallet_active || goal.right_mallet_active);
+
+    // Copy goals from geometry_msgs::PointStamped to tf2::Vector3
+    tf2::Vector3 left_mallet_goal_position(
+        goal.left_mallet_position.point.x,
+        goal.left_mallet_position.point.y,
+        goal.left_mallet_position.point.z);
+
+    tf2::Vector3 right_mallet_goal_position(
+        goal.right_mallet_position.point.x,
+        goal.right_mallet_position.point.y,
+        goal.right_mallet_position.point.z);
 
     // Use bio_ik to solve the inverse kinematics at the goal point
     bio_ik::BioIKKinematicsQueryOptions ik_options;
     ik_options.replace = true;
     ik_options.return_approximate_solution = true; // Activate for debugging if you get an error
 
-    ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_1", goal_position));
-
-    // Create link on plane constraint using the LinkFunctionGoal
-    tf2::Vector3 plane_point(0.0, 0.0, 1.3);
-
     // Define lambda function for link on plane constraint
-    // Requested format const std::function<double(const tf2::Vector3&, const tf2::Quaternion&)>& f
-    auto link_on_plane_constraint = [plane_point](const tf2::Vector3& position, const tf2::Quaternion& orientation) -> double
+    auto link_on_plane_constraint = [](tf2::Vector3 plane_point) -> std::function<double(const tf2::Vector3&, const tf2::Quaternion&)>
     {
-        tf2::Vector3 plane_normal(0.0, 0.0, 1.0);
-        tf2::Vector3 plane_to_position = position - plane_point;
-        double signed_dist = plane_to_position.dot(plane_normal);
-        // Take the squared value of the signed distance
-        return std::pow(signed_dist, 2);
+        return [plane_point](const tf2::Vector3& position, const tf2::Quaternion& orientation) -> double
+        {
+            tf2::Vector3 plane_normal(0.0, 0.0, 1.0);
+            tf2::Vector3 plane_to_position = position - plane_point;
+            double signed_dist = plane_to_position.dot(plane_normal);
+            // Take the squared value of the signed distance
+            return std::pow(signed_dist, 2);
+        };
     };
+
+    double default_mallet_height = 1.0;
+
+    // Set left mallet goal if it is defined
+    if (goal.left_mallet_active) {
+        // Set goal position for left mallet
+        ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_1", left_mallet_goal_position));
+    } else {
+        // Set link on plane constraint for left mallet
+        ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal(
+            "mallet_head_1",
+            link_on_plane_constraint(tf2::Vector3(0.0, 0.0, default_mallet_height))));
+    }
+
+    // Set right mallet goal if it is defined
+    if (goal.right_mallet_active) {
+        // Set goal position for right mallet
+        ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_2", right_mallet_goal_position));
+    } else {
+        // Set link on plane constraint for right mallet
+        ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal(
+            "mallet_head_2",
+            link_on_plane_constraint(tf2::Vector3(0.0, 0.0, default_mallet_height))));
+    }
+
+    // Set auxilary goals if we play with only one mallet
+    if (!(goal.left_mallet_active && goal.right_mallet_active)) {
+        // Keep the double mallet joint at 70 degrees
+        ik_options.goals.emplace_back(new bio_ik::JointVariableGoal("mallet_finger", 60.0 * M_PI / 180.0));
+        // Add joint variable goal for the wrist joint to avoid unnecessary rotations
+        ik_options.goals.emplace_back(new bio_ik::JointVariableGoal("ur5_wrist_3_joint", 0.0));
+    }
 
     // Add link on plane constraint to ik_options
-    ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_1_link", link_on_plane_constraint));
-
-    // @TODO : add quaternion constraints similar to plane to keep wrist_2_link in specific orientation
-    auto orientation_constraint = [](const tf2::Vector3& position, const tf2::Quaternion& orientation) -> double
-    {
-        tf2::Quaternion desired_orientation;
-        desired_orientation.setRPY(0.52, 0.0, 0.0); // Set roll, pitch, and yaw angles
-
-        // Calculate the angular distance between the current and desired orientations
-        tf2::Quaternion orientation_error = desired_orientation.inverse() * orientation;
-        double angular_distance = 1.0 - orientation_error.dot(orientation_error);
-        return std::pow(angular_distance, 2);
-    };
-
-    ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_2_link", orientation_constraint));
+    ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_1_link", link_on_plane_constraint(tf2::Vector3(0.0, 0.0, 1.3))));
 
     // Create minimal displacement goal, so that the robot does not move too much and stays close to the start state
     ik_options.goals.emplace_back(new bio_ik::MinimalDisplacementGoal());
@@ -155,75 +179,55 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
 
 
 /**
- * @brief hit a given note in cartesian space
- *
- * @param start_state
- * @param note
- * @return moveit::planning_interface::MoveGroupInterface::Plan
-**/
-
-moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
-    const moveit_msgs::RobotState& start_state,
-    CartesianHitSequenceElement note)
-{
-
-    moveit::core::RobotState robot_state(move_group_interface_.getRobotModel());
-    robot_state.setToDefaultValues();
-    moveit::core::robotStateMsgToRobotState(start_state, robot_state);
-
-    // Calculate approach point
-    geometry_msgs::PointStamped approach_point{note.point};
-    approach_point.point.z += 0.1;
-
-    // Calculate retreat point
-    geometry_msgs::PointStamped retreat_point{approach_point};
-
-    // Calculate approach trajectory
-    auto approach_plan = plan_to_mallet_position(start_state, approach_point);
-
-    // Calculate down trajectory
-    auto down_plan = plan_to_mallet_position(get_robot_state_after_plan(approach_plan), note.point);
-
-    // Calculate retreat trajectory
-    auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), retreat_point);
-
-    // Concatinate trajectories
-    auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
-
-    return plan;
-}
-
-/**
  * @brief Hit a sequence of notes in cartesian space
  *
  * @param start_state
  * @param points
  * @return moveit::planning_interface::MoveGroupInterface::Plan
 **/
-moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_notes(
+moveit::planning_interface::MoveGroupInterface::Plan Planning::move_to_key_points(
     const moveit_msgs::RobotState& start_state,
-    std::vector<CartesianHitSequenceElement> points)
+    std::vector<DoubleMalletKeyframe> key_frames)
 {
     // Assert that there is at least one hit_point with an nice error message
-    assert(points.size() > 0 && "There must be at least one hit_point");
+    assert(key_frames.size() > 0 && "There must be at least one key frame");
 
     // Calculate hit trajectory
-    auto hit_plan = hit_note(
-        start_state,
-        points.front()
-        );
+    moveit::core::RobotState robot_state(move_group_interface_.getRobotModel());
+    robot_state.setToDefaultValues();
+    moveit::core::robotStateMsgToRobotState(start_state, robot_state);
 
-    // Call hit_points recursively for all remaining hit_points
-    if(points.size() > 1)
+    // Next keyframe
+    auto next_keyframe = key_frames[0];
+
+    // Calculate the joint space plan to the mallet keyframe
+    auto plan_to_keyframe = plan_to_mallet_position(start_state, key_frames[0]);
+
+    // Retime the trajectory to the keyframe if necessary
+    // Clamp the duration to the minimum duration of the trajectory
+    double duration_clamped = std::max(
+        next_keyframe.duration,
+        plan_to_keyframe.trajectory_.joint_trajectory.points.back().time_from_start.toSec());
+    
+    // Show warning if the approach time was clamped
+    if(duration_clamped != next_keyframe.duration)
     {
-        auto remaining_hit_plan = hit_notes(
-            get_robot_state_after_plan(hit_plan),
-            std::vector<CartesianHitSequenceElement>(points.begin() + 1, points.end())
-            );
-        hit_plan = concatinated_plan({hit_plan, remaining_hit_plan});
+        ROS_WARN("The keyframe approach time was clamped from %f to %f", duration_clamped, next_keyframe.duration);
     }
 
-    return hit_plan;
+    auto retimed_plan = slow_down_plan(plan_to_keyframe, duration_clamped);
+
+    // Call hit_points recursively for all remaining hit_points
+    if(key_frames.size() > 1)
+    {
+        auto remaining_plan = move_to_key_points(
+            get_robot_state_after_plan(retimed_plan),
+            std::vector<DoubleMalletKeyframe>(key_frames.begin() + 1, key_frames.end())
+            );
+        retimed_plan = concatinated_plan({retimed_plan, remaining_plan});
+    }
+
+    return retimed_plan;
 }
 
 
@@ -251,8 +255,11 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
             tf_buffer_
         );
 
+        // Generate a cartesian positions for both mallets at each keypoint (approach, hit and retreat point)
+        auto key_points = generate_double_trajectory(hits);
+
         // Define hit plan
-        auto hit_plan = hit_notes(start_state, hits);
+        auto hit_plan = move_to_key_points(start_state, key_points);
 
         // Publish the plan for rviz
         moveit_msgs::DisplayTrajectory display_trajectory;
@@ -294,54 +301,11 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
 
 int main(int argc, char **argv)
 {
-    //ros::init(argc, argv, "marimba_move");
-    //ros::AsyncSpinner spinner(4);
-    //spinner.start();
-//
-    //marimbabot_planning::Planning planning{"arm"};
+    ros::init(argc, argv, "marimba_move");
+    ros::AsyncSpinner spinner(4);
+    spinner.start();
 
-
-
-    // Create a number of dummy hit points (vector of eigen vectors4f) (x,y,z,t)
-    std::vector<Eigen::Vector4f> hit_points;
-    hit_points.push_back(Eigen::Vector4f(0.1, 0.0, 0.0, 0.0));
-    hit_points.push_back(Eigen::Vector4f(0.2, 0.0, 0.0, 1.0));
-    hit_points.push_back(Eigen::Vector4f(0.3, 0.2, 0.0, 2.0));
-    hit_points.push_back(Eigen::Vector4f(1.0, 0.0, 0.0, 3.0));
-    hit_points.push_back(Eigen::Vector4f(1.1, 0.0, 0.0, 3.0));
-
-    // Pass hitpoints to the double mallet trajectory planner
-    auto key_points = marimbabot_planning::generate_double_trajectory(hit_points);
-
-    // Print the key points
-    for (auto& mallet : {marimbabot_planning::Mallet::LEFT, marimbabot_planning::Mallet::RIGHT}) {
-        std::cout << "---------------" << std::endl;
-        for (auto& key_point : key_points[mallet]) {
-            std::cout << key_point.transpose() << std::endl;
-        }
-    }
-
-    for (auto& mallet : {marimbabot_planning::Mallet::LEFT, marimbabot_planning::Mallet::RIGHT}) {
-        std::vector<double> key_points_x, key_points_y, key_points_z;
-        for (auto& key_point : key_points[mallet]) {
-            key_points_x.push_back(key_point[0]);
-            key_points_y.push_back(key_point[1]);
-            key_points_z.push_back(key_point[2]);
-        }
-        matplotlibcpp::plot(key_points_x, key_points_z);
-    }
-    matplotlibcpp::show();
-
-    for (auto& mallet : {marimbabot_planning::Mallet::LEFT, marimbabot_planning::Mallet::RIGHT}) {
-        std::vector<double> key_points_x, key_points_y, key_points_z;
-        for (auto& key_point : key_points[mallet]) {
-            key_points_x.push_back(key_point[0]);
-            key_points_y.push_back(key_point[1]);
-            key_points_z.push_back(key_point[2]);
-        }
-        matplotlibcpp::plot(key_points_x, key_points_y);
-    }
-    matplotlibcpp::show();
+    marimbabot_planning::Planning planning{"arm"};
 
     return 0;
 }

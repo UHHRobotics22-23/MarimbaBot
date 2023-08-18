@@ -58,20 +58,7 @@ class Planning
          **/
         moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
             const moveit_msgs::RobotState& start_state,
-            geometry_msgs::PointStamped goal_point);
-
-
-        /**
-         * @brief hit a given note in cartesian space
-         *
-         * @param start_state
-         * @param note
-         * @return moveit::planning_interface::MoveGroupInterface::Plan
-        **/
-
-        moveit::planning_interface::MoveGroupInterface::Plan hit_note(
-            const moveit_msgs::RobotState& start_state,
-            CartesianHitSequenceElement note);
+            DoubleMalletKeyframe goal);
 
 
         /**
@@ -81,9 +68,9 @@ class Planning
          * @param notes
          * @return moveit::planning_interface::MoveGroupInterface::Plan
         **/
-        moveit::planning_interface::MoveGroupInterface::Plan hit_notes(
+        moveit::planning_interface::MoveGroupInterface::Plan move_to_key_points(
             const moveit_msgs::RobotState& start_state,
-            std::vector<CartesianHitSequenceElement> notes);
+            std::vector<DoubleMalletKeyframe> key_frames);
 
 
         /**

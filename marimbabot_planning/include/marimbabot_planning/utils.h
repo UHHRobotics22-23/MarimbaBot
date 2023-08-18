@@ -1,3 +1,5 @@
+#pragma once
+
 #include <geometry_msgs/PointStamped.h>
 #include <marimbabot_msgs/HitSequenceAction.h>
 #include <moveit_msgs/RobotState.h>
@@ -12,21 +14,21 @@ namespace marimbabot_planning
 
 /**
  * @brief Custom exception for the case that a plan failed
- * 
+ *
  **/
-class PlanFailedException : public std::runtime_error 
+class PlanFailedException : public std::runtime_error
 { using std::runtime_error::runtime_error; };
 
 /**
  * @brief Custom exception for the case that a plan failed because of IK issues
- * 
+ *
  **/
-class IKFailedException : public PlanFailedException 
+class IKFailedException : public PlanFailedException
 { using PlanFailedException::PlanFailedException; };
 
 /**
  * @brief Struct containing a hit point in cartesian space and the corresponding HitSequenceElement
- * 
+ *
  **/
 struct CartesianHitSequenceElement
 {
@@ -65,8 +67,8 @@ moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
 
 
 /**
- * @brief Convert a hit sequence elements to a vector of HitSequenceElement structs containing the points 
- * 
+ * @brief Convert a hit sequence elements to a vector of HitSequenceElement structs containing the points
+ *
  * @param hit_sequence
  * @param tf_buffer
  * @param planning_frame
@@ -77,4 +79,4 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
     std::string planning_frame,
     std::shared_ptr<tf2_ros::Buffer> tf_buffer);
 
-} 
+}

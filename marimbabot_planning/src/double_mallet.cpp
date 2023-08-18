@@ -3,22 +3,60 @@
 namespace marimbabot_planning
 {
 
-std::vector<Eigen::Vector4f> generate_base_trajectory(const std::vector<Eigen::Vector4f>& hit_points, float down_stroke_speed, float retreat_speed, float travel_height) {
+std::vector<Eigen::Vector4f> generate_base_trajectory(const std::vector<CartesianHitSequenceElement>& hit_points, float travel_height) {
     std::vector<Eigen::Vector4f> result;
 
-    for (int i = 0; i < hit_points.size(); ++i) {
+    double fastest_down_stroke_duration = 0.1;
+    double most_silent_hit_duration = 0.3;
+    double retreat_speed = 0.2;
+
+    double last_note_end = -1000;
+
+    for (const auto& hit_point : hit_points) {
+        double loudness = hit_point.msg.loudness;
+
+        // Approach point time
+        double approach_point_time = hit_point.msg.start_time.toSec() - fastest_down_stroke_duration - (1 - loudness) * most_silent_hit_duration;
+
+        // Check if the approach time is before the current time
+        if (approach_point_time < last_note_end) {
+            // Throw an error
+            throw std::runtime_error("Notes are overlapping and cannot be played at the same time, please play slower");
+            // TODO do an exception that is handled by the action server response
+        }
+
         // Create the approach point
-        result.push_back(hit_points[i] + Eigen::Vector4f(0.0, 0.0, travel_height, -travel_height / down_stroke_speed));
+        result.push_back(Eigen::Vector4f(
+            hit_point.point.point.x,
+            hit_point.point.point.y,
+            hit_point.point.point.z + travel_height,
+            approach_point_time));
+
         // Copy over the hit point
-        result.push_back(hit_points[i]);
+        result.push_back(Eigen::Vector4f(
+            hit_point.point.point.x,
+            hit_point.point.point.y,
+            hit_point.point.point.z,
+            hit_point.msg.start_time.toSec()));
+
         // Create the retreat point
-        result.push_back(hit_points[i] + Eigen::Vector4f(0.0, 0.0, travel_height, travel_height / retreat_speed));
+        result.push_back(Eigen::Vector4f(
+            hit_point.point.point.x,
+            hit_point.point.point.y,
+            hit_point.point.point.z + travel_height,
+            hit_point.msg.start_time.toSec() + retreat_speed));
+
+        // Update the current time
+        last_note_end = hit_point.msg.start_time.toSec() + retreat_speed;
     }
 
     return result;
 }
 
-std::map<Mallet, std::vector<Eigen::Vector4f>> generate_double_trajectory(const std::vector<Eigen::Vector4f>& hit_points, float down_stroke_speed, float retreat_speed, float travel_height, float time_resolution, float max_distance) {
+std::vector<DoubleMalletKeyframe> generate_double_trajectory(const std::vector<CartesianHitSequenceElement>& hit_points, float travel_height, float time_resolution, float max_distance) {
+
+    // Get the planning frame_id from the first hit point
+    std::string planning_frame_id = hit_points[0].point.header.frame_id;
 
     // Assign each hit point a mallet
     std::vector<Mallet> mallet_assignment = assign_mallets(hit_points);
@@ -28,13 +66,11 @@ std::map<Mallet, std::vector<Eigen::Vector4f>> generate_double_trajectory(const 
 
     // Create a mapping from mallet (enum) to base trajectory
     std::map<Mallet, std::vector<Eigen::Vector4f>> mallet_base_trajectories = {
-        {Mallet::LEFT, generate_base_trajectory(split_hit_points[Mallet::LEFT], down_stroke_speed, retreat_speed, travel_height)},
-        {Mallet::RIGHT, generate_base_trajectory(split_hit_points[Mallet::RIGHT], down_stroke_speed, retreat_speed, travel_height)}};
+        {Mallet::LEFT, generate_base_trajectory(split_hit_points[Mallet::LEFT], travel_height)},
+        {Mallet::RIGHT, generate_base_trajectory(split_hit_points[Mallet::RIGHT], travel_height)}};
 
-
-    int maximum_number_of_timestamps = std::max(
-        mallet_base_trajectories[Mallet::LEFT].size(),
-        mallet_base_trajectories[Mallet::RIGHT].size());
+    // Find the maximum possible (but improbable) number of timestamps (the maximum of the two trajectories
+    int maximum_number_of_timestamps = mallet_base_trajectories[Mallet::LEFT].size() + mallet_base_trajectories[Mallet::RIGHT].size());
 
     for (int i = 0; i < maximum_number_of_timestamps; ++i) {
 
@@ -87,15 +123,48 @@ std::map<Mallet, std::vector<Eigen::Vector4f>> generate_double_trajectory(const 
         mallet_base_trajectories[other_mallet_number].insert(mallet_base_trajectories[other_mallet_number].begin() + i, other_mallet_current_state);
     }
 
-    return mallet_base_trajectories;
+    // Convert to keyframes
+    std::vector<DoubleMalletKeyframe> result;
+
+    int longest_trajectory = std::max(
+        mallet_base_trajectories[Mallet::LEFT].size(),
+        mallet_base_trajectories[Mallet::RIGHT].size());
+
+    double current_time = mallet_base_trajectories[Mallet::LEFT][0](3);
+
+    for (int i = 0; i < longest_trajectory; i++) {
+        DoubleMalletKeyframe keyframe;
+
+        if (i < mallet_base_trajectories[Mallet::LEFT].size()) {
+            keyframe.left_mallet_active = true;
+            keyframe.left_mallet_position.point.x = mallet_base_trajectories[Mallet::LEFT][i](0);
+            keyframe.left_mallet_position.point.y = mallet_base_trajectories[Mallet::LEFT][i](1);
+            keyframe.left_mallet_position.point.z = mallet_base_trajectories[Mallet::LEFT][i](2);
+            keyframe.left_mallet_position.header.frame_id = planning_frame_id;
+            keyframe.duration = mallet_base_trajectories[Mallet::LEFT][i](3) - current_time;
+        }
+
+        if (i < mallet_base_trajectories[Mallet::RIGHT].size()) {
+            keyframe.right_mallet_active = true;
+            keyframe.right_mallet_position.point.x = mallet_base_trajectories[Mallet::RIGHT][i](0);
+            keyframe.right_mallet_position.point.y = mallet_base_trajectories[Mallet::RIGHT][i](1);
+            keyframe.right_mallet_position.point.z = mallet_base_trajectories[Mallet::RIGHT][i](2);
+            keyframe.right_mallet_position.header.frame_id = planning_frame_id;
+            keyframe.duration = mallet_base_trajectories[Mallet::RIGHT][i](3) - current_time;
+        }
+
+        result.push_back(keyframe);
+    }
+
+    return result;
 }
 
-std::vector<Mallet> assign_mallets(const std::vector<Eigen::Vector4f>& notes) {
+std::vector<Mallet> assign_mallets(const std::vector<CartesianHitSequenceElement>& notes) {
     std::vector<Mallet> mallet_assignment;
 
     for (int i = 0; i < notes.size(); ++i) {
         if (i == 0) {
-            if (notes[i](0) < 0) {
+            if (notes[i].point.point.x < 0) {
                 mallet_assignment.push_back(Mallet::LEFT);
             } else {
                 mallet_assignment.push_back(Mallet::RIGHT);
@@ -103,8 +172,8 @@ std::vector<Mallet> assign_mallets(const std::vector<Eigen::Vector4f>& notes) {
             continue;
         }
 
-        if (i < notes.size() - 1 && notes[i + 1](3) == notes[i](3)) {
-            if (notes[i](0) < notes[i + 1](0)) {
+        if (i < notes.size() - 1 && notes[i + 1].msg.start_time == notes[i].msg.start_time) {
+            if (notes[i].point.point.x < notes[i + 1].point.point.x) {
                 mallet_assignment.push_back(Mallet::LEFT);
                 mallet_assignment.push_back(Mallet::RIGHT);
             } else {
@@ -115,7 +184,7 @@ std::vector<Mallet> assign_mallets(const std::vector<Eigen::Vector4f>& notes) {
             continue;
         }
 
-        if (notes[i](0) < notes[i - 1](0)) {
+        if (notes[i].point.point.x < notes[i - 1].point.point.x) {
             mallet_assignment.push_back(Mallet::LEFT);
         } else {
             mallet_assignment.push_back(Mallet::RIGHT);
@@ -125,8 +194,8 @@ std::vector<Mallet> assign_mallets(const std::vector<Eigen::Vector4f>& notes) {
     return mallet_assignment;
 }
 
-std::map<Mallet, std::vector<Eigen::Vector4f>> split_notes_based_on_mallet(const std::vector<Eigen::Vector4f>& notes, const std::vector<Mallet>& mallet_assignment) {
-    std::map<Mallet, std::vector<Eigen::Vector4f>> notes_per_mallet = {
+std::map<Mallet, std::vector<CartesianHitSequenceElement>> split_notes_based_on_mallet(const std::vector<CartesianHitSequenceElement>& notes, const std::vector<Mallet>& mallet_assignment) {
+    std::map<Mallet, std::vector<CartesianHitSequenceElement>> notes_per_mallet = {
         {Mallet::LEFT, {}},
         {Mallet::RIGHT, {}}};
 
