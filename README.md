@@ -38,8 +38,14 @@ More details about dataset collection and training are [here](https://github.com
 
 The number inside of `dataset/wake_words` or `dataset/not_wake_words` means:
 
-1:	Micheal's voice
-2:      Juliane's voice
+| FileID | voice           |
+| ------ | --------------- |
+| 1      | Micheal's voice |
+| 2      | Juliane's voice |
+| 3      | Norman's voice  |
+
+
+
 ## 3.1 Wake words
 
 -   "hi_marimbabot" *10
