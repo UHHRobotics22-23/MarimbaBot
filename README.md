@@ -43,6 +43,9 @@ The number inside of `dataset/wake_words` or `dataset/not_wake_words` means:
 | 1      | Micheal's voice |
 | 2      | Juliane's voice |
 | 3      | Norman's voice  |
+| 4      | Tom's voice     |
+| 5      | Yunlong's voice |
+|        |                 |
 
 
 
