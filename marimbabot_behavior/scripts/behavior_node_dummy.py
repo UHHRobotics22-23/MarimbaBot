@@ -8,6 +8,7 @@ from std_msgs.msg import String
 
 class DummyBehaviorNode:
     def __init__(self):
+        rospy.init_node('dummy_behavior_node', anonymous=True)
         self.command_pub = rospy.Publisher('speech_node/command', String, queue_size=10)
         self.recognized_notes_pub = rospy.Publisher('vision_node/recognized_notes', String, queue_size=10)
         self.main_loop()
