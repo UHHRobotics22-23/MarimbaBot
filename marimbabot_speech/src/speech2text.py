@@ -4,7 +4,7 @@ os.environ['LD_LIBRARY_PATH'] = f'{os.path.dirname(cudnn.__file__)}/lib:$LD_LIBR
 # since I haven't specified the version of TensorFlow, it seems to install the newest version,
 # so according to official instruction, the environment needs to be configured.
 from marimbabot_msgs.msg import Speech as SpeechMsg
-from marimbabot_msgs.srv import SpeechRecognition,SpeechRecognitionResponse
+from audio_common_msgs.msg import AudioData
 import rospy
 import whisper
 import numpy as np
@@ -12,10 +12,8 @@ import struct
 
 # Speech to text recognition, it is a wrapper of whisper
 class STT:
-	def __init__(self, log_level=rospy.INFO):
-		self.log_level = log_level
+	def __init__(self):
 		self.prompt = self.generate_prompt()
-
 		self.init_audio_config()
 		self.init_whisper_model()
 		self.warm_up()  # warm up the whisper model
@@ -34,7 +32,13 @@ class STT:
 		rospy.loginfo("Whisper model is warmed up!")
 
 	def init_ros_node(self):
-		rospy.Service('speech_recognition', SpeechRecognition, self.handle_speech2text_service)
+		self.buffer_sub = rospy.Subscriber(
+			'/speech_node/speech_buffer',
+			AudioData,
+			self.handle_audio_buffer,
+			queue_size=100,
+			tcp_nodelay=True)
+
 		# To publish the recognized text
 		self.speech_pub = rospy.Publisher(
 			'speech',
@@ -42,11 +46,13 @@ class STT:
 			queue_size=100,
 			tcp_nodelay=True)
 
-	def handle_speech2text_service(self, req):
-		if self.log_level == rospy.DEBUG:
-			rospy.logdebug(f"STT service triggered.")
-		text, no_speech_prob = self.recognize(np_data=self.unpack_stream(req.audio.data))
-		return SpeechRecognitionResponse(text=text, no_speech_prob=no_speech_prob)
+	def handle_audio_buffer(self, req):
+		text, no_speech_prob = self.recognize(np_data=self.unpack_stream(req.data))
+		msg = SpeechMsg()
+		msg.header.stamp = rospy.Time.now()
+		msg.text = text
+		msg.no_speech_prob = no_speech_prob
+		self.speech_pub.publish(msg)
 
 	# To address the way how to unpack the data for whisper
 	def unpack_stream(self, data):
@@ -54,14 +60,14 @@ class STT:
 
 	def generate_prompt(self):
 		# commands = get_commands()
-		# base_prompt = '''
-		# 	Marimbabot is a marimba playing robot arm. You are able to give it commands, if you confuse just give it "None". The possible commands include:
-		# '''
+		# base_prompt = '''Marimbabot is a marimba playing robot arm. You are able to give it commands, if you confuse just give it "None". The possible commands include:'''
 		# for command in commands:
 		# 	base_prompt += ''.join(f'{command.strip()}, ')
 		# rospy.logdebug(f"Generate prompt as: {base_prompt}.")
 		# return base_prompt
-		return "Marimbabot is a instrument playing robot arm. You are able to give it several common robot's commands"
+		prompt = "Marimbabot is a instrument playing robot arm. You are able to give it several common robot's commands." \
+		         "play in 60 BPM, play louder by 40%, ..."
+		return prompt
 
 	def run(self):
 		rospy.spin()
@@ -76,40 +82,28 @@ class STT:
 		else:
 			rospy.logerr("No audio data is provided! Either file_path or np_data should be provided!")
 			return
-
 		audio = whisper.pad_or_trim(audio)  # each time feed 16000(sample rate)*30(sec) data samples to whisper model
 		# make log-Mel spectrogram and move to the same device as the model
 		mel = whisper.log_mel_spectrogram(audio).to(self.model.device)
-
 		# decode the audio
-		options = whisper.DecodingOptions(fp16=True, language='en')
+		options = whisper.DecodingOptions(fp16=True, language='en', prompt=self.generate_prompt())
 		time_1 = rospy.Time.now()
 		result = whisper.decode(self.model, mel, options)
 		# options = whisper.DecodingOptions(fp16=True, language='en',prompt=self.prompt)
 		time_2 = rospy.Time.now()
 		text = result.text
 		no_speech_prob = result.no_speech_prob
-		if self.log_level == rospy.DEBUG:
-			rospy.logdebug('*' * 30)
-			rospy.logdebug(f"Pre-processing time:{(time_1 - time_0).to_sec():.4f}")
-			rospy.logdebug(f"Prediction time:{(time_2 - time_1).to_sec():.4f}")
-			rospy.logdebug(f"Result: [{text}]")
-			rospy.logdebug(f"No_speech_prob: {no_speech_prob:.4f}")
-		if pub_speech:
-			# publish the recognized text
-			self.speech_pub.publish(
-				SpeechMsg(
-					header=rospy.Time.now(),
-					speech=text,
-					no_speech_prob=no_speech_prob)
-			)
+		rospy.logdebug('*' * 30)
+		rospy.logdebug(f"Pre-processing time:{(time_1 - time_0).to_sec():.4f}")
+		rospy.logdebug(f"Prediction time:{(time_2 - time_1).to_sec():.4f}")
+		rospy.logdebug(f"Result: [{text}]")
+		rospy.logdebug(f"No_speech_prob: {no_speech_prob:.4f}")
 		return text, no_speech_prob
 
 if __name__ == '__main__':
 	# TODO: Finish the command extraction
 	# TODO: consider the voice from other group members, i.e. change the dataset and retrain the model
-	log_level = rospy.DEBUG
-	rospy.init_node('speech_recognition_node', log_level=log_level)
-	sst = STT(log_level=log_level)
+	rospy.init_node('speech_recognition_node', log_level=rospy.DEBUG)
+	sst = STT()
 	sst.run()
 

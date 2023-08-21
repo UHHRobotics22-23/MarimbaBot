@@ -28,12 +28,6 @@ add_action_files(
   LilypondAudio.action
 )
 
-add_service_files(
-  DIRECTORY srv
-  FILES
-  SpeechRecognition.srv
-)
-
 ## Generate added messages and actions, services
 generate_messages(
   DEPENDENCIES
