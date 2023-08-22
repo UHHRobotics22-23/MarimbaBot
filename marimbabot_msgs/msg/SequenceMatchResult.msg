@@ -18,4 +18,4 @@ int32[] is_matched_list
 marimbabot_msgs/HitSequenceElement[] hit_sequence_elements
 
 # the hit sequence of the audio feedback
-marimbabot_msgs/NoteOnsets[] extracted_note_onsets
+marimbabot_msgs/NoteOnset[] extracted_note_onsets

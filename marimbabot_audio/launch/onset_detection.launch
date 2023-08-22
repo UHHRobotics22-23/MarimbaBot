@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-<!--     <arg name="reference_amplitude" doc="reference for dB computation. Usually noise-floor"/> -->
-
-    <node name="onset_detector" pkg="marimbabot_audio" type="onset_detection.py" output="screen" >
-<!--         <param name="reference_amplitude" value="$(arg reference_amplitude)" /> -->
-    </node>
-
-</launch>

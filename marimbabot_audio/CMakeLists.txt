@@ -30,8 +30,9 @@ include_directories(
 catkin_install_python(
 PROGRAMS
   src/audio_from_lilypond.py
-  scripts/onset_detection.py
-  scripts/onsets_visualization.py
+  src/onset_detection.py
+  src/onsets_visualization.py
+  src/sequence_evaluation.py
 DESTINATION
   ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

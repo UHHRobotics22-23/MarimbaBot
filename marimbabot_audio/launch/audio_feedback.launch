@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<launch>
+    <arg name="canvas_size_t" default="5" doc="the size(secs) of canvas for real time visualization of music note detection"/>
+    <arg name="update_freq" default="5" doc="the frequency(Hz) to update the canvas, higher freq smaller delay"/>
+
+    <group ns="audio_node">
+      <node name="note_audio_capture" pkg="audio_capture" type="audio_capture" output="screen">
+          <!-- list the devices: arecord -l -->
+          <param name="device" value="plughw:4,0" />
+          <param name="format" value="wave" />
+          <param name="channels" value="1" />
+          <param name="depth" value="16" />
+          <param name="sample_rate" value="44100" />
+      </node>
+      
+      <node name="onset_detector" pkg="marimbabot_audio" type="onset_detection.py" output="screen" />
+      <node name="seq_eval" pkg="marimbabot_audio" type="sequence_evaluation.py" output="screen" />
+
+
+      <node name="onsets_vis" pkg="marimbabot_audio" type="onsets_visualization.py" output="screen" >
+        <param name="~canvas_size_t" value="$(arg canvas_size_t)"/>
+        <param name="~update_freq" value="$(arg update_freq)"/>
+      </node>
+    </group>
+
+</launch>

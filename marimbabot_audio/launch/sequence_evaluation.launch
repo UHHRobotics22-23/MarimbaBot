@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<launch>
-    <arg name="window_size" default="1" doc="the size(secs) of canvas for real time visualization of music note detection"/>
-    <arg name="update_freq" default="4" doc="the frequency(Hz) to update the canvas, higher freq smaller delay"/>
-    <node name="onsets_vis" pkg="marimbabot_audio" type="onsets_visualization.py" output="screen" >
-        <param name="~canvas_size_t" value="$(arg canvas_size_t)"/>
-        <param name="~update_freq" value="$(arg update_freq)"/>
-    </node>
-</launch>

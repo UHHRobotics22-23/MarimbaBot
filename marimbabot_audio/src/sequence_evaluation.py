@@ -34,12 +34,12 @@ class Comparison():
 			queue_size=10,
 			tcp_nodelay=True)
 		self.result_pub = rospy.Publisher(
-			'/audio/match_result',
+			'match_result',
 			SequenceMatchResultMsg,
 			queue_size=1,
 			tcp_nodelay=True)
 		self.note_sub = rospy.Subscriber(
-			'/audio/onset_notes',
+			'/audio_node/onset_notes',
 			NoteOnsetMsg,
 			self.audio_feedback_sequence_callback,
 			queue_size=10,

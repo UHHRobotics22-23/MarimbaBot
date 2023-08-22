@@ -15,8 +15,8 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
-# TODO plot the plan in midi visualization
-# TODO put the hyperparameters in a yaml file
+# TODO tuning the windows size for onset detection, to enable higher frequency detection.
+
 def hz_to_note(hz):
 	return pretty_midi.note_number_to_name(pretty_midi.hz_to_note_number(hz))
 
@@ -167,18 +167,18 @@ class OnsetDetection:
 	def start(self):
 		# the spectrum for visualization
 		self.pub_spectrogram = rospy.Publisher(
-			"/audio/spectrogram_img", Image, queue_size=1, tcp_nodelay=True
+			"spectrogram_img", Image, queue_size=1, tcp_nodelay=True
 		)
 		self.pub_compute_time = rospy.Publisher(
-			"/audio/compute_time", Float32, queue_size=1, tcp_nodelay=True
+			"compute_time", Float32, queue_size=1, tcp_nodelay=True
 		)
 		# signal after constant Q transform
 		self.pub_cqt = rospy.Publisher(
-			"/audio/cqt", CQTStamped, queue_size=100, tcp_nodelay=True
+			"cqt", CQTStamped, queue_size=100, tcp_nodelay=True
 		)
 		# onset signals
 		self.pub_onset = rospy.Publisher(
-			"/audio/onset_notes", NoteOnset, queue_size=10, tcp_nodelay=True
+			"onset_notes", NoteOnset, queue_size=10, tcp_nodelay=True
 		)
 		self.sub = rospy.Subscriber(
 			"/audio_node/audio_stamped",

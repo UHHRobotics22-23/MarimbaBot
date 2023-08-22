@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import pretty_midi
+import os
 
 matplotlib.use('Agg')
 
@@ -21,20 +22,20 @@ class Visualization():
 		self.ax = self.fig.add_subplot(1, 1, 1)
 		self.midi_fig = None
 		self.sub = rospy.Subscriber(
-			"/audio/onset_notes",
+			"/audio_node/onset_notes",
 			NoteOnset,
 			self.onset_event,
 			queue_size=100,
 			tcp_nodelay=True,
 		)
 		self.pub_onset_img = rospy.Publisher(
-			"/audio/midi_img", Image, queue_size=1, tcp_nodelay=True
+			"live_midi_img", Image, queue_size=1, tcp_nodelay=True
 		)
 		self.pub_eval_img = rospy.Publisher(
-			"/audio/result_img", Image, queue_size=1, tcp_nodelay=True
+			"feedback_img", Image, queue_size=1, tcp_nodelay=True
 		)
 		self.sub_macth_result = rospy.Subscriber(
-			"/audio/match_result",
+			"/audio_node/match_result",
 			SequenceMatchResultMsg,
 			self.match_result_visualization,
 			queue_size=1,
@@ -71,6 +72,9 @@ class Visualization():
 			ax.text(relative_time, relative_pitch - 0.5, note["name"], fontsize=14, color='black', fontweight='bold')
 			pitchs.append(relative_pitch)
 			note_names.append(note["name"])
+		
+		if len(onsets_in_windows) > 0:
+			rospy.logdebug(f"onset_visualization: {onsets_in_windows}")
 
 		# Format plot
 		plt.xlim(0, self.midi_fig_windows_size)
@@ -82,13 +86,18 @@ class Visualization():
 		plt.ylabel('Notes')
 		plt.xlabel('Time')
 
-		fig.savefig('/tmp/tmp_vis.png')  # save the figure, to update the canvas.
+		fig.savefig('/tmp/.tmp_vis.png')  # save the figure, to update the canvas.
+		try:
+			os.remove('/tmp/.tmp_vis.png')
+		except:
+			pass
 		data = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
 		fig = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
 		self.pub_onset_img.publish(
 			self.cv_bridge.cv2_to_imgmsg(fig, "bgr8")
 		)
 		ax.clear()
+		
 
 	def onset_event(self, msg: NoteOnset):
 		note = {

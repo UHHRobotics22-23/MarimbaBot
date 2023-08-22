@@ -1,21 +1,8 @@
 <?xml version="1.0"?>
 <launch>
-  <!-- list the devices: arecord -l -->
-    <group ns="audio_node">
-      <node name="note_audio_capture" pkg="audio_capture" type="audio_capture" output="screen">
-<!--           <param name="device" value="pluhw:3,0" /> -->
-          <param name="device" value="" />
-          <param name="format" value="wave" />
-          <param name="channels" value="1" />
-          <param name="depth" value="16" />
-          <param name="sample_rate" value="44100" />
-      </node>
-    </group>
-    <include file="$(find marimbabot_audio)/launch/onset_detection.launch"/>
-    <include file="$(find marimbabot_audio)/launch/onsets_visualization.launch"/>
-
-
+    <include file="$(find marimbabot_audio)/launch/audio_feedback.launch"/>
+    <node name="audio_node_rviz" pkg="rviz" type="rviz" args="-d $(find marimbabot_audio)/config/config.rviz"/>
+    
     <node name="soundplay_node" pkg="sound_play" type="soundplay_node.py"/>
     <node name="audio_from_lilypond" pkg="marimbabot_audio" type="audio_from_lilypond.py"/>
-    <node name="audio_node_rviz" pkg="rviz" type="rviz" args="-d $(find marimbabot_audio)/config/config.rviz"/>
 </launch>

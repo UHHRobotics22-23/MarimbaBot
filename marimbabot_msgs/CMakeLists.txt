@@ -31,7 +31,11 @@ add_action_files(
 ## Generate added messages and actions
 generate_messages(
   DEPENDENCIES
-  actionlib_msgs std_msgs  # Add any other message dependencies here
+  actionlib_msgs 
+  std_msgs # Add any other message dependencies here
+  # marimbabot_msgs/HitSequenceElement
+  # marimbabot_msgs/NoteOnsets
+
 )
 
 ## Catkin package
