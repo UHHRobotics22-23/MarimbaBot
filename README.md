@@ -171,3 +171,62 @@ git push
 ```
 
 Now you can [create a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request#creating-the-pull-request) for your branch and merge it (after it is approved) into the `main` branch using the GitHub website.
+
+## Project Overview
+
+### Block Diagram
+```mermaid
+%%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
+flowchart TD;
+    subgraph vision
+        cv_camera_node-->|/cv_camera_node/image_raw - sensor_msgs/Image| vision_node;
+        vision_node-->|/vision_node/recognized_notes - std_msgs/String| visualization_node;
+    end
+
+    vision_node-->|/vision_node/recognized_notes - std_msgs/String| behavior_node;
+
+    subgraph planning
+        marimbabot_planning;
+    end
+
+    marimbabot_planning-->|MoveIt interface| mallet_hardware_control_node
+    
+    subgraph speech
+        speech_node/speech_audio_capture-->|/speech_node/audio_stamped - audio_common_msgs/AudioDataStamped| speech_tmp_node;
+        speech_tmp_node-->|/speech_node/audio_tmp - marimbabot_msgs/TmpFile| speech_stt_node;
+        speech_stt_node-->|/speech_node/speech - marimbabot_msgs/Speech| speech_t2c_node;
+
+        speech_tts_node;
+    end
+
+    speech_tts_node-->|/robotsound - sound_play/SoundRequest| soundplay_node;
+
+    speech_t2c_node-->|/speech_node/command - marimbabot_msgs/Command| behavior_node;
+
+    subgraph audio
+        audio_from_lilypond;
+        audio_node/note_audio_capture-->|/audio_node/audio_stamped - audio_common_msgs/AudioDataStamped| onset_detector
+    
+        onset_detector-->|/audio/onset_notes - marimbabot_msgs/NoteOnset| onset_midi
+        onset_detector-->|/audio/onset_notes - marimbabot_msgs/NoteOnset| score_calculator
+    end
+
+    audio_from_lilypond-->|/robotsound - sound_play/SoundRequest| soundplay_node;
+
+    subgraph behavior
+        behavior_node;
+    end
+
+    behavior_node-->|/audio_from_lilypond - marimbabot_msgs/LilypondAudio - Action| audio_from_lilypond;
+
+    behavior_node-->|/behavior_node/response - std_msgs/String| speech_tts_node;
+    
+    behavior_node-->|/hit_sequence - marimbabot_msgs/HitSequence - Action| marimbabot_planning;
+    
+    behavior_node-->|/audio/hit_sequence - marimbabot_msgs/HitSequence| score_calculator
+
+    subgraph hardware
+        mallet_hardware_control_node;
+    end
+
+```
