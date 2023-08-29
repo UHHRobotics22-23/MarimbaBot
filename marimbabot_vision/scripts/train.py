@@ -17,25 +17,24 @@ from transformers import (DonutProcessor, VisionEncoderDecoderConfig,
 
 # Config
 config = {
-    "max_epochs": 20,
+    "max_epochs": 40,
     "check_val_every_n_epoch": 1,
     "gradient_clip_val":1.0,
     "lr":1e-5,
-    "train_batch_sizes": [6],
-    "val_batch_sizes": [6],
+    "train_batch_sizes": [12],
+    "val_batch_sizes": [12],
     "num_nodes": 1,
     "warmup_steps": 300,
     "result_path": "./result",
     "verbose": True,
-    "train_data_paths": ["data_hw/", "data_augmented/", "data_wb/"],
-    "val_data_paths": ["test_data/", ],
-    "max_length": 40,
+    "train_data_paths": ["data_hw/", "data_augmented/", "data_wb/", "data_wb_extended", "data_extended_augmented", "data_negative"],
+    "val_data_paths": ["test_data/", "test_data_wb"],
+    "max_length": 60,
     "image_size": [583, 409],
     "start_token": "<s>",
     "num_workers": 24,
     "base_model": "nielsr/donut-base",
-    "output_model": "./model_1",
-    "add_note_vocab": True
+    "output_model": "./model_extended_2"
 }
 
 # Load base model
@@ -54,38 +53,6 @@ model = VisionEncoderDecoderModel.from_pretrained(
     config['base_model'],
     ignore_mismatched_sizes=True,
     config=ved_config)
-
-if config['add_note_vocab']:
-    note_vocab = []
-    notes = "cdefgab"
-    octaves = ["'", "''"]
-    durations = [1, 2, 4, 8, 16, '']
-    # Add note tokens
-    for note in notes:
-        for accidental in ['s', 'ss', 'f', 'ff', '']:
-            for dot in ["", "."]:
-                for octave in octaves:
-                    for duration in durations:
-                        note_vocab.append(f"{note}{accidental}{octave}{duration}{dot}")
-    # Add rest tokens
-    for duration in durations:
-        note_vocab.append(f"r{duration} ")
-
-    # Add keywords
-    note_vocab.extend(["\\repeat ", "volta ", "\key ", "\major ", "\minor ", "- ", " ", "ff", "fff", "'"])
-    # Add artikulations
-    note_vocab.extend(['\staccato ', '\\accent ', '\\tenuto ', '\marcato ', '\stopped ', '\staccatissimo ', '\portato '])
-    # Add tempos
-    note_vocab.extend([f"\\tempo 4={tempo} " for tempo in [40, 60, 96, 120]])
-    # Add ascii as fallback
-    note_vocab.extend(string.printable)
-else:
-    note_vocab = []
-
-print("Adding vocab")
-for token in note_vocab:
-    print(token)
-print("###############")
 
 model.config.pad_token_id = pre_processor.tokenizer.pad_token_id
 model.config.decoder_start_token_id = pre_processor.tokenizer.convert_tokens_to_ids([config['start_token']])[0]
@@ -119,7 +86,7 @@ class NoteDataset(Dataset):
                     ground_truth + " " + pre_processor.tokenizer.eos_token
             )
 
-        self.add_tokens(note_vocab + [self.start_token])
+        self.add_tokens(["1 "] + [self.start_token])
 
     def add_tokens(self, list_of_tokens: List[str]):
         newly_added_num = pre_processor.tokenizer.add_tokens(list_of_tokens)
