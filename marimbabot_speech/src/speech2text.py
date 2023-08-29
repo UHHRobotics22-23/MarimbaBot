@@ -1,4 +1,7 @@
 import os
+from nvidia import cudnn
+os.environ['LD_LIBRARY_PATH'] = f'{os.path.dirname(cudnn.__file__)}/lib:$LD_LIBRARY_PATH'
+# since I haven't specified the version of TensorFlow, it seems to install the newest version, so according to official instruction, the environment needs to be configured.
 
 import rospy
 import whisper
@@ -23,8 +26,7 @@ class STT:
 
 	def generate_prompt(self):
 		commands = get_commands()
-		base_prompt = '''
-			Marimbabot is a marimba playing robot arm. You are able to give it commands, if you confuse just give it "None". The possible commands include:		
+		base_prompt = '''Marimbabot is a marimba playing robot arm. The possible commands include:		
 		'''
 		for command in commands:
 			base_prompt += ''.join(f'{command.strip()}, ')

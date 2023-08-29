@@ -11,7 +11,7 @@ class Audio2FileNode:
 		self.wav_file.remove_all_cache()
 
 		self.audio_sub = rospy.Subscriber(
-			'/audio_stamped',
+			'/speech_node/audio_stamped',
 			AudioDataStamped,
 			self.audio_callback,
 			queue_size=100,
@@ -32,7 +32,7 @@ class Audio2FileNode:
 		self.silence_count = 0
 		self.topic_freq = 100  # Hz of ros publishing rate for topic /audio_stamped
 		self.detect_freq = 1  # Hz of detection rate
-		self.silence_limit = 2  # sec
+		self.silence_limit = 1  # sec
 		self.file_id = 0
 		self.buffer_limit = 60  # sec
 		self.buffer_count = 0
