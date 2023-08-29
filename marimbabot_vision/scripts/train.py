@@ -86,7 +86,7 @@ class NoteDataset(Dataset):
                     ground_truth + " " + pre_processor.tokenizer.eos_token
             )
 
-        self.add_tokens(["1 "] + [self.start_token])
+        self.add_tokens(["1 ", "1. "] + [self.start_token])
 
     def add_tokens(self, list_of_tokens: List[str]):
         newly_added_num = pre_processor.tokenizer.add_tokens(list_of_tokens)
