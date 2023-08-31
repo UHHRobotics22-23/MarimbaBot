@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 catkin_package()
 
-catkin_install_python(PROGRAMS src/detect_bar_contact.py
+catkin_install_python(PROGRAMS
+  src/detect_bar_contact.py
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

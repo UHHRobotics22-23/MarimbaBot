@@ -2,7 +2,7 @@
   <!-- load OMPL planning pipeline, but add the CHOMP planning adapter. -->
   <include file="$(find marimbabot_ur5_flex_double_moveit_config)/launch/ompl_planning_pipeline.launch.xml">
     <arg name="planning_adapters"
-         default="default_planner_request_adapters/LimitMaxCartesianLinkSpeed
+         default="
                   default_planner_request_adapters/AddTimeParameterization
                   default_planner_request_adapters/FixWorkspaceBounds
                   default_planner_request_adapters/FixStartStateBounds

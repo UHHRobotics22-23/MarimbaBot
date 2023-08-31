@@ -19,6 +19,15 @@
         </collision>
     </link>
 
+    <link name="mallet_battery_collision">
+        <collision>
+            <origin xyz="-${0.026/2} -${0.04/2} ${0.11/2}" rpy="0.0 0.0 0.0"/>
+            <geometry>
+                <box size="0.026 0.04 0.11"/>
+            </geometry>
+        </collision>
+    </link>
+
     <link name="mallet_servo_box">
         <visual>
             <origin xyz="${-(10)/1000} ${(6-(68.4+6+6)/2)/1000} ${(13.3+10)/1000}" rpy="${-pi / 2} 0.0 0.0"/>
@@ -104,6 +113,12 @@
         </collision>
     </link>
 
+    <joint name="mallet_base_link_battery" type="fixed">
+        <parent link="mallet_base_link"/>
+        <child link="mallet_battery_collision"/>
+        <origin xyz="0.0115 -0.0405 0.0"/>
+    </joint>
+
     <joint name="mallet_base_link_group_1" type="fixed">
         <parent link="mallet_base_link"/>
         <child link="mallet_base_box_1"/>
@@ -114,7 +129,7 @@
         <parent link="mallet_base_link"/>
         <child link="mallet_servo_box"/>
         <origin xyz="${(-77/2+10+7)/1000} 0.0 ${0.0368+(110-60)/1000}"/>
-        <limit lower="0.0" upper="0.801" effort="1.0" velocity="7.0"/>
+        <limit lower="0.0" upper="1.22" effort="1.0" velocity="7.0"/>
         <axis xyz="0.0 -1.0 0.0"/>
     </joint>
 

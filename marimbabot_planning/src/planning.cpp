@@ -149,6 +149,12 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     // Add link on plane constraint to ik_options
     ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_1_link", link_on_plane_constraint(tf2::Vector3(0.0, 0.0, 1.3))));
 
+    // Double mallet specific goals that move the second mallet out of the way
+    // Add link on plane constraint to hold the second mallet head in place
+    ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("mallet_head_2", link_on_plane_constraint(tf2::Vector3(0.0, 0.0, 1.0))));
+    // Keep the double mallet joint at 70 degrees
+    ik_options.goals.emplace_back(new bio_ik::JointVariableGoal("mallet_finger", 60.0 * M_PI / 180.0));
+    
     // Create minimal displacement goal, so that the robot does not move too much and stays close to the start state
     ik_options.goals.emplace_back(new bio_ik::MinimalDisplacementGoal());
 
@@ -238,6 +244,14 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::move_to_key_point
  */
 void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalConstPtr &goal)
 {
+    // clear the hit plan durations
+    this->hit_plan_durations.clear();
+
+    // initialize feedback
+    marimbabot_msgs::HitSequenceFeedback feedback;
+    feedback.playing = true;
+    feedback.executed_sequence_elements.clear();
+
     try {
         // Set the max velocity and acceleration scaling factors
         move_group_interface_.setMaxVelocityScalingFactor(0.5);
@@ -269,8 +283,38 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
         display_trajectory.trajectory.push_back(trajectory);
         trajectory_publisher_.publish(display_trajectory);
 
+
+        // set the start time of execution
+        ros::Time start_time = ros::Time::now();
+
+        // set the feedback based on the hit plan
+        auto duration_iter = hit_plan_durations.begin();
+        for (auto& element : goal->hit_sequence_elements) {
+            // Adjust the start time of the hit sequence elements based on the execution time
+            // create new element
+            auto new_element = marimbabot_msgs::HitSequenceElement();
+            new_element.loudness = element.loudness;
+            new_element.octave = element.octave;
+            new_element.start_time = start_time + (*duration_iter);
+            new_element.tone_duration = element.tone_duration;
+            new_element.tone_name = element.tone_name;
+
+            // Add the element to the feedback
+            feedback.executed_sequence_elements.push_back(new_element);
+
+            // Step the duration_iter to the next duration
+            ++duration_iter;
+        }
+
+        // Publish the feedback
+        action_server_.publishFeedback(feedback);
+
         // Execute the plan
         auto status = move_group_interface_.execute(hit_plan);
+        // Set playing to false
+        feedback.playing = false;
+
+        ros::Duration plan_execution_time = ros::Time::now() - start_time;
 
         // Set the result of the action server
         if (status != moveit::planning_interface::MoveItErrorCode::SUCCESS) {
@@ -281,6 +325,16 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
             action_server_.setAborted(result);
         } else {
             marimbabot_msgs::HitSequenceResult result;
+
+            // Check if the size of the hit_sequence_elements and the hit_plan_durations was the same
+            // If not, we cannot set the executed_sequence_elements for the result 
+            // and success is kept to false
+            if (goal->hit_sequence_elements.size() != hit_plan_durations.size()) {
+                ROS_ERROR("Size of hit_sequence_elements and hit_plan_durations appears to be not the same.");
+                return;
+            }
+
+            result.executed_sequence_elements = feedback.executed_sequence_elements;
             result.success = true;
             action_server_.setSucceeded(result);
         }
@@ -305,7 +359,7 @@ int main(int argc, char **argv)
     ros::AsyncSpinner spinner(4);
     spinner.start();
 
-    marimbabot_planning::Planning planning{"arm"};
+    marimbabot_planning::Planning planning{"arm_mallets"};
 
     return 0;
 }

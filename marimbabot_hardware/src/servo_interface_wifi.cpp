@@ -70,10 +70,10 @@ void ServoInterface::read() {
     ros::Time current_time = ros::Time::now();
     last_run_period = current_time - last_run_time;
     last_run_time = current_time;
-    send_and_receive(ServoInterface::p_Sender);
     while (limit_checker == 0) {
-        send_and_receive(ServoInterface::p_Sender);
+        send_and_receive(ServoInterface::l_Sender);
     }
+    send_and_receive(ServoInterface::p_Sender);
     return;
 }
 void ServoInterface::write() {
@@ -106,7 +106,7 @@ void ServoInterface::send_and_receive(const char *message) {
     std::string response;
     // int size_arr = sizeof(buffer) / sizeof(char);
     response = buffer;
-
+   
     if (response[0] == 'l') {
         receive_limits_function(response);
     }
@@ -145,6 +145,11 @@ void ServoInterface::receive_limits_function(std::string response) {
     if (response.length() < 4) {
         ROS_ERROR_STREAM("Servo controller error: Unable to read limits from arduino -> closing");
         close(sockfd);
+        return;
+    }
+
+    if (limit_checker == 1){
+        //limits already loaded
         return;
     }
 

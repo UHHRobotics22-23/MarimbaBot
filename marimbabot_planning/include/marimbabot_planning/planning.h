@@ -17,7 +17,7 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
-
+#include <list>
 
 namespace marimbabot_planning
 {
@@ -32,6 +32,10 @@ class Planning
 
         // MoveIt! MoveGroupInterface
         moveit::planning_interface::MoveGroupInterface move_group_interface_;
+
+        // Describes when a "hit" was performed in terms of 
+        // how long after the start of the trajectory this point should be reached 
+        std::list<ros::Duration> hit_plan_durations;
 
         // Action server
         actionlib::SimpleActionServer<marimbabot_msgs::HitSequenceAction> action_server_;
