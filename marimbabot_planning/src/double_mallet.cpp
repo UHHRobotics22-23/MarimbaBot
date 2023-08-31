@@ -69,14 +69,14 @@ std::vector<DoubleMalletKeyframe> generate_double_trajectory(const std::vector<C
         {Mallet::LEFT, generate_base_trajectory(split_hit_points[Mallet::LEFT], travel_height)},
         {Mallet::RIGHT, generate_base_trajectory(split_hit_points[Mallet::RIGHT], travel_height)}};
 
-    // Find the maximum possible (but improbable) number of timestamps (the maximum of the two trajectories
-    int maximum_number_of_timestamps = mallet_base_trajectories[Mallet::LEFT].size() + mallet_base_trajectories[Mallet::RIGHT].size());
+    // Find the maximum possible (but improbable) number of timestamps (the sum of the two trajectories)
+    int maximum_number_of_timestamps = mallet_base_trajectories[Mallet::LEFT].size() + mallet_base_trajectories[Mallet::RIGHT].size();
 
     for (int i = 0; i < maximum_number_of_timestamps; ++i) {
 
         // Check if we've reached the end of one of the trajectories (no more double planning is needed for the rest)
         if (i >= mallet_base_trajectories[Mallet::LEFT].size() && i >= mallet_base_trajectories[Mallet::RIGHT].size()) {
-            break; // TODO handle this better
+            break;
         }
 
         float left_mallet_timestamp = mallet_base_trajectories[Mallet::LEFT][i](3);
