@@ -14,6 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_geometry_msgs
   tf2_ros
   trajectory_msgs
+  backward_ros
 )
 
 # Include Python3 for the matplotlib-cpp library
