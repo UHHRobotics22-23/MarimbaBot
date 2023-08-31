@@ -194,7 +194,7 @@ def draw_piece(string, sample_name, args):
 
             # check for accents
             # (necessary here, because accents are written behind the rest in the piece string but should appear directly above/underneath)
-            if index < len(piece) and piece[index] + piece[index+1] == '-\marcato':
+            if index < len(piece) +1 and piece[index] + piece[index+1] == '-\marcato':
                 draw_symbol(sample_im, f'{args.hw_symbols_dir}/accents/marcato', (x_pos + 5, 40 + y_offset), True)
                 index += 2 
 
@@ -286,7 +286,7 @@ def draw_piece(string, sample_name, args):
             # (necessary here, because accents are written behind the note in the piece string but should appear directly above/underneath)
 
             accent_y_pos = 0
-            if index < len(piece) -1 and piece[index] + piece[index+1] == '-\marcato':
+            if index < len(piece) + 1 and piece[index] + piece[index+1] == '-\marcato':
                 accent_y_pos = y_head_poses[0] + 15 if not is_flipped else (y_head_poses[0] - 15 if len(tones) == 1 else y_head_poses[-1] + 15)
                 draw_symbol(sample_im, f'{args.hw_symbols_dir}/accents/marcato', (x_pos+5, accent_y_pos), is_flipped)
                 index += 2
