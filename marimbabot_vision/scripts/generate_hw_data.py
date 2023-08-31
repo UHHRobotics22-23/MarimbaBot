@@ -190,18 +190,19 @@ def draw_piece(string, sample_name, args):
             duration = int((re.findall(r'\d+', rule)[0]))
             dot = rule.count('.')
             draw_symbol(sample_im, f'{args.hw_symbols_dir}/rest/{duration}', (x_pos, 50 + y_offset))
-
-            # check for dynamics
-            # (necessary here, because dynamics are written behind the rest in the piece string but should appear directly underneath)
-            if index < len(piece) -1 and piece[index+1][:2] in ['\\f', '\\p', '\\m']:
-                draw_dynamics(sample_im, piece[index+1], x_pos-10, 90 + y_offset, args)
-                n_indices += 1
+            index += 1
 
             # check for accents
             # (necessary here, because accents are written behind the rest in the piece string but should appear directly above/underneath)
-            if index < len(piece) -2 and piece[index+1] + piece[index+2] == '-\marcato':
+            if index < len(piece) and piece[index] + piece[index+1] == '-\marcato':
                 draw_symbol(sample_im, f'{args.hw_symbols_dir}/accents/marcato', (x_pos + 5, 40 + y_offset), True)
-                n_indices += 2 
+                index += 2 
+
+            # check for dynamics
+            # (necessary here, because dynamics are written behind the rest in the piece string but should appear directly underneath)
+            if index < len(piece) and piece[index][:2] in ['\\f', '\\p', '\\m']:
+                draw_dynamics(sample_im, piece[index], x_pos-10, 90 + y_offset, args)
+                index += 1
 
             # draw dot
             if dot >= 1:
@@ -209,7 +210,6 @@ def draw_piece(string, sample_name, args):
 
             # update duration, and index counter
             duration_counter += 1/duration + dot * (0.5/duration)
-            n_indices += 1
 
         # draw note, chord
         elif rule[0] in head_positions.keys() or rule[0] == '<':
@@ -229,6 +229,7 @@ def draw_piece(string, sample_name, args):
                     octaves.reverse()
                     y_head_poses.reverse()
                 is_flipped = True if y_head_poses[0] - y_offset < 70 else False
+                index += 2
 
             # non-chord note
             else:
@@ -239,6 +240,7 @@ def draw_piece(string, sample_name, args):
                 dot = rule.count('.')
                 y_head_poses = [head_positions[tones[0]] - octaves[0]*35 + y_offset]
                 is_flipped = True if y_head_poses[0] - y_offset < 70 else False
+                index += 1
 
             # draw accidental(s)
             for i in range(len(tones)):
@@ -280,18 +282,18 @@ def draw_piece(string, sample_name, args):
             
             x_pos += 20 if 'f' in accidentals or 's' in accidentals or 'n' in accidentals else 0
 
-            # check for dynamics
-            # (necessary here, because dynamics are written behind the note in the piece string but should appear directly underneath)
-            if index < len(piece) -1 and piece[index+1][:2] in ['\\f', '\\p', '\\m']:
-                draw_dynamics(sample_im, piece[index+1], x_pos-10, (90 + 0 if y_head_poses[0] - y_offset < 80 else y_head_poses[0] + 10), args)
-                n_indices += 1
-
             # check for accents
             # (necessary here, because accents are written behind the note in the piece string but should appear directly above/underneath)
-            if index < len(piece) -2 and piece[index+1] + piece[index+2] == '-\marcato':
+            if index < len(piece) -1 and piece[index] + piece[index+1] == '-\marcato':
                 accent_y_pos = y_head_poses[0] + 15 if not is_flipped else (y_head_poses[0] - 15 if len(tones) == 1 else y_head_poses[-1] + 15)
                 draw_symbol(sample_im, f'{args.hw_symbols_dir}/accents/marcato', (x_pos+5, accent_y_pos), is_flipped)
-                n_indices += 2
+                index += 2
+
+            # check for dynamics
+            # (necessary here, because dynamics are written behind the note in the piece string but should appear directly underneath)
+            if index < len(piece) and piece[index][:2] in ['\\f', '\\p', '\\m']:
+                draw_dynamics(sample_im, piece[index], x_pos-10, (90 + y_offset if y_head_poses[0] - y_offset < 80 else y_head_poses[0] + 10), args)
+                index += 1
 
             # draw note head(s)
             for i in range(len(tones)):
@@ -350,14 +352,11 @@ def draw_piece(string, sample_name, args):
                     draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos, y_pos))
 
             duration_counter += 1/duration + dot * (0.5/duration)
-            n_indices += len(tones)
 
         else:
             print('unrecognized_symbol: ', rule)
             index += 1
             continue
-
-        index += n_indices
 
         # update position, duration, and index counter
         x_pos += randint(args.min_symbol_dist, args.max_symbol_dist)
