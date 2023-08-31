@@ -287,15 +287,17 @@ class ActionDecider:
 
 
         # stop preview
-        elif re.match(r'marimbabot stop (playing|preview)?', command):
+        elif re.match(r'marimbabot stop', command):
             rospy.loginfo('Aborting play.')
             # stop any running threads by setting the event
             self.event.set()
-            # check if the planning action server or the lilypond_audio action server is currently active
+
+            # check if the planning action server is currently active
             if self.planning_client.simple_state == actionlib.SimpleGoalState.ACTIVE:
                 # cancel the goal of the planning action server
                 self.planning_client.cancel_goal()
 
+            # check if the lilypond_audio action server is currently active
             if self.lilypond_audio_client.simple_state == actionlib.SimpleGoalState.ACTIVE:
                 # cancel the goal of the lilypond_audio action server
                 self.lilypond_audio_client.cancel_goal()
