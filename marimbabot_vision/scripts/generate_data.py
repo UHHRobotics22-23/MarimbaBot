@@ -48,7 +48,7 @@ class LilypondGenerator():
         # OPTIONAL: one could add more articulations to the notes
         # marcato, stopped, tenuto, staccatissimo, accent, staccato, and portato
         # http://lilypond.org/doc/v2.22/Documentation/notation/expressive-marks-attached-to-notes
-        self.articulations = ['staccato', 'accent', 'tenuto', 'marcato', 'stopped', 'staccatissimo', 'portato']
+        self.articulations = ['marcato']
 
         self.dynamics = ['ppp', 'pp', 'p', 'mp', 'mf', 'f', 'ff', 'fff']
         self.tempos = [40, 60, 96, 120]
