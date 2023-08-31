@@ -284,6 +284,8 @@ def draw_piece(string, sample_name, args):
 
             # check for accents
             # (necessary here, because accents are written behind the note in the piece string but should appear directly above/underneath)
+
+            accent_y_pos = 0
             if index < len(piece) -1 and piece[index] + piece[index+1] == '-\marcato':
                 accent_y_pos = y_head_poses[0] + 15 if not is_flipped else (y_head_poses[0] - 15 if len(tones) == 1 else y_head_poses[-1] + 15)
                 draw_symbol(sample_im, f'{args.hw_symbols_dir}/accents/marcato', (x_pos+5, accent_y_pos), is_flipped)
@@ -292,7 +294,10 @@ def draw_piece(string, sample_name, args):
             # check for dynamics
             # (necessary here, because dynamics are written behind the note in the piece string but should appear directly underneath)
             if index < len(piece) and piece[index][:2] in ['\\f', '\\p', '\\m']:
-                draw_dynamics(sample_im, piece[index], x_pos-10, (90 + y_offset if y_head_poses[0] - y_offset < 80 else y_head_poses[0] + 10), args)
+                dynamic_y_pos = 90 + y_offset if y_head_poses[0] - y_offset < 80 else y_head_poses[0] + 10
+                if accent_y_pos != 0 and accent_y_pos - dynamic_y_pos < 10:
+                    dynamic_y_pos += 15
+                draw_dynamics(sample_im, piece[index], x_pos-10, dynamic_y_pos, args)
                 index += 1
 
             # draw note head(s)
