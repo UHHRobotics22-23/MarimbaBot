@@ -207,7 +207,7 @@ class ActionDecider:
                 self.response_pub.publish('No notes recognized.')
 
         # play the notes on the marimba using the UR5 or generate an audio preview
-        elif command == 'marimbabot start (playing|preview)':
+        elif re.match(r'marimbabot start (playing|preview)', command):
             # if a note sequence has been read via the 'read' command and the corresponding hit sequence is valid, the hit sequence is send to the planning action server
             if self.hit_sequence:
                 if 'playing' in command:
@@ -264,8 +264,8 @@ class ActionDecider:
 
 
         # stop preview
-        elif command == 'marimbabot stop (preview|playing)':
-            rospy.loginfo('Aborting play.')
+        elif command == 'marimbabot stop preview':
+            rospy.loginfo('Aborting preview.')
             self.response_pub.publish('')
 
         # # TODO: handle ROS exceptions from the planning side (e.g. planning failed, execution failed, ...)
