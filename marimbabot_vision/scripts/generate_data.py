@@ -41,7 +41,7 @@ class LilypondGenerator():
         self.chords = include_chords
         self.music_notes = ['c', 'd', 'e', 'f', 'g', 'a', 'b']
         self.rests = ['r']
-        self.accidentals = ['s', 'ss', 'f', 'ff']
+        self.accidentals = ['s', 'f']
         self.include_tempo = include_tempo
         self.min_duration = min_duration
 
@@ -183,8 +183,12 @@ class LilypondGenerator():
     adds dynamics to the voice
     """
     def add_dynamics(self, voice):
-        if random.random() < 0.3:
-            abjad.attach(abjad.Dynamic(random.choice(self.dynamics)), voice[0])
+        # set dynamic to random notes
+        for note in voice:
+            if random.random() < 0.1:
+                abjad.attach(abjad.Dynamic(random.choice(self.dynamics)), note)
+
+
 
     """
     generates a piece of music
