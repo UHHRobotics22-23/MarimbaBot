@@ -41,8 +41,8 @@ class ActionDecider:
         self.lilypond_audio_client = actionlib.SimpleActionClient('audio_from_lilypond', LilypondAudioAction)
 
         # Waits until the action server has started up and started
-        while not self.planning_client.wait_for_server(timeout=rospy.Duration(2)) and not rospy.is_shutdown():
-            rospy.loginfo('Waiting for the planning action server to come up')
+        # while not self.planning_client.wait_for_server(timeout=rospy.Duration(2)) and not rospy.is_shutdown():
+        #     rospy.loginfo('Waiting for the planning action server to come up')
 
         # Waits until the action server has started up and started
         while not self.lilypond_audio_client.wait_for_server(timeout=rospy.Duration(2)) and not rospy.is_shutdown():
@@ -147,7 +147,7 @@ class ActionDecider:
         
 
     # communicates with the planning action server to play the hit sequence on the marimba
-    def play(self, loop):
+    def play(self, loop=False):
         rospy.loginfo(f"playing notes: {self.note_sequence}")
         rospy.loginfo(f"goal_hit_sequence: {self.hit_sequence}")
 
@@ -173,11 +173,11 @@ class ActionDecider:
         if self.planning_client.simple_state == actionlib.SimpleGoalState.DONE:
             threading.Thread(target=planning_client_thread).start()
         else:    
-            rospy.logwarn('The motion is busy.')
-            self.response_pub.publish('The motion is busy.')
+            rospy.logwarn('The robot is already playing.')
+            self.response_pub.publish('The robot is already playing.')
 
     # communicates with the lilypond_audio action server to play the audio preview
-    def preview(self, loop):
+    def preview(self, loop=False):
         rospy.loginfo(f"playing audio preview of notes: {self.note_sequence}")
 
         def audio_from_lilypond_client_thread():
@@ -203,8 +203,8 @@ class ActionDecider:
         if self.lilypond_audio_client.simple_state == actionlib.SimpleGoalState.DONE:
             threading.Thread(target=audio_from_lilypond_client_thread).start()
         else:
-            rospy.logwarn('Preview is busy.')
-            self.response_pub.publish('Preview is busy.')
+            rospy.logwarn('The audio preview is already playing.')
+            self.response_pub.publish('The audio preview is already playing.')
 
     def callback_command(self, command_msg):
         command = command_msg.command.lower()
@@ -233,10 +233,21 @@ class ActionDecider:
                 # create event to stop the play if the 'stop' command is issued
                 self.event = threading.Event()
 
+                # if the motion is not busy, the hit sequence is send to the planning action server 
                 if 'playing' in command:
-                    self.play(loop)
-                else:
-                    self.preview(loop)
+                    if self.planning_client.simple_state == actionlib.SimpleGoalState.DONE:
+                        self.play(loop)
+                    else:
+                        rospy.logwarn('The robot is already playing.')
+                        self.response_pub.publish('The robot is already playing.')
+
+                # if the preview is not busy, the note sequence is send to the lilypond_audio action server
+                if 'preview' in command:
+                    if self.lilypond_audio_client.simple_state == actionlib.SimpleGoalState.DONE:
+                        self.preview(loop)
+                    else:
+                        rospy.logwarn('The audio preview is already playing.')
+                        self.response_pub.publish('The audio preview is already playing.')
             else:
                 rospy.logwarn('No notes to play. Say reed to read notes.')
                 self.response_pub.publish('No notes to play. Say reed to read notes.')
@@ -248,9 +259,12 @@ class ActionDecider:
                 value = int(command.split(' ')[-2])
                 result = self.assign_tempo(value)
                 if result == 'success':
-                    if 'play' in command:
+                    # if the motion is not busy, the hit sequence is send to the planning action server 
+                    if 'play' in command and self.planning_client.simple_state == actionlib.SimpleGoalState.DONE:
                         self.play()
-                    else:
+
+                    # if the preview is not busy, the note sequence is send to the lilypond_audio action server
+                    if 'preview' in command and self.lilypond_audio_client.simple_state == actionlib.SimpleGoalState.DONE:
                         self.preview()
             else:
                 rospy.logwarn('No notes to play. Say reed to read notes.')
@@ -263,9 +277,12 @@ class ActionDecider:
                 value = int(command.split(' ')[-2]) if 'by' in command else 20
                 result = self.change_tempo(faster=True if 'faster' in command else False, value=value)
                 if result == 'success':
-                    if 'play' in command:
+                    # if the motion is not busy, the hit sequence is send to the planning action server 
+                    if 'play' in command and self.planning_client.simple_state == actionlib.SimpleGoalState.DONE:
                         self.play()
-                    else:
+
+                    # if the preview is not busy, the note sequence is send to the lilypond_audio action server
+                    if 'preview' in command and self.lilypond_audio_client.simple_state == actionlib.SimpleGoalState.DONE:
                         self.preview()
             else:
                 rospy.logwarn('No notes to play. Say reed to read notes.')
@@ -277,16 +294,19 @@ class ActionDecider:
                 value = int(command.split(' ')[-2]) if 'by' in command else 1
                 result = self.change_volume(louder=(True if 'louder' in command else False), value=value)
                 if result == 'success':
-                    if 'play' in command:
+                    # if the motion is not busy, the hit sequence is send to the planning action server 
+                    if 'play' in command and self.planning_client.simple_state == actionlib.SimpleGoalState.DONE:
                         self.play()
-                    else:
+
+                    # if the preview is not busy, the note sequence is send to the lilypond_audio action server
+                    if 'preview' in command and self.lilypond_audio_client.simple_state == actionlib.SimpleGoalState.DONE:
                         self.preview()
             else:
                 rospy.logwarn('No notes to play. Say reed to read notes.')
                 self.response_pub.publish('No notes to play. Say reed to read notes.')
 
 
-        # stop preview
+        # abort the current play or preview (and any TTS)
         elif re.match(r'marimbabot stop', command):
             rospy.loginfo('Aborting play.')
             # stop any running threads by setting the event
