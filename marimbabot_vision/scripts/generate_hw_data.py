@@ -283,7 +283,7 @@ def draw_piece(string, sample_name, args):
             # check for dynamics
             # (necessary here, because dynamics are written behind the note in the piece string but should appear directly underneath)
             if index < len(piece) -1 and piece[index+1][:2] in ['\\f', '\\p', '\\m']:
-                draw_dynamics(sample_im, piece[index+1], x_pos-10, (90 + 0 if y_head_poses[0] < 80 else y_head_poses[0] + 10) + y_offset, args)
+                draw_dynamics(sample_im, piece[index+1], x_pos-10, (90 + 0 if y_head_poses[0] - y_offset < 80 else y_head_poses[0] + 10), args)
                 n_indices += 1
 
             # check for accents
