@@ -73,9 +73,8 @@ std::vector<DoubleMalletKeyframe> generate_double_trajectory(const std::vector<C
     int maximum_number_of_timestamps = mallet_base_trajectories[Mallet::LEFT].size() + mallet_base_trajectories[Mallet::RIGHT].size();
 
     for (int i = 0; i < maximum_number_of_timestamps; ++i) {
-
         // Check if we've reached the end of one of the trajectories (no more double planning is needed for the rest)
-        if (i >= mallet_base_trajectories[Mallet::LEFT].size() && i >= mallet_base_trajectories[Mallet::RIGHT].size()) {
+        if (i >= mallet_base_trajectories[Mallet::LEFT].size() || i >= mallet_base_trajectories[Mallet::RIGHT].size()) {
             break;
         }
 
@@ -130,7 +129,11 @@ std::vector<DoubleMalletKeyframe> generate_double_trajectory(const std::vector<C
         mallet_base_trajectories[Mallet::LEFT].size(),
         mallet_base_trajectories[Mallet::RIGHT].size());
 
-    double current_time = mallet_base_trajectories[Mallet::LEFT][0](3);
+    // Determine the mallet with the longest trajectory
+    Mallet longest_trajectory_mallet = mallet_base_trajectories[Mallet::LEFT].size() > mallet_base_trajectories[Mallet::RIGHT].size() ? Mallet::LEFT : Mallet::RIGHT;
+
+    // Store the the of the last keyframe while iterating
+    double current_time = mallet_base_trajectories[longest_trajectory_mallet][0](3);
 
     for (int i = 0; i < longest_trajectory; i++) {
         DoubleMalletKeyframe keyframe;
@@ -153,9 +156,11 @@ std::vector<DoubleMalletKeyframe> generate_double_trajectory(const std::vector<C
             keyframe.duration = mallet_base_trajectories[Mallet::RIGHT][i](3) - current_time;
         }
 
+        current_time = keyframe.duration + current_time;
+
         result.push_back(keyframe);
     }
-
+    
     return result;
 }
 
