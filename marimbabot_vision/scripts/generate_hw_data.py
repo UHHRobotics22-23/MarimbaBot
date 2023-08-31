@@ -29,6 +29,9 @@ SAMPLE_WIDTH = 583 # same dimensions as data generated with generate_data.py
 MIN_SYMBOL_DIST = 30
 MAX_SYMBOL_DIST = 50
 
+MIN_LINE_DIST = 50
+MAX_LINE_DIST = 80
+
 head_positions = {'c': 130, 'd': 125, 'e': 120, 'f': 115, 'g': 110, 'a': 105, 'b': 100}
 
 key_sharps_order = ['f\'\'', 'c\'\'', 'g\'\'', 'd\'\'', 'a\'']
@@ -42,7 +45,7 @@ def check_space(image, x_pos, y_offset, key, args):
     if x_pos > SAMPLE_WIDTH-70:
         key_num = key_sharps_num[key] if key in key_sharps_num.keys() else key_flats_num[key]
         x_pos = 40 + key_num*20 + randint(args.min_symbol_dist, args.max_symbol_dist)
-        y_offset += 90
+        y_offset += 40 + randint(args.min_line_dist, args.max_line_dist)
         draw_staff(image, y_offset, key, args)
     return x_pos, y_offset
 
@@ -399,6 +402,8 @@ if __name__ == "__main__":
     parser.add_argument("--name_prefix", type=str, required=False, help="Name prefix for the generated output files.", default=NAME_PREFIX)
     parser.add_argument("--min_symbol_dist", type=int, required=False, help="Minimum distance between notes.", default=MIN_SYMBOL_DIST)
     parser.add_argument("--max_symbol_dist", type=int, required=False, help="Maximum distance between notes.", default=MAX_SYMBOL_DIST)
+    parser.add_argument("--min_line_dist", type=int, required=False, help="Minimum distance between staff lines.", default=MIN_LINE_DIST)
+    parser.add_argument("--max_line_dist", type=int, required=False, help="Maximum distance between staff lines.", default=MAX_LINE_DIST)   
     parser.add_argument("--input_dir", type=str, required=False, help="Folder for the input data.", default=INPUT_DIR)
     parser.add_argument("--output_dir", type=str, required=False, help="Folder for the output data.", default=OUTPUT_DIR)
 
