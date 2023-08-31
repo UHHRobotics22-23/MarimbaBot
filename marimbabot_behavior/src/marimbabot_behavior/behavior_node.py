@@ -287,19 +287,21 @@ class ActionDecider:
 
 
         # stop preview
-        elif re.match(r'marimbabot stop (playing|preview)', command):
+        elif re.match(r'marimbabot stop (playing|preview)?', command):
             rospy.loginfo('Aborting play.')
             # stop any running threads by setting the event
             self.event.set()
-    
-            if 'playing' in command:
+            # check if the planning action server or the lilypond_audio action server is currently active
+            if self.planning_client.simple_state == actionlib.SimpleGoalState.ACTIVE:
                 # cancel the goal of the planning action server
                 self.planning_client.cancel_goal()
-            else:
+
+            if self.lilypond_audio_client.simple_state == actionlib.SimpleGoalState.ACTIVE:
                 # cancel the goal of the lilypond_audio action server
                 self.lilypond_audio_client.cancel_goal()
-                # send an empty message to the audio node to stop the audio preview (because the action server does not stop the audio preview)
-                self.response_pub.publish('')
+
+            # send an empty message to the soundplay node to stop any audio preview (or TTS)
+            self.response_pub.publish('')
 
         # # TODO: handle ROS exceptions from the planning side (e.g. planning failed, execution failed, ...)
 
