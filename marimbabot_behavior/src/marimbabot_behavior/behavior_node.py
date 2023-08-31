@@ -148,10 +148,9 @@ class ActionDecider:
 
     # communicates with the planning action server to play the hit sequence on the marimba
     def play(self, loop=False):
-        rospy.loginfo(f"playing notes: {self.note_sequence}")
-        rospy.loginfo(f"goal_hit_sequence: {self.hit_sequence}")
-
         def planning_client_thread():
+            rospy.loginfo(f"playing notes: {self.note_sequence}")
+
             # Sends the goal to the action server.
             self.planning_client.send_goal(self.hit_sequence, feedback_cb=self.planning_feedback_cb)
             # Waits for the server to finish performing the action.
@@ -162,12 +161,13 @@ class ActionDecider:
             # Check if we have a success
             if not self.planning_client.get_result().success:
                 self.response_pub.publish('The sequence could not be played.')
-
-            while loop:
-                self.planning_client.send_goal(self.hit_sequence, feedback_cb=self.planning_feedback_cb)
-                self.planning_client.wait_for_result()
-                if self.event.is_set():
-                    break
+            else:
+                while loop:
+                    rospy.loginfo(f"playing notes: {self.note_sequence}")
+                    self.planning_client.send_goal(self.hit_sequence, feedback_cb=self.planning_feedback_cb)
+                    self.planning_client.wait_for_result()
+                    if self.event.is_set():
+                        break
 
         # start thread to not block the main thread if the action server is not currently active
         if self.planning_client.simple_state == actionlib.SimpleGoalState.DONE:
@@ -178,9 +178,8 @@ class ActionDecider:
 
     # communicates with the lilypond_audio action server to play the audio preview
     def preview(self, loop=False):
-        rospy.loginfo(f"playing audio preview of notes: {self.note_sequence}")
-
         def audio_from_lilypond_client_thread():
+            rospy.loginfo(f"playing audio preview of notes: {self.note_sequence}")
             # Sends the goal to the action server.
             self.lilypond_audio_client.send_goal(LilypondAudioGoal(lilypond_string=String(data = self.note_sequence)))
             # Waits for the server to finish performing the action.
@@ -191,13 +190,15 @@ class ActionDecider:
             # Check if we have a success
             if not self.lilypond_audio_client.get_result().success:
                 self.response_pub.publish('The audio preview could not be played.')
-            
-            # if loop is True, the audio preview is played in a loop until the 'stop' command is issued
-            while loop:
-                self.lilypond_audio_client.send_goal(LilypondAudioGoal(lilypond_string=String(data = self.note_sequence)))
-                self.lilypond_audio_client.wait_for_result()
-                if self.event.is_set():
-                    break
+
+            else:            
+                # if loop is True, the audio preview is played in a loop until the 'stop' command is issued
+                while loop:
+                    rospy.loginfo(f"playing audio preview of notes: {self.note_sequence}")
+                    self.lilypond_audio_client.send_goal(LilypondAudioGoal(lilypond_string=String(data = self.note_sequence)))
+                    self.lilypond_audio_client.wait_for_result()
+                    if self.event.is_set():
+                        break
 
         # start thread to not block the main thread if the action server is not currently active
         if self.lilypond_audio_client.simple_state == actionlib.SimpleGoalState.DONE:
