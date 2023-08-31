@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 
 import argparse
-from functools import partial
 import os
 import re
 import shutil
+from functools import partial
 from multiprocessing import Pool
 
 import tqdm
-from numpy.random import choice, randint
-from PIL import Image, ImageDraw
-
 # use import for default value
 from generate_data import OUTPUT_DIR as INPUT_DIR
+from numpy.random import choice, randint
+from PIL import Image, ImageDraw
 
 # generates handwritten music notation by selecting randomly from handwritten symbols
 # iterates through the sample folders of INPUT_DIR and creates a corresponding handwritten sample folder in OUTPUT_DIR
