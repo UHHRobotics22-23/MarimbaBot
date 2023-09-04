@@ -21,7 +21,6 @@ class STT:
 		self.recognize_freq = 2  # Hz
 		self.recognize_rate = rospy.Rate(self.recognize_freq)
 		self.no_speech_prob_filter = 0.5
-		#rospy.logdebug(f"cwd:{os.getcwd()}")
 		self.prompt = self.generate_prompt()
 
 	def generate_prompt(self):
@@ -48,7 +47,6 @@ class STT:
 		speech_msg.speech = text
 		speech_msg.is_finished = tmp_file_msg.is_finished
 		self.speech_pub.publish(speech_msg)
-		#rospy.logdebug(f"speech published.")
 
 
 	def recognize(self, file_path:str):
@@ -64,13 +62,9 @@ class STT:
 		options = whisper.DecodingOptions(fp16=True, language='en',prompt=self.prompt)
 		time_1 = time.time()
 		rospy.logdebug('*'*30)
-		#rospy.logdebug(f"prerpocesing time:{time_1-time_0}")
 		result = whisper.decode(self.model, mel, options)
-		#rospy.logdebug(f"decoding time:{time.time()-time_1}")
 		text = result.text
 		no_speech_prob = result.no_speech_prob
-		#rospy.logdebug(f"no_speech_prob: {no_speech_prob}")
-		#rospy.logdebug(f" TEXT:{text}")
 		return text, no_speech_prob
 
 	def run(self):
