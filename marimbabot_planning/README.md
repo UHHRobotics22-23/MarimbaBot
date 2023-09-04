@@ -1,5 +1,12 @@
 # TAMS Master Project 2022/2023 - Planning
 
+### Test the motion in RViz / simulation environment
+Launch the Demo Mode as described in the main README.md. Then start the planning package with:
+
+```bash
+roslaunch marimbabot_planning marimbabot.launch
+```
+
 
 To give motion commands to the robot with one of these commands:
 
