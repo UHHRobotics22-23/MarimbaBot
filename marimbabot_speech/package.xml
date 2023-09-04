@@ -35,6 +35,6 @@
   <exec_depend>cython</exec_depend>
   <exec_depend>python3-scipy</exec_depend>
   <exec_depend>libhdf5-dev</exec_depend>
-  <exec_depend>python-h5py</exec_depend>
   <exec_depend>portaudio19-dev</exec_depend>
+    <!-- <exec_depend>python-h5py</exec_depend> -->
 </package>
