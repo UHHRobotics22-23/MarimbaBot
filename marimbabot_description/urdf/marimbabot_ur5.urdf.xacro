@@ -160,7 +160,7 @@
       <joint name="end_mallet" type="fixed">
         <parent link="s_model_palm" />
         <child link = "mallet_base_link" />
-        <origin xyz="0.0 ${(80+11)/1000} ${(-45)/1000}" rpy="0.0 0.0 ${pi}" />
+        <origin xyz="0.0 ${(80+11)/1000} ${(-48)/1000}" rpy="0.0 0.0 ${pi}" />
       </joint>
     </xacro:if>
     
