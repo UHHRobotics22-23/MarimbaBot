@@ -6,6 +6,10 @@
 This repository contains the codebase for a [Marimba](https://en.wikipedia.org/wiki/Marimba) playing robot developed during the TAMS Master Project 2022/2023.
 It is currently still "work in progress".
 
+<p align="center">
+  <img width="30%" src="https://github.com/UHHRobotics22-23/marimbabot/assets/15075613/277ce391-edd8-4c7a-8142-e50c12e855a2" alt="marimba playing robot" />
+</p>
+
 ## Declaration
 The file [onset_detection.py](https://github.com/UHHRobotics22-23/marimbabot/blob/main/marimbabot_audio/scripts/onset_detection.py) and sloe the [messages](https://github.com/UHHRobotics22-23/marimbabot/blob/main/marimbabot_audio/msg) in the package marimbabot_audio is a modification of [@v4hn](https://github.com/v4hn)'s base [repository](https://github.com/TAMS-Group/music_perception.git).
 
