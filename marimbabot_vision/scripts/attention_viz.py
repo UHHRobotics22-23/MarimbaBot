@@ -16,7 +16,7 @@ from transformers import (DonutProcessor, VisionEncoderDecoderConfig,
                           VisionEncoderDecoderModel)
 
 INPUT_FILE = './demo.png'
-MODEL = './model'
+MODEL = 'Flova/omr_transformer'
 
 # Load base model
 ved_config = VisionEncoderDecoderConfig.from_pretrained(MODEL)
