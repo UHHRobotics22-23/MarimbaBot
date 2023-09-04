@@ -9,9 +9,6 @@ find_package(catkin REQUIRED COMPONENTS
     message_generation
 )
 
-catkin_python_setup()
-
-
 generate_messages(
 DEPENDENCIES
   std_msgs
@@ -26,7 +23,6 @@ CATKIN_DEPENDS
 )
 
 include_directories(
-# include
   ${catkin_INCLUDE_DIRS}
 )
 

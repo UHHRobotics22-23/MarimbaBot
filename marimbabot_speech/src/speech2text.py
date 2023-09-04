@@ -1,8 +1,3 @@
-import os
-from nvidia import cudnn
-os.environ['LD_LIBRARY_PATH'] = f'{os.path.dirname(cudnn.__file__)}/lib:$LD_LIBRARY_PATH'
-# since I haven't specified the version of TensorFlow, it seems to install the newest version,
-# so according to official instruction, the environment needs to be configured.
 from marimbabot_msgs.msg import Speech as SpeechMsg
 from audio_common_msgs.msg import AudioData
 import rospy
