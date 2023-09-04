@@ -22,6 +22,7 @@ class STT:
 		self.model = whisper.load_model('medium.en')
 
 	def warm_up(self):
+		# input blank data to warmup the whisper model.
 		# 30 denote sec, since whisper take fixed length of audio data as input
 		self.recognize(np_data=np.zeros(self.sr*30, dtype=np.float32),pub_speech=False)
 		rospy.loginfo("Whisper model is warmed up!")

@@ -18,24 +18,27 @@
   <build_depend>message_generation</build_depend>
   <build_depend>sound_play</build_depend>
   <build_depend>audio_common_msgs</build_depend>
-  <build_depend>portaudio19-dev</build_depend>
+  <!-- <build_depend>portaudio19-dev</build_depend>
   <build_depend>libopenblas-dev</build_depend>
   <build_depend>cython</build_depend>
   <build_depend>python3-scipy</build_depend>
   <build_depend>libhdf5-dev</build_depend>
-  <build_depend>python3-h5py</build_depend>
+  <build_depend>python3-h5py</build_depend> -->
+  <build_depend>python3-precise-runner-pip</build_depend>
+
 
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>sound_play</exec_depend>
   <exec_depend>audio_common_msgs</exec_depend>
-  <exec_depend>libopenblas-dev</exec_depend>
+  <!-- <exec_depend>libopenblas-dev</exec_depend>
   <exec_depend>cython</exec_depend>
   <exec_depend>python3-scipy</exec_depend>
   <exec_depend>portaudio19-dev</exec_depend>
   <exec_depend>libhdf5-dev</exec_depend>
-  <exec_depend>python3-h5py</exec_depend>
+  <exec_depend>python3-h5py</exec_depend> -->
+    <exec_depend>python3-precise-runner-pip</exec_depend>
   
 
 </package>
