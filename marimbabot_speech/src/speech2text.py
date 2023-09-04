@@ -97,8 +97,6 @@ class STT:
 		return text, no_speech_prob
 
 if __name__ == '__main__':
-	# TODO: Finish the command extraction
-	# TODO: consider the voice from other group members, i.e. change the dataset and retrain the model
 	rospy.init_node('speech_recognition_node', log_level=rospy.DEBUG)
 	sst = STT()
 	sst.run()
