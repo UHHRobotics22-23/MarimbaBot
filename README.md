@@ -58,6 +58,18 @@ rosdep install serial
 # Install python dependencies
 pip3 install wheel  # firstly install the wheel for further package building if you start from a empty virtual environment.
 pip3 install -r src/marimbabot/requirements.txt
+
+# installation of precise-runner for keyword spooting
+# first, make sure all the necessary software are installed.
+sudo apt install python3-pip \
+libopenblas-dev \
+python3-scipy \
+cython \
+libhdf5-dev \
+python3-h5py \
+portaudio19-dev
+# then, install the kws runner.
+pip3 install precise-runner
 ```
 
 Now you are ready to go.
