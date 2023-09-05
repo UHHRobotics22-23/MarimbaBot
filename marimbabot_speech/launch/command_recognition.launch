@@ -6,8 +6,6 @@
     <node name="speech2text_node" pkg="marimbabot_speech" type="speech2text.py" output="screen"/>
     <node name="audio_capture" pkg="audio_capture" type="audio_capture" output="screen">
       <param name="device" value="plughw:2,0" />
-      <param name="device" value="" />
-
       <param name="format" value="wave" />
       <param name="channels" value="1" />
       <param name="depth" value="16" />
