@@ -1,14 +1,9 @@
-import os
-from nvidia import cudnn
-os.environ['LD_LIBRARY_PATH'] = f'{os.path.dirname(cudnn.__file__)}/lib:$LD_LIBRARY_PATH'
-# since I haven't specified the version of TensorFlow, it seems to install the newest version,
-# so according to official instruction, the environment needs to be configured.
 from precise_runner import PreciseEngine, PreciseRunner, ReadWriteStream
-from audio_common_msgs.msg import AudioDataStamped, AudioData
-from std_msgs.msg import Float32
 import rospy
 import webrtcvad
 from playsound import playsound
+from audio_common_msgs.msg import AudioDataStamped, AudioData
+from std_msgs.msg import Float32
 
 VAD_ON = False
 KWS_ON = True
@@ -31,11 +26,10 @@ class SpeechExtraction:
 
 	def __init__(self,
 	             sensitivity=0.5,
-	             log_level=rospy.DEBUG,
 	             engine_path=None,
 	             model_path=None,
 	             remind_sound_path=None):
-		self.log_level = log_level
+
 		self.sensitivity = sensitivity
 		self.remind_sound_path = remind_sound_path
 		self.stream = None
@@ -48,8 +42,6 @@ class SpeechExtraction:
 		self.speech_buffer_pub = rospy.Publisher('/speech_node/speech_buffer', AudioData, queue_size=500)
 		self.audio_sub = rospy.Subscriber('/speech_node/audio_stamped', AudioDataStamped, self.audio_stream_callback,
 		                                  queue_size=500, tcp_nodelay=True)
-		if self.log_level == rospy.DEBUG:
-			self.prob_pub = rospy.Publisher('keyword_spotting/prob', Float32, queue_size=20)
 
 	def init_audio(self):
 		self.buffer = b''  # buffer for audio data
@@ -99,8 +91,8 @@ class SpeechExtraction:
 	def on_activation(self):
 		global KWS_ON
 		global VAD_ON
-		if self.log_level == rospy.DEBUG:
-			rospy.logdebug("Keyword spotted!")
+
+		rospy.logdebug("Keyword spotted!")
 		playsound(self.remind_sound_path)
 		rospy.sleep(0.1)  # TODO check if this is necessary
 		VAD_ON = True
@@ -154,8 +146,7 @@ class SpeechExtraction:
 
 
 if __name__ == '__main__':
-	log_level = rospy.DEBUG
-	rospy.init_node('keyword_spotting_node', anonymous=True, log_level=log_level)
+	rospy.init_node('keyword_spotting_node', anonymous=True, log_level=rospy.INFO)
 	# start the keyword spotting
 	engine_path = rospy.get_param('~engine_path')  # engine of KWS
 	model_path = rospy.get_param('~model_path')  # model of KWS
@@ -163,7 +154,6 @@ if __name__ == '__main__':
 	keyword_spotting = SpeechExtraction(
 		engine_path=engine_path,
 		model_path=model_path,
-		log_level=log_level,
 		remind_sound_path=remind_sound_path,
 	)
 	keyword_spotting.start()

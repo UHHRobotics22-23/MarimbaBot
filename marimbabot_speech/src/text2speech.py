@@ -1,8 +1,9 @@
+import subprocess
+import tempfile
 import rospy
 from sound_play.msg import SoundRequest
 from std_msgs.msg import String
-import subprocess
-import tempfile
+
 
 class SpeechSynthesis:
     def __init__(self):

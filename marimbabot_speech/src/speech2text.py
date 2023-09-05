@@ -1,9 +1,9 @@
-from marimbabot_msgs.msg import Speech as SpeechMsg
-from audio_common_msgs.msg import AudioData
+import struct
 import rospy
 import whisper
 import numpy as np
-import struct
+from marimbabot_msgs.msg import Speech as SpeechMsg
+from audio_common_msgs.msg import AudioData
 
 # Speech to text recognition, it is a wrapper of whisper
 class STT:
@@ -52,7 +52,9 @@ class STT:
 
 	# To address the way how to unpack the data for whisper
 	def unpack_stream(self, data):
-		return np.array(struct.unpack(f"{int(len(data) / 2)}h", bytes(data)), dtype=float) / 526
+		# return np.array(struct.unpack(f"{int(len(data) / 2)}h", bytes(data)), dtype=float) / 526
+		return np.frombuffer(data, dtype=np.float64)/526
+
 
 	def generate_prompt(self):
 		# commands = get_commands()
