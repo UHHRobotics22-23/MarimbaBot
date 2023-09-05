@@ -1,4 +1,4 @@
-#!/home/wang/anaconda3/envs/py36/bin/python
+!/home/wang/anaconda3/envs/py36/bin/python
 # EASY-INSTALL-ENTRY-SCRIPT: 'mycroft-precise','console_scripts','precise-engine'
 import re
 import sys
