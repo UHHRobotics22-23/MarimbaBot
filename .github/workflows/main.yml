@@ -4,7 +4,7 @@ on: [pull_request, workflow_dispatch]
 
 jobs:
   main_ci:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
@@ -14,26 +14,20 @@ jobs:
           ROS_DISTRO: noetic
           ROS_REPO: main
           AFTER_SETUP_TARGET_WORKSPACE: /root/target_ws/src/marimbabot/load_vcs_workspace.sh
-      - name: Set up Python 3.8.10
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.8.10
-      - name: Install python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install wheel
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi      
-
-  # build_python_requirements:
-  #   runs-on: ubuntu-20.04
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #   - name: Set up Python 3.8.10
-  #     uses: actions/setup-python@v4
-  #     with:
-  #       python-version: 3.8.10
-  #   - name: Install dependencies
-  #     run: |
-  #       python -m pip install --upgrade pip
-  #       pip install wheel
-  #       if [ -f requirements.txt ]; then pip install -r requirements.txt; fi        
+  build_python_requirements:
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install portaudio system dependency
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y portaudio19-dev
+    - name: Set up Python 3.8.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.8.10
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install wheel
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi      
