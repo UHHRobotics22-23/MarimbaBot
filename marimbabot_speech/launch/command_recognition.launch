@@ -1,18 +1,20 @@
 <launch>
-    <!-- Commandline: "arecord -l" will show available input devices, use the card number as
-      the first number and the subdevice number as the second in a string
-      like plughw:1,0 -->
+
   <group ns="speech_node">
     <node name="speech2text_node" pkg="marimbabot_speech" type="speech2text.py" output="screen"/>
     <node name="audio_capture" pkg="audio_capture" type="audio_capture" output="screen">
-      <param name="device" value="plughw:2,0" />
+      <!-- Commandline: "arecord -l" will show available input devices, use the card number as
+        the first number and the subdevice number as the second in a string
+        like plughw:1,0 -->
+      <param name="device" value="plughw:2,0" />  
+      <param name="device" value="" />
       <param name="format" value="wave" />
       <param name="channels" value="1" />
       <param name="depth" value="16" />
       <param name="sample_rate" value="16000" />
     </node>
     <node name="speech_extraction_node" pkg="marimbabot_speech" type="speech_extraction.py" output="screen">
-        <param name="engine_path"  value="$(find marimbabot_speech)/config/kws/precise-engine"/>
+        <param name="engine_path"  value="$(find marimbabot_speech)/config/kws/precise-engine/precise-engine"/>
         <param name="model_path"  value="$(find marimbabot_speech)/config/kws/hi-marimbabot.pb"/>
         <param name="remind_sound_path"  value="$(find marimbabot_speech)/config/kws/reminder.wav"/>
         <param name="wad_silence_t"  value="1"/>
