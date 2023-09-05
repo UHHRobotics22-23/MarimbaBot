@@ -99,7 +99,7 @@ class STT:
 		return text, no_speech_prob
 
 if __name__ == '__main__':
-	rospy.init_node('speech_recognition_node', log_level=rospy.DEBUG)
+	rospy.init_node('speech_recognition_node', log_level=rospy.INFO)
 	sst = STT()
 	sst.run()
 

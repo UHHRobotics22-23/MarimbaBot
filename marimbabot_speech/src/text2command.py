@@ -41,7 +41,6 @@ def examples_test():
 	command_list = simple_command_list + complicated_command_list
 	for command_text in command_list:
 		command_dict = command_extractor.extract(command_text)
-		print(f"{command_text}:{command_dict}")
 
 def dummy_clinet_command_subscriber():
 	# dummy client for command subscriber, for testing and instruction purpose
@@ -177,6 +176,6 @@ class CommandExtraction():
 			}
 
 if __name__ == '__main__':
-	rospy.init_node('command_extractor',log_level=rospy.DEBUG)
+	rospy.init_node('command_extractor',log_level=rospy.INFO)
 	command_extractor = CommandExtraction()
 	rospy.spin()
