@@ -14,7 +14,7 @@
       <param name="sample_rate" value="16000" />
     </node>
     <node name="speech_extraction_node" pkg="marimbabot_speech" type="speech_extraction.py" output="screen">
-        <param name="engine_path"  value="$(find marimbabot_speech)/config/kws/precise-engine/precise-engine"/>
+        <param name="engine_path"  value="$(find marimbabot_speech)/precise-engine/precise-engine"/>
         <param name="model_path"  value="$(find marimbabot_speech)/config/kws/hi-marimbabot.pb"/>
         <param name="remind_sound_path"  value="$(find marimbabot_speech)/config/kws/reminder.wav"/>
         <param name="wad_silence_t"  value="1"/>
