@@ -55,6 +55,9 @@ class ActionDecider:
             value=20
         elif value > 120:
             value=120
+
+            # if the value is clipped, inform the user
+            self.response_pub.publish('The current tempo was clipped to 120 bpm.')
         else:
             value=value
         
