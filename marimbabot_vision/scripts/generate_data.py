@@ -25,6 +25,7 @@ INCLUDE_SCALES = True
 INCLUDE_REPEATS = True
 INCLUDE_CHORDS = True
 INCLUDE_TEMPO = True
+RENDER_IMAGES = True
 
 """
 This script generates random music scores in lilypond format.
@@ -222,12 +223,7 @@ class LilypondGenerator():
 
         return string, staff_1
 
-    
-"""Generate a sample and save it to disk"""
-def generate_sample(i, args):
-    lilypondGenerator = args.lilypondGenerator
-    string, staff = lilypondGenerator.generate_piece()
-    os.makedirs(f"{args.output_dir}/{i}", exist_ok=True)
+def createLilypondFile(staff):
     header_block = Block(name="header")
     header_block.tagline = "#ff"
     lilypond_file = LilyPondFile(
@@ -238,16 +234,53 @@ def generate_sample(i, args):
             staff,
         ],
     )
-    # save the lilypond file and rotate by 90 degrees
-    as_png(lilypond_file, f"{args.output_dir}/{i}/staff_1.png", resolution=200)
-    # turn png by 90 degrees
-    im = Image.open(f"{args.output_dir}/{i}/staff_1.png")
-    im = im.rotate(-90, expand=True)
-    im.save(f"{args.output_dir}/{i}/staff_1.png")
 
-    # save the lilypond file
-    with open(f"{args.output_dir}/{i}/staff_1.txt", 'w') as f:
-        f.write(string)
+    return lilypond_file
+    
+"""Generate a sample and save it to disk"""
+def generate_sample(i, args):
+    lilypondGenerator = args.lilypondGenerator
+
+    # check whether folder exists, if exists read the .ly files/note piece
+    path = f"{args.output_dir}/{i}"
+    if os.path.exists(path):
+        print("Path exists")
+        # read LilypondFile
+        with open(f"{path}/staff_1.txt", 'r') as file:  
+            file_string = file.read()
+
+            # check if file string includes repeat. If yes, remove it as it is added later
+            set_repeat = False
+            if "\\repeat volta" in file_string:
+                file_string = file_string.replace("\\repeat volta 2", "")
+                set_repeat = True
+
+            voice_1 = Voice(file_string, name="Voice_1")
+            if set_repeat:
+                repeat = abjad.Repeat()
+                abjad.attach(repeat, voice_1)
+
+            staff = Staff([voice_1], name="Staff_1")
+            lilypond_file = createLilypondFile(staff)
+    else:
+        # generate a new piece
+        string, staff = lilypondGenerator.generate_piece()
+        os.makedirs(path, exist_ok=True)
+        # save the lilypond file
+        with open(f"{path}/staff_1.txt", 'w') as f:
+            f.write(string)
+
+        lilypond_file = createLilypondFile(staff)
+        abjad.persist.as_ly(lilypond_file, f"{path}/staff_1.ly")
+
+    if args.render_images:
+        # save the lilypond file and rotate by 90 degrees
+        as_png(lilypond_file, f"{path}/staff_1.png", resolution=200)
+        # turn png by 90 degrees
+        im = Image.open(f"{path}/staff_1.png")
+        im = im.rotate(-90, expand=True)
+        im.save(f"{path}/staff_1.png")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Artificial data generation.")
@@ -262,14 +295,14 @@ if __name__ == "__main__":
     parser.add_argument("--chords", type=bool, required=False, help="Determine whether to sample data that includes dynamics chords.", default=INCLUDE_CHORDS)
     parser.add_argument("--repeats", type=bool, required=False, help="Determine whether to sample data that includes dynamics repeats.", default=INCLUDE_REPEATS)
     parser.add_argument("--tempo", type=bool, required=False, help="Determine whether to sample data that includes dynamics tempo.", default=INCLUDE_TEMPO)
-
+    parser.add_argument("--render_images", type=bool, required=False, help="Determine whether to render images.", default=RENDER_IMAGES)
 
     args = parser.parse_args()
     args.lilypondGenerator = LilypondGenerator(include_dynamics=args.dynamics, include_articulations=args.articulations,\
                                                 include_chords=args.chords, include_scales=args.scales,\
                                                 include_repeat=args.repeats, include_slurs=args.slurs, include_tempo=args.tempo,\
                                                 min_duration=args.min_duration
-                                            )
+)
     print("Generating samples in folder: ", args.output_dir)
 
     # Call generate_sample on ids with tqdm and multiprocessing (lilypond is single threaded)
