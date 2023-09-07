@@ -26,10 +26,10 @@ class STT:
 	def generate_prompt(self):
 		commands = get_commands()
 		base_prompt = '''We do a demo of Marimbabot a marimba playing robot arm. Now some demonstrations. marimbabot read. marimbabot play.'''
-		"""
+		
 		for command in commands:
 			base_prompt += ''.join(f'{command.strip()}, ')
-		"""
+		
 		rospy.logdebug(f"Generate prompt as: {base_prompt}.")
 		return base_prompt
 		
