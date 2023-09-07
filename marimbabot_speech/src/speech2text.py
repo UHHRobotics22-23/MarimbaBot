@@ -21,17 +21,18 @@ class STT:
 		self.recognize_freq = 2  # Hz
 		self.recognize_rate = rospy.Rate(self.recognize_freq)
 		self.no_speech_prob_filter = 0.5
-		rospy.logdebug(f"cwd:{os.getcwd()}")
 		self.prompt = self.generate_prompt()
 
 	def generate_prompt(self):
 		commands = get_commands()
-		base_prompt = '''Marimbabot is a marimba playing robot arm. The possible commands include:		
-		'''
+		base_prompt = '''We do a demo of Marimbabot a marimba playing robot arm. Now some demonstrations. marimbabot read. marimbabot play.'''
+		
 		for command in commands:
 			base_prompt += ''.join(f'{command.strip()}, ')
+		
 		rospy.logdebug(f"Generate prompt as: {base_prompt}.")
 		return base_prompt
+		
 
 
 	def tmp_callback(self, tmp_file_msg):
@@ -46,7 +47,6 @@ class STT:
 		speech_msg.speech = text
 		speech_msg.is_finished = tmp_file_msg.is_finished
 		self.speech_pub.publish(speech_msg)
-		rospy.logdebug(f"speech published.")
 
 
 	def recognize(self, file_path:str):
@@ -62,13 +62,9 @@ class STT:
 		options = whisper.DecodingOptions(fp16=True, language='en',prompt=self.prompt)
 		time_1 = time.time()
 		rospy.logdebug('*'*30)
-		rospy.logdebug(f"prerpocesing time:{time_1-time_0}")
 		result = whisper.decode(self.model, mel, options)
-		rospy.logdebug(f"decoding time:{time.time()-time_1}")
 		text = result.text
 		no_speech_prob = result.no_speech_prob
-		rospy.logdebug(f"no_speech_prob: {no_speech_prob}")
-		rospy.logdebug(f" TEXT:{text}")
 		return text, no_speech_prob
 
 	def run(self):
