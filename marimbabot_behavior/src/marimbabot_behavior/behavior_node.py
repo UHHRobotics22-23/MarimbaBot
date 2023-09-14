@@ -58,6 +58,11 @@ class ActionDecider:
 
     # sets the tempo of the current sequence and updates the hit sequence
     def assign_tempo(self, value=60):
+        if value < 20 or value > 120:
+            rospy.logwarn('Tempo can only be set between 20 and 120 BPM.')
+            self.response_pub.publish('Tempo can only be set between 20 and 120 BPM.')
+            return 'fail'
+        
         # if there is already a tempo symbol in the sequence, replace it with the new tempo value
         if '\\tempo' in self.note_sequence:
             self.note_sequence = re.sub(r'\\tempo 4=[0-9]+', '\\\\tempo 4={}'.format(value), self.note_sequence)
