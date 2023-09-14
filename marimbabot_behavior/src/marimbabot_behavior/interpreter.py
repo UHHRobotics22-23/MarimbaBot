@@ -12,7 +12,7 @@ def create_staff_from_notes(notes):
     # check if file string includes repeat. If yes, remove it as it is added later
     set_repeat = False
     if "\\repeat volta" in notes:
-        print("repeat found")
+        rospy.logdebug("Found a 'repeat volta' in the notes. Removing it as it is added manually.")
         notes = notes.replace("\\repeat volta 2", "")
         set_repeat = True
 
