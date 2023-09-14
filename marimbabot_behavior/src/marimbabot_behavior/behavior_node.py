@@ -103,14 +103,16 @@ class ActionDecider:
             return 'fail'
 
         # check if note has an accent
-        dynamic_index += 2 if sequence_list[dynamic_index] == '-' else 0
-        rospy.logdebug(f"dynamic_index: {dynamic_index}")
+        if dynamic_index+2 < len(sequence_list) and sequence_list[dynamic_index] == '-':
+            dynamic_index += 2
 
         # add (or update) the dynamic symbol after the first note
-        if sequence_list[dynamic_index] in dynamics:
+        if dynamic_index < len(sequence_list) and sequence_list[dynamic_index] in dynamics:
             if override:
-                sequence_list = sequence_list[dynamic_index] = value
+                rospy.loginfo('Changing the volume of the first note to {}.'.format(value))
+                sequence_list[dynamic_index] = value
         else:
+            rospy.loginfo('Assigning the volume of the first note to {}.'.format(value))
             sequence_list = sequence_list[:dynamic_index] + [value] + sequence_list[dynamic_index:]
         self.note_sequence = ' '.join(sequence_list)
 
@@ -147,6 +149,8 @@ class ActionDecider:
                 return 'fail'
             
             # change the volume of all dynamic symbols in the sequence
+            rospy.loginfo('Increasing each dynamic symbol by {} steps.'.format(value) if louder else 'Decreasing each dynamic symbol by {} steps.'.format(value))
+
             for i, x in sequence_dynamics:
                 new_dynamic = dynamics[min(dynamics.index(x)+value, 7)] if louder else dynamics[max(dynamics.index(x)-value, 0)]
                 sequence_list[i] = new_dynamic
