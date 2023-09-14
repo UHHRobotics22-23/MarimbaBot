@@ -79,8 +79,8 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     move_group_interface_.setStartState(start_state);
 
     // Check if goal point is in the same frame as the planning frame
-    assert(goal.left_mallet_active && (goal.left_mallet_position.header.frame_id == move_group_interface_.getPlanningFrame()));
-    assert(goal.right_mallet_active && (goal.right_mallet_position.header.frame_id == move_group_interface_.getPlanningFrame()));
+    assert(!goal.left_mallet_active || (goal.left_mallet_position.header.frame_id == move_group_interface_.getPlanningFrame()));
+    assert(!goal.right_mallet_active || (goal.right_mallet_position.header.frame_id == move_group_interface_.getPlanningFrame()));
 
     // Check if none of the mallets is defined else print error
     assert(goal.left_mallet_active || goal.right_mallet_active);
@@ -139,7 +139,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     }
 
     // Set auxilary goals if we play with only one mallet
-    if (!(goal.left_mallet_active && goal.right_mallet_active)) {
+    if (goal.left_mallet_active != goal.right_mallet_active) {
         // Keep the double mallet joint at 70 degrees
         ik_options.goals.emplace_back(new bio_ik::JointVariableGoal("mallet_finger", 60.0 * M_PI / 180.0));
         // Add joint variable goal for the wrist joint to avoid unnecessary rotations
@@ -148,12 +148,6 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
 
     // Add link on plane constraint to ik_options
     ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_1_link", link_on_plane_constraint(tf2::Vector3(0.0, 0.0, 1.3))));
-
-    // Double mallet specific goals that move the second mallet out of the way
-    // Add link on plane constraint to hold the second mallet head in place
-    ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("mallet_head_2", link_on_plane_constraint(tf2::Vector3(0.0, 0.0, 1.0))));
-    // Keep the double mallet joint at 70 degrees
-    ik_options.goals.emplace_back(new bio_ik::JointVariableGoal("mallet_finger", 60.0 * M_PI / 180.0));
     
     // Create minimal displacement goal, so that the robot does not move too much and stays close to the start state
     ik_options.goals.emplace_back(new bio_ik::MinimalDisplacementGoal());
@@ -218,7 +212,9 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::move_to_key_point
     // Show warning if the approach time was clamped
     if(duration_clamped != next_keyframe.duration)
     {
-        ROS_WARN("The keyframe approach time was clamped from %f to %f", duration_clamped, next_keyframe.duration);
+        ROS_WARN("The keyframe approach time was clamped from %f to %f", 
+            next_keyframe.duration,
+            plan_to_keyframe.trajectory_.joint_trajectory.points.back().time_from_start.toSec());
     }
 
     auto retimed_plan = slow_down_plan(plan_to_keyframe, duration_clamped);
