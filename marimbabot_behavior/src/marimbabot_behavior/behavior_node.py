@@ -40,11 +40,11 @@ class ActionDecider:
         # action client to send the note_sequence to the lilypond_audio action server
         self.lilypond_audio_client = actionlib.SimpleActionClient('audio_from_lilypond', LilypondAudioAction)
 
-        # Waits until the action server has started up and started
+        # Waits until the action server has started
         # while not self.planning_client.wait_for_server(timeout=rospy.Duration(2)) and not rospy.is_shutdown():
         #     rospy.loginfo('Waiting for the planning action server to come up')
 
-        # Waits until the action server has started up and started
+        # Waits until the action server has started
         while not self.lilypond_audio_client.wait_for_server(timeout=rospy.Duration(2)) and not rospy.is_shutdown():
             rospy.loginfo('Waiting for the audio_from_lilypond action server to come up')
 
@@ -79,6 +79,44 @@ class ActionDecider:
             return 'fail' 
         else:
             return self.assign_tempo(new_bpm)
+
+    def assign_volume(self, value='\\mp', override=False):
+        dynamics = ['\\ppp', '\\pp', '\\p', '\\mp', '\\mf', '\\f', '\\ff', '\\fff']
+
+        if value not in dynamics:
+            rospy.logwarn('Volume not valid.')
+            self.response_pub.publish('Volume not valid.')
+            return 'fail'
+
+        sequence_list = self.note_sequence.split(' ')
+
+        # get the index of the first note
+        dynamic_index = None
+        for i, x in enumerate(sequence_list):
+            if re.match(r'[a-g]\'*[0-9]+(\>)?(\.)?', x):
+                dynamic_index = i+1
+                break
+        
+        if not dynamic_index:
+            rospy.logwarn('Cannot assign volume if there are no notes.')
+            self.response_pub.publish('Cannot assign volume if there are no notes.')
+            return 'fail'
+
+        # check if note has an accent
+        dynamic_index += 2 if sequence_list[dynamic_index] == '-' else 0
+        rospy.logdebug(f"dynamic_index: {dynamic_index}")
+
+        # add (or update) the dynamic symbol after the first note
+        if sequence_list[dynamic_index] in dynamics:
+            if override:
+                sequence_list = sequence_list[dynamic_index] = value
+        else:
+            sequence_list = sequence_list[:dynamic_index] + [value] + sequence_list[dynamic_index:]
+        self.note_sequence = ' '.join(sequence_list)
+
+        rospy.loginfo(f"updated notes: {self.note_sequence}")
+        self.update_hit_sequence()
+        return 'success'
 
     # changes the volume of the current sequence and updates the hit sequence
     def change_volume(self, louder=True, value=1):
@@ -117,18 +155,6 @@ class ActionDecider:
             rospy.loginfo(f"updated notes: {self.note_sequence}")
             self.update_hit_sequence()
             return 'success'
-
-        # if there are no dynamic symbols in the sequence, add the next louder/softer dynamic symbol at the beginning of the sequence (default: mp)
-        else:
-            volume = ' {} '.format(dynamics[4+value] if louder else dynamics[4-value])
-            # get the position after the first note
-            dynamic_index = re.search(r'[^\\][a-g]\'*[0-9]+', self.note_sequence).end()
-            
-            # insert volume symbol after first note
-            self.note_sequence = self.note_sequence[:dynamic_index] + volume + self.note_sequence[dynamic_index+1:]
-            rospy.loginfo(f"updated notes: {self.note_sequence}")
-            self.update_hit_sequence()
-            return 'success'
             
     """
     Callback function for the feedback from the planning action server.
@@ -145,7 +171,6 @@ class ActionDecider:
         self.sequence_id_counter += 1
         self.hit_sequence_pub.publish(hit_sequence_msg)
         
-
     # communicates with the planning action server to play the hit sequence on the marimba
     def play(self, loop=False):
         def planning_client_thread():
@@ -293,6 +318,9 @@ class ActionDecider:
             # check if a note sequence has been read via the 'read' command
             if self.note_sequence:
                 value = int(command.split(' ')[-2]) if 'by' in command else 1
+                # assign a default volume (mp) for the first note if there is no dynamic symbol in the sequence
+                self.assign_volume()
+                # change each dynamic symbol of the sequence by the specified value
                 result = self.change_volume(louder=(True if 'louder' in command else False), value=value)
                 if result == 'success':
                     # if the motion is not busy, the hit sequence is send to the planning action server 
