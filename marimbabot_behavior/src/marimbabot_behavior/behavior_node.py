@@ -250,7 +250,7 @@ class ActionDecider:
                         rospy.logwarn('The audio preview is already playing.')
                         self.response_pub.publish('The audio preview is already playing.')
             else:
-                rospy.logwarn('No notes to play. Say reed to read notes.')
+                rospy.logwarn('No notes to play. Say read to read notes.')
                 self.response_pub.publish('No notes to play. Say reed to read notes.')
         
         # play in specified tempo
@@ -268,7 +268,7 @@ class ActionDecider:
                     if 'preview' in command and self.lilypond_audio_client.simple_state == actionlib.SimpleGoalState.DONE:
                         self.preview()
             else:
-                rospy.logwarn('No notes to play. Say reed to read notes.')
+                rospy.logwarn('No notes to play. Say read to read notes.')
                 self.response_pub.publish('No notes to play. Say reed to read notes.')
 
         # play faster or slower than the current tempo (by specified bpm value, default = 20)
@@ -286,7 +286,7 @@ class ActionDecider:
                     if 'preview' in command and self.lilypond_audio_client.simple_state == actionlib.SimpleGoalState.DONE:
                         self.preview()
             else:
-                rospy.logwarn('No notes to play. Say reed to read notes.')
+                rospy.logwarn('No notes to play. Say read to read notes.')
                 self.response_pub.publish('No notes to play. Say reed to read notes.')
 
         elif re.match(r'marimbabot (play|preview) (louder|softer)( by [0-9]+ steps)?', command):
@@ -303,7 +303,7 @@ class ActionDecider:
                     if 'preview' in command and self.lilypond_audio_client.simple_state == actionlib.SimpleGoalState.DONE:
                         self.preview()
             else:
-                rospy.logwarn('No notes to play. Say reed to read notes.')
+                rospy.logwarn('No notes to play. Say read to read notes.')
                 self.response_pub.publish('No notes to play. Say reed to read notes.')
 
 
