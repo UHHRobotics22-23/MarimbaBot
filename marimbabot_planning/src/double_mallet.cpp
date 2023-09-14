@@ -6,9 +6,9 @@ namespace marimbabot_planning
 std::vector<Eigen::Vector4f> generate_base_trajectory(const std::vector<CartesianHitSequenceElement>& hit_points, float travel_height) {
     std::vector<Eigen::Vector4f> result;
 
-    double fastest_down_stroke_duration = 0.1;
-    double most_silent_hit_duration = 0.3;
-    double retreat_speed = 0.2;
+    double fastest_down_stroke_duration = 0.5;
+    double most_silent_hit_duration = 1.0;
+    double retreat_speed = 0.1;
 
     double last_note_end = -1000;
 
