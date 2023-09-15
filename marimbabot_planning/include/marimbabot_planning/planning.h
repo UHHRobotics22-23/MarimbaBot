@@ -3,7 +3,9 @@
 #include <bio_ik/bio_ik.h>
 #include <geometry_msgs/PointStamped.h>
 #include <geometry_msgs/Pose.h>
+#include <interactive_markers/interactive_marker_server.h>
 #include <iostream>
+#include <list>
 #include <marimbabot_msgs/HitSequenceAction.h>
 #include <marimbabot_planning/double_mallet.h>
 #include <marimbabot_planning/utils.h>
@@ -17,7 +19,6 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
-#include <list>
 
 namespace marimbabot_planning
 {
@@ -36,11 +37,28 @@ class Planning
         // Action server
         actionlib::SimpleActionServer<marimbabot_msgs::HitSequenceAction> action_server_;
 
+        // Create interactive marker server
+        interactive_markers::InteractiveMarkerServer interactive_marker_server_;
+
         // Create a trajectory publisher
         ros::Publisher trajectory_publisher_ = nh_.advertise<moveit_msgs::DisplayTrajectory>("/move_group/display_planned_path", 1, true);
 
         // Last action time
         ros::Time last_action_time_;
+
+        // Marker controls active
+        bool marker_controls_active_ = false;
+
+        // Flag if we are currently approaching a marker
+        bool approaching_marker_ = false;
+
+        // Marker states
+        geometry_msgs::PointStamped left_mallet_marker_state_, right_mallet_marker_state_;
+
+        /**
+         * Processes feedback from the interactive markers
+         */
+        void process_interactive_marker_feedback(const visualization_msgs::InteractiveMarkerFeedbackConstPtr &feedback);
 
         /**
          * @brief Move the robot to its idle/home position

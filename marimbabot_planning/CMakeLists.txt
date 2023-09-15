@@ -8,6 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
   marimbabot_msgs
   moveit_msgs
   moveit_ros_planning_interface
+  interactive_markers
   roscpp
   std_msgs
   tf2_eigen
