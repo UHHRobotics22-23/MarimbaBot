@@ -1,12 +1,10 @@
+import os
+import sys
 from precise_runner import PreciseEngine, PreciseRunner, ReadWriteStream
 import rospy
 import webrtcvad
 from playsound import playsound
 from audio_common_msgs.msg import AudioDataStamped, AudioData
-from std_msgs.msg import Float32
-
-VAD_ON = False
-KWS_ON = True
 
 
 class SpeechExtraction:
@@ -28,13 +26,15 @@ class SpeechExtraction:
 	             sensitivity=0.5,
 	             engine_path=None,
 	             model_path=None,
-	             remind_sound_path=None):
-
+	             remind_sound_path=None,
+	             trigger_level=5):
+		self.VAD_ON = False
+		self.KWS_ON = True
 		self.sensitivity = sensitivity
 		self.remind_sound_path = remind_sound_path
 		self.stream = None
 		self.init_audio()
-		self.init_kws(engine_path, model_path)
+		self.init_kws(engine_path, model_path,sensitivity,trigger_level)
 		self.init_wad()
 		self.init_ros()
 
@@ -47,7 +47,7 @@ class SpeechExtraction:
 		self.buffer = b''  # buffer for audio data
 		self.sr = 16000  # sample rate
 
-	def init_kws(self, engine_path, model_path, sensitivity=0.5, trigger_level=5):
+	def init_kws(self, engine_path, model_path,sensitivity=0.5,trigger_level=5):
 		# use ReadWriteStream to forward the audio stream from ros to precise-engine
 		self.stream = ReadWriteStream()  # 16000 Hz 1 channel int16 audio
 		# the engine is the binary file to load
@@ -67,6 +67,7 @@ class SpeechExtraction:
 			stream=self.stream)
 
 
+
 	# init the human voice activity detection
 	def init_wad(self):
 		self.sentence_start_t = None
@@ -79,30 +80,23 @@ class SpeechExtraction:
 		self.buffer = b''
 		self.silence_start_t = None
 		self.sentence_start_t = None
-		global VAD_ON
-		global KWS_ON
-		VAD_ON = False
-		KWS_ON = True
+		self.VAD_ON = False
+		self.KWS_ON = True
 
 	def start(self):
 		self.runner.start()
 
 	# triggered for keyword activation, condition refer to the trigger_level
 	def on_activation(self):
-		global KWS_ON
-		global VAD_ON
-
 		rospy.logdebug("Keyword spotted!")
 		playsound(self.remind_sound_path)
 		rospy.sleep(0.1)  # TODO check if this is necessary
-		VAD_ON = True
-		KWS_ON = False
+		self.VAD_ON = True
+		self.KWS_ON = False
 
 	# triggered for each prediction
 	def on_prediction(self, prob):
-		rospy.loginfo_once("Keyword Spotting is started.")
-		if prob > self.sensitivity:
-			self.prob_pub.publish(prob)
+		rospy.loginfo_once("Keyword Spotting is started, you can speak after whisper model is n.")
 
 	def stop(self):
 		self.runner.stop()
@@ -113,10 +107,8 @@ class SpeechExtraction:
 		self.engine = None
 
 	def audio_stream_callback(self, msg):
-		global KWS_ON
-		global VAD_ON
 
-		if VAD_ON:
+		if self.VAD_ON:
 			self.buffer += msg.audio.data
 			# If the listening is longer than the max_sentence_t(10 sec as default),
 			# then trigger the speech recognition.
@@ -140,21 +132,29 @@ class SpeechExtraction:
 				self.reset()
 				return
 
-		if KWS_ON and self.stream is not None:
+		if self.KWS_ON and self.stream is not None:
 			# froward th stream from ros to precise-engine
 			self.stream.write(msg.audio.data)
 
 
 if __name__ == '__main__':
-	rospy.init_node('keyword_spotting_node', anonymous=True, log_level=rospy.INFO)
-	# start the keyword spotting
-	engine_path = rospy.get_param('~engine_path')  # engine of KWS
-	model_path = rospy.get_param('~model_path')  # model of KWS
-	remind_sound_path = rospy.get_param('~remind_sound_path')  # remind sound for when KWS is activated
+	rospy.init_node('keyword_spotting_node', anonymous=True, log_level=rospy.DEBUG)
+	precise_engine_path = os.path.join(os.path.dirname(sys.executable), "precise-engine")
+	model_path = rospy.get_param(
+		'~model_path',
+	    default="/home/wang/workspace/marimbabot_ws/kws_ws/src/marimbabot/marimbabot_speech/config/kws/hi-marimbabot.pb")  # model of KWS
+	sensitivity = rospy.get_param('~sensitivity', 0.5)
+	trigger_level = rospy.get_param('~trigger_level', 5)
+	remind_sound_path = rospy.get_param(
+		'~remind_sound_path',
+		default="/home/wang/workspace/marimbabot_ws/kws_ws/src/marimbabot/marimbabot_speech/config/kws/reminder.wav"
+	)  # remind sound for when KWS is activated
 	keyword_spotting = SpeechExtraction(
-		engine_path=engine_path,
+		engine_path=precise_engine_path,
 		model_path=model_path,
 		remind_sound_path=remind_sound_path,
+		sensitivity=sensitivity,
+		trigger_level=trigger_level
 	)
 	keyword_spotting.start()
 	rospy.spin()

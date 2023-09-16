@@ -4,7 +4,7 @@ import rospy
 from marimbabot_msgs.msg import Command as CommandMsg
 from marimbabot_msgs.msg import Speech as SpeechMsg
 
-def examples_test():
+def examples_test(command_extractor):
 	# examples for testing the command extractor, just temporary put it here as a playground,
 	# will be moved to the test folder later
 	simple_command_list = [
@@ -12,44 +12,30 @@ def examples_test():
 		"stop playing",  # stop playing
 		"play",  # start playing
 		"stop",  # stop playing
-		"start",  # start playing
 		"play slower",  # play slower by 20 bpm
 		"play faster",  # play faster by 20 bpm
 		"play louder",  # play louder by (?)%
 		"play softer",  # play softer by (?)%
-		"repeat",  # repeat the song for (?) times
-		"loop",  # repeat the song for (?) times
+		"play in loop",  # play in loop
+		"preview in loop",  # preview in loop
 		"read",  # read the song from camera
-		"concatenate",  # concatenate the song with the previous one
-		"save as test song",  # read the song and save it as test song
-		"load test song",  # load the test song and play it
 	]
 	complicated_command_list = [
 		"play in 120 bpm",
-		"play in forte",
 		"play faster by 60 bpm",
 		"play slower by 40 bpm",
-		"play slower by 120 bpm",
-		"play louder by 20%",
-		"play softer by 40%",
-		# "preview",
-		# "preview slower by 30 bpm",
-		# "preview in 80 bpm",
-		# "preview in forte",
+		"play louder by 2 steps",
+		"play softer by 4 steps",
+		"preview in 120 bpm",
+		"preview faster by 20 bpm",
+		"preview slower by 30 bpm",
+		"preview louder by 2 steps",
+		"preview softer by 4 steps",
 	]
-	command_extractor = CommandExtraction()
 	command_list = simple_command_list + complicated_command_list
-	for command_text in command_list:
+	for idx, command_text in enumerate(command_list):
 		command_dict = command_extractor.extract(command_text)
-
-def dummy_clinet_command_subscriber():
-	# dummy client for command subscriber, for testing and instruction purpose
-	def command_callback(msg):
-		command_dict = json.loads(msg.command)
-		print(command_dict)
-	rospy.init_node('command_subscriber', log_level=rospy.DEBUG)
-	rospy.Subscriber('/speech_node/command', CommandMsg, command_callback, queue_size=10, tcp_nodelay=True)
-	rospy.spin()
+		print(f" the {idx}th command: {command_dict}")
 
 
 class CommandExtraction():
@@ -57,17 +43,17 @@ class CommandExtraction():
 	Extract command from text, and publish it to the command topic.
 	"""
 	def __init__(self):
-		self.independent_action_list = [
+		self.template = {
+			"behavior"  : "",
+			"action"    : "",
+			"parameters": ""
+		}
+		self.independent_behavior_list = [
 			"stop",
-			"start",
-			"repeat",
-			"loop",
 			"read",
-			"concatenate",
-			"save",
-			"load",
 		]
-		self.dependent_action_list = [
+		#"loop", # repeat the song for (?) times (default infinite)
+		self.dependent_behavior_list = [
 			"play",
 			"preview",
 		]
@@ -82,10 +68,18 @@ class CommandExtraction():
 		self.command_pub = rospy.Publisher('/speech_node/command', CommandMsg, queue_size=100, tcp_nodelay=True)
 		self.speech_sub = rospy.Subscriber('/speech_node/speech', SpeechMsg, self.speech_callback, queue_size=10, tcp_nodelay=True)
 
+	def fill_into_command(self, behavior="", action="", parameters=""):
+		if behavior != "":
+			self.template["behavior"] = behavior
+		if action != "":
+			self.template["action"] = action
+		if parameters != "":
+			self.template["parameters"] = parameters
+
 	def speech_callback(self, req):
 		text = req.text
 		if req.no_speech_prob > 0.5:
-			rospy.logwarn("no_speech_prob > 0.5, but is passed the wad, something weird happened, ignore this speech")
+			rospy.logwarn("even no_speech_prob > 0.5, but is passed the wad, something weird happened, ignore this speech")
 			return
 		command = self.extract(text)
 		rospy.logdebug(f"command extracted: {command}")
@@ -104,78 +98,78 @@ class CommandExtraction():
 		else:
 			return ""
 
-	def extract_percentage(self,input_text):
-		pattern = re.compile(r" ([0-9]+)%", re.IGNORECASE)
+	def extract_step(self, input_text):
+		pattern = re.compile(r" ([0-9]+) step", re.IGNORECASE)
 		result = pattern.findall(input_text)
 		if len(result) > 0:
 			return result[0]
 		else:
 			return ""
 
+	def reset(self):
+		self.template = {
+			"behavior"  : "",
+			"action"    : "",
+			"parameters": ""
+		}
+
 	def extract(self, text: str):
+		self.reset()
 		text = text.lower()
 		text = text.replace("plays", "play")
 		text = text.replace("starts", "start")
 
 		# one of those keywords occurs means the command is clear enough, there is no ambiguous combination with other words,
 		# and it can be to be extracted.
-		for command in self.independent_action_list:
-			if command in text:
-				return {
-					"action" : command,
-					"parameters" : ""
-				}
+		for behavior in self.independent_behavior_list:
+			if behavior in text:
+				self.fill_into_command(behavior=behavior)
+				return self.template
 
-		if "play" in text:
-			if "in" in text:
-				if "bpm" in text:
-					bpm = self.extract_bpm(text)
-					return {
-						"action"    : "setup speed",
-						"parameters": bpm
-					}
-				elif "forte" in text:
-					# TODO: consider other words to describe volume if needed
-					return {
-						"action"    : "setup volume",
-						"parameters": "forte"
-					}
+		if "loop" in text:
+			if "play" in text:
+				self.fill_into_command(behavior="play", action="loop")
+				return self.template
+			elif "preview" in text:
+				self.fill_into_command(behavior="preview", action="loop")
+				return self.template
+		for behavior in ["play", "preview"]:
+			if behavior in text:
+				if "in" in text:
+					if "bpm" in text:
+						bpm = self.extract_bpm(text)
+						self.fill_into_command(behavior=behavior, action="setup speed", parameters=str(bpm))
+						return self.template
+					elif "step" in text:
+						step = self.extract_step(text)
+						self.fill_into_command(behavior=behavior, action="setup volume", parameters=str(step))
+						return self.template
 
+				for word in self.speed_setup_list:
+					if word in text:
+						bpm = self.extract_bpm(text)
+						if word == "faster":
+							self.fill_into_command(behavior=behavior, action="increase speed", parameters=str(bpm))
+							return self.template
+						elif word == "slower":
+							self.fill_into_command(behavior=behavior, action="decrease speed", parameters=str(bpm))
+							return self.template
 
+				for word in self.volume_setup_list:
+					if word in text:
+						step = self.extract_step(text)
+						if word == "louder":
+							self.fill_into_command(behavior=behavior, action="increase volume", parameters=str(step))
+							return self.template
+						elif word == "softer":
+							self.fill_into_command(behavior=behavior, action="decrease volume", parameters=str(step))
+							return self.template
 
-			for word in self.speed_setup_list:
-				if word in text:
-					bpm = self.extract_bpm(text)
-					if word == "faster":
-						return {
-							"action"    : "increase speed",
-							"parameters": f"{bpm}"
-						}
-					elif word == "slower":
-						return {
-							"action"    : "decrease speed",
-							"parameters": f"{bpm}"
-						}
-			for word in self.volume_setup_list:
-				if word in text:
-					percent = self.extract_percentage(text)
-					if word == "louder":
-						return {
-							"action"    : "increase volume",
-							"parameters": f"{percent}"
-						}
-					elif word == "softer":
-						return {
-							"action"    : "decrease volume",
-							"parameters": f"{percent}"
-						}
-			# if only "play" appears, that means start playing
-			return {
-				"action"    : "start",
-				"parameters": ""
-			}
+				# if only "play" appears, that means start playing
+				self.fill_into_command(behavior=behavior)
+				return self.template
 
 if __name__ == '__main__':
-	rospy.init_node('command_extractor',log_level=rospy.INFO)
+	rospy.init_node('command_extractor',log_level=rospy.DEBUG)
 	command_extractor = CommandExtraction()
 	rospy.spin()

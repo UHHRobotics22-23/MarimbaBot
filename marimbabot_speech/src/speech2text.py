@@ -26,6 +26,7 @@ class STT:
 		# 30 denote sec, since whisper take fixed length of audio data as input
 		self.recognize(np_data=np.zeros(self.sr*30, dtype=np.float32),pub_speech=False)
 		rospy.loginfo("Whisper model is warmed up!")
+		rospy.logdebug("The following is the prompt for the whisper model: \n %s", self.prompt)
 
 	def init_ros_node(self):
 		self.buffer_sub = rospy.Subscriber(
@@ -53,18 +54,12 @@ class STT:
 	# To address the way how to unpack the data for whisper
 	def unpack_stream(self, data):
 		# return np.array(struct.unpack(f"{int(len(data) / 2)}h", bytes(data)), dtype=float) / 526
-		return np.frombuffer(data, dtype=np.float64)/526
+		return np.frombuffer(data, dtype=np.int16).astype(np.float64)/526
 
 
 	def generate_prompt(self):
-		# commands = get_commands()
-		# base_prompt = '''Marimbabot is a marimba playing robot arm. You are able to give it commands, if you confuse just give it "None". The possible commands include:'''
-		# for command in commands:
-		# 	base_prompt += ''.join(f'{command.strip()}, ')
-		# rospy.logdebug(f"Generate prompt as: {base_prompt}.")
-		# return base_prompt
 		prompt = "Marimbabot is a instrument playing robot arm. You are able to give it several common robot's commands." \
-		         "play in 60 BPM, play louder by 40%, ..."
+		         "play in 60 BPM, play louder by 2 step, play in a loop ..."
 		return prompt
 
 	def run(self):
@@ -84,10 +79,9 @@ class STT:
 		# make log-Mel spectrogram and move to the same device as the model
 		mel = whisper.log_mel_spectrogram(audio).to(self.model.device)
 		# decode the audio
-		options = whisper.DecodingOptions(fp16=True, language='en', prompt=self.generate_prompt())
+		options = whisper.DecodingOptions(fp16=True, language='en', prompt=self.prompt)
 		time_1 = rospy.Time.now()
 		result = whisper.decode(self.model, mel, options)
-		# options = whisper.DecodingOptions(fp16=True, language='en',prompt=self.prompt)
 		time_2 = rospy.Time.now()
 		text = result.text
 		no_speech_prob = result.no_speech_prob
@@ -99,7 +93,7 @@ class STT:
 		return text, no_speech_prob
 
 if __name__ == '__main__':
-	rospy.init_node('speech_recognition_node', log_level=rospy.INFO)
+	rospy.init_node('speech_recognition_node', log_level=rospy.DEBUG)
 	sst = STT()
 	sst.run()
 
