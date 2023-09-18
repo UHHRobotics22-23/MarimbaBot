@@ -1,5 +1,3 @@
-import os
-import sys
 from precise_runner import PreciseEngine, PreciseRunner, ReadWriteStream
 import rospy
 import webrtcvad
@@ -15,11 +13,12 @@ class SpeechExtraction:
 		Pipeline:
 		1. First, use keyword spotting to detect the keyword "Hi/hello marimbabot" from the audio stream.
 		2. When keyword is spotted, then the audio stream is first processed by the VAD (Voice Activity Detection)
-		to detect the activity of human speech, if there is 1 second of silence or research maximum length,
-		then the audio stream is considered to be a speech sentence which is then sent to the STT (Speech to Text).
-		3. The STT will return the text of the speech sentence, which is then sent to the text2command node
+		to detect the activity of human speech, if there is 1 second of silence or reach maximum length,
+		then this audio stream will be considered to be a complete sentence, and then sent it to the STT node (Speech to Text).
+		3. The STT will return the text of the speech sentence in form of text, which is then sent to the text2command node
 		and also published to the speech topic.
-		4. The text2command node will extract the command from the text and publish it to the command topic.
+		4. The text2command node will extract the command from the text through some regular expression, the command will
+		be published it to the command topic.
 	"""
 
 	def __init__(self,
@@ -96,7 +95,7 @@ class SpeechExtraction:
 
 	# triggered for each prediction
 	def on_prediction(self, prob):
-		rospy.loginfo_once("Keyword Spotting is started, you can speak after whisper model is n.")
+		rospy.loginfo_once("Keyword Spotting is started, you can speak after whisper model is on.")
 
 	def stop(self):
 		self.runner.stop()
@@ -139,7 +138,9 @@ class SpeechExtraction:
 
 if __name__ == '__main__':
 	rospy.init_node('keyword_spotting_node', anonymous=True, log_level=rospy.DEBUG)
-	precise_engine_path = os.path.join(os.path.dirname(sys.executable), "precise-engine")
+	precise_engine_path = rospy.get_param(
+		"~precise_engine_path",
+		default="/home/wang/workspace/marimbabot_ws/kws_ws/src/marimbabot/marimbabot_speech/lib/precise-engine/precise-engine")
 	model_path = rospy.get_param(
 		'~model_path',
 	    default="/home/wang/workspace/marimbabot_ws/kws_ws/src/marimbabot/marimbabot_speech/config/kws/hi-marimbabot.pb")  # model of KWS

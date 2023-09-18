@@ -5,6 +5,7 @@ import numpy as np
 from marimbabot_msgs.msg import Speech as SpeechMsg
 from audio_common_msgs.msg import AudioData
 
+
 # Speech to text recognition, it is a wrapper of whisper
 class STT:
 	def __init__(self):
@@ -24,7 +25,7 @@ class STT:
 	def warm_up(self):
 		# input blank data to warmup the whisper model.
 		# 30 denote sec, since whisper take fixed length of audio data as input
-		self.recognize(np_data=np.zeros(self.sr*30, dtype=np.float32),pub_speech=False)
+		self.recognize(np_data=np.zeros(self.sr * 30, dtype=np.float32), pub_speech=False)
 		rospy.loginfo("Whisper model is warmed up!")
 		rospy.logdebug("The following is the prompt for the whisper model: \n %s", self.prompt)
 
@@ -54,12 +55,11 @@ class STT:
 	# To address the way how to unpack the data for whisper
 	def unpack_stream(self, data):
 		# return np.array(struct.unpack(f"{int(len(data) / 2)}h", bytes(data)), dtype=float) / 526
-		return np.frombuffer(data, dtype=np.int16).astype(np.float64)/526
-
+		return np.frombuffer(bytes(data), dtype=np.int16).astype(np.float64) / 526
 
 	def generate_prompt(self):
-		prompt = "Marimbabot is a instrument playing robot arm. You are able to give it several common robot's commands." \
-		         "play in 60 BPM, play louder by 2 step, play in a loop ..."
+		prompt = "Marimbabot is a instrument playing robot arm. You are able to give it several common robot's commands," \
+		         "for example, play in 60 BPM, play louder by 2 step, play in a loop, review faster by 30 bpm ..."
 		return prompt
 
 	def run(self):
@@ -86,14 +86,14 @@ class STT:
 		text = result.text
 		no_speech_prob = result.no_speech_prob
 		rospy.logdebug('*' * 30)
-		rospy.logdebug(f"Pre-processing time:{(time_1 - time_0).to_sec():.4f}")
-		rospy.logdebug(f"Prediction time:{(time_2 - time_1).to_sec():.4f}")
+		# rospy.logdebug(f"Pre-processing time:{(time_1 - time_0).to_sec():.4f}")
+		# rospy.logdebug(f"Prediction time:{(time_2 - time_1).to_sec():.4f}")
 		rospy.logdebug(f"Result: [{text}]")
 		rospy.logdebug(f"No_speech_prob: {no_speech_prob:.4f}")
 		return text, no_speech_prob
+
 
 if __name__ == '__main__':
 	rospy.init_node('speech_recognition_node', log_level=rospy.DEBUG)
 	sst = STT()
 	sst.run()
-
