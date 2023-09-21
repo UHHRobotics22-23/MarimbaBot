@@ -13,7 +13,7 @@
     </node>
         <node name="speech_extraction_node" pkg="marimbabot_speech" type="speech_extraction.py" output="screen">
         <param name="model_path"  value="$(find marimbabot_speech)/utils/kws/hi-marimbabot.pb"/>
-        <param name="precise_engine_path"  value="$(find marimbabot_speech)utils/kws/precise-engine/precise-engine"/>
+        <param name="precise_engine_path"  value="$(find marimbabot_speech)utils/kws/precise/precise-engine"/>
         <param name="remind_sound_path"  value="$(find marimbabot_speech)/utils/kws/reminder.wav"/>
         <param name="trigger_level"  value="3"/>
         <param name="sensitivity"  value="0.5"/>

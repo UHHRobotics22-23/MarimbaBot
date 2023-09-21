@@ -1,4 +1,3 @@
-import struct
 import rospy
 import whisper
 import numpy as np
@@ -54,6 +53,7 @@ class STT:
 
 	# To address the way how to unpack the data for whisper
 	def unpack_stream(self, data):
+		# Just to denote another way to unpack the data:
 		# return np.array(struct.unpack(f"{int(len(data) / 2)}h", bytes(data)), dtype=float) / 526
 		return np.frombuffer(bytes(data), dtype=np.int16).astype(np.float64) / 526
 

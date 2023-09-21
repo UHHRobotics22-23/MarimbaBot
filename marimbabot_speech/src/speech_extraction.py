@@ -29,7 +29,6 @@ class SpeechExtraction:
 	             trigger_level=5):
 		self.VAD_ON = False
 		self.KWS_ON = True
-		self.sensitivity = sensitivity
 		self.remind_sound_path = remind_sound_path
 		self.stream = None
 		self.init_audio()
@@ -89,7 +88,7 @@ class SpeechExtraction:
 	def on_activation(self):
 		rospy.logdebug("Keyword spotted!")
 		playsound(self.remind_sound_path)
-		rospy.sleep(0.1)  # TODO check if this is necessary
+		rospy.sleep(0.1)
 		self.VAD_ON = True
 		self.KWS_ON = False
 
