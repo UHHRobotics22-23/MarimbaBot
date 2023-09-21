@@ -26,7 +26,7 @@ INCLUDE_REPEATS = True
 INCLUDE_CHORDS = True
 INCLUDE_TEMPO = True
 
-"""
+"""f
 This script generates random music scores in lilypond format.
 The scores are generated using the abjad library.
 """
@@ -239,6 +239,7 @@ def generate_sample(i, args, scale, mode):
 
     # save the lilypond file
     with open(f"{args.output_dir}/{i}/staff_1.txt", 'w') as f:
+
         string = string.replace('r2','')
         f.write(string)
 
