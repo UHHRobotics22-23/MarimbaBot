@@ -195,7 +195,7 @@ class LilypondGenerator():
     """
     def generate_piece(self, scale, mode):
         """Generate a piece of music"""
-        string = ' '#.join([self.bar_sampler() for _ in range(num_bars)])
+        string = 'r 2'#.join([self.bar_sampler() for _ in range(num_bars)])
 
         voice_1 = Voice(string, name="Voice_1")
 
@@ -239,6 +239,7 @@ def generate_sample(i, args, scale, mode):
 
     # save the lilypond file
     with open(f"{args.output_dir}/{i}/staff_1.txt", 'w') as f:
+        string = string.replace('r2','')
         f.write(string)
 
 if __name__ == "__main__":

@@ -5,9 +5,9 @@ import os
 import tqdm
 import numpy as np
 
-WORKING_DIR = "data_real"
+WORKING_DIR = "data"
 VIDEO_DEVICE = "/dev/video2"
-IMAGES_PER_SAMPLE = 5
+IMAGES_PER_SAMPLE = 30
 
 vid = cv2.VideoCapture(VIDEO_DEVICE)
 
@@ -18,9 +18,10 @@ for sample_folder in tqdm.tqdm(sorted(os.listdir(WORKING_DIR), key= lambda x: in
     
     if not os.path.exists(output_file + "_0.png"):
         cv2.imshow("Data collection", 
-            cv2.rotate(
-                cv2.imread(input_file), 
-                cv2.ROTATE_90_CLOCKWISE))
+                   cv2.imread(input_file))
+           # cv2.rotate(
+              #  , 
+              #  cv2.ROTATE_90_CLOCKWISE))
         print("Draw the shown notes on the whiteboard and press space. Press q to exit.")
         if cv2.waitKey(0) & 0xFF == ord('q'):
             break
