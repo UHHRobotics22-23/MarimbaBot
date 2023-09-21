@@ -1,10 +1,9 @@
-#!/usr/bin/env python3
-
+import subprocess
+import tempfile
 import rospy
 from sound_play.msg import SoundRequest
 from std_msgs.msg import String
-import subprocess
-import tempfile
+
 
 class SpeechSynthesis:
     def __init__(self):
@@ -57,8 +56,6 @@ class SpeechSynthesis:
 
 if __name__ == '__main__':
     rospy.init_node('speech_tts_node')
-
     SpeechSynthesis()
-
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()
