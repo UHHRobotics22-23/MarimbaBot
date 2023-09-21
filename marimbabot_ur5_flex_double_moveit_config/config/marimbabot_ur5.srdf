@@ -108,7 +108,7 @@
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
     <end_effector name="s_model_tool0" parent_link="s_model_tool0" group="gripper" parent_group="arm"/>
     <end_effector name="mallet_head_1" parent_link="mallet_head_1" group="mallet_head_1_ee" parent_group="arm_mallets"/>
-    <end_effector name="mallet_head_2" parent_link="mallet_head_2" group="mallet_head_2_ee" parent_group="arm_mallets"/>
+    <!--<end_effector name="mallet_head_2" parent_link="mallet_head_2" group="mallet_head_2_ee" parent_group="arm_mallets"/> -->
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
     <disable_collisions link1="april_tag_ur5" link2="bar_a4" reason="Never"/>
     <disable_collisions link1="april_tag_ur5" link2="bar_a5" reason="Never"/>

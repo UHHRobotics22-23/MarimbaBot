@@ -19,7 +19,8 @@ Planning::Planning(const std::string planning_group) :
     interactive_marker_server_{"mallet_markers"}
 {
     // Set planning pipeline and planner
-    move_group_interface_.setPlanningPipelineId("pilz_industrial_motion_planner");
+    move_group_interface_.setPlanningPipelineId("ompl");    
+     //("pilz_industrial_motion_planner");
     move_group_interface_.setPlannerId("PTP");
     move_group_interface_.startStateMonitor();
     // Move to home position
@@ -73,7 +74,7 @@ Planning::Planning(const std::string planning_group) :
                 }
             } else {
                 // Move back to the home position
-                go_to_home_position();
+                // go_to_home_position();  TODO reanable this
             }
         }
     };
@@ -213,10 +214,23 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     // Initialize output plan
     moveit::planning_interface::MoveGroupInterface::Plan plan;
 
+    // Get the joint values of the marimbabot_home position and set them as the seed state
+    // Get the marimbabot_home position from moveit
+    auto marimbabot_home = move_group_interface_.getNamedTargetValues("marimbabot_home");
+
+    // Create vector of joint names based on the marimbabot_home position 
+    std::vector<std::string> marimbabot_home_joint_names;
+    std::vector<double> marimbabot_home_joint_values;
+    for (auto joint : marimbabot_home) {
+        marimbabot_home_joint_names.push_back(joint.first);
+        marimbabot_home_joint_values.push_back(joint.second);
+    }
+
     // Create robot state
     moveit::core::RobotState robot_state(move_group_interface_.getRobotModel());
     robot_state.setToDefaultValues();
-    robot_state.setVariablePositions(start_state.joint_state.name, start_state.joint_state.position);
+    robot_state.setVariablePositions(marimbabot_home_joint_names, marimbabot_home_joint_values);
+    robot_state.update();
 
     // Set start state
     move_group_interface_.setStartState(start_state);
@@ -232,17 +246,17 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     tf2::Vector3 left_mallet_goal_position(
         goal.left_mallet_position.point.x,
         goal.left_mallet_position.point.y,
-        goal.left_mallet_position.point.z);
+        goal.left_mallet_position.point.z + 0.02);
 
     tf2::Vector3 right_mallet_goal_position(
         goal.right_mallet_position.point.x,
         goal.right_mallet_position.point.y,
-        goal.right_mallet_position.point.z);
+        goal.right_mallet_position.point.z + 0.02);
 
     // Use bio_ik to solve the inverse kinematics at the goal point
     bio_ik::BioIKKinematicsQueryOptions ik_options;
     ik_options.replace = true;
-    ik_options.return_approximate_solution = false; // Activate for debugging if you get an error
+    ik_options.return_approximate_solution = true; // Activate for debugging if you get an error
 
     // Define lambda function for link on plane constraint
     auto link_on_plane_constraint = [](tf2::Vector3 plane_point) -> std::function<double(const tf2::Vector3&, const tf2::Quaternion&)>
@@ -291,8 +305,8 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
 
     // Add link on plane constraint to ik_options
     ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_1_link", link_on_plane_constraint(tf2::Vector3(0.0, 0.0, 1.3))));
-    
-    // Create minimal displacement goal, so that the robot does not move too much and stays close to the start state
+
+    // Add minimal displacement constraint to ik_options
     ik_options.goals.emplace_back(new bio_ik::MinimalDisplacementGoal());
 
     // Create dummy goal pose
@@ -344,7 +358,26 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::move_to_key_point
     auto next_keyframe = key_frames[0];
 
     // Calculate the joint space plan to the mallet keyframe
-    auto plan_to_keyframe = plan_to_mallet_position(start_state, key_frames[0]);
+    // Try the calculation 5 times if an ik or plan failed exception is thrown
+    moveit::planning_interface::MoveGroupInterface::Plan plan_to_keyframe;
+    int attempts = 5;
+    for (int i = 0; i < attempts; i++)
+    {
+        try {
+            plan_to_keyframe = plan_to_mallet_position(start_state, next_keyframe);
+            break;
+        } catch (IKFailedException& e) {
+            ROS_ERROR_STREAM("IK failed: " << e.what() << " Trying again");
+            if (i == attempts - 1) {
+                throw PlanFailedException("IK failed after 5 attempts '" + std::string(e.what()) + "'");
+            }
+        } catch (PlanFailedException& e) {
+            ROS_ERROR_STREAM("Plan failed: " << e.what() << " Trying again");
+            if (i == attempts - 1) {
+                throw PlanFailedException("Plan failed after 5 attempts '" + std::string(e.what()) + "'");
+            }
+        }
+    }
 
     // Retime the trajectory to the keyframe if necessary
     // Clamp the duration to the minimum duration of the trajectory
@@ -360,7 +393,25 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::move_to_key_point
             plan_to_keyframe.trajectory_.joint_trajectory.points.back().time_from_start.toSec());
     }
 
-    auto retimed_plan = slow_down_plan(plan_to_keyframe, duration_clamped);
+    auto retimed_plan = plan_to_keyframe; // slow_down_plan(plan_to_keyframe, duration_clamped);
+
+    // Publish the plan for rviz
+    moveit_msgs::DisplayTrajectory display_trajectory;
+    moveit_msgs::RobotTrajectory trajectory;
+    trajectory.joint_trajectory = retimed_plan.trajectory_.joint_trajectory;
+    display_trajectory.trajectory_start = retimed_plan.start_state_;
+    display_trajectory.trajectory.push_back(trajectory);
+    trajectory_publisher_.publish(display_trajectory);
+
+    ROS_WARN_STREAM("Number of keyframes: " << key_frames.size());
+
+    // Wait for user input to continue
+    std::cout << "Press enter to continue" << std::endl;
+    
+    // Wait for user input
+    std::cin.ignore();
+
+    std::cout << "Continuing" << std::endl;
 
     // Call hit_points recursively for all remaining hit_points
     if(key_frames.size() > 1)
