@@ -40,6 +40,10 @@ Given a folder of images, generates a dataset of images with handwritten notes. 
 ### `real_world_data_collection.py`
 This script is used when collection real world data, e.g. from a webcam that is pointed at a whiteboard. It is used to collect images of the whiteboard and the corresponding Lilypond file. The images are saved in the `data_real` folder.
 
+1. Run the generate_dataset_full.sh
+2. Copy some samples into the folder `data_real`
+3. Run this script and use 'whitespace' and 'c' for starting the camera and collecting images. 
+
 ### `train.py`
 Trains a model on the a set of given `train_data_paths`.
 
