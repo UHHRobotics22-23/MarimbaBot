@@ -191,10 +191,12 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     // Calculate approach points
     geometry_msgs::PointStamped left_mallet_approach_point{note.left_mallet_point};
     left_mallet_approach_point.point.z += 0.15;
+    left_mallet_approach_point.point.x += 0.1;
     boost::optional<geometry_msgs::PointStamped> right_mallet_approach_point{note.right_mallet_point};
     if(right_mallet_approach_point)
     {
         right_mallet_approach_point->point.z += 0.15;
+        right_mallet_approach_point->point.x += 0.1;
     }
         
     // Calculate retreat point
