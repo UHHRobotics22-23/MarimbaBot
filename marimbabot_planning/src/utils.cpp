@@ -254,4 +254,33 @@ std::function<double(const tf2::Vector3&, const tf2::Quaternion&)> link_on_plane
     };
 };
 
+
+std::vector<CartesianHitSequenceElement> apply_chords(std::vector<CartesianHitSequenceElement> hits_relative)
+{
+    // Create a copy of the input vector
+    auto hits_relative_with_chords{hits_relative};
+    // Check if there are any hits with a (near) zero relative timing. 
+    // These are chords and should be played at the same time using the second (right) mallet
+    // Iterate over all hits
+    for (auto hit_iter = hits_relative_with_chords.begin(); hit_iter != hits_relative_with_chords.end(); ++hit_iter) {
+        // Check if the next hit has a relative timing of zero and we are not at the end of the vector
+        if (hit_iter + 1 != hits_relative_with_chords.end() && (hit_iter + 1)->msg.start_time < ros::Time(0.05)) {
+            // Get the chord hit points
+            auto chord_hit_point_1 = hit_iter->left_mallet_point;
+            auto chord_hit_point_2 = (hit_iter + 1)->left_mallet_point;
+            // Add the right hit point to right mallet and the left one to the left mallet
+            if(chord_hit_point_1.point.y < chord_hit_point_2.point.y) {
+                hit_iter->right_mallet_point = chord_hit_point_1;
+                hit_iter->left_mallet_point = chord_hit_point_2;
+            } else {
+                hit_iter->right_mallet_point = chord_hit_point_2;
+                hit_iter->left_mallet_point = chord_hit_point_1;
+            }
+            // Remove the next hit as it is now a part of the current hit
+            hits_relative_with_chords.erase(hit_iter + 1);
+        }
+    }
+    return hits_relative_with_chords;
+}
+
 } // namespace marimbabot_planning

@@ -109,4 +109,13 @@ std::vector<CartesianHitSequenceElement> hit_sequence_absolute_to_relative(
  * @return std::function<double(const tf2::Vector3&, const tf2::Quaternion&)>
 */
 std::function<double(const tf2::Vector3&, const tf2::Quaternion&)> link_on_plane_constraint(tf2::Vector3 plane_point, tf2::Vector3 plane_normal = tf2::Vector3(0.0, 0.0, 1.0));
-} 
+
+
+/**
+ * @brief Finds all chords in a sequence of notes and assigns the second malllet if one is detected
+ * 
+ * @param hits_relative Vector of notes with relative timing
+ * @return std::vector<CartesianHitSequenceElement> Vector of notes with relative timing, both mallets are assigned if a chord is detected. This may be shorter than the input vector.
+*/
+std::vector<CartesianHitSequenceElement> apply_chords(std::vector<CartesianHitSequenceElement> hits_relative);
+} // namespace marimbabot_planning

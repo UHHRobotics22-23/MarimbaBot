@@ -314,30 +314,11 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
         // Convert the timing information in the hits from absolute to relative
         auto hits_relative = hit_sequence_absolute_to_relative(hits);
 
-        // Check if there are any hits with a (near) zero relative timing. These are chords and should be played at the same time using the second (right) mallet
-        // Iterate over all hits, check if the next hit has a relative timing of zero. 
-        // If this is the case remove the next hit and add it to the current hit as a right mallet hit
-        for (auto hit_iter = hits_relative.begin(); hit_iter != hits_relative.end(); ++hit_iter) {
-            // Check if the next hit has a relative timing of zero
-            if (hit_iter + 1 != hits_relative.end() && (hit_iter + 1)->msg.start_time < ros::Time(0.05)) {
-                ROS_INFO_STREAM("Found a chord");
-                auto chord_note_1 = hit_iter->left_mallet_point;
-                auto chord_note_2 = (hit_iter + 1)->left_mallet_point;
-                // Add the right note to right mallet and the left note to the left mallet
-                if(chord_note_1.point.y < chord_note_2.point.y) {
-                    hit_iter->right_mallet_point = chord_note_1;
-                    hit_iter->left_mallet_point = chord_note_2;
-                } else {
-                    hit_iter->right_mallet_point = chord_note_2;
-                    hit_iter->left_mallet_point = chord_note_1;
-                }
-                // Remove the next hit
-                hits_relative.erase(hit_iter + 1);
-            }
-        }
+        // Detect chords and apply them as goals for the second mallet
+        auto hits_relative_with_chords = apply_chords(hits_relative);
 
         // Define hit plan
-        auto hit_plan = hit_notes(start_state, hits_relative);
+        auto hit_plan = hit_notes(start_state, hits_relative_with_chords);
 
         // Publish the plan for rviz
         moveit_msgs::DisplayTrajectory display_trajectory;
