@@ -57,6 +57,10 @@ MELODIES = {
         [
             ('C#', 4), ('D#', 4), ('F#', 4), ('G#', 4), ('A#', 4), ('C#', 5), ('D#', 5), ('F#', 5), ('G#', 5), ('A#', 5), ('C#', 6), ('D#', 6), ('F#', 6), ('G#', 6), ('A#', 6)
         ],
+    'oh_my_chord':
+        [
+            ('C', 4, 0), ('E', 4, 0), ('G', 4, 0.7), ('G', 4, 1), ('C', 5, 1), ('E', 5, 3), ('G', 5, 3)
+        ]
 }
 
 
@@ -95,8 +99,13 @@ class DummyMotionClient:
             goal = HitSequenceGoal()
             start_time = rospy.Time(0)
             duration = rospy.Duration(1.0)
-            for note, octave in melody:
-                start_time += duration
+            for note in melody:
+                if len(note) == 2:
+                    note, octave = note
+                    start_time += duration
+                else:
+                    note, octave, start_time = note
+                    start_time = rospy.Time(start_time * 3)
                 goal.hit_sequence_elements.append(
                     HitSequenceElement(
                         tone_name=note.strip().lower().replace('#', 'is'),
