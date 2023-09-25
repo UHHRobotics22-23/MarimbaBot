@@ -1,8 +1,10 @@
 #include <actionlib/server/simple_action_server.h>
 #include <bio_ik/bio_ik.h>
+#include <boost/optional.hpp>
 #include <geometry_msgs/PointStamped.h>
 #include <geometry_msgs/Pose.h>
 #include <iostream>
+#include <list>
 #include <marimbabot_msgs/HitSequenceAction.h>
 #include <marimbabot_planning/utils.h>
 #include <moveit_msgs/DisplayTrajectory.h>
@@ -15,7 +17,6 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
-#include <list>
 
 namespace marimbabot_planning
 {
@@ -60,8 +61,8 @@ class Planning
          **/
         moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
             const moveit_msgs::RobotState& start_state,
-            geometry_msgs::PointStamped goal_point);
-
+            geometry_msgs::PointStamped left_mallet_goal_point,
+            boost::optional<geometry_msgs::PointStamped> right_mallet_goal_point = boost::none);
 
         /**
          * @brief hit a given note in cartesian space

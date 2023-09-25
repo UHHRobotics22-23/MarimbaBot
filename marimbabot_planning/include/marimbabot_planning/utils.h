@@ -1,3 +1,4 @@
+#include <boost/optional.hpp>
 #include <geometry_msgs/PointStamped.h>
 #include <marimbabot_msgs/HitSequenceAction.h>
 #include <moveit_msgs/RobotState.h>
@@ -30,7 +31,8 @@ class IKFailedException : public PlanFailedException
  **/
 struct CartesianHitSequenceElement
 {
-    geometry_msgs::PointStamped point;
+    geometry_msgs::PointStamped left_mallet_point;
+    boost::optional<geometry_msgs::PointStamped> right_mallet_point;
     marimbabot_msgs::HitSequenceElement msg;
 };
 
@@ -97,4 +99,14 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
  **/
 std::vector<CartesianHitSequenceElement> hit_sequence_absolute_to_relative(
     const std::vector<CartesianHitSequenceElement>& hit_sequence);
+
+
+/**
+ * @brief Bio IK constraint that keeps a link on a given plane in the planning frame
+ * 
+ * @param plane_point Point on the plane
+ * @param plane_normal Normal vector of the plane
+ * @return std::function<double(const tf2::Vector3&, const tf2::Quaternion&)>
+*/
+std::function<double(const tf2::Vector3&, const tf2::Quaternion&)> link_on_plane_constraint(tf2::Vector3 plane_point, tf2::Vector3 plane_normal = tf2::Vector3(0.0, 0.0, 1.0));
 } 

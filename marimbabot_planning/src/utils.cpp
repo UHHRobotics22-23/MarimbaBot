@@ -194,7 +194,7 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
             );
             
             // Insert the cartesian point and original message into the struct
-            hit_sequence_element.point = note_point;
+            hit_sequence_element.left_mallet_point = note_point;
             hit_sequence_element.msg = point;
             
             // Add the struct to the vector
@@ -241,5 +241,17 @@ std::vector<CartesianHitSequenceElement> hit_sequence_absolute_to_relative(
     }
     return hit_sequence_relative;
 }
+
+
+std::function<double(const tf2::Vector3&, const tf2::Quaternion&)> link_on_plane_constraint(tf2::Vector3 plane_point, tf2::Vector3 plane_normal)
+{
+    return [plane_point, plane_normal](const tf2::Vector3& position, const tf2::Quaternion& orientation) -> double
+    {
+        tf2::Vector3 plane_to_position = position - plane_point;
+        double signed_dist = plane_to_position.dot(plane_normal);
+        // Take the squared value of the signed distance
+        return std::pow(signed_dist, 2);
+    };
+};
 
 } // namespace marimbabot_planning

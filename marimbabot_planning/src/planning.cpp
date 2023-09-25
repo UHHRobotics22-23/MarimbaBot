@@ -65,63 +65,82 @@ void Planning::go_to_home_position()
  **/
 moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_position(
     const moveit_msgs::RobotState& start_state,
-    geometry_msgs::PointStamped goal_point)
+    geometry_msgs::PointStamped left_mallet_goal_point,
+    boost::optional<geometry_msgs::PointStamped> right_mallet_goal_point)
 {
     // Initialize output plan
     moveit::planning_interface::MoveGroupInterface::Plan plan;
 
+    // Get the joint values of the marimbabot_home position and set them as the seed state
+    // Get the marimbabot_home position from moveit
+    auto marimbabot_home = move_group_interface_.getNamedTargetValues("marimbabot_home");
+
+    // Create vector of joint names based on the marimbabot_home position 
+    std::vector<std::string> marimbabot_home_joint_names;
+    std::vector<double> marimbabot_home_joint_values;
+    for (auto joint : marimbabot_home) {
+        marimbabot_home_joint_names.push_back(joint.first);
+        marimbabot_home_joint_values.push_back(joint.second);
+    }
+
     // Create robot state
     moveit::core::RobotState robot_state(move_group_interface_.getRobotModel());
     robot_state.setToDefaultValues();
-    robot_state.setVariablePositions(start_state.joint_state.name, start_state.joint_state.position);
+    robot_state.setVariablePositions(marimbabot_home_joint_names, marimbabot_home_joint_values);
+    robot_state.update();
 
     // Set start state
     move_group_interface_.setStartState(start_state);
 
-    // Check if goal point is in the same frame as the planning frame
-    assert(goal_point.header.frame_id == move_group_interface_.getPlanningFrame());
-
-    // Copy goal point geometry_msgs::PointStamped to tf2::Vector3
-    tf2::Vector3 goal_position(
-        goal_point.point.x,
-        goal_point.point.y,
-        goal_point.point.z);
+    // Check if goal points are in the same frame as the planning frame
+    assert(left_mallet_goal_point.header.frame_id == move_group_interface_.getPlanningFrame());
+    if (right_mallet_goal_point)
+    {
+        assert(right_mallet_goal_point->header.frame_id == move_group_interface_.getPlanningFrame());
+    }
 
     // Use bio_ik to solve the inverse kinematics at the goal point
     bio_ik::BioIKKinematicsQueryOptions ik_options;
     ik_options.replace = true;
-    ik_options.return_approximate_solution = true; // Activate for debugging if you get an error 
+    ik_options.return_approximate_solution = false; // Activate for debugging if you get an error 
 
-    ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_1", goal_position));
-
-    // Create link on plane constraint using the LinkFunctionGoal
-    tf2::Vector3 plane_point(0.0, 0.0, 1.3);
-
-    // Define lambda function for link on plane constraint
-    auto link_on_plane_constraint = [](tf2::Vector3 plane_point) -> std::function<double(const tf2::Vector3&, const tf2::Quaternion&)>
-    {
-        return [plane_point](const tf2::Vector3& position, const tf2::Quaternion& orientation) -> double
-        {
-            tf2::Vector3 plane_normal(0.0, 0.0, 1.0);
-            tf2::Vector3 plane_to_position = position - plane_point;
-            double signed_dist = plane_to_position.dot(plane_normal);
-            // Take the squared value of the signed distance
-            return std::pow(signed_dist, 2);
-        };
-    };
-
-    // Add link on plane constraint to ik_options
+    // Add link on plane constraint to ik_options that holds the wrist at the same height
     ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_1_link", link_on_plane_constraint(tf2::Vector3(0.0, 0.0, 1.3))));
 
-    // Add joint variable goal for the wrist joint to avoid unnecessary rotations
-    // ik_options.goals.emplace_back(new bio_ik::JointVariableGoal("ur5_wrist_2_joint", 1.57)); // This is not needed any more if we set constrains for both malltes
-    ik_options.goals.emplace_back(new bio_ik::JointVariableGoal("ur5_wrist_3_joint", 0.0));
+    // Copy goal point geometry_msgs::PointStamped to tf2::Vector3
+    tf2::Vector3 left_mallet_goal_position(
+        left_mallet_goal_point.point.x,
+        left_mallet_goal_point.point.y,
+        left_mallet_goal_point.point.z + 0.02);  
 
-    // Double mallet specific goals that move the second mallet out of the way
-    // Add link on plane constraint to hold the second mallet head in place
-    ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("mallet_head_2", link_on_plane_constraint(tf2::Vector3(0.0, 0.0, 1.0))));
-    // Keep the double mallet joint at 70 degrees
-    ik_options.goals.emplace_back(new bio_ik::JointVariableGoal("mallet_finger", 60.0 * M_PI / 180.0));
+    // Add goal to ik_options
+    ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_1", left_mallet_goal_position));
+
+    // Check if we have a goal for the right mallet
+    if(right_mallet_goal_point)
+    {
+        // Copy goal point geometry_msgs::PointStamped to tf2::Vector3
+        tf2::Vector3 right_mallet_goal_position(
+            right_mallet_goal_point->point.x,
+            right_mallet_goal_point->point.y,
+            right_mallet_goal_point->point.z + 0.02);  
+
+        // Add goal to ik_options
+        ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_2", right_mallet_goal_position));
+    } else {
+        // Perform idle behavior for the right mallet
+
+        // Add joint variable goal for the wrist joint to avoid unnecessary rotations
+        ik_options.goals.emplace_back(new bio_ik::JointVariableGoal("ur5_wrist_3_joint", 0.0));
+
+        // Double mallet specific goals that move the second mallet out of the way
+        // Add link on plane constraint to hold the second mallet head in place
+        ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("mallet_head_2", link_on_plane_constraint(
+            tf2::Vector3(0.0, 0.0, left_mallet_goal_position.z() + 0.15))));
+
+        // Keep the double mallet joint at 70 degrees
+        ik_options.goals.emplace_back(new bio_ik::JointVariableGoal("mallet_finger", 45.0 * M_PI / 180.0));
+    }
     
     // Create minimal displacement goal, so that the robot does not move too much and stays close to the start state
     ik_options.goals.emplace_back(new bio_ik::MinimalDisplacementGoal());
@@ -169,21 +188,27 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     robot_state.setToDefaultValues();
     moveit::core::robotStateMsgToRobotState(start_state, robot_state);
     
-    // Calculate approach point
-    geometry_msgs::PointStamped approach_point{note.point};
-    approach_point.point.z += 0.15;
+    // Calculate approach points
+    geometry_msgs::PointStamped left_mallet_approach_point{note.left_mallet_point};
+    left_mallet_approach_point.point.z += 0.15;
+    boost::optional<geometry_msgs::PointStamped> right_mallet_approach_point{note.right_mallet_point};
+    if(right_mallet_approach_point)
+    {
+        right_mallet_approach_point->point.z += 0.15;
+    }
         
     // Calculate retreat point
-    geometry_msgs::PointStamped retreat_point{approach_point};
+    geometry_msgs::PointStamped left_mallet_retreat_point{left_mallet_approach_point};
+    boost::optional<geometry_msgs::PointStamped> right_mallet_retreat_point{right_mallet_approach_point};
 
     // Calculate approach trajectory
-    auto approach_plan = plan_to_mallet_position(start_state, approach_point);
+    auto approach_plan = plan_to_mallet_position(start_state, left_mallet_approach_point, right_mallet_approach_point);
 
     // Calculate down trajectory
-    auto down_plan = plan_to_mallet_position(get_robot_state_after_plan(approach_plan), note.point);
+    auto down_plan = plan_to_mallet_position(get_robot_state_after_plan(approach_plan), note.left_mallet_point, note.right_mallet_point);
 
     // Calculate retreat trajectory
-    auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), retreat_point);
+    auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), left_mallet_retreat_point, right_mallet_retreat_point);
 
     // Set timing parameters
     std::string tone_name = note.msg.tone_name;
@@ -291,6 +316,28 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
 
         // Convert the timing information in the hits from absolute to relative
         auto hits_relative = hit_sequence_absolute_to_relative(hits);
+
+        // Check if there are any hits with a (near) zero relative timing. These are chords and should be played at the same time using the second (right) mallet
+        // Iterate over all hits, check if the next hit has a relative timing of zero. 
+        // If this is the case remove the next hit and add it to the current hit as a right mallet hit
+        for (auto hit_iter = hits_relative.begin(); hit_iter != hits_relative.end(); ++hit_iter) {
+            // Check if the next hit has a relative timing of zero
+            if (hit_iter + 1 != hits_relative.end() && (hit_iter + 1)->msg.start_time < ros::Time(0.05)) {
+                ROS_INFO_STREAM("Found a chord");
+                auto chord_note_1 = hit_iter->left_mallet_point;
+                auto chord_note_2 = (hit_iter + 1)->left_mallet_point;
+                // Add the right note to right mallet and the left note to the left mallet
+                if(chord_note_1.point.y < chord_note_2.point.y) {
+                    hit_iter->right_mallet_point = chord_note_1;
+                    hit_iter->left_mallet_point = chord_note_2;
+                } else {
+                    hit_iter->right_mallet_point = chord_note_2;
+                    hit_iter->left_mallet_point = chord_note_1;
+                }
+                // Remove the next hit
+                hits_relative.erase(hit_iter + 1);
+            }
+        }
 
         // Define hit plan
         auto hit_plan = hit_notes(start_state, hits_relative);
