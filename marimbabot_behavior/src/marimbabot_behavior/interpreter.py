@@ -1,17 +1,35 @@
-import rospy
-from std_msgs.msg import String
-from marimbabot_msgs.msg import HitSequenceGoal, HitSequenceElement
-
-import tempfile
-from abjad import Block, LilyPondFile, Score, Staff, Voice
-from abjad.persist import as_midi
 import pretty_midi as pm
+import rospy
+from abjad import Block, LilyPondFile, Score, Staff, Voice, Repeat, attach
+from abjad.persist import as_midi
+
+from marimbabot_msgs.msg import HitSequenceElement, HitSequenceGoal
+
+"""
+Creates a Staff from a list of notes
+Also contains the logic for repeats. That is not taken care of by abjad."""
+def create_staff_from_notes(notes):
+    # check if file string includes repeat. If yes, remove it as it is added later
+    set_repeat = False
+    if "\\repeat volta" in notes:
+        rospy.logdebug("Found a 'repeat volta' in the notes. Removing it as it is added manually.")
+        notes = notes.replace("\\repeat volta 2", "")
+        set_repeat = True
+
+    voice_1 = Voice(notes, name="Voice_1")
+    if set_repeat:
+        repeat = Repeat()
+        attach(repeat, voice_1)
+
+    staff = Staff([voice_1], name="Staff_1")
+
+    return staff
+
 
 # create lilypond file from sentence
 def create_lilypond_file(notes):
     # generate abjad staff
-    voice = Voice(notes)
-    staff = Staff([voice])
+    staff = create_staff_from_notes(notes)
     score = Score([staff], name="Score")
 
     # generate abjad score block and midi block as described here https://github.com/Abjad/abjad/issues/1352#issuecomment-904852122
