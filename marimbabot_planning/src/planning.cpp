@@ -107,7 +107,10 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     ik_options.return_approximate_solution = false; // Activate for debugging if you get an error 
 
     // Add link on plane constraint to ik_options that holds the wrist at the same height
-    ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_1_link", link_on_plane_constraint(tf2::Vector3(0.0, 0.0, wrist_height))));
+    ik_options.goals.emplace_back(new bio_ik::PlaneGoal(
+        "ur5_wrist_1_link", 
+        tf2::Vector3(0.0, 0.0, wrist_height), 
+        tf2::Vector3(0.0, 0.0, 1.0)));
 
     // Copy goal point geometry_msgs::PointStamped to tf2::Vector3
     tf2::Vector3 left_mallet_goal_position(
@@ -137,8 +140,10 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
 
         // Double mallet specific goals that move the second mallet out of the way
         // Add link on plane constraint to hold the second mallet head in place
-        ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("mallet_head_2", link_on_plane_constraint(
-            tf2::Vector3(0.0, 0.0, left_mallet_goal_position.z() + 0.15))));
+        ik_options.goals.emplace_back(new bio_ik::PlaneGoal(
+            "mallet_head_2",
+            tf2::Vector3(0.0, 0.0, left_mallet_goal_position.z() + 0.15),
+            tf2::Vector3(0.0, 0.0, 1.0)));
 
         // Keep the double mallet joint at 70 degrees
         ik_options.goals.emplace_back(new bio_ik::JointVariableGoal("mallet_finger", 45.0 * M_PI / 180.0));

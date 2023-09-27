@@ -250,18 +250,6 @@ std::vector<CartesianHitSequenceElement> hit_sequence_absolute_to_relative(
 }
 
 
-std::function<double(const tf2::Vector3&, const tf2::Quaternion&)> link_on_plane_constraint(tf2::Vector3 plane_point, tf2::Vector3 plane_normal)
-{
-    return [plane_point, plane_normal](const tf2::Vector3& position, const tf2::Quaternion& orientation) -> double
-    {
-        tf2::Vector3 plane_to_position = position - plane_point;
-        double signed_dist = plane_to_position.dot(plane_normal);
-        // Take the squared value of the signed distance
-        return std::pow(signed_dist, 2);
-    };
-};
-
-
 std::vector<CartesianHitSequenceElement> apply_chords(std::vector<CartesianHitSequenceElement> hits_relative)
 {
     // Create a copy of the input vector

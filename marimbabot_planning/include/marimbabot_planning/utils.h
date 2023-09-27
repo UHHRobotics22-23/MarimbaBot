@@ -102,16 +102,6 @@ std::vector<CartesianHitSequenceElement> hit_sequence_absolute_to_relative(
 
 
 /**
- * @brief Bio IK constraint that keeps a link on a given plane in the planning frame
- * 
- * @param plane_point Point on the plane
- * @param plane_normal Normal vector of the plane
- * @return std::function<double(const tf2::Vector3&, const tf2::Quaternion&)>
-*/
-std::function<double(const tf2::Vector3&, const tf2::Quaternion&)> link_on_plane_constraint(tf2::Vector3 plane_point, tf2::Vector3 plane_normal = tf2::Vector3(0.0, 0.0, 1.0));
-
-
-/**
  * @brief Finds all chords in a sequence of notes and assigns the second malllet if one is detected
  * 
  * @param hits_relative Vector of notes with relative timing
