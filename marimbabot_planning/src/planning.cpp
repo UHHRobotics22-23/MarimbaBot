@@ -183,7 +183,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     const moveit_msgs::RobotState& start_state,
     CartesianHitSequenceElement note)
 {
-
+    // Set robot state to the given start state
     moveit::core::RobotState robot_state(move_group_interface_.getRobotModel());
     robot_state.setToDefaultValues();
     moveit::core::robotStateMsgToRobotState(start_state, robot_state);
@@ -242,8 +242,6 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     
     // Concatinate trajectories
     auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
-    
-    ros::Duration approach_duration = down_plan.trajectory_.joint_trajectory.points.back().time_from_start;
 
     return plan;
 }
