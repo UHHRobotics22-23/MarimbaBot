@@ -60,13 +60,15 @@ void Planning::go_to_home_position()
  *goal
  * @param  start_state
  * @param  goal_point
+ * @param  wrist_height
  * @return moveit::planning_interface::MoveGroupInterface::Plan
  * @throws PlanFailedException, IKFailedException
  **/
 moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_position(
     const moveit_msgs::RobotState& start_state,
     geometry_msgs::PointStamped left_mallet_goal_point,
-    boost::optional<geometry_msgs::PointStamped> right_mallet_goal_point)
+    boost::optional<geometry_msgs::PointStamped> right_mallet_goal_point,
+    double wrist_height)
 {
     // Initialize output plan
     moveit::planning_interface::MoveGroupInterface::Plan plan;
@@ -105,13 +107,13 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     ik_options.return_approximate_solution = false; // Activate for debugging if you get an error 
 
     // Add link on plane constraint to ik_options that holds the wrist at the same height
-    ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_1_link", link_on_plane_constraint(tf2::Vector3(0.0, 0.0, 1.3))));
+    ik_options.goals.emplace_back(new bio_ik::LinkFunctionGoal("ur5_wrist_1_link", link_on_plane_constraint(tf2::Vector3(0.0, 0.0, wrist_height))));
 
     // Copy goal point geometry_msgs::PointStamped to tf2::Vector3
     tf2::Vector3 left_mallet_goal_position(
         left_mallet_goal_point.point.x,
         left_mallet_goal_point.point.y,
-        left_mallet_goal_point.point.z + 0.02);  
+        left_mallet_goal_point.point.z + 0.01);  
 
     // Add goal to ik_options
     ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_1", left_mallet_goal_position));
@@ -123,7 +125,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
         tf2::Vector3 right_mallet_goal_position(
             right_mallet_goal_point->point.x,
             right_mallet_goal_point->point.y,
-            right_mallet_goal_point->point.z + 0.02);  
+            right_mallet_goal_point->point.z + 0.01);  
 
         // Add goal to ik_options
         ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_2", right_mallet_goal_position));
@@ -190,27 +192,30 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     
     // Calculate approach points
     geometry_msgs::PointStamped left_mallet_approach_point{note.left_mallet_point};
-    left_mallet_approach_point.point.z += 0.15;
-    left_mallet_approach_point.point.x += 0.1;
+    left_mallet_approach_point.point.z += 0.18;
+    left_mallet_approach_point.point.x += 0.09;
     boost::optional<geometry_msgs::PointStamped> right_mallet_approach_point{note.right_mallet_point};
     if(right_mallet_approach_point)
     {
-        right_mallet_approach_point->point.z += 0.15;
-        right_mallet_approach_point->point.x += 0.1;
+        right_mallet_approach_point->point.z += 0.18;
+        right_mallet_approach_point->point.x += 0.09;
     }
         
     // Calculate retreat point
     geometry_msgs::PointStamped left_mallet_retreat_point{left_mallet_approach_point};
     boost::optional<geometry_msgs::PointStamped> right_mallet_retreat_point{right_mallet_approach_point};
 
+    // Calculate the wrist height
+    double wrist_height = note.left_mallet_point.point.z + 0.34;
+
     // Calculate approach trajectory
-    auto approach_plan = plan_to_mallet_position(start_state, left_mallet_approach_point, right_mallet_approach_point);
+    auto approach_plan = plan_to_mallet_position(start_state, left_mallet_approach_point, right_mallet_approach_point, wrist_height);
 
     // Calculate down trajectory
-    auto down_plan = plan_to_mallet_position(get_robot_state_after_plan(approach_plan), note.left_mallet_point, note.right_mallet_point);
+    auto down_plan = plan_to_mallet_position(get_robot_state_after_plan(approach_plan), note.left_mallet_point, note.right_mallet_point, wrist_height);
 
     // Calculate retreat trajectory
-    auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), left_mallet_retreat_point, right_mallet_retreat_point);
+    auto retreat_plan = plan_to_mallet_position(get_robot_state_after_plan(down_plan), left_mallet_retreat_point, right_mallet_retreat_point, wrist_height);
 
     // Set timing parameters
     std::string tone_name = note.msg.tone_name;

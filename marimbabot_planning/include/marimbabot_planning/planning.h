@@ -52,14 +52,15 @@ class Planning
          *
          * @param  start_state
          * @param  goal_point
+         * @param  wrist_height
          * @return moveit::planning_interface::MoveGroupInterface::Plan
          * @throws PlanFailedException, IKFailedException
          **/
         moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
             const moveit_msgs::RobotState& start_state,
             geometry_msgs::PointStamped left_mallet_goal_point,
-            boost::optional<geometry_msgs::PointStamped> right_mallet_goal_point = boost::none);
-
+            boost::optional<geometry_msgs::PointStamped> right_mallet_goal_point = boost::none,
+            double wrist_height = 1.3);
         /**
          * @brief hit a given note in cartesian space
          *
