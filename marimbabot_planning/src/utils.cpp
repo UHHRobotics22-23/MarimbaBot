@@ -138,9 +138,16 @@ moveit::planning_interface::MoveGroupInterface::Plan interpolate_plan(
             }
         }
 
-        // Calculate the interpolation factor
-        double interpolation_factor = (current_time - input_plan.trajectory_.joint_trajectory.points[index_of_first_point].time_from_start.toSec()) /
-                                      (input_plan.trajectory_.joint_trajectory.points[index_of_second_point].time_from_start.toSec() - input_plan.trajectory_.joint_trajectory.points[index_of_first_point].time_from_start.toSec());
+        // Calculate the time difference between the two points
+        double dt = input_plan.trajectory_.joint_trajectory.points[index_of_second_point].time_from_start.toSec() - input_plan.trajectory_.joint_trajectory.points[index_of_first_point].time_from_start.toSec();
+
+        // Handle the case where dt is zero
+        double interpolation_factor = 0;
+        if (dt > 0)
+        {
+            // Calculate the interpolation factor
+            interpolation_factor = (current_time - input_plan.trajectory_.joint_trajectory.points[index_of_first_point].time_from_start.toSec()) / dt;
+        }
 
         // Interpolate between the two points
         trajectory_msgs::JointTrajectoryPoint interpolated_point;
