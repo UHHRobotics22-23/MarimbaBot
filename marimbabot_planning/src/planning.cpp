@@ -298,8 +298,8 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
 
     try {
         // Set the max velocity and acceleration scaling factors
-        move_group_interface_.setMaxVelocityScalingFactor(0.5);
-        move_group_interface_.setMaxAccelerationScalingFactor(0.5);
+        move_group_interface_.setMaxVelocityScalingFactor(0.95);
+        move_group_interface_.setMaxAccelerationScalingFactor(0.95);
 
         auto current_state = move_group_interface_.getCurrentState();
         //convert to moveit message
