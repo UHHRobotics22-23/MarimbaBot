@@ -1,4 +1,6 @@
 std_msgs/Header header
-string command
+string behavior
+string action
+string parameter
 
 
