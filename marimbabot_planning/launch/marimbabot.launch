@@ -1,3 +1,5 @@
 <launch>
-    <node name="marimbabot_planning" pkg="marimbabot_planning" type="planning" output="screen" />
+    <node name="marimbabot_planning" pkg="marimbabot_planning" type="planning" output="screen" >
+        <rosparam command="load" file="$(find marimbabot_planning)/config/planning.yaml" />
+    </node>
 </launch>

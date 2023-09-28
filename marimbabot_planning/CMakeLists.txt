@@ -4,6 +4,7 @@ project(marimbabot_planning)
 find_package(catkin REQUIRED COMPONENTS
   actionlib_msgs
   bio_ik
+  dynamic_reconfigure
   geometry_msgs
   marimbabot_msgs
   moveit_msgs
@@ -14,6 +15,11 @@ find_package(catkin REQUIRED COMPONENTS
   tf2_geometry_msgs
   tf2_ros
   trajectory_msgs
+)
+
+## Generate dynamic reconfigure parameters in the 'cfg' folder
+generate_dynamic_reconfigure_options(
+  cfg/planning.cfg
 )
 
 catkin_package(

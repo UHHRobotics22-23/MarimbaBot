@@ -1,0 +1,6 @@
+line_topic: "kal"
+line_pointcloud_topic: "kal"
+goal_topic: "kal"
+fieldboundary_topic: "kal"
+cam_info_topic: "kal"
+fieldboundary_in_image_topic: "kal"

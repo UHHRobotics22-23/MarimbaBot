@@ -10,6 +10,7 @@ namespace marimbabot_planning
 PlanningNode::PlanningNode() :
     nh_{},
     tf_listener_{*tf_buffer_},
+    dyn_reconf_server_{nh_},
     trajectory_generator_{tf_buffer_},
     action_server_{
         nh_,
@@ -17,6 +18,8 @@ PlanningNode::PlanningNode() :
         boost::bind(&PlanningNode::action_server_callback, this, _1),
         false}
 {
+    // Start dynamic reconfigure server
+    dyn_reconf_server_.setCallback(boost::bind(&PlanningNode::dyn_reconf_callback, this, _1, _2));
     // Move to home position
     trajectory_generator_.go_to_home_position();
     // Timer callback that moves back to the home position if no action is active
@@ -36,13 +39,25 @@ PlanningNode::PlanningNode() :
 
 
 /**
+ * @brief Callback for the dynamic reconfigure server
+ *
+ * @param config
+ * @param level
+ */
+void PlanningNode::dyn_reconf_callback(planning_paramsConfig &config, uint32_t level)
+{
+    // Update config
+    config_ = config;
+}
+
+
+/**
  * Callback for the action server
  * @param goal
  * @param action_server
  */
 void PlanningNode::action_server_callback(const marimbabot_msgs::HitSequenceGoalConstPtr &goal)
 {
-
     // Initialize feedback
     marimbabot_msgs::HitSequenceFeedback feedback;
     feedback.playing = false;
