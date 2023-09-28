@@ -6,7 +6,7 @@ import tqdm
 import numpy as np
 
 WORKING_DIR = "data"
-VIDEO_DEVICE = "/dev/video2"
+VIDEO_DEVICE = "/dev/video3"
 IMAGES_PER_SAMPLE = 30
 
 vid = cv2.VideoCapture(VIDEO_DEVICE)
