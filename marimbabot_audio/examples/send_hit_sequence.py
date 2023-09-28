@@ -1,6 +1,5 @@
 from marimbabot_msgs.msg import HitSequence as HitSequenceMsg
 from marimbabot_msgs.msg import HitSequenceElement as HitSequenceElementMsg
-from marimbabot_msgs.msg import SequenceScore as SequenceScoreMsg
 from marimbabot_msgs.msg import NoteOnset as NoteOnsetMsg
 import numpy as np
 import rospy

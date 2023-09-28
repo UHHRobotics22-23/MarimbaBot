@@ -15,7 +15,7 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
-# TODO tuning the windows size for onset detection, to enable higher frequency detection.
+
 
 def hz_to_note(hz):
 	return pretty_midi.note_number_to_name(pretty_midi.hz_to_note_number(hz))
@@ -85,15 +85,20 @@ class OnsetDetection:
 			os.remove(self.onset_cache_file)
 
 	def init_instrument_config(self):
-		# # harp
-		# self.fmin_note = "C4"
-		# self.fmax_note = "C6"
-		# self.semitones = 62
+		"""
+			The configuration of the instrument.
 
-		# # guzheng
-		# self.fmin_note = "C2"
-		# self.fmax_note = "C8"
-		# self.semitones = 84
+			And some examples of the configuration of different instruments:
+			# harp
+			self.fmin_note = "C4"
+			self.fmax_note = "C6"
+			self.semitones = 62
+
+			# guzheng
+			self.fmin_note = "C2"
+			self.fmax_note = "C8"
+			self.semitones = 84
+		"""
 
 		# marimba
 		self.fmin_note = "C4"  # C4 pm_id=60
@@ -291,7 +296,6 @@ class OnsetDetection:
 				winners_raw_idx.append(winner_raw_idx)  # ys
 				winner_onsets.append(onset)  # xs
 				durations.append(default_duration)
-
 
 				# publish the onset note to topic
 				t = self.buffer_time + rospy.Duration(onset)
