@@ -26,7 +26,8 @@ include_directories(
 )
 
 set(SOURCES
-    src/planning.cpp
+    src/node.cpp
+    src/trajectory_generation.cpp
     src/utils.cpp
 )
 

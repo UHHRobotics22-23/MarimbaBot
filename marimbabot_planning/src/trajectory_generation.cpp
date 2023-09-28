@@ -1,50 +1,27 @@
-#include "marimbabot_planning/planning.h"
+#include "marimbabot_planning/trajectory_generation.h"
 
 namespace marimbabot_planning
 {
 
 /**
- * @brief Construct a new Planning:: Planning object
+ * @brief Construct a new TrajectoryGenerator:: TrajectoryGenerator object
  *
 **/
-Planning::Planning(const std::string planning_group) : 
-    nh_{}, 
-    tf_listener_{*tf_buffer_},
-    move_group_interface_{planning_group}, 
-    action_server_{
-        nh_, 
-        "hit_sequence", 
-        boost::bind(&Planning::action_server_callback, this, _1), 
-        false}
+TrajectoryGenerator::TrajectoryGenerator(std::shared_ptr<tf2_ros::Buffer> tf_buffer) :
+    tf_buffer_{tf_buffer},
+    move_group_interface_{"arm_mallets"}
 {
     // Set planning pipeline and planner
     move_group_interface_.setPlanningPipelineId("pilz_industrial_motion_planner");
     move_group_interface_.setPlannerId("PTP");
     move_group_interface_.startStateMonitor();
-    // Move to home position
-    go_to_home_position();
-    // Timer callback that moves back to the home position if no action is active
-    auto timer_callback = [this](const ros::TimerEvent& event) {
-        // Check if an action in not active and if the last action was more than 5 seconds ago
-        if (!action_server_.isActive() && ros::Time::now() - last_action_time_ > ros::Duration(1.0))
-        {
-            // Check if we are currently close to the home position
-            go_to_home_position();
-        }
-    };
-    // Create timer that checks if an action is active and moves back to the home position if not
-    auto timer = nh_.createTimer(ros::Duration(0.5), timer_callback);
-    // Start action server
-    action_server_.start();
-    // Wait for shutdown
-    ros::waitForShutdown();
 }
 
 
 /**
  * @brief Move the robot to its idle/home position
 */
-void Planning::go_to_home_position()
+void TrajectoryGenerator::go_to_home_position()
 {
     // Set slow velocity and acceleration scaling factor as speed is not important
     move_group_interface_.setMaxVelocityScalingFactor(0.05);
@@ -65,7 +42,7 @@ void Planning::go_to_home_position()
  * @return moveit::planning_interface::MoveGroupInterface::Plan
  * @throws PlanFailedException, IKFailedException
  **/
-moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_position(
+moveit::planning_interface::MoveGroupInterface::Plan TrajectoryGenerator::plan_to_mallet_position(
     const moveit_msgs::RobotState& start_state,
     geometry_msgs::PointStamped left_mallet_goal_point,
     boost::optional<geometry_msgs::PointStamped> right_mallet_goal_point,
@@ -78,7 +55,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     // Get the marimbabot_home position from moveit
     auto marimbabot_home = move_group_interface_.getNamedTargetValues("marimbabot_home");
 
-    // Create vector of joint names based on the marimbabot_home position 
+    // Create vector of joint names based on the marimbabot_home position
     std::vector<std::string> marimbabot_home_joint_names;
     std::vector<double> marimbabot_home_joint_values;
     for (auto joint : marimbabot_home) {
@@ -105,19 +82,19 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
     // Use bio_ik to solve the inverse kinematics at the goal point
     bio_ik::BioIKKinematicsQueryOptions ik_options;
     ik_options.replace = true;
-    ik_options.return_approximate_solution = false; // Activate for debugging if you get an error 
+    ik_options.return_approximate_solution = false; // Activate for debugging if you get an error
 
     // Add link on plane constraint to ik_options that holds the wrist at the same height
     ik_options.goals.emplace_back(new bio_ik::PlaneGoal(
-        "ur5_wrist_1_link", 
-        tf2::Vector3(0.0, 0.0, wrist_height), 
+        "ur5_wrist_1_link",
+        tf2::Vector3(0.0, 0.0, wrist_height),
         tf2::Vector3(0.0, 0.0, 1.0)));
 
     // Copy goal point geometry_msgs::PointStamped to tf2::Vector3
     tf2::Vector3 left_mallet_goal_position(
         left_mallet_goal_point.point.x,
         left_mallet_goal_point.point.y,
-        left_mallet_goal_point.point.z + 0.01);  
+        left_mallet_goal_point.point.z + 0.01);
 
     // Add goal to ik_options
     ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_1", left_mallet_goal_position));
@@ -129,7 +106,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
         tf2::Vector3 right_mallet_goal_position(
             right_mallet_goal_point->point.x,
             right_mallet_goal_point->point.y,
-            right_mallet_goal_point->point.z + 0.01);  
+            right_mallet_goal_point->point.z + 0.01);
 
         // Add goal to ik_options
         ik_options.goals.emplace_back(new bio_ik::PositionGoal("mallet_head_2", right_mallet_goal_position));
@@ -149,7 +126,6 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
         // Keep the double mallet joint at 70 degrees
         ik_options.goals.emplace_back(new bio_ik::JointVariableGoal("mallet_finger", 45.0 * M_PI / 180.0));
     }
-    
     // Create minimal displacement goal, so that the robot does not move too much and stays close to the start state
     ik_options.goals.emplace_back(new bio_ik::MinimalDisplacementGoal());
 
@@ -186,8 +162,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
  * @param note
  * @return moveit::planning_interface::MoveGroupInterface::Plan
 **/
-
-moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
+moveit::planning_interface::MoveGroupInterface::Plan TrajectoryGenerator::hit_note(
     const moveit_msgs::RobotState& start_state,
     CartesianHitSequenceElement note)
 {
@@ -195,7 +170,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     moveit::core::RobotState robot_state(move_group_interface_.getRobotModel());
     robot_state.setToDefaultValues();
     moveit::core::robotStateMsgToRobotState(start_state, robot_state);
-    
+
     // Calculate approach points
     geometry_msgs::PointStamped left_mallet_approach_point{note.left_mallet_point};
     left_mallet_approach_point.point.z += 0.18;
@@ -206,7 +181,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
         right_mallet_approach_point->point.z += 0.18;
         right_mallet_approach_point->point.x += 0.09;
     }
-        
+
     // Calculate retreat point
     geometry_msgs::PointStamped left_mallet_retreat_point{left_mallet_approach_point};
     boost::optional<geometry_msgs::PointStamped> right_mallet_retreat_point{right_mallet_approach_point};
@@ -241,7 +216,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     double approach_time = start_time.toSec() - \
         down_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec() - \
         retreat_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec();
-    
+
     // Clamp the approach time to the minimum duration of the approach trajectory
     double approach_time_clamped = std::max(approach_time, approach_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec());
     // Show warning if the approach time was clamped
@@ -250,7 +225,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
         ROS_WARN("Approach time was clamped from %f to %f", approach_time, approach_time_clamped);
     }
     approach_plan = slow_down_plan(approach_plan, approach_time_clamped);
-    
+
     // Concatinate trajectories
     auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
 
@@ -264,7 +239,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
  * @param points
  * @return moveit::planning_interface::MoveGroupInterface::Plan
 **/
-moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_notes(
+moveit::planning_interface::MoveGroupInterface::Plan TrajectoryGenerator::hit_notes_cartesian(
     const moveit_msgs::RobotState& start_state,
     std::vector<CartesianHitSequenceElement> points)
 {
@@ -281,7 +256,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_notes(
     // Call hit_points recursively for all remaining hit_points
     if(points.size() > 1)
     {
-        auto remaining_hit_plan = hit_notes(
+        auto remaining_hit_plan = hit_notes_cartesian(
             get_robot_state_after_plan(hit_plan),
             std::vector<CartesianHitSequenceElement>(points.begin() + 1, points.end())
             );
@@ -293,101 +268,56 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_notes(
 
 
 /**
- * Callback for the action server
- * @param goal
- * @param action_server
- */
-void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalConstPtr &goal)
+ * @brief Generate a plan to hit a sequence of notes
+ *
+ * @param hit_sequence
+ * @return moveit::planning_interface::MoveGroupInterface::Plan
+**/
+moveit::planning_interface::MoveGroupInterface::Plan TrajectoryGenerator::hit_notes(
+    const std::vector<marimbabot_msgs::HitSequenceElement>& notes)
 {
+    // Set the max velocity and acceleration scaling factors
+    move_group_interface_.setMaxVelocityScalingFactor(0.95);
+    move_group_interface_.setMaxAccelerationScalingFactor(0.95);
 
-    // initialize feedback
-    marimbabot_msgs::HitSequenceFeedback feedback;
-    feedback.playing = true;
-    feedback.executed_sequence_elements.clear();
+    // Get start state
+    auto current_state = move_group_interface_.getCurrentState();
+    moveit_msgs::RobotState start_state;
+    moveit::core::robotStateToRobotStateMsg(*current_state, start_state);
 
-    try {
-        // Set the max velocity and acceleration scaling factors
-        move_group_interface_.setMaxVelocityScalingFactor(0.95);
-        move_group_interface_.setMaxAccelerationScalingFactor(0.95);
+    // Gets the hit points in cartesian space for every note
+    auto hits = hit_sequence_to_points(
+        notes,
+        move_group_interface_.getPlanningFrame(),
+        tf_buffer_
+    );
 
-        auto current_state = move_group_interface_.getCurrentState();
-        //convert to moveit message
-        moveit_msgs::RobotState start_state;
-        moveit::core::robotStateToRobotStateMsg(*current_state, start_state);
+    // Convert the timing information in the hits from absolute to relative
+    auto hits_relative = hit_sequence_absolute_to_relative(hits);
 
-        // Gets the hit points in cartesian space for every note
-        auto hits = hit_sequence_to_points(
-            goal->hit_sequence_elements, 
-            move_group_interface_.getPlanningFrame(),
-            tf_buffer_
-        );
+    // Detect chords and apply them as goals for the second mallet
+    auto hits_relative_with_chords = apply_chords(hits_relative);
 
-        // Convert the timing information in the hits from absolute to relative
-        auto hits_relative = hit_sequence_absolute_to_relative(hits);
-
-        // Detect chords and apply them as goals for the second mallet
-        auto hits_relative_with_chords = apply_chords(hits_relative);
-
-        // Define hit plan
-        auto hit_plan = hit_notes(start_state, hits_relative_with_chords);
-
-        // Publish the plan for rviz
-        moveit_msgs::DisplayTrajectory display_trajectory;
-        moveit_msgs::RobotTrajectory trajectory;
-        trajectory.joint_trajectory = hit_plan.trajectory_.joint_trajectory;
-        display_trajectory.trajectory_start = hit_plan.start_state_;
-        display_trajectory.trajectory.push_back(trajectory);
-        trajectory_publisher_.publish(display_trajectory);
+    // Define hit plan
+    return hit_notes_cartesian(start_state, hits_relative_with_chords);
+}
 
 
-        // set the start time of execution
-        ros::Time start_time = ros::Time::now();
+/**
+ * @brief Execute a plan
+ *
+ * @param plan
+ * @return void
+ * @throws ExecutionFailedException
+ **/
+void TrajectoryGenerator::execute_plan(const moveit::planning_interface::MoveGroupInterface::Plan& plan)
+{
+    // Execute the plan
+    auto status = move_group_interface_.execute(plan);
 
-        // Publish the feedback
-        action_server_.publishFeedback(feedback);
-
-        // Execute the plan
-        auto status = move_group_interface_.execute(hit_plan);
-        // Set playing to false
-        feedback.playing = false;
-
-        ros::Duration plan_execution_time = ros::Time::now() - start_time;
-
-        // Set the result of the action server
-        if (status != moveit::planning_interface::MoveItErrorCode::SUCCESS) {
-            ROS_ERROR_STREAM("Hit sequence execution failed: " << status);
-            marimbabot_msgs::HitSequenceResult result;
-            result.success = false;
-            result.error_code = marimbabot_msgs::HitSequenceResult::EXECUTION_FAILED;
-            action_server_.setAborted(result);
-        } else {
-            marimbabot_msgs::HitSequenceResult result;
-            result.executed_sequence_elements = feedback.executed_sequence_elements;
-            result.success = true;
-            action_server_.setSucceeded(result);
-        }
-
-    } catch (PlanFailedException& e) {
-        ROS_ERROR_STREAM("Hit sequence planning failed: " << e.what());
-        marimbabot_msgs::HitSequenceResult result;
-        result.success = false;
-        result.error_code = marimbabot_msgs::HitSequenceResult::PLANNING_FAILED;
-        action_server_.setAborted(result);
+    // Throw exception if execution failed
+    if (status != moveit::planning_interface::MoveItErrorCode::SUCCESS) {
+        throw ExecutionFailedException("Execution failed");
     }
-
-    // Reset last action time so we move back to the home position after a while
-    last_action_time_ = ros::Time::now();
 }
-
 } // namespace marimbabot_planning
-
-int main(int argc, char **argv)
-{
-    ros::init(argc, argv, "marimba_move");
-    ros::AsyncSpinner spinner(4);
-    spinner.start();
-
-    marimbabot_planning::Planning planning{"arm_mallets"};
-
-    return 0;
-}

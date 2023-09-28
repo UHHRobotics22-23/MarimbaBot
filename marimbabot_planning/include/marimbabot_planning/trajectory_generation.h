@@ -1,51 +1,31 @@
-#include <actionlib/server/simple_action_server.h>
+#pragma once
+
 #include <bio_ik/bio_ik.h>
 #include <boost/optional.hpp>
 #include <geometry_msgs/PointStamped.h>
 #include <geometry_msgs/Pose.h>
-#include <iostream>
-#include <list>
-#include <marimbabot_msgs/HitSequenceAction.h>
+#include <marimbabot_msgs/HitSequenceElement.h>
 #include <marimbabot_planning/utils.h>
-#include <moveit_msgs/DisplayTrajectory.h>
 #include <moveit_msgs/RobotState.h>
-#include <moveit_msgs/RobotTrajectory.h>
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <moveit/robot_state/conversions.h>
 #include <ros/ros.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <tf2_ros/transform_listener.h>
-#include <tf2/LinearMath/Quaternion.h>
-#include <trajectory_msgs/JointTrajectoryPoint.h>
 
 namespace marimbabot_planning
 {
 
-class Planning
+class TrajectoryGenerator
 {
     private:
-        // Initialize node handle and tf 
-        ros::NodeHandle nh_;
-        std::shared_ptr<tf2_ros::Buffer> tf_buffer_ = std::make_shared<tf2_ros::Buffer>();
-        tf2_ros::TransformListener tf_listener_;
+        // Keep a reference to the tf buffer
+        std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
 
         // MoveIt! MoveGroupInterface
         moveit::planning_interface::MoveGroupInterface move_group_interface_;
 
-        // Action server
-        actionlib::SimpleActionServer<marimbabot_msgs::HitSequenceAction> action_server_;
-
-        // Create a trajectory publisher
-        ros::Publisher trajectory_publisher_ = nh_.advertise<moveit_msgs::DisplayTrajectory>("/move_group/display_planned_path", 1, true);
-
-        // Last action time
-        ros::Time last_action_time_;
-
-        /**
-         * @brief Move the robot to its idle/home position
-         * 
-        */
-        void go_to_home_position();
+    public:
+        TrajectoryGenerator(std::shared_ptr<tf2_ros::Buffer> tf_buffer);
 
         /**
          * @brief Calculate a plan so that the mallet (end effector) is at a given point in cartesian space
@@ -62,6 +42,7 @@ class Planning
             geometry_msgs::PointStamped left_mallet_goal_point,
             boost::optional<geometry_msgs::PointStamped> right_mallet_goal_point = boost::none,
             double wrist_height = 1.3);
+
         /**
          * @brief hit a given note in cartesian space
          *
@@ -69,33 +50,43 @@ class Planning
          * @param note
          * @return moveit::planning_interface::MoveGroupInterface::Plan
         **/
-
         moveit::planning_interface::MoveGroupInterface::Plan hit_note(
             const moveit_msgs::RobotState& start_state,
             CartesianHitSequenceElement note);
 
-
         /**
-         * @brief Hit a sequence of notes in cartesian space
+         * @brief Hit a sequence of notes in cartesian space with relative timing
          *
          * @param start_state
          * @param notes
          * @return moveit::planning_interface::MoveGroupInterface::Plan
         **/
-        moveit::planning_interface::MoveGroupInterface::Plan hit_notes(
+        moveit::planning_interface::MoveGroupInterface::Plan hit_notes_cartesian(
             const moveit_msgs::RobotState& start_state,
             std::vector<CartesianHitSequenceElement> notes);
 
+        /**
+         * @brief Generate a plan to hit a sequence of notes
+         *
+         * @param hit_sequence
+         * @return moveit::planning_interface::MoveGroupInterface::Plan
+        **/
+        moveit::planning_interface::MoveGroupInterface::Plan hit_notes(
+            const std::vector<marimbabot_msgs::HitSequenceElement>& notes);
 
         /**
-         * @brief Callback for the action server
-         * 
-         * @param goal
-         * @param action_server
-         */
-        void action_server_callback(const marimbabot_msgs::HitSequenceGoalConstPtr &goal);
+         * @brief Execute a plan
+         *
+         * @param plan
+         * @return void
+         * @throws ExecutionFailedException
+         **/
+        void execute_plan(const moveit::planning_interface::MoveGroupInterface::Plan& plan);
 
-    public:
-        Planning(const std::string planning_group);
+        /**
+         * @brief Move the robot to its idle/home position
+         *
+        */
+        void go_to_home_position();
 };
-} 
+}

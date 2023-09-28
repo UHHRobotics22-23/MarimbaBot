@@ -1,3 +1,5 @@
+#pragma once
+
 #include <boost/optional.hpp>
 #include <geometry_msgs/PointStamped.h>
 #include <marimbabot_msgs/HitSequenceAction.h>
@@ -13,21 +15,28 @@ namespace marimbabot_planning
 
 /**
  * @brief Custom exception for the case that a plan failed
- * 
+ *
  **/
-class PlanFailedException : public std::runtime_error 
+class PlanFailedException : public std::runtime_error
 { using std::runtime_error::runtime_error; };
 
 /**
  * @brief Custom exception for the case that a plan failed because of IK issues
- * 
+ *
  **/
-class IKFailedException : public PlanFailedException 
+class IKFailedException : public PlanFailedException
 { using PlanFailedException::PlanFailedException; };
 
 /**
+ * @brief Custom exception for the case that the execution on the robot fails
+ *
+ **/
+class ExecutionFailedException : public std::runtime_error
+{ using std::runtime_error::runtime_error; };
+
+/**
  * @brief Struct containing a hit point in cartesian space and the corresponding HitSequenceElement
- * 
+ *
  **/
 struct CartesianHitSequenceElement
 {
@@ -78,8 +87,8 @@ moveit::planning_interface::MoveGroupInterface::Plan interpolate_plan(
     double points_per_second);
 
 /**
- * @brief Convert a hit sequence elements to a vector of HitSequenceElement structs containing the points 
- * 
+ * @brief Convert a hit sequence elements to a vector of HitSequenceElement structs containing the points
+ *
  * @param hit_sequence
  * @param tf_buffer
  * @param planning_frame
@@ -93,7 +102,7 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
 
 /**
  * @brief Convert the timing information of a hit sequence from absolute to relative timings
- * 
+ *
  * @param hit_sequence
  * @return std::vector<CartesianHitSequenceElement>
  **/
@@ -103,7 +112,7 @@ std::vector<CartesianHitSequenceElement> hit_sequence_absolute_to_relative(
 
 /**
  * @brief Finds all chords in a sequence of notes and assigns the second malllet if one is detected
- * 
+ *
  * @param hits_relative Vector of notes with relative timing
  * @return std::vector<CartesianHitSequenceElement> Vector of notes with relative timing, both mallets are assigned if a chord is detected. This may be shorter than the input vector.
 */
