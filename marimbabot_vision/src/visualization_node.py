@@ -5,20 +5,41 @@ import tempfile
 
 import cv2
 import rospy
-from abjad import Block, LilyPondFile, Staff, Voice
+from abjad import Block, LilyPondFile, Staff, Voice, Repeat, attach
 from abjad.persist import as_png
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image as ROSImage
 from std_msgs.msg import String
 
+"""
+Duplicate Method as in marimbabot_behavior/interpreter.
+
+Creates a Staff from a list of notes
+Also contains the logic for repeats. That is not taken care of by abjad.
+"""
+def create_staff_from_notes(notes):
+    # check if file string includes repeat. If yes, remove it as it is added later
+    set_repeat = False
+    if "\\repeat volta" in notes:
+        rospy.logdebug("Found a 'repeat volta' in the notes. Removing it as it is added manually.")
+        notes = notes.replace("\\repeat volta 2", "")
+        set_repeat = True
+
+    voice_1 = Voice(notes, name="Voice_1")
+    if set_repeat:
+        repeat = Repeat()
+        attach(repeat, voice_1)
+
+    staff = Staff([voice_1], name="Staff_1")
+
+    return staff
 
 def callback_vision_results(notes, args):
     rospy.logdebug(f"Received notes: {notes.data}")
     pub = args
 
     # generate abjad staff
-    voice = Voice(notes.data)
-    staff = Staff([voice])
+    staff = create_staff_from_notes(notes.data)
 
     # generate lilypond file
     header_block = Block(name="header")

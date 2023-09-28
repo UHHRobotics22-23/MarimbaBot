@@ -9,7 +9,7 @@ from abjad.exceptions import LilyPondParserError
 from std_msgs.msg import String
 
 from marimbabot_behavior.interpreter import read_notes
-from marimbabot_msgs.msg import (Command, HitSequenceAction,
+from marimbabot_msgs.msg import (Command, HitSequence, HitSequenceAction,
                                  LilypondAudioAction, LilypondAudioGoal)
 
 
@@ -29,6 +29,11 @@ class ActionDecider:
         # listens to the recognized commands from speech node
         self.command_sub = rospy.Subscriber('speech_node/command', Command, self.callback_command)
 
+        # publisher for audio/hit_sequence
+        self.hit_sequence_pub = rospy.Publisher('audio/hit_sequence', HitSequence, queue_size=10)
+        # sequence_id counter
+        self.sequence_id_counter = 0
+
         # action client to send the hit sequence to the planning action server
         self.planning_client = actionlib.SimpleActionClient('hit_sequence', HitSequenceAction)
 
@@ -45,10 +50,21 @@ class ActionDecider:
 
     # sets the tempo of the current sequence and updates the hit sequence
     def assign_tempo(self, value=60):
-        if '\\tempo' in self.note_sequence:
-            self.note_sequence = re.sub(r'\\tempo 4 = [0-9]+', '\\\\tempo 4 = {}'.format(value), self.note_sequence)
+        # set upper limit as 120
+        if value < 20:
+            value=20
+        elif value > 120:
+            value=120
+
+            # if the value is clipped, inform the user
+            self.response_pub.publish('The current tempo was clipped to 120 bpm.')
         else:
-            self.note_sequence = '\\tempo 4 = {} '.format(value) + self.note_sequence
+            value=value
+        
+        if '\\tempo' in self.note_sequence:
+            self.note_sequence = re.sub(r'\\tempo 4=[0-9]+', '\\\\tempo 4={}'.format(value), self.note_sequence)
+        else:
+            self.note_sequence = '\\tempo 4={} '.format(value) + self.note_sequence
         
         rospy.logdebug(f'Tempo set to {value} bpm')
         rospy.loginfo(f"updated notes: {self.note_sequence}")
@@ -56,34 +72,44 @@ class ActionDecider:
 
     # changes the tempo of the current sequence and updates the hit sequence
     def change_tempo(self, faster=True, value=20):
-        tempo = re.findall(r'\\tempo 4 = [0-9]+', self.note_sequence)
+        tempo = re.findall(r'\\tempo 4=[0-9]+', self.note_sequence)
         if len(tempo) > 0:
-            tempo = int(tempo[0].split(' ')[-1])
+            tempo = int(tempo[0].split('=')[-1])
             self.assign_tempo(tempo + value if faster else tempo - value)
+
+    """
+    Callback function for the feedback from the planning action server.
+    Forwards the feedback to the audio node.
+    """
+    def planning_feedback_cb(self, feedback_msg):
+        rospy.logdebug(f"Feedback from planning action server: {feedback_msg}")
+        # send it to audio '/audio/hit_sequence' topic
+        hit_sequence_msg = HitSequence()
+        hit_sequence_msg.header.stamp = rospy.Time.now()
+        hit_sequence_msg.sequence_id = self.sequence_id_counter
+        hit_sequence_msg.hit_sequence_elements = feedback_msg
+
+        self.sequence_id_counter += 1
+        self.hit_sequence_pub.publish(hit_sequence_msg)
+        
 
     # communicates with the planning action server to play the hit sequence on the marimba
     def play(self):
         rospy.loginfo(f"playing notes: {self.note_sequence}")
         rospy.loginfo(f"goal_hit_sequence: {self.hit_sequence}")
 
-        # preparing the hit sequence message for the audio node
-            # hit_sequence_msg = HitSequence()
-            # hit_sequence_msg.header.stamp = rospy.Time.now()
-            # hit_sequence_msg.seq_id = self.id_counter
-            # hit_sequence_msg.seq = self.hit_sequenc
-
         def planning_client_thread():
              # Waits until the action server has started up and started
             self.planning_client.wait_for_server()
             # Sends the goal to the action server.
-            self.planning_client.send_goal(self.hit_sequence)
+            self.planning_client.send_goal(self.hit_sequence, feedback_cb=self.planning_feedback_cb)
             # Waits for the server to finish performing the action.
             # Includes that the audio file is generated and was played
-            self.planning_clinet.wait_for_result()
+            self.planning_client.wait_for_result()
             # Prints out the result of executing the action
             rospy.logdebug(f"Result from planning action server: {self.planning_client.get_result()}")
             # Check if we have a success
-            if not self.planning_clinet.get_result().success:
+            if not self.planning_client.get_result().success:
                 self.response_pub.publish('The sequence could not be played.')
 
         # start thread to not block the main thread if the action server is not currently active

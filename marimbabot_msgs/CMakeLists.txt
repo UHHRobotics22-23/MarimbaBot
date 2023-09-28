@@ -5,6 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib_msgs
   message_generation
   std_msgs
+  audio_common_msgs
 )
 
 ## Generate messages and actions
@@ -16,7 +17,6 @@ add_message_files(
   NoteOnset.msg
   Command.msg
   Speech.msg
-  TmpFile.msg
   HitSequence.msg
   SequenceScore.msg
 )
@@ -28,10 +28,11 @@ add_action_files(
   LilypondAudio.action
 )
 
-## Generate added messages and actions
+## Generate added messages and actions, services
 generate_messages(
   DEPENDENCIES
   actionlib_msgs std_msgs  # Add any other message dependencies here
+  audio_common_msgs
 )
 
 ## Catkin package

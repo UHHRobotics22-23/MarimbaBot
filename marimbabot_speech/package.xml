@@ -3,16 +3,16 @@
   <name>marimbabot_speech</name>
   <version>0.0.0</version>
   <description>
+<!--      TODO: modifiy this before released version-->
   The marimbabot_speech package is designed to recognize and extract the command from the human voice, and also speech synthesis.
-    It consists of the following nodes:
-    - audio_capture: capture audio from microphone (from ros audio_common package)
-    - speech_tmp_node: convert audio to temporary file
-    - speech_stt_node: recognize speech from audio file
-    - speech_ttc_node: convert text to command
-    - speech_tts_node: convert text to speech
+
+  - speech_extraction.py: extract the voice trunck which contrains a whole sentence of hurman vouce.
+  - speech2text.py: convert the speech to text by whisper.
+  - test2command.py: convert the recognized text to command by some regualr experssion.
+  - text2peech.py: speech synthesis. 
   </description>
 
-  <maintainer email="root@todo.todo">root</maintainer>
+  <maintainer email="yunlong.wang@studium.uni-hamburg.de">1wang</maintainer>
 
   <license>Apache License Version 2.0</license>
 
@@ -23,10 +23,27 @@
   <build_depend>message_generation</build_depend>
   <build_depend>sound_play</build_depend>
   <build_depend>audio_common_msgs</build_depend>
+  <build_depend>portaudio19-dev</build_depend>
+  <build_depend>libopenblas-dev</build_depend>
+  <build_depend>cython</build_depend>
+  <build_depend>python3-scipy</build_depend>
+  <build_depend>libhdf5-dev</build_depend>
+  <build_depend>python3-h5py</build_depend>
+  <build_depend>python3-precise-runner-pip</build_depend>
+
 
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>message_runtime</exec_depend>
   <exec_depend>sound_play</exec_depend>
   <exec_depend>audio_common_msgs</exec_depend>
+  <exec_depend>portaudio19-dev</exec_depend>
+  <exec_depend>libopenblas-dev</exec_depend>
+  <exec_depend>cython</exec_depend>
+  <exec_depend>python3-scipy</exec_depend>
+  <exec_depend>libhdf5-dev</exec_depend>
+  <exec_depend>python3-h5py</exec_depend>
+  <exec_depend>python3-precise-runner-pip</exec_depend>
+  
+
 </package>
