@@ -138,9 +138,16 @@ moveit::planning_interface::MoveGroupInterface::Plan interpolate_plan(
             }
         }
 
-        // Calculate the interpolation factor
-        double interpolation_factor = (current_time - input_plan.trajectory_.joint_trajectory.points[index_of_first_point].time_from_start.toSec()) /
-                                      (input_plan.trajectory_.joint_trajectory.points[index_of_second_point].time_from_start.toSec() - input_plan.trajectory_.joint_trajectory.points[index_of_first_point].time_from_start.toSec());
+        // Calculate the time difference between the two points
+        double dt = input_plan.trajectory_.joint_trajectory.points[index_of_second_point].time_from_start.toSec() - input_plan.trajectory_.joint_trajectory.points[index_of_first_point].time_from_start.toSec();
+
+        // Handle the case where dt is zero
+        double interpolation_factor = 0;
+        if (dt > 0)
+        {
+            // Calculate the interpolation factor
+            interpolation_factor = (current_time - input_plan.trajectory_.joint_trajectory.points[index_of_first_point].time_from_start.toSec()) / dt;
+        }
 
         // Interpolate between the two points
         trajectory_msgs::JointTrajectoryPoint interpolated_point;
@@ -162,6 +169,14 @@ moveit::planning_interface::MoveGroupInterface::Plan interpolate_plan(
 }
 
 
+/**
+ * @brief Convert a hit sequence elements to a vector of HitSequenceElement structs containing the points 
+ * 
+ * @param hit_sequence
+ * @param tf_buffer
+ * @param planning_frame
+ * @return std::vector<CartesianHitSequenceElement>
+ **/
 std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
             const std::vector<marimbabot_msgs::HitSequenceElement>& hit_sequence,
             std::string planning_frame,
@@ -194,7 +209,7 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
             );
             
             // Insert the cartesian point and original message into the struct
-            hit_sequence_element.point = note_point;
+            hit_sequence_element.left_mallet_point = note_point;
             hit_sequence_element.msg = point;
             
             // Add the struct to the vector
@@ -212,6 +227,12 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
 }
 
 
+/**
+ * @brief Convert the timing information of a hit sequence from absolute to relative timings
+ * 
+ * @param hit_sequence
+ * @return std::vector<CartesianHitSequenceElement>
+ **/
 std::vector<CartesianHitSequenceElement> hit_sequence_absolute_to_relative(
             const std::vector<CartesianHitSequenceElement>& hit_sequence_absolute)
 {
@@ -240,6 +261,41 @@ std::vector<CartesianHitSequenceElement> hit_sequence_absolute_to_relative(
         hit_sequence_relative.push_back(relative_hit_sequence_element);
     }
     return hit_sequence_relative;
+}
+
+
+/**
+ * @brief Finds all chords in a sequence of notes and assigns the second malllet if one is detected
+ * 
+ * @param hits_relative Vector of notes with relative timing
+ * @return std::vector<CartesianHitSequenceElement> Vector of notes with relative timing, both mallets are assigned if a chord is detected. This may be shorter than the input vector.
+*/
+std::vector<CartesianHitSequenceElement> apply_chords(std::vector<CartesianHitSequenceElement> hits_relative)
+{
+    // Create a copy of the input vector
+    auto hits_relative_with_chords{hits_relative};
+    // Check if there are any hits with a (near) zero relative timing. 
+    // These are chords and should be played at the same time using the second (right) mallet
+    // Iterate over all hits
+    for (auto hit_iter = hits_relative_with_chords.begin(); hit_iter != hits_relative_with_chords.end(); ++hit_iter) {
+        // Check if the next hit has a relative timing of zero and we are not at the end of the vector
+        if (hit_iter + 1 != hits_relative_with_chords.end() && (hit_iter + 1)->msg.start_time < ros::Time(0.05)) {
+            // Get the chord hit points
+            auto chord_hit_point_1 = hit_iter->left_mallet_point;
+            auto chord_hit_point_2 = (hit_iter + 1)->left_mallet_point;
+            // Add the right hit point to right mallet and the left one to the left mallet
+            if(chord_hit_point_1.point.y < chord_hit_point_2.point.y) {
+                hit_iter->right_mallet_point = chord_hit_point_1;
+                hit_iter->left_mallet_point = chord_hit_point_2;
+            } else {
+                hit_iter->right_mallet_point = chord_hit_point_2;
+                hit_iter->left_mallet_point = chord_hit_point_1;
+            }
+            // Remove the next hit as it is now a part of the current hit
+            hits_relative_with_chords.erase(hit_iter + 1);
+        }
+    }
+    return hits_relative_with_chords;
 }
 
 } // namespace marimbabot_planning
