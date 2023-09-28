@@ -1,3 +1,4 @@
+#include <boost/optional.hpp>
 #include <geometry_msgs/PointStamped.h>
 #include <marimbabot_msgs/HitSequenceAction.h>
 #include <moveit_msgs/RobotState.h>
@@ -30,7 +31,8 @@ class IKFailedException : public PlanFailedException
  **/
 struct CartesianHitSequenceElement
 {
-    geometry_msgs::PointStamped point;
+    geometry_msgs::PointStamped left_mallet_point;
+    boost::optional<geometry_msgs::PointStamped> right_mallet_point;
     marimbabot_msgs::HitSequenceElement msg;
 };
 
@@ -97,4 +99,13 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
  **/
 std::vector<CartesianHitSequenceElement> hit_sequence_absolute_to_relative(
     const std::vector<CartesianHitSequenceElement>& hit_sequence);
-} 
+
+
+/**
+ * @brief Finds all chords in a sequence of notes and assigns the second malllet if one is detected
+ * 
+ * @param hits_relative Vector of notes with relative timing
+ * @return std::vector<CartesianHitSequenceElement> Vector of notes with relative timing, both mallets are assigned if a chord is detected. This may be shorter than the input vector.
+*/
+std::vector<CartesianHitSequenceElement> apply_chords(std::vector<CartesianHitSequenceElement> hits_relative);
+} // namespace marimbabot_planning
