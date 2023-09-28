@@ -41,8 +41,8 @@ class ActionDecider:
         self.lilypond_audio_client = actionlib.SimpleActionClient('audio_from_lilypond', LilypondAudioAction)
 
         # Waits until the action server has started
-        # while not self.planning_client.wait_for_server(timeout=rospy.Duration(2)) and not rospy.is_shutdown():
-        #     rospy.loginfo('Waiting for the planning action server to come up')
+        while not self.planning_client.wait_for_server(timeout=rospy.Duration(2)) and not rospy.is_shutdown():
+            rospy.loginfo('Waiting for the planning action server to come up')
 
         # Waits until the action server has started
         while not self.lilypond_audio_client.wait_for_server(timeout=rospy.Duration(2)) and not rospy.is_shutdown():
@@ -141,20 +141,20 @@ class ActionDecider:
                         rospy.logwarn('Volume can not be increased any further.')
                         self.response_pub.publish('Volume can not be increased any further.')
                     else:
-                        rospy.logwarn('Volume can only be increased by {} steps.'.format(min(7-dynamics.index(x[1]) for x in sequence_dynamics)))
-                        self.response_pub.publish('Volume can only be increased by {} steps.'.format(min(7-dynamics.index(x[1]) for x in sequence_dynamics)))
+                        rospy.logwarn('Volume can only be increased by {}.'.format(min(7-dynamics.index(x[1]) for x in sequence_dynamics)))
+                        self.response_pub.publish('Volume can only be increased by {}.'.format(min(7-dynamics.index(x[1]) for x in sequence_dynamics)))
                 else:
                     max_steps = min(dynamics.index(x[1]) for x in sequence_dynamics)
                     if max_steps == 0:
                         rospy.logwarn('Volume can not be decreased any further.')
                         self.response_pub.publish('Volume can not be decreased any further.')
                     else:
-                        rospy.logwarn('Volume can only be decreased by {} steps.'.format(max(dynamics.index(x[1]) for x in sequence_dynamics)))
-                        self.response_pub.publish('Volume can only be decreased by {} steps.'.format(max(dynamics.index(x[1]) for x in sequence_dynamics)))
+                        rospy.logwarn('Volume can only be decreased by {}.'.format(max(dynamics.index(x[1]) for x in sequence_dynamics)))
+                        self.response_pub.publish('Volume can only be decreased by {}.'.format(max(dynamics.index(x[1]) for x in sequence_dynamics)))
                 return 'fail'
             
             # change the volume of all dynamic symbols in the sequence
-            rospy.loginfo('Increasing each dynamic symbol by {} steps.'.format(value) if louder else 'Decreasing each dynamic symbol by {} steps.'.format(value))
+            rospy.loginfo('Increasing each dynamic symbol by {}.'.format(value) if louder else 'Decreasing each dynamic symbol by {}.'.format(value))
 
             for i, x in sequence_dynamics:
                 new_dynamic = dynamics[min(dynamics.index(x)+value, 7)] if louder else dynamics[max(dynamics.index(x)-value, 0)]
@@ -242,11 +242,11 @@ class ActionDecider:
             self.response_pub.publish('The audio preview is already playing.')
 
     def callback_command(self, command_msg):
-        command = command_msg.command.lower()
-        rospy.loginfo(f"received command: {command}")
+        # command = command_msg.command.lower()
+        rospy.loginfo(f"received command: {command_msg}")
 
         # read notes on the whiteboard
-        if command == 'marimbabot read':
+        if command_msg.behavior == "read":
             rospy.loginfo('reading notes')
             # update the note_sequence variable with the latest note sequence from vision_node/recognized_notes to signal that notes have been read
             try:
@@ -259,117 +259,78 @@ class ActionDecider:
                 rospy.logwarn('No notes recognized.')
                 self.response_pub.publish('No notes recognized.')
 
-        # play the notes on the marimba using the UR5 or generate an audio preview
-        elif re.match(r'marimbabot start (playing|preview) (in a loop)?', command):
-            # if a note sequence has been read via the 'read' command and the corresponding hit sequence is valid, the hit sequence is send to the planning action server
-            if self.hit_sequence:
-                # check if the sequence should be played in a loop
-                loop = True if 'loop' in command else False
+        else:
+            # check if a note sequence has been read via the 'read' command
+            if not self.note_sequence:
+                rospy.logwarn('No notes to play. Say read to read notes.')
+                self.response_pub.publish('No notes to play. Say reed to read notes.')
+                return
+
+            # set the tempo of the current sequence (to specified bpm value, default = 60)
+            if command_msg.action == "setup speed":
+                value = 60 if command_msg.parameter == "" else int(command_msg.parameter)
+                result = self.assign_tempo(value)
+                if result == "fail":
+                    return
+                
+            # increase or decrease the tempo of the current sequence (by specified bpm value, default = 20)
+            elif command_msg.action == "increase speed" or command_msg.action == "decrease speed":
+                value = 20 if command_msg.parameter == "" else int(command_msg.parameter)
+                result = self.change_tempo(faster=True if 'increase' in command_msg.action else False, value=value)
+                if result == "fail":
+                    return
+                
+            # set the volume of the current sequence (to specified dynamic symbol, default = mp)
+            # TODO
+
+            # increase or decrease the volume of the current sequence (by specified steps, default = 1)
+            elif command_msg.action == "increase volume" or command_msg.action == "decrease volume":
+                value = 1 if command_msg.parameter == "" else int(command_msg.parameter)
+                result = self.change_volume(louder=(True if 'increase' in command_msg.action else False), value=value)
+                if result == "fail":
+                    return
+                
+
+            # play the notes on the marimba using the UR5 or generate an audio preview
+            if command_msg.behavior == "play":
                 # create event to stop the play if the 'stop' command is issued
                 self.event = threading.Event()
+                if self.planning_client.simple_state == actionlib.SimpleGoalState.DONE:
+                    self.play(loop = True if command_msg.action == "loop" else False)
+                else:
+                    rospy.logwarn('The robot is already playing.')
+                    self.response_pub.publish('The robot is already playing.')
 
-                # if the motion is not busy, the hit sequence is send to the planning action server 
-                if 'playing' in command:
-                    if self.planning_client.simple_state == actionlib.SimpleGoalState.DONE:
-                        self.play(loop)
-                    else:
-                        rospy.logwarn('The robot is already playing.')
-                        self.response_pub.publish('The robot is already playing.')
+            elif command_msg.behavior == "preview":
+                # create event to stop the preview if the 'stop' command is issued
+                self.event = threading.Event()
+                if self.lilypond_audio_client.simple_state == actionlib.SimpleGoalState.DONE:
+                    self.preview(loop = True if command_msg.action == "loop" else False)
+                else:
+                    rospy.logwarn('The audio preview is already playing.')
+                    self.response_pub.publish('The audio preview is already playing.')
 
-                # if the preview is not busy, the note sequence is send to the lilypond_audio action server
-                if 'preview' in command:
-                    if self.lilypond_audio_client.simple_state == actionlib.SimpleGoalState.DONE:
-                        self.preview(loop)
-                    else:
-                        rospy.logwarn('The audio preview is already playing.')
-                        self.response_pub.publish('The audio preview is already playing.')
+            elif command_msg.behavior == "stop":
+                rospy.loginfo('Aborting play.')
+                # stop any running threads by setting the event
+                self.event.set()
+
+                # check if the planning action server is currently active
+                if self.planning_client.simple_state == actionlib.SimpleGoalState.ACTIVE:
+                    # cancel the goal of the planning action server
+                    self.planning_client.cancel_goal()
+
+                # check if the lilypond_audio action server is currently active
+                if self.lilypond_audio_client.simple_state == actionlib.SimpleGoalState.ACTIVE:
+                    # cancel the goal of the lilypond_audio action server
+                    self.lilypond_audio_client.cancel_goal()
+
+                # send an empty message to the soundplay node to stop any audio preview (or TTS)
+                self.response_pub.publish('')
+
             else:
-                rospy.logwarn('No notes to play. Say read to read notes.')
-                self.response_pub.publish('No notes to play. Say reed to read notes.')
-        
-        # play in specified tempo
-        elif re.match(r'marimbabot (play|preview) in [0-9]+ bpm', command):
-            # check if a note sequence has been read via the 'read' command
-            if self.note_sequence:
-                value = int(command.split(' ')[-2])
-                result = self.assign_tempo(value)
-                if result == 'success':
-                    # if the motion is not busy, the hit sequence is send to the planning action server 
-                    if 'play' in command and self.planning_client.simple_state == actionlib.SimpleGoalState.DONE:
-                        self.play()
-
-                    # if the preview is not busy, the note sequence is send to the lilypond_audio action server
-                    if 'preview' in command and self.lilypond_audio_client.simple_state == actionlib.SimpleGoalState.DONE:
-                        self.preview()
-            else:
-                rospy.logwarn('No notes to play. Say read to read notes.')
-                self.response_pub.publish('No notes to play. Say reed to read notes.')
-
-        # play faster or slower than the current tempo (by specified bpm value, default = 20)
-        elif re.match(r'marimbabot (play|preview) (faster|slower)( by [0-9]+ bpm)?', command):
-            # check if a note sequence has been read via the 'read' command
-            if self.note_sequence:
-                value = int(command.split(' ')[-2]) if 'by' in command else 20
-                result = self.change_tempo(faster=True if 'faster' in command else False, value=value)
-                if result == 'success':
-                    # if the motion is not busy, the hit sequence is send to the planning action server 
-                    if 'play' in command and self.planning_client.simple_state == actionlib.SimpleGoalState.DONE:
-                        self.play()
-
-                    # if the preview is not busy, the note sequence is send to the lilypond_audio action server
-                    if 'preview' in command and self.lilypond_audio_client.simple_state == actionlib.SimpleGoalState.DONE:
-                        self.preview()
-            else:
-                rospy.logwarn('No notes to play. Say read to read notes.')
-                self.response_pub.publish('No notes to play. Say reed to read notes.')
-
-        elif re.match(r'marimbabot (play|preview) (louder|softer)( by [0-9]+ steps)?', command):
-            # check if a note sequence has been read via the 'read' command
-            if self.note_sequence:
-                value = int(command.split(' ')[-2]) if 'by' in command else 1
-                # assign a default volume (mp) for the first note if there is no dynamic symbol in the sequence
-                self.assign_volume()
-                # change each dynamic symbol of the sequence by the specified value
-                result = self.change_volume(louder=(True if 'louder' in command else False), value=value)
-                if result == 'success':
-                    # if the motion is not busy, the hit sequence is send to the planning action server 
-                    if 'play' in command and self.planning_client.simple_state == actionlib.SimpleGoalState.DONE:
-                        self.play()
-
-                    # if the preview is not busy, the note sequence is send to the lilypond_audio action server
-                    if 'preview' in command and self.lilypond_audio_client.simple_state == actionlib.SimpleGoalState.DONE:
-                        self.preview()
-            else:
-                rospy.logwarn('No notes to play. Say read to read notes.')
-                self.response_pub.publish('No notes to play. Say reed to read notes.')
-
-
-        # abort the current play or preview (and any TTS)
-        elif re.match(r'marimbabot stop', command):
-            rospy.loginfo('Aborting play.')
-            # stop any running threads by setting the event
-            self.event.set()
-
-            # check if the planning action server is currently active
-            if self.planning_client.simple_state == actionlib.SimpleGoalState.ACTIVE:
-                # cancel the goal of the planning action server
-                self.planning_client.cancel_goal()
-
-            # check if the lilypond_audio action server is currently active
-            if self.lilypond_audio_client.simple_state == actionlib.SimpleGoalState.ACTIVE:
-                # cancel the goal of the lilypond_audio action server
-                self.lilypond_audio_client.cancel_goal()
-
-            # send an empty message to the soundplay node to stop any audio preview (or TTS)
-            self.response_pub.publish('')
-
-        # # TODO: handle ROS exceptions from the planning side (e.g. planning failed, execution failed, ...)
-
-        # # TODO: add more cases (repeat, save as <name_of_piece>, play <name_of_piece>, ...)
-
-        else:
-            rospy.logwarn('Command not recognized.')
-            self.response_pub.publish('Command not recognized.')
+                rospy.logwarn('Command not handled: {}'.format(command_msg))
+                self.response_pub.publish('Command not recognized.')
 
 if __name__ == '__main__':
 
