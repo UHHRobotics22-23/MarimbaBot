@@ -169,6 +169,14 @@ moveit::planning_interface::MoveGroupInterface::Plan interpolate_plan(
 }
 
 
+/**
+ * @brief Convert a hit sequence elements to a vector of HitSequenceElement structs containing the points 
+ * 
+ * @param hit_sequence
+ * @param tf_buffer
+ * @param planning_frame
+ * @return std::vector<CartesianHitSequenceElement>
+ **/
 std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
             const std::vector<marimbabot_msgs::HitSequenceElement>& hit_sequence,
             std::string planning_frame,
@@ -219,6 +227,12 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
 }
 
 
+/**
+ * @brief Convert the timing information of a hit sequence from absolute to relative timings
+ * 
+ * @param hit_sequence
+ * @return std::vector<CartesianHitSequenceElement>
+ **/
 std::vector<CartesianHitSequenceElement> hit_sequence_absolute_to_relative(
             const std::vector<CartesianHitSequenceElement>& hit_sequence_absolute)
 {
@@ -250,6 +264,12 @@ std::vector<CartesianHitSequenceElement> hit_sequence_absolute_to_relative(
 }
 
 
+/**
+ * @brief Finds all chords in a sequence of notes and assigns the second malllet if one is detected
+ * 
+ * @param hits_relative Vector of notes with relative timing
+ * @return std::vector<CartesianHitSequenceElement> Vector of notes with relative timing, both mallets are assigned if a chord is detected. This may be shorter than the input vector.
+*/
 std::vector<CartesianHitSequenceElement> apply_chords(std::vector<CartesianHitSequenceElement> hits_relative)
 {
     // Create a copy of the input vector
