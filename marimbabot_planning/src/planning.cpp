@@ -59,7 +59,8 @@ void Planning::go_to_home_position()
  * @brief Calculate a plan so that the mallet (end effector) is at a given point in cartesian space
  *goal
  * @param  start_state
- * @param  goal_point
+ * @param  left_mallet_goal_point
+ * @param  right_mallet_goal_point
  * @param  wrist_height
  * @return moveit::planning_interface::MoveGroupInterface::Plan
  * @throws PlanFailedException, IKFailedException
