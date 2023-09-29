@@ -1,8 +1,11 @@
-import re
 import json
+import re
+
 import rospy
+
 from marimbabot_msgs.msg import Command as CommandMsg
 from marimbabot_msgs.msg import Speech as SpeechMsg
+
 
 def examples_test(command_extractor):
 	# examples for testing the command extractor, just temporary put it here as a playground,

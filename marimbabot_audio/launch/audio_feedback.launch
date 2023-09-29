@@ -2,11 +2,10 @@
 <launch>
     <arg name="canvas_size_t" default="5" doc="the size(secs) of canvas for real time visualization of music note detection"/>
     <arg name="update_freq" default="5" doc="the frequency(Hz) to update the canvas, higher freq smaller delay"/>
-
     <group ns="audio_node">
       <node name="note_audio_capture" pkg="audio_capture" type="audio_capture" output="screen">
 <!--           list the devices: arecord -l -->
-          <param name="device" value="plughw:4,0" />
+          <param name="device" value="plughw:3,0" />
           <param name="format" value="wave" />
           <param name="channels" value="1" />
           <param name="depth" value="16" />

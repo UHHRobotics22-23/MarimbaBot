@@ -1,13 +1,15 @@
-import rospy
-from marimbabot_msgs.msg import NoteOnset
-from sensor_msgs.msg import Image
-from marimbabot_msgs.msg import SequenceMatchResult as SequenceMatchResultMsg
+import os
+
 import cv_bridge
-import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 import pretty_midi
-import os
+import rospy
+from sensor_msgs.msg import Image
+
+from marimbabot_msgs.msg import NoteOnset
+from marimbabot_msgs.msg import SequenceMatchResult as SequenceMatchResultMsg
 
 matplotlib.use('Agg')
 
@@ -72,9 +74,6 @@ class Visualization():
 			ax.text(relative_time, relative_pitch - 0.5, note["name"], fontsize=14, color='black', fontweight='bold')
 			pitchs.append(relative_pitch)
 			note_names.append(note["name"])
-		
-		if len(onsets_in_windows) > 0:
-			rospy.logdebug(f"onset_visualization: {onsets_in_windows}")
 
 		# Format plot
 		plt.xlim(0, self.midi_fig_windows_size)
@@ -105,7 +104,7 @@ class Visualization():
 			"time": msg.header.stamp,
 			"duration": msg.confidence,
 		}
-		rospy.logdebug(f"onset_event: {note}")
+
 		self.onset_list.append(note)
 
 	def match_result_visualization(self, msg: SequenceMatchResultMsg):

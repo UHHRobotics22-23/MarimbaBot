@@ -1,20 +1,21 @@
-from functools import reduce
-import json
 import os
 import struct
-import cv_bridge
-import rospy
-from audio_common_msgs.msg import AudioDataStamped, AudioInfo
-from sensor_msgs.msg import Image
-from std_msgs.msg import Float32
-from marimbabot_msgs.msg import NoteOnset, CQTStamped
-import pretty_midi
-import librosa
+from functools import reduce
+
 import crepe
 import cv2
-import numpy as np
+import cv_bridge
+import librosa
 import matplotlib.pyplot as plt
+import numpy as np
+import pretty_midi
+import rospy
+from audio_common_msgs.msg import AudioDataStamped, AudioInfo
 from matplotlib.colors import ListedColormap
+from sensor_msgs.msg import Image
+from std_msgs.msg import Float32
+
+from marimbabot_msgs.msg import NoteOnset, CQTStamped
 
 
 def hz_to_note(hz):
@@ -126,7 +127,7 @@ class OnsetDetection:
 			confidence threshold for note classification(crepe)
 		"""
 		# For onset detection
-		self.confidence_threshold = 0.3  # the threshold for note classification
+		self.confidence_threshold = 0.5  # the threshold for note classification
 		self.windows_for_classification = 0.1  # using 0.1 sec data after onset time for note classification
 		# preload model to not block the callback on first message
 		# capacities: 'tiny', 'small', 'medium', 'large', 'full'
@@ -262,7 +263,13 @@ class OnsetDetection:
 		self.publish_cqt(cqt)
 
 		onset_env_cqt = librosa.onset.onset_strength(sr=self.sr, S=librosa.amplitude_to_db(cqt, ref=np.max)        )
-		# detect when the onset happened within 2 sec cqt (60,173)
+		# detect when the onset(peak) happened within 2 sec cqt with shape (60,173)
+		'''
+		A sample n is selected as an peak if the corresponding x[n] fulfills the following three conditions:
+			- x[n] == max(x[n - pre_max:n + post_max])  # the maximum in the neighborhood
+			- x[n] >= mean(x[n - pre_avg:n + post_avg]) + delta  # the value is above local mean
+			- n - previous_n > wait  # enforce a distance of at least wait samples
+		'''
 		onsets_cqt_time_list = librosa.onset.onset_detect(
 			y=self.buffer,
 			sr=self.sr,
@@ -270,9 +277,15 @@ class OnsetDetection:
 			onset_envelope=onset_env_cqt,
 			units="time",
 			backtrack=False,
-			delta=4.0,
 			normalize=False,
+			pre_max=5,  # number of samples before n over which max is computed
+			post_max=2,  # number of samples after n over which max is computed
+			pre_avg=5,  # number of samples before n over which mean is computed
+			post_avg=2,  # number of samples after n over which mean is computed
+			delta=1.5,  # threshold offset for mean
+			wait=10,  # number of samples to wait after picking a peak
 		)
+
 
 		# filter out the onset in the overlap windows, to keep the long tail inside
 		# the whole windows include 0.5 sec overlap at both end, the target windows is only 1 sec at the middle.
@@ -280,7 +293,6 @@ class OnsetDetection:
 			# only detect the onset inside the target windows, to make sure the long tail can be included.
 			return ( o >= self.window_overlap_t and o < self.window_overlap_t + self.window_t)
 		onsets_in_windows = [o for o in onsets_cqt_time_list if in_window(o)]
-		rospy.logdebug(f"onset_cqt:{onsets_in_windows}")
 
 		# since the onset are extracted, then we need to pass them through the classification model to get note label.
 		winners_raw_idx = []
@@ -309,10 +321,9 @@ class OnsetDetection:
 				self.pub_onset.publish(no)
 
 				rospy.logdebug(
-					f"music note detected: "
-					f"time:{t} "
-					f"note:{note} "
-					f"confidence:{confidence:.4f} "
+					f"Onset detection"
+					f"[note:{note}, "
+					f"confidence:{confidence:.4f}]"
 				)
 
 		# update the sectrum visualization

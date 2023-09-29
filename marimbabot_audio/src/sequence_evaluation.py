@@ -1,7 +1,9 @@
 import rospy
+
 from marimbabot_msgs.msg import HitSequence as HitSequenceMsg
-from marimbabot_msgs.msg import SequenceMatchResult as SequenceMatchResultMsg
 from marimbabot_msgs.msg import NoteOnset as NoteOnsetMsg
+from marimbabot_msgs.msg import SequenceMatchResult as SequenceMatchResultMsg
+
 
 class Comparison():
 	def __init__(self, windows_t_for_compare=1):
@@ -24,7 +26,6 @@ class Comparison():
 
 		# init ros content
 		self.init_ros()
-
 
 	def init_ros(self):
 		self.seq_sub = rospy.Subscriber(
