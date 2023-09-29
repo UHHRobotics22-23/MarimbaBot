@@ -17,6 +17,7 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
+#include <tuple>
 
 namespace marimbabot_planning
 {
@@ -40,10 +41,6 @@ class Planning
 
         // Last action time
         ros::Time last_action_time_;
-
-        // This time is the action feedback
-        // describes the duration from the start of the action to the first note hit
-        ros::Duration approach_time_to_first_note_hit;
 
         /**
          * @brief Move the robot to its idle/home position
@@ -85,10 +82,12 @@ class Planning
          * @param start_state
          * @param notes
          * @return moveit::planning_interface::MoveGroupInterface::Plan
+         * @return ros::Time
         **/
-        moveit::planning_interface::MoveGroupInterface::Plan hit_notes(
+        std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Time> hit_notes(
             const moveit_msgs::RobotState& start_state,
             std::vector<CartesianHitSequenceElement> notes);
+
 
 
         /**

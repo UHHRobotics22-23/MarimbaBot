@@ -263,11 +263,15 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
  * @param start_state
  * @param points
  * @return moveit::planning_interface::MoveGroupInterface::Plan
+ * @return ros::Time
 **/
-moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_notes(
+std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Time> Planning::hit_notes(
     const moveit_msgs::RobotState& start_state,
     std::vector<CartesianHitSequenceElement> points)
 {
+    // Declare approach_time_to_first_note_hit for the first note
+    ros::Time approach_time_to_first_note_hit = ros::Duration(0.0);;
+    
     // Assert that there is at least one hit_point with an nice error message
     assert(points.size() > 0 && "There must be at least one hit_point");
 
@@ -286,17 +290,15 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_notes(
             std::vector<CartesianHitSequenceElement>(points.begin() + 1, points.end())
             );
 
-        // Set approach_time_to_first_note_hit for the first note
         // Due to the recursive nature of this function, this is always overwritten
         // until the first note is reached
-        this->approach_time_to_first_note_hit = hit_plan.trajectory_.joint_trajectory.points.back().time_from_start;
+        approach_time_to_first_note_hit = hit_plan.trajectory_.joint_trajectory.points.back().time_from_start;
 
         hit_plan = concatinated_plan({hit_plan, remaining_hit_plan});
     }
 
-    return hit_plan;
+    return {hit_plan, approach_time_to_first_note_hit};
 }
-
 
 /**
  * Callback for the action server
@@ -334,7 +336,7 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
         auto hits_relative_with_chords = apply_chords(hits_relative);
 
         // Define hit plan
-        auto hit_plan = hit_notes(start_state, hits_relative_with_chords);
+        auto [hit_plan, approach_time_to_first_note_hit] = hit_notes(start_state, hits_relative_with_chords);
 
         // Publish the plan for rviz
         moveit_msgs::DisplayTrajectory display_trajectory;
@@ -347,7 +349,7 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
 
         // set the start time of execution
         ros::Time start_time = ros::Time::now();
-        ros::Time first_note_hit_time = start_time + this->approach_time_to_first_note_hit;
+        ros::Time first_note_hit_time = start_time + approach_time_to_first_note_hit;
 
         // Publish the feedback
         feedback.first_note_hit_time = first_note_hit_time;
@@ -384,8 +386,6 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
 
     // Reset last action time so we move back to the home position after a while
     last_action_time_ = ros::Time::now();
-    // reset approach_time_to_first_note_hit
-    this->approach_time_to_first_note_hit = ros::Duration(0.0);
 }
 
 } // namespace marimbabot_planning
