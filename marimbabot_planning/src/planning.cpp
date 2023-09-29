@@ -185,9 +185,10 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
  * @param start_state
  * @param note
  * @return moveit::planning_interface::MoveGroupInterface::Plan
+ * @return ros::Time
 **/
 
-moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
+std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Time> Planning::hit_note(
     const moveit_msgs::RobotState& start_state,
     CartesianHitSequenceElement note)
 {
@@ -253,8 +254,10 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     
     // Concatinate trajectories
     auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
+    ros::Time approach_and_down_time = approach_plan.trajectory_.joint_trajectory.points.back().time_from_start + \
+        down_plan.trajectory_.joint_trajectory.points.back().time_from_start;
 
-    return plan;
+    return {plan, approach_and_down_time};
 }
 
 /**
@@ -276,8 +279,9 @@ std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Time> Plan
     assert(points.size() > 0 && "There must be at least one hit_point");
 
     std::vector<ros::Duration> note_hit_times;
+
     // Calculate hit trajectory
-    auto hit_plan = hit_note(
+    auto [hit_plan, approach_and_down_time] = hit_note(
         start_state,
         points.front()
         );
@@ -288,16 +292,12 @@ std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Time> Plan
         auto remaining_hit_plan = hit_notes(
             get_robot_state_after_plan(hit_plan),
             std::vector<CartesianHitSequenceElement>(points.begin() + 1, points.end())
-            );
-
-        // Due to the recursive nature of this function, this is always overwritten
-        // until the first note is reached
-        approach_time_to_first_note_hit = hit_plan.trajectory_.joint_trajectory.points.back().time_from_start;
+            )[0];
 
         hit_plan = concatinated_plan({hit_plan, remaining_hit_plan});
     }
 
-    return {hit_plan, approach_time_to_first_note_hit};
+    return {hit_plan, approach_and_down_time};
 }
 
 /**
