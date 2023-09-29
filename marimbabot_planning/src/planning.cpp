@@ -309,7 +309,6 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
     // initialize feedback
     marimbabot_msgs::HitSequenceFeedback feedback;
     feedback.playing = true;
-    feedback.executed_sequence_elements.clear();
 
     try {
         // Set the max velocity and acceleration scaling factors
@@ -351,6 +350,7 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
         ros::Time first_note_hit_time = start_time + this->approach_time_to_first_note_hit;
 
         // Publish the feedback
+        feedback.first_note_hit_time = first_note_hit_time;
         action_server_.publishFeedback(feedback);
 
         // Execute the plan
@@ -370,7 +370,6 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
             action_server_.setAborted(result);
         } else {
             marimbabot_msgs::HitSequenceResult result;
-            result.executed_sequence_elements = feedback.executed_sequence_elements;
             result.success = true;
             action_server_.setSucceeded(result);
         }
