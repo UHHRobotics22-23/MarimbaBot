@@ -73,12 +73,12 @@ def read_notes(notes) -> HitSequenceGoal:
 
     for note in midi_stream.instruments[0].notes:
         name = pm.note_number_to_name(note.pitch)
+        normalizer = 40
         goal.hit_sequence_elements.append(
             HitSequenceElement(
                 tone_name = ''.join([x for x in name.replace('#', 'is') if not x.isdigit()]).lower(), # TODO regex parse
                 octave = int(name[-1]),
                 start_time = rospy.Time(note.start),
                 tone_duration = rospy.Duration(note.get_duration()),
-                loudness = note.velocity/127.0))
-
+                loudness = (note.velocity - normalizer) / (127 - normalizer)))
     return goal

@@ -1,4 +1,3 @@
-import json
 import re
 
 import rospy
@@ -38,6 +37,7 @@ def examples_test(command_extractor):
 	command_list = simple_command_list + complicated_command_list
 	for idx, command_text in enumerate(command_list):
 		command_dict = command_extractor.extract(command_text)
+		command_extractor.publish_command(command_dict)
 		print(f" the {idx}th command: {command_dict}")
 
 
@@ -86,9 +86,14 @@ class CommandExtraction():
 			return
 		command = self.extract(text)
 		rospy.logdebug(f"command extracted: {command}")
-		command_str = json.dumps(command)
+		self.publish_command(command)
+
+	def publish_command(self, command):
+		# command_str = json.dumps(command)
 		msg = CommandMsg()
-		msg.command = command_str
+		msg.behavior = command["behavior"]
+		msg.action = command["action"]
+		msg.parameter = command["parameters"]
 		msg.header.stamp = rospy.Time.now()
 		self.command_pub.publish(msg)
 
@@ -175,4 +180,5 @@ class CommandExtraction():
 if __name__ == '__main__':
 	rospy.init_node('command_extractor',log_level=rospy.DEBUG)
 	command_extractor = CommandExtraction()
+	examples_test(command_extractor)
 	rospy.spin()
