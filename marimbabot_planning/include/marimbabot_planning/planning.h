@@ -69,10 +69,10 @@ class Planning
          * @param start_state
          * @param note
          * @return moveit::planning_interface::MoveGroupInterface::Plan
-         * @return ros::Time
+         * @return ros::Duration
         **/
 
-        std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Time> hit_note(
+        std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> hit_note(
             const moveit_msgs::RobotState& start_state,
             CartesianHitSequenceElement note);
 
@@ -83,9 +83,9 @@ class Planning
          * @param start_state
          * @param notes
          * @return moveit::planning_interface::MoveGroupInterface::Plan
-         * @return ros::Time
+         * @return ros::Duration
         **/
-        std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Time> hit_notes(
+        std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> hit_notes(
             const moveit_msgs::RobotState& start_state,
             std::vector<CartesianHitSequenceElement> notes);
 

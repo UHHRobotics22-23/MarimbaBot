@@ -185,10 +185,10 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
  * @param start_state
  * @param note
  * @return moveit::planning_interface::MoveGroupInterface::Plan
- * @return ros::Time
+ * @return ros::Duration
 **/
 
-std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Time> Planning::hit_note(
+std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> Planning::hit_note(
     const moveit_msgs::RobotState& start_state,
     CartesianHitSequenceElement note)
 {
@@ -254,7 +254,7 @@ std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Time> Plan
     
     // Concatinate trajectories
     auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
-    ros::Time approach_and_down_time = approach_plan.trajectory_.joint_trajectory.points.back().time_from_start + \
+    ros::Duration approach_and_down_time = approach_plan.trajectory_.joint_trajectory.points.back().time_from_start + \
         down_plan.trajectory_.joint_trajectory.points.back().time_from_start;
 
     return {plan, approach_and_down_time};
@@ -266,38 +266,34 @@ std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Time> Plan
  * @param start_state
  * @param points
  * @return moveit::planning_interface::MoveGroupInterface::Plan
- * @return ros::Time
+ * @return ros::Duration
 **/
-std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Time> Planning::hit_notes(
+std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> Planning::hit_notes(
     const moveit_msgs::RobotState& start_state,
     std::vector<CartesianHitSequenceElement> points)
-{
-    // Declare approach_time_to_first_note_hit for the first note
-    ros::Time approach_time_to_first_note_hit;
-    
+{  
     // Assert that there is at least one hit_point with an nice error message
     assert(points.size() > 0 && "There must be at least one hit_point");
 
     std::vector<ros::Duration> note_hit_times;
 
     // Calculate hit trajectory
-    auto [hit_plan, approach_and_down_time] = hit_note(
-        start_state,
-        points.front()
-        );
+    std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> result = hit_note(start_state, points.front());
+    moveit::planning_interface::MoveGroupInterface::Plan hit_plan = std::get<0>(result);
+    ros::Duration approach_time_to_first_note_hit = std::get<1>(result);
 
     // Call hit_points recursively for all remaining hit_points
     if(points.size() > 1)
     {
-        auto remaining_hit_plan = hit_notes(
+        auto remaining_hit_plan = std::get<0>(hit_notes(
             get_robot_state_after_plan(hit_plan),
             std::vector<CartesianHitSequenceElement>(points.begin() + 1, points.end())
-            )[0];
+            ));
 
         hit_plan = concatinated_plan({hit_plan, remaining_hit_plan});
     }
 
-    return {hit_plan, approach_and_down_time};
+    return {hit_plan, approach_time_to_first_note_hit};
 }
 
 /**
@@ -336,7 +332,9 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
         auto hits_relative_with_chords = apply_chords(hits_relative);
 
         // Define hit plan
-        auto [hit_plan, approach_time_to_first_note_hit] = hit_notes(start_state, hits_relative_with_chords);
+        std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> result =hit_notes(start_state, hits_relative_with_chords);
+        moveit::planning_interface::MoveGroupInterface::Plan hit_plan = std::get<0>(result);
+        ros::Duration approach_time_to_first_note_hit = std::get<1>(result);
 
         // Publish the plan for rviz
         moveit_msgs::DisplayTrajectory display_trajectory;
