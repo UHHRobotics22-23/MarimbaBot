@@ -285,6 +285,12 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_notes(
             get_robot_state_after_plan(hit_plan),
             std::vector<CartesianHitSequenceElement>(points.begin() + 1, points.end())
             );
+
+        // Set approach_time_to_first_note_hit for the first note
+        // Due to the recursive nature of this function, this is always overwritten
+        // until the first note is reached
+        this->approach_time_to_first_note_hit = hit_plan.trajectory_.joint_trajectory.points.back().time_from_start;
+
         hit_plan = concatinated_plan({hit_plan, remaining_hit_plan});
     }
 
@@ -342,6 +348,7 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
 
         // set the start time of execution
         ros::Time start_time = ros::Time::now();
+        ros::Time first_note_hit_time = start_time + this->approach_time_to_first_note_hit;
 
         // Publish the feedback
         action_server_.publishFeedback(feedback);
@@ -350,6 +357,7 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
         auto status = move_group_interface_.execute(hit_plan);
         // Set playing to false
         feedback.playing = false;
+        action_server_.publishFeedback(feedback);
 
         ros::Duration plan_execution_time = ros::Time::now() - start_time;
 
@@ -377,6 +385,8 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
 
     // Reset last action time so we move back to the home position after a while
     last_action_time_ = ros::Time::now();
+    // reset approach_time_to_first_note_hit
+    this->approach_time_to_first_note_hit = ros::Duration(0.0);
 }
 
 } // namespace marimbabot_planning

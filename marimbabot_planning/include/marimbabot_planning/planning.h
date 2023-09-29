@@ -41,6 +41,10 @@ class Planning
         // Last action time
         ros::Time last_action_time_;
 
+        // This time is the action feedback
+        // describes the duration from the start of the action to the first note hit
+        ros::Duration approach_time_to_first_note_hit;
+
         /**
          * @brief Move the robot to its idle/home position
          * 
