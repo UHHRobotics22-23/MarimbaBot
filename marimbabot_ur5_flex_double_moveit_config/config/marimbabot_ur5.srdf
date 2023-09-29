@@ -96,6 +96,15 @@
         <joint name="ur5_wrist_2_joint" value="1.6173"/>
         <joint name="ur5_wrist_3_joint" value="0"/>
     </group_state>
+    <group_state name="marimbabot_home" group="arm_mallets">
+        <joint name="ur5_elbow_joint" value="-2.1254"/>
+        <joint name="ur5_shoulder_lift_joint" value="-1.947"/>
+        <joint name="ur5_shoulder_pan_joint" value="-1.3375"/>
+        <joint name="ur5_wrist_1_joint" value="-0.491"/>
+        <joint name="ur5_wrist_2_joint" value="1.6173"/>
+        <joint name="ur5_wrist_3_joint" value="0"/>
+        <joint name="mallet_finger" value="0.0"/>
+    </group_state>
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
     <end_effector name="s_model_tool0" parent_link="s_model_tool0" group="gripper" parent_group="arm"/>
     <end_effector name="mallet_head_1" parent_link="mallet_head_1" group="mallet_head_1_ee" parent_group="arm_mallets"/>
