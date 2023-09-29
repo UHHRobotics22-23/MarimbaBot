@@ -273,7 +273,7 @@ std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Time> Plan
     std::vector<CartesianHitSequenceElement> points)
 {
     // Declare approach_time_to_first_note_hit for the first note
-    ros::Time approach_time_to_first_note_hit = ros::Duration(0.0);;
+    ros::Time approach_time_to_first_note_hit;
     
     // Assert that there is at least one hit_point with an nice error message
     assert(points.size() > 0 && "There must be at least one hit_point");
