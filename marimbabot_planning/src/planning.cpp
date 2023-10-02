@@ -185,9 +185,10 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
  * @param start_state
  * @param note
  * @return moveit::planning_interface::MoveGroupInterface::Plan
+ * @return ros::Duration
 **/
 
-moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
+std::pair<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> Planning::hit_note(
     const moveit_msgs::RobotState& start_state,
     CartesianHitSequenceElement note)
 {
@@ -253,8 +254,10 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
     
     // Concatinate trajectories
     auto plan = concatinated_plan({approach_plan, down_plan, retreat_plan});
+    ros::Duration approach_and_down_time = approach_plan.trajectory_.joint_trajectory.points.back().time_from_start + \
+        down_plan.trajectory_.joint_trajectory.points.back().time_from_start;
 
-    return plan;
+    return {plan, approach_and_down_time};
 }
 
 /**
@@ -263,34 +266,35 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_note(
  * @param start_state
  * @param points
  * @return moveit::planning_interface::MoveGroupInterface::Plan
+ * @return ros::Duration
 **/
-moveit::planning_interface::MoveGroupInterface::Plan Planning::hit_notes(
+std::pair<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> Planning::hit_notes(
     const moveit_msgs::RobotState& start_state,
     std::vector<CartesianHitSequenceElement> points)
-{
+{  
     // Assert that there is at least one hit_point with an nice error message
     assert(points.size() > 0 && "There must be at least one hit_point");
 
     std::vector<ros::Duration> note_hit_times;
-    // Calculate hit trajectory
-    auto hit_plan = hit_note(
-        start_state,
-        points.front()
-        );
 
+    // Calculate hit trajectory
+    moveit::planning_interface::MoveGroupInterface::Plan hit_plan;
+    ros::Duration approach_time_to_first_note_hit;
+    std::tie(hit_plan, approach_time_to_first_note_hit) = hit_note(start_state, points.front());
+    
     // Call hit_points recursively for all remaining hit_points
     if(points.size() > 1)
     {
-        auto remaining_hit_plan = hit_notes(
+        auto remaining_hit_plan = std::get<0>(hit_notes(
             get_robot_state_after_plan(hit_plan),
             std::vector<CartesianHitSequenceElement>(points.begin() + 1, points.end())
-            );
+            ));
+
         hit_plan = concatinated_plan({hit_plan, remaining_hit_plan});
     }
 
-    return hit_plan;
+    return {hit_plan, approach_time_to_first_note_hit};
 }
-
 
 /**
  * Callback for the action server
@@ -303,7 +307,6 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
     // initialize feedback
     marimbabot_msgs::HitSequenceFeedback feedback;
     feedback.playing = true;
-    feedback.executed_sequence_elements.clear();
 
     try {
         // Set the max velocity and acceleration scaling factors
@@ -329,7 +332,9 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
         auto hits_relative_with_chords = apply_chords(hits_relative);
 
         // Define hit plan
-        auto hit_plan = hit_notes(start_state, hits_relative_with_chords);
+        moveit::planning_interface::MoveGroupInterface::Plan hit_plan;
+        ros::Duration approach_time_to_first_note_hit;
+        std::tie(hit_plan, approach_time_to_first_note_hit) = hit_notes(start_state, hits_relative_with_chords);
 
         // Publish the plan for rviz
         moveit_msgs::DisplayTrajectory display_trajectory;
@@ -342,14 +347,17 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
 
         // set the start time of execution
         ros::Time start_time = ros::Time::now();
+        ros::Time first_note_hit_time = start_time + approach_time_to_first_note_hit;
 
         // Publish the feedback
+        feedback.first_note_hit_time = first_note_hit_time;
         action_server_.publishFeedback(feedback);
 
         // Execute the plan
         auto status = move_group_interface_.execute(hit_plan);
         // Set playing to false
         feedback.playing = false;
+        action_server_.publishFeedback(feedback);
 
         ros::Duration plan_execution_time = ros::Time::now() - start_time;
 
@@ -362,7 +370,6 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
             action_server_.setAborted(result);
         } else {
             marimbabot_msgs::HitSequenceResult result;
-            result.executed_sequence_elements = feedback.executed_sequence_elements;
             result.success = true;
             action_server_.setSucceeded(result);
         }
