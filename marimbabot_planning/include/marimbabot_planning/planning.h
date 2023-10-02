@@ -17,7 +17,6 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
-#include <tuple>
 
 namespace marimbabot_planning
 {
@@ -72,7 +71,7 @@ class Planning
          * @return ros::Duration
         **/
 
-        std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> hit_note(
+        std::pair<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> hit_note(
             const moveit_msgs::RobotState& start_state,
             CartesianHitSequenceElement note);
 
@@ -85,7 +84,7 @@ class Planning
          * @return moveit::planning_interface::MoveGroupInterface::Plan
          * @return ros::Duration
         **/
-        std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> hit_notes(
+        std::pair<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> hit_notes(
             const moveit_msgs::RobotState& start_state,
             std::vector<CartesianHitSequenceElement> notes);
 

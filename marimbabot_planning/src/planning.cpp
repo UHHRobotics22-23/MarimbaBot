@@ -188,7 +188,7 @@ moveit::planning_interface::MoveGroupInterface::Plan Planning::plan_to_mallet_po
  * @return ros::Duration
 **/
 
-std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> Planning::hit_note(
+std::pair<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> Planning::hit_note(
     const moveit_msgs::RobotState& start_state,
     CartesianHitSequenceElement note)
 {
@@ -268,7 +268,7 @@ std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> 
  * @return moveit::planning_interface::MoveGroupInterface::Plan
  * @return ros::Duration
 **/
-std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> Planning::hit_notes(
+std::pair<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> Planning::hit_notes(
     const moveit_msgs::RobotState& start_state,
     std::vector<CartesianHitSequenceElement> points)
 {  
@@ -278,10 +278,10 @@ std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> 
     std::vector<ros::Duration> note_hit_times;
 
     // Calculate hit trajectory
-    std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> result = hit_note(start_state, points.front());
-    moveit::planning_interface::MoveGroupInterface::Plan hit_plan = std::get<0>(result);
-    ros::Duration approach_time_to_first_note_hit = std::get<1>(result);
-
+    moveit::planning_interface::MoveGroupInterface::Plan hit_plan;
+    ros::Duration approach_time_to_first_note_hit;
+    std::tie(hit_plan, approach_time_to_first_note_hit) = hit_note(start_state, points.front());
+    
     // Call hit_points recursively for all remaining hit_points
     if(points.size() > 1)
     {
@@ -332,9 +332,9 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
         auto hits_relative_with_chords = apply_chords(hits_relative);
 
         // Define hit plan
-        std::tuple<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> result =hit_notes(start_state, hits_relative_with_chords);
-        moveit::planning_interface::MoveGroupInterface::Plan hit_plan = std::get<0>(result);
-        ros::Duration approach_time_to_first_note_hit = std::get<1>(result);
+        moveit::planning_interface::MoveGroupInterface::Plan hit_plan;
+        ros::Duration approach_time_to_first_note_hit;
+        std::tie(hit_plan, approach_time_to_first_note_hit) = hit_notes(start_state, hits_relative_with_chords);
 
         // Publish the plan for rviz
         moveit_msgs::DisplayTrajectory display_trajectory;
