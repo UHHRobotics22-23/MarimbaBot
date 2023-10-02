@@ -1,4 +1,5 @@
 import rospy
+from std_msgs.msg import Header
 
 from marimbabot_msgs.msg import HitSequence as HitSequenceMsg
 from marimbabot_msgs.msg import NoteOnset as NoteOnsetMsg
@@ -89,13 +90,14 @@ class Comparison():
 
 		# extract the robot's actually played sequence from the audio feedback sequence
 		time_boundary_low = self.plan_start_time - rospy.Duration(self.windows_t_for_target_extract)
-		time_boundary_high = self.plan_start_time + rospy.Duration(self.windows_t_for_target_extract)
+		time_boundary_high = self.plan_end_time + rospy.Duration(self.windows_t_for_target_extract)
 		self.audio_feedback_sequence_to_compare = []
+
 		# search from the end of the audio feedback sequence
-		for idx in range(len(self.audio_feedback_sequence), -1, -1):
-			if time_boundary_low < self.audio_feedback_sequence[idx]["time"] < time_boundary_high:
-				self.audio_feedback_sequence_to_compare.append(self.audio_feedback_sequence[idx])
-				if self.audio_feedback_sequence[idx]["time"] < time_boundary_low:
+		for element in self.audio_feedback_sequence[::-1]:
+			if time_boundary_low < element["time"] < time_boundary_high:
+				self.audio_feedback_sequence_to_compare.append(element)
+				if element["time"] < time_boundary_low:
 					break
 
 		# compare the two sequences
@@ -106,14 +108,14 @@ class Comparison():
 		msg_result.score = self.recall_calculation()
 		msg_result.time_offset_list = [note["time_offset"] for note in self.plan_sequence]
 		msg_result.is_matched_list = [note["match"] for note in self.plan_sequence]
-		msg_result.avg_time_offset = sum(msg_result.time_offset) / len(self.plan_sequence)
+		msg_result.avg_time_offset = sum(msg_result.time_offset_list) / len(msg_result.time_offset_list)
 		msg_result.hit_sequence_elements = msg.hit_sequence_elements
 		msg_result.extracted_note_onsets = []
 		for note in self.audio_feedback_sequence_to_compare:
-			msg.extracted_note_onsets.append(
+			msg_result.extracted_note_onsets.append(
 				NoteOnsetMsg(
 					note=note["note"],
-					header=note["time"],
+					header=Header(stamp=note["time"]),
 					duration=0.5,
 					loudness=0,
 				)
@@ -134,7 +136,7 @@ class Comparison():
 				if feedback["time"] > plan_time_range_low and feedback["time"] < plan_time_range_high:
 					# if the note is in the time range, check if it is the right note, and if it is, take it into
 					# account and break the loop.
-					if feedback["note"] == plan["note"]:
+					if feedback["note"].lower() == plan["note"].lower():
 						self.plan_sequence[i]["match"] = j
 						self.plan_sequence[i]["time_offset"] = (feedback["time"]-plan["time"]).to_sec()
 						break

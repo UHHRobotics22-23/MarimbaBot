@@ -127,7 +127,7 @@ class OnsetDetection:
 			confidence threshold for note classification(crepe)
 		"""
 		# For onset detection
-		self.confidence_threshold = 0.5  # the threshold for note classification
+		self.confidence_threshold = 0.7  # the threshold for note classification
 		self.windows_for_classification = 0.1  # using 0.1 sec data after onset time for note classification
 		# preload model to not block the callback on first message
 		# capacities: 'tiny', 'small', 'medium', 'large', 'full'

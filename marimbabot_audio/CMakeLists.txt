@@ -33,6 +33,7 @@ PROGRAMS
   src/onset_detection.py
   src/onsets_visualization.py
   src/sequence_evaluation.py
+  src/eval_visualization.py
 DESTINATION
   ${CATKIN_PACKAGE_BIN_DESTINATION}
 )

@@ -141,6 +141,7 @@ class CommandExtraction():
 			elif "preview" in text:
 				self.fill_into_command(behavior="preview", action="loop")
 				return self.template
+			
 		for behavior in ["play", "preview"]:
 			if behavior in text:
 				if "in" in text:
@@ -176,6 +177,7 @@ class CommandExtraction():
 				# if only "play" appears, that means start playing
 				self.fill_into_command(behavior=behavior)
 				return self.template
+		return self.template
 
 if __name__ == '__main__':
 	rospy.init_node('command_extractor',log_level=rospy.DEBUG)
