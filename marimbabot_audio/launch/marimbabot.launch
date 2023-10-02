@@ -4,7 +4,7 @@
   <!-- list the devices: arecord -l -->
     <group ns="audio_node">
       <node name="note_audio_capture" pkg="audio_capture" type="audio_capture" output="screen">
-          <param name="device" value="pluhw:3,0" />
+          <param name="device" value="plughw:5,0" />
           <param name="format" value="wave" />
           <param name="channels" value="1" />
           <param name="depth" value="16" />
