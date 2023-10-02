@@ -68,9 +68,10 @@ class Planning
          * @param start_state
          * @param note
          * @return moveit::planning_interface::MoveGroupInterface::Plan
+         * @return ros::Duration
         **/
 
-        moveit::planning_interface::MoveGroupInterface::Plan hit_note(
+        std::pair<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> hit_note(
             const moveit_msgs::RobotState& start_state,
             CartesianHitSequenceElement note);
 
@@ -81,10 +82,12 @@ class Planning
          * @param start_state
          * @param notes
          * @return moveit::planning_interface::MoveGroupInterface::Plan
+         * @return ros::Duration
         **/
-        moveit::planning_interface::MoveGroupInterface::Plan hit_notes(
+        std::pair<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> hit_notes(
             const moveit_msgs::RobotState& start_state,
             std::vector<CartesianHitSequenceElement> notes);
+
 
 
         /**
