@@ -1,9 +1,11 @@
-from marimbabot_msgs.msg import HitSequence as HitSequenceMsg
-from marimbabot_msgs.msg import HitSequenceElement as HitSequenceElementMsg
-from marimbabot_msgs.msg import SequenceScore as SequenceScoreMsg
-from marimbabot_msgs.msg import NoteOnset as NoteOnsetMsg
 import numpy as np
 import rospy
+
+from marimbabot_msgs.msg import HitSequence as HitSequenceMsg
+from marimbabot_msgs.msg import HitSequenceElement as HitSequenceElementMsg
+from marimbabot_msgs.msg import NoteOnset as NoteOnsetMsg
+
+
 def gererate_sequence_msg(seq:list,id=0,noisy=True):
 	msgs_audio = []
 	msgs_vision = HitSequenceMsg()

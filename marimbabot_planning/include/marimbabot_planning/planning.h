@@ -1,8 +1,10 @@
 #include <actionlib/server/simple_action_server.h>
 #include <bio_ik/bio_ik.h>
+#include <boost/optional.hpp>
 #include <geometry_msgs/PointStamped.h>
 #include <geometry_msgs/Pose.h>
 #include <iostream>
+#include <list>
 #include <marimbabot_msgs/HitSequenceAction.h>
 #include <marimbabot_planning/utils.h>
 #include <moveit_msgs/DisplayTrajectory.h>
@@ -15,7 +17,6 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <trajectory_msgs/JointTrajectoryPoint.h>
-#include <list>
 
 namespace marimbabot_planning
 {
@@ -30,10 +31,6 @@ class Planning
 
         // MoveIt! MoveGroupInterface
         moveit::planning_interface::MoveGroupInterface move_group_interface_;
-
-        // Describes when a "hit" was performed in terms of 
-        // how long after the start of the trajectory this point should be reached 
-        std::list<ros::Duration> hit_plan_durations;
 
         // Action server
         actionlib::SimpleActionServer<marimbabot_msgs::HitSequenceAction> action_server_;
@@ -54,24 +51,27 @@ class Planning
          * @brief Calculate a plan so that the mallet (end effector) is at a given point in cartesian space
          *
          * @param  start_state
-         * @param  goal_point
+         * @param  left_mallet_goal_point
+         * @param  right_mallet_goal_point
+         * @param  wrist_height
          * @return moveit::planning_interface::MoveGroupInterface::Plan
          * @throws PlanFailedException, IKFailedException
          **/
         moveit::planning_interface::MoveGroupInterface::Plan plan_to_mallet_position(
             const moveit_msgs::RobotState& start_state,
-            geometry_msgs::PointStamped goal_point);
-
-
+            geometry_msgs::PointStamped left_mallet_goal_point,
+            boost::optional<geometry_msgs::PointStamped> right_mallet_goal_point = boost::none,
+            double wrist_height = 1.3);
         /**
          * @brief hit a given note in cartesian space
          *
          * @param start_state
          * @param note
          * @return moveit::planning_interface::MoveGroupInterface::Plan
+         * @return ros::Duration
         **/
 
-        moveit::planning_interface::MoveGroupInterface::Plan hit_note(
+        std::pair<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> hit_note(
             const moveit_msgs::RobotState& start_state,
             CartesianHitSequenceElement note);
 
@@ -82,10 +82,12 @@ class Planning
          * @param start_state
          * @param notes
          * @return moveit::planning_interface::MoveGroupInterface::Plan
+         * @return ros::Duration
         **/
-        moveit::planning_interface::MoveGroupInterface::Plan hit_notes(
+        std::pair<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> hit_notes(
             const moveit_msgs::RobotState& start_state,
             std::vector<CartesianHitSequenceElement> notes);
+
 
 
         /**

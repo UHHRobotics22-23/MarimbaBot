@@ -130,7 +130,7 @@
   <joint name="world_marimba_joint" type="fixed">
     <parent link="world" />
     <child link = "marimba" />
-    <origin xyz="1.25 0.8 0.80" rpy="0.0 0.0 ${pi}" />
+    <origin xyz="1.0 0.8 0.80" rpy="0.0 0.0 ${pi}" />
   </joint>
 
   <xacro:if value="$(arg include_mallet)">
@@ -160,7 +160,7 @@
       <joint name="end_mallet" type="fixed">
         <parent link="s_model_palm" />
         <child link = "mallet_base_link" />
-        <origin xyz="0.0 ${(80+11)/1000} ${(-45)/1000}" rpy="0.0 0.0 ${pi}" />
+        <origin xyz="0.0 ${(80+11)/1000} ${(-48)/1000}" rpy="0.0 0.0 ${pi}" />
       </joint>
     </xacro:if>
     

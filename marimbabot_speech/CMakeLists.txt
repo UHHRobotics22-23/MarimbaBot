@@ -9,9 +9,6 @@ find_package(catkin REQUIRED COMPONENTS
     message_generation
 )
 
-catkin_python_setup()
-
-
 generate_messages(
 DEPENDENCIES
   std_msgs
@@ -26,13 +23,12 @@ CATKIN_DEPENDS
 )
 
 include_directories(
-# include
   ${catkin_INCLUDE_DIRS}
 )
 
 catkin_install_python(
 PROGRAMS
-  src/audio2tmp.py
+  src/speech_extraction.py
   src/speech2text.py
   src/text2command.py
   src/text2speech.py

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import string
 import glob
 import os
 from typing import List, Tuple
