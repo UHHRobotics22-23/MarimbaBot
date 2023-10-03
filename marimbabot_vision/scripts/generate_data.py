@@ -58,13 +58,13 @@ class LilypondGenerator():
     """
     def note_sampler(self, duration, is_dotted = False):
         first_note = random.choice(self.music_notes + self.rests)
-       
+
         octave = choice(["", "'", "''"], p=[0.0, 0.8, 0.2]) if first_note != 'r' else ''
         note = first_note + random.choice(self.accidentals) if first_note != 'r' and random.random() < 0.2 else first_note
 
         retNote = note + octave
 
-        if self.chords and random.random() < 0.1 and note != 'r':
+        if self.chords and random.random() < 0.5 and note != 'r':
             second_note = random.choice([n for n in self.music_notes if n != first_note])
             second_note = second_note + random.choice(self.accidentals) if random.random() < 0.2 else second_note
             retNote = "<" + note + octave + " " + second_note + octave + ">"
@@ -77,7 +77,7 @@ class LilypondGenerator():
             """Randomly subdivides a list of durations into smaller durations"""
             prop = 1/3
             new_durations = []
-            for duration in durations: 
+            for duration in durations:
                 if duration < self.min_duration and random.random() > prop:
                     new_durations.extend(sample_duration([duration * 2, duration * 2], level + 1))
                 else:
@@ -98,14 +98,14 @@ class LilypondGenerator():
                         new_durations.append((new_duration * 2, False))
                     else:
                         new_durations.append((duration, False))
-                        
+
             # shuffle the durations
             random.shuffle(new_durations)
 
             return new_durations
 
         return ' '.join([self.note_sampler(str(duration), is_dotted=is_dotted) for duration, is_dotted in sample_duration([1,])])
-    
+
     """
     creates a random number of articulations
     """
@@ -222,9 +222,12 @@ class LilypondGenerator():
 
         return string, staff_1
 
-    
+
 """Generate a sample and save it to disk"""
 def generate_sample(i, args):
+    # Skip if the sample already exists
+    if os.path.isfile(f"{args.output_dir}/{i}/staff_1.png") and os.path.isfile(f"{args.output_dir}/{i}/staff_1.txt"):
+        return
     lilypondGenerator = args.lilypondGenerator
     string, staff = lilypondGenerator.generate_piece()
     os.makedirs(f"{args.output_dir}/{i}", exist_ok=True)
@@ -240,6 +243,10 @@ def generate_sample(i, args):
     )
     # save the lilypond file and rotate by 90 degrees
     as_png(lilypond_file, f"{args.output_dir}/{i}/staff_1.png", resolution=200)
+    # check if the file exists (it can be case that lilypond renders two pages, we want to regenerate the sample in this case)
+    if not os.path.isfile(f"{args.output_dir}/{i}/staff_1.png"):
+        generate_sample(i, args)
+        return
     # turn png by 90 degrees
     im = Image.open(f"{args.output_dir}/{i}/staff_1.png")
     im = im.rotate(-90, expand=True)
