@@ -1,0 +1,93 @@
+#!/usr/bin/env python3
+
+from tkinter import *
+
+import rospy
+from std_msgs.msg import String
+from sensor_msgs.msg import Image as ROSImage
+from PIL import ImageTk, Image
+import numpy as np
+
+from marimbabot_msgs.msg import Command
+
+from cv_bridge import CvBridge, CvBridgeError
+
+def clear_entry():
+    entry.delete(0, END)
+
+def set_song(*args):
+    library = {'Frère Jacques': "c''4 d''4 e''4 c''4 c''4 d''4 e''4 c''4 e''4 f''4 g''2 e''4 f''4 g''2 g''8 a''8 g''8 f''8 e''2 c''2 g''8 a''8 g''8 f''8 e''2 c''2 c''4 g'4 c''2 c''4 g'4 c''2",
+               'All my ducklings': "c''4 d''4 e''4 f''4 g''2 g''2 a''4 a''4 a''4 a''4 g''1 a''4 a''4 a''4 a''4 g''1 f''4 f''4 f''4 f''4 e''2 e''2 g''4 g''4 g''4 g''4 c''4",
+               'Scale': "c''4 d''4 e''4 f''4 g''4 a''4 b''4 c''4 b''4 a''4 g''4 f''4 e''4 d''4 c''4"}
+    
+    clear_entry()
+    song = library[selected_song.get()]
+    entry.insert(0, song)
+    
+def read_notes():
+    command = Command()
+    command.behavior = "read"
+    command_pub.publish(command)
+
+def confirm_notes():
+    notes = entry.get()
+    note_sequence_pub.publish(notes)
+
+# create GUI
+root = Tk()
+root.title("Marimbabot Command GUI")
+
+# Initial Note Sequence
+Label(root, text="Initial Note Sequence").grid(row=0, column=0)
+
+defaultText = StringVar()
+defaultText.set("Please enter a note sequence or choose one of the options below.")
+entry = Entry(root, width=100, textvariable=defaultText)
+entry.grid(row=0, column=1, columnspan=3, pady=10)
+
+Button(root, text='Read', command=read_notes).grid(row=1, column=5, sticky=W, pady=4)
+
+selected_song = StringVar()
+selected_song.set("Song Library")
+drop = OptionMenu(root, selected_song, *['Frère Jacques', 'All my ducklings', 'Scale'])
+drop.grid(row=1, column=2, sticky=W, pady=4)
+selected_song.trace("w", set_song)
+
+Button(root, text='Clear', command=clear_entry).grid(row=0, column=4, sticky=W, pady=4)
+
+Label(root, text="Current Note Sequence").grid(row=2, column=0)
+current_sequence = Label(root, text="No data", bg="white", width=100)
+current_sequence.grid(row=2, column=1, columnspan=3, pady=10)
+
+Button(root, text='Confirm', command=confirm_notes).grid(row=3, column=2, sticky=W, pady=4)
+
+camera = Canvas(root, bg = 'white')
+camera.grid(row=0, column=5)
+
+Button(root, text='Quit', command=root.quit).grid(row=4, column=0, sticky=W, pady=4)
+
+bridge = CvBridge()
+
+def note_sequence_callback(msg):
+    current_sequence.config(text=msg.data)
+
+def camera_callback(data):
+    cv_img = bridge.imgmsg_to_cv2(data, desired_encoding='passthrough')
+    img = ImageTk.PhotoImage(image = Image.fromarray(cv_img))
+    camera.create_image(0,0, image=img)
+
+def show_entry_fields():
+   print("First Name: %s\nLast Name: %s" % (entry.cget('text'), current_sequence.get()))
+
+rospy.init_node('command_gui')
+
+note_sequence_sub = rospy.Subscriber('behavior_node/note_sequence', String, note_sequence_callback)
+
+camera_sub = rospy.Subscriber("cv_camera_node/image_raw", ROSImage, camera_callback, queue_size=1)
+
+note_sequence_pub = rospy.Publisher('command_gui/note_sequence', String, queue_size=10)
+
+command_pub = rospy.Publisher('speech_node/command', Command, queue_size=10)
+
+mainloop( )
+rospy.spin()
