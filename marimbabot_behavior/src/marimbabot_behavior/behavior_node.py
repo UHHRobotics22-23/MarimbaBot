@@ -49,6 +49,19 @@ class ActionDecider:
         while not self.lilypond_audio_client.wait_for_server(timeout=rospy.Duration(2)) and not rospy.is_shutdown():
             rospy.loginfo('Waiting for the audio_from_lilypond action server to come up')
 
+    # checks if the read note sequence includes a repeat symbol and updates the note sequence accordingly
+    def check_for_repeat(self):
+        if '\\repeat volta 2' in self.note_sequence:
+            # get the index of the first note
+            note_sequence_list = self.note_sequence.split(' ')
+            first_note_index = None
+            for i, x in enumerate(note_sequence_list):
+                if re.match(r'[a-g]\'*[0-9]+(\>)?(\.)?', x):
+                    first_note_index = i
+                    break
+            self.note_sequence = ' '.join(note_sequence_list[3:] + note_sequence_list[first_note_index:])
+            rospy.loginfo(f"updated notes: {self.note_sequence}")
+
     # converts the note_sequence to a hit sequence
     def update_hit_sequence(self):
         try:
@@ -277,6 +290,7 @@ class ActionDecider:
                 self.note_sequence = rospy.wait_for_message('vision_node/recognized_notes', String, timeout=5).data 
                 rospy.loginfo(f"recognized notes: {self.note_sequence}")
                 self.response_pub.publish('Notes recognized.')
+                self.check_for_repeat()
                 self.update_hit_sequence()
             except rospy.ROSException:
                 rospy.logwarn('No notes recognized.')
