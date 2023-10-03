@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
 <launch>
-    <include file="$(find marimbabot_audio)/launch/marimbabot.launch"/>
     <node name="audio_node_rviz" pkg="rviz" type="rviz" args="-d $(find marimbabot_audio)/config/config.rviz"/>
 </launch>

@@ -18,7 +18,7 @@ add_message_files(
   Command.msg
   Speech.msg
   HitSequence.msg
-  SequenceScore.msg
+  SequenceMatchResult.msg
 )
 
 add_action_files(
@@ -31,8 +31,11 @@ add_action_files(
 ## Generate added messages and actions, services
 generate_messages(
   DEPENDENCIES
-  actionlib_msgs std_msgs  # Add any other message dependencies here
+  
+  actionlib_msgs 
+  std_msgs  # Add any other message dependencies here
   audio_common_msgs
+
 )
 
 ## Catkin package
