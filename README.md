@@ -227,7 +227,7 @@ flowchart TD;
 
     behavior_node-->|/behavior_node/response - std_msgs/String| speech_tts_node;
     
-    behavior_node-->|/hit_sequence - marimbabot_msgs/HitSequence - Action| marimbabot_planning;
+    behavior_node<-->|/hit_sequence - marimbabot_msgs/HitSequence - Action| marimbabot_planning;
     
     behavior_node-->|/audio/hit_sequence - marimbabot_msgs/HitSequence| score_calculator
 
