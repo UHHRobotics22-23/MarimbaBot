@@ -60,7 +60,7 @@ class ActionDecider:
                     first_note_index = i
                     break
             self.note_sequence = ' '.join(note_sequence_list[3:] + note_sequence_list[first_note_index:])
-            rospy.loginfo(f"updated notes: {self.note_sequence}")
+            rospy.logdebug(f"updated notes: {self.note_sequence}")
 
     # converts the note_sequence to a hit sequence
     def update_hit_sequence(self):
@@ -82,7 +82,7 @@ class ActionDecider:
             self.note_sequence = re.sub(r'\\tempo 4=[0-9]+', '\\\\tempo 4={}'.format(value), self.note_sequence)
         else:
             self.note_sequence = '\\tempo 4={} '.format(value) + self.note_sequence
-        rospy.loginfo(f"updated notes: {self.note_sequence}")
+        rospy.logdebug(f"updated notes: {self.note_sequence}")
         self.update_hit_sequence()
         return 'success'
 
@@ -135,7 +135,7 @@ class ActionDecider:
             sequence_list = sequence_list[:dynamic_index] + [value] + sequence_list[dynamic_index:]
         self.note_sequence = ' '.join(sequence_list)
 
-        rospy.loginfo(f"updated notes: {self.note_sequence}")
+        rospy.logdebug(f"updated notes: {self.note_sequence}")
         self.update_hit_sequence()
         return 'success'
 
@@ -168,14 +168,12 @@ class ActionDecider:
                 return 'fail'
             
             # change the volume of all dynamic symbols in the sequence
-            rospy.loginfo('Increasing each dynamic symbol by {}.'.format(value) if louder else 'Decreasing each dynamic symbol by {}.'.format(value))
-
             for i, x in sequence_dynamics:
                 new_dynamic = dynamics[min(dynamics.index(x)+value, 7)] if louder else dynamics[max(dynamics.index(x)-value, 0)]
                 sequence_list[i] = new_dynamic
             self.note_sequence = ' '.join(sequence_list)
             
-            rospy.loginfo(f"updated notes: {self.note_sequence}")
+            rospy.logdebug(f"updated notes: {self.note_sequence}")
             self.update_hit_sequence()
             return 'success'
             
@@ -283,7 +281,7 @@ class ActionDecider:
 
         # read notes on the whiteboard
         if command_msg.behavior == "read":
-            rospy.loginfo('reading notes')
+            rospy.logdebug('reading notes')
             # update the note_sequence variable with the latest note sequence from vision_node/recognized_notes to signal that notes have been read
             try:
                 # wait for the vision node to publish a recognized note sequence
@@ -348,7 +346,7 @@ class ActionDecider:
                     self.response_pub.publish('The audio preview is already playing.')
 
             elif command_msg.behavior == "stop":
-                rospy.loginfo('Aborting play.')
+                rospy.logdebug('Aborting play.')
                 # stop any running threads by setting the event
                 self.event.set()
 
