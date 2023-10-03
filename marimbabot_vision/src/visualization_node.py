@@ -60,7 +60,7 @@ def callback_vision_results(notes, args):
     # read as PIL and convert to ROSImage
     cv_image = cv2.rotate(cv2.imread(png_filename, cv2.IMREAD_UNCHANGED), cv2.ROTATE_90_CLOCKWISE)
     bridge = CvBridge()
-    image_message = bridge.cv2_to_imgmsg(cv_image, encoding="passthrough")
+    image_message = bridge.cv2_to_imgmsg(cv_image, encoding="bgr8")
 
     pub.publish(image_message)
     # remove temporary file after publishing

@@ -177,29 +177,26 @@ class ActionDecider:
             self.update_hit_sequence()
             return 'success'
             
-    """
-    Callback function for the feedback from the planning action server.
-    Forwards the feedback to the audio node.
-    """
-    def planning_feedback_cb(self, feedback_msg):
-        rospy.logdebug(f"Feedback from planning action server: {feedback_msg}")
-        # the feedback message is a ROS Time value that contain the absolute time when the first note of the sequence was hit
+    def send_ground_truth_hit_sequence_to_audio(self, absolute_start_time: rospy.Time):
+        """
+        Sends the ground truth hit sequence to the audio evaluation node.
+        """
         # Calculate the relative time for each note in order create a HitSequence message
-        absolute_start_time: rospy.Time = feedback_msg.first_note_hit_time
         hit_sequence_msg = HitSequence()
         hit_sequence_msg.header.stamp = rospy.Time.now()
         hit_sequence_msg.sequence_id = self.sequence_id_counter
         
         # create a list of HitSequenceElement messages
-        hit_sequence_elements : list(HitSequenceElement) = []
+        hit_sequence_elements : list[HitSequenceElement] = []
 
         # iterate over the notes in the self.hit_sequence and create a HitSequenceElement message for each note
-        for elem in self.hit_sequence.notes:
+        elem: HitSequenceElement
+        for elem in self.hit_sequence.hit_sequence_elements:
             hit_sequence_element = HitSequenceElement()
             hit_sequence_element.tone_name = elem.tone_name
             hit_sequence_element.octave = elem.octave
             # add the relative start time to the absolute start time
-            hit_sequence_element.start_time = absolute_start_time + rospy.Duration(elem.start_time)
+            hit_sequence_element.start_time = absolute_start_time + rospy.Duration(elem.start_time.to_sec())
             hit_sequence_element.tone_duration = elem.tone_duration
             hit_sequence_element.loudness = elem.loudness
 
@@ -217,23 +214,35 @@ class ActionDecider:
     # communicates with the planning action server to play the hit sequence on the marimba
     def play(self, loop=False):
         def planning_client_thread():
-            rospy.loginfo(f"playing notes: {self.note_sequence}")
 
-            # Sends the goal to the action server.
-            self.planning_client.send_goal(self.hit_sequence, feedback_cb=self.planning_feedback_cb)
-            # Waits for the server to finish performing the action.
-            # Includes that the audio file is generated and was played
-            self.planning_client.wait_for_result()
+            def send_hit_sequence():
+                rospy.loginfo(f"playing notes: {self.note_sequence}")
+                # Sends the goal to the action server.
+                self.planning_client.send_goal(self.hit_sequence)
+                # Waits for the server to finish performing the action.
+                # Includes that the audio file is generated and was played
+                self.planning_client.wait_for_result()
+                # Get the result
+                result = self.planning_client.get_result()
+                # Perform send the ground truth hit sequence to audio if the result was successful
+                if result.success:
+                    self.send_ground_truth_hit_sequence_to_audio(result.first_note_hit_time)
+
+            # Send the hit sequence to the planning action server
+            send_hit_sequence()
+
             # Prints out the result of executing the action
             rospy.logdebug(f"Result from planning action server: {self.planning_client.get_result()}")
+
             # Check if we have a success
             if not self.planning_client.get_result().success:
                 self.response_pub.publish('The sequence could not be played.')
             else:
+                # Loop until the 'stop' command is issued
                 while loop:
                     rospy.loginfo(f"playing notes: {self.note_sequence}")
-                    self.planning_client.send_goal(self.hit_sequence, feedback_cb=self.planning_feedback_cb)
-                    self.planning_client.wait_for_result()
+                    # Send the hit sequence to the planning action server
+                    send_hit_sequence()
                     if self.event.is_set():
                         break
 
