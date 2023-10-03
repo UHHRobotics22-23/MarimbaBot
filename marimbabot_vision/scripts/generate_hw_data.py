@@ -69,10 +69,10 @@ def check_bar(image, x_pos, y_offset, duration_counter, key, bar_accidentals, ar
 
 def get_note_pose(note, octave):
     # head_pos: y-position of the note head, y_pos: y-position of the note image
-    head_pos = head_positions[note] - octave*35 
+    head_pos = head_positions[note] - octave*35
     is_flipped = head_pos < 70
     y_pos = head_pos if is_flipped else head_pos-30
-    return y_pos, is_flipped 
+    return y_pos, is_flipped
 
 def extend_staff(image, x_pos, y_pos, y_offset):
     # draw extra lines above staff for notes higher than g''
@@ -148,6 +148,10 @@ def generate_sample_image(key, tempo, args):
     return image
 
 def draw_piece(string, sample_name, args):
+    # Preprocessing to make the string compatible with the draw_piece function
+    string = string.replace('\\repeat volta 2', 'repeat').replace('\\repeat', 'repeat')
+
+    # split string into list of enteties
     piece = string.split()
 
     # get key
@@ -165,12 +169,12 @@ def draw_piece(string, sample_name, args):
         piece = piece[:tempo_index] + piece[tempo_index + 2:]
 
     repeat = False
-    if '\\repeat' in piece or 'repeat' in piece:
-        repeat_index = piece.index('\\repeat') if '\\repeat' in piece else piece.index('repeat')
+    if 'repeat' in piece:
+        repeat_index = piece.index('repeat')
         repeat = True
         piece = piece[:repeat_index] + piece[repeat_index + 1:]
 
-    # initialize variables   
+    # initialize variables
     x_pos = 70 + (key_flats_num[key] if key in key_flats_num.keys() else key_sharps_num[key])*20 + (30 if tempo else 0) + randint(args.min_symbol_dist, args.max_symbol_dist)
     key_accidentals = get_key_accidentals(key)
     bar_accidentals = {'sharps': [], 'flats': [], 'naturals': []}
@@ -181,7 +185,7 @@ def draw_piece(string, sample_name, args):
     # generate sample image
     sample_im = generate_sample_image(key, tempo, args)
     # piece = [(n[0], n[1], n.count('\''), int((re.findall(r'\d+', n)[0])), n.count('.')) for n in string.split()]
-    
+
     while index < len(piece):
         rule = piece[index]
 
@@ -196,7 +200,7 @@ def draw_piece(string, sample_name, args):
             # (necessary here, because accents are written behind the rest in the piece string but should appear directly above/underneath)
             if index < len(piece) -1 and piece[index] + piece[index+1] == '-\marcato':
                 draw_symbol(sample_im, f'{args.hw_symbols_dir}/accents/marcato', (x_pos + 5, 40 + y_offset), True)
-                index += 2 
+                index += 2
 
             # check for dynamics
             # (necessary here, because dynamics are written behind the rest in the piece string but should appear directly underneath)
@@ -279,7 +283,7 @@ def draw_piece(string, sample_name, args):
 
                 else:
                     accidentals[i] = ''
-            
+
             x_pos += 20 if 'f' in accidentals or 's' in accidentals or 'n' in accidentals else 0
 
             # check for accents
@@ -306,7 +310,7 @@ def draw_piece(string, sample_name, args):
                 if i == 1 and y_head_poses[0] - y_head_poses[1] <= 5:
                     x_pos += 15
                     note_is_flipped = True
-                    
+
                 extend_staff(sample_im, x_pos, y_head_poses[i], y_offset)
                 if duration < 4:
                     draw_symbol(sample_im, f'{args.hw_symbols_dir}/head/empty', (x_pos, y_head_poses[i]), note_is_flipped)
@@ -338,7 +342,7 @@ def draw_piece(string, sample_name, args):
                 # handle single note
                 else:
                     attachment_point = (x_pos-10, y_head_poses[0]) if is_flipped else (x_pos+5, y_head_poses[0]-30)
-                
+
                 # draw stem with correct amount of flags
                 if duration <=4:
                     draw_symbol(sample_im, f'{args.hw_symbols_dir}/stem/4', attachment_point, is_flipped, True)
@@ -351,7 +355,7 @@ def draw_piece(string, sample_name, args):
                 x_pos += 25 if duration > 4 and not is_flipped and not len(tones) > 1 else 20
                 draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos, y_pos))
                 if len(tones) > 1:
-                    x_pos += 5 if duration > 4 and not is_flipped else 0     
+                    x_pos += 5 if duration > 4 and not is_flipped else 0
                     y_pos = y_head_poses[1] - 5 if y_head_poses[1] % 10 else y_head_poses[1]
                     draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos, y_pos))
 
@@ -371,22 +375,23 @@ def draw_piece(string, sample_name, args):
         # check if current bar is full
         if index < len(piece):
             x_pos, y_offset, duration_counter, bar_accidentals = check_bar(sample_im, x_pos, y_offset, duration_counter, key, bar_accidentals, args)
-        
-        # draw final bar line 
+
+        # draw final bar line
         elif repeat == False:
             draw_symbol(sample_im, f'{args.hw_symbols_dir}/big-bar', (x_pos,50+y_offset))
-        
+
         # draw repeat sign
         else:
             draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos,60+y_offset))
             draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos,70+y_offset))
             draw_symbol(sample_im, f'{args.hw_symbols_dir}/bar', (x_pos,50+y_offset))
             draw_symbol(sample_im, f'{args.hw_symbols_dir}/big-bar', (x_pos+10,50+y_offset))
-            
-    os.makedirs(f'{args.output_dir}/{sample_name}', exist_ok=True)    
+
+    os.makedirs(f'{args.output_dir}/{sample_name}', exist_ok=True)
     sample_im.convert('RGB').save(f'{args.output_dir}/{sample_name}/{args.name_prefix}.png','PNG')
     shutil.copyfile(f'{args.input_dir}/{sample_name}/{args.name_prefix}.txt', f'{args.output_dir}/{sample_name}/{args.name_prefix}.txt')
-    shutil.copyfile(f'{args.input_dir}/{sample_name}/{args.name_prefix}.ly', f'{args.output_dir}/{sample_name}/{args.name_prefix}.ly')
+    if os.path.isfile(f'{args.input_dir}/{sample_name}/{args.name_prefix}.ly'):
+        shutil.copyfile(f'{args.input_dir}/{sample_name}/{args.name_prefix}.ly', f'{args.output_dir}/{sample_name}/{args.name_prefix}.ly')
 
 def render(sample, args):
     with open(f'{args.input_dir}/{sample}/staff_1.txt', 'r') as f:
@@ -402,7 +407,7 @@ if __name__ == "__main__":
     parser.add_argument("--min_symbol_dist", type=int, required=False, help="Minimum distance between notes.", default=MIN_SYMBOL_DIST)
     parser.add_argument("--max_symbol_dist", type=int, required=False, help="Maximum distance between notes.", default=MAX_SYMBOL_DIST)
     parser.add_argument("--min_line_dist", type=int, required=False, help="Minimum distance between staff lines.", default=MIN_LINE_DIST)
-    parser.add_argument("--max_line_dist", type=int, required=False, help="Maximum distance between staff lines.", default=MAX_LINE_DIST)   
+    parser.add_argument("--max_line_dist", type=int, required=False, help="Maximum distance between staff lines.", default=MAX_LINE_DIST)
     parser.add_argument("--input_dir", type=str, required=False, help="Folder for the input data.", default=INPUT_DIR)
     parser.add_argument("--output_dir", type=str, required=False, help="Folder for the output data.", default=OUTPUT_DIR)
 
