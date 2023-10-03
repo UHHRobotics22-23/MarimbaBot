@@ -9,10 +9,11 @@ import pytorch_lightning as pl
 import torch
 from nltk import edit_distance
 from PIL import Image
+from tokenizers import Tokenizer
 from torch.utils.data import ConcatDataset, DataLoader, Dataset
 from tqdm import tqdm
 from transformers import (DonutProcessor, VisionEncoderDecoderConfig,
-                          VisionEncoderDecoderModel)
+                          VisionEncoderDecoderModel, PreTrainedTokenizerFast)
 
 # Config
 config = {
@@ -23,7 +24,7 @@ config = {
     "train_batch_sizes": [12],
     "val_batch_sizes": [12],
     "num_nodes": 1,
-    "warmup_steps": 300,
+    "warmup_steps": 1000,
     "result_path": "./result",
     "verbose": True,
     "train_data_paths": ["data_hw/", "data_augmented/", "data_wb/", "data_wb_extended", "data_extended_augmented", "data_negative"],
@@ -32,6 +33,7 @@ config = {
     "image_size": [583, 409],
     "start_token": "<s>",
     "num_workers": 24,
+    "tokenizer_path": "./tokenizer.json", # Or None if the tokenizer should not be changed
     "base_model": "nielsr/donut-base",
     "output_model": "./model_extended_2"
 }
@@ -53,11 +55,37 @@ model = VisionEncoderDecoderModel.from_pretrained(
     ignore_mismatched_sizes=True,
     config=ved_config)
 
+
+# Swap tokenizer with our own character-level tokenizer if a path is provided
+if config['tokenizer_path'] is not None:
+    # Save the special tokens of the original tokenizer
+    eos_token = pre_processor.tokenizer.eos_token
+    pad_token = pre_processor.tokenizer.pad_token
+    # Create a new tokenizers tokenizer based on the provided tokenizer config
+    pre_processor.tokenizer = PreTrainedTokenizerFast(
+        tokenizer_object=Tokenizer.from_file(config['tokenizer_path']))
+    # Add the special tokens back
+    pre_processor.tokenizer.add_special_tokens({
+        "eos_token": eos_token,
+        "pad_token": pad_token,
+        "unk_token": "<unk>",
+        "bos_token": config['start_token']
+    })
+    # Update the special token properties
+    pre_processor.tokenizer.eos_token = eos_token
+    pre_processor.tokenizer.pad_token = pad_token
+    # Update the special token ids
+    pre_processor.tokenizer.unk_token_id = pre_processor.tokenizer.convert_tokens_to_ids(['<unk>'])[0]
+    pre_processor.tokenizer.pad_token_id = pre_processor.tokenizer.convert_tokens_to_ids(['<pad>'])[0]
+    pre_processor.tokenizer.bos_token_id = pre_processor.tokenizer.convert_tokens_to_ids([config['start_token']])[0]
+    # Resize the model embedding layer
+    model.decoder.resize_token_embeddings(len(pre_processor.tokenizer))
+
+# Set the special tokens of the model
 model.config.pad_token_id = pre_processor.tokenizer.pad_token_id
-model.config.decoder_start_token_id = pre_processor.tokenizer.convert_tokens_to_ids([config['start_token']])[0]
+model.config.decoder_start_token_id = pre_processor.tokenizer.bos_token_id
 
 # Create dataset
-
 class NoteDataset(Dataset):
     def __init__(
         self,
@@ -85,7 +113,18 @@ class NoteDataset(Dataset):
                     ground_truth + " " + pre_processor.tokenizer.eos_token
             )
 
-        self.add_tokens(["1 ", "1. "] + [self.start_token])
+        self.add_tokens([
+            self.start_token,
+            "\\repeat ",
+            "volta ",
+            "\\key ",
+            "\\minor ",
+            "\\major ",
+            "\\tempo ",
+            "4=40 ",
+            "4=60 ",
+            "4=96 ",
+            "4=120 "])
 
     def add_tokens(self, list_of_tokens: List[str]):
         newly_added_num = pre_processor.tokenizer.add_tokens(list_of_tokens)
@@ -180,7 +219,7 @@ class DonutModelPLModule(pl.LightningModule):
 
         scores = list()
         for pred, answer in zip(predictions, answers):
-            pred = pred.replace(self.pre_processor.tokenizer.eos_token, "")[3:]
+            pred = pred.replace(self.pre_processor.tokenizer.eos_token, "").replace(self.pre_processor.tokenizer.bos_token, "")
             answer = answer.replace(self.pre_processor.tokenizer.eos_token, "")[:len(pred)]
             score = edit_distance(pred, answer)
             scores.append(score)
