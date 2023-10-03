@@ -49,6 +49,19 @@ class ActionDecider:
         while not self.lilypond_audio_client.wait_for_server(timeout=rospy.Duration(2)) and not rospy.is_shutdown():
             rospy.loginfo('Waiting for the audio_from_lilypond action server to come up')
 
+    # checks if the read note sequence includes a repeat symbol and updates the note sequence accordingly
+    def check_for_repeat(self):
+        if '\\repeat volta 2' in self.note_sequence:
+            # get the index of the first note
+            note_sequence_list = self.note_sequence.split(' ')
+            first_note_index = None
+            for i, x in enumerate(note_sequence_list):
+                if re.match(r'[a-g]\'*[0-9]+(\>)?(\.)?', x):
+                    first_note_index = i
+                    break
+            self.note_sequence = ' '.join(note_sequence_list[3:] + note_sequence_list[first_note_index:])
+            rospy.logdebug(f"updated notes: {self.note_sequence}")
+
     # converts the note_sequence to a hit sequence
     def update_hit_sequence(self):
         try:
@@ -69,7 +82,7 @@ class ActionDecider:
             self.note_sequence = re.sub(r'\\tempo 4=[0-9]+', '\\\\tempo 4={}'.format(value), self.note_sequence)
         else:
             self.note_sequence = '\\tempo 4={} '.format(value) + self.note_sequence
-        rospy.loginfo(f"updated notes: {self.note_sequence}")
+        rospy.logdebug(f"updated notes: {self.note_sequence}")
         self.update_hit_sequence()
         return 'success'
 
@@ -122,7 +135,7 @@ class ActionDecider:
             sequence_list = sequence_list[:dynamic_index] + [value] + sequence_list[dynamic_index:]
         self.note_sequence = ' '.join(sequence_list)
 
-        rospy.loginfo(f"updated notes: {self.note_sequence}")
+        rospy.logdebug(f"updated notes: {self.note_sequence}")
         self.update_hit_sequence()
         return 'success'
 
@@ -155,14 +168,12 @@ class ActionDecider:
                 return 'fail'
             
             # change the volume of all dynamic symbols in the sequence
-            rospy.loginfo('Increasing each dynamic symbol by {}.'.format(value) if louder else 'Decreasing each dynamic symbol by {}.'.format(value))
-
             for i, x in sequence_dynamics:
                 new_dynamic = dynamics[min(dynamics.index(x)+value, 7)] if louder else dynamics[max(dynamics.index(x)-value, 0)]
                 sequence_list[i] = new_dynamic
             self.note_sequence = ' '.join(sequence_list)
             
-            rospy.loginfo(f"updated notes: {self.note_sequence}")
+            rospy.logdebug(f"updated notes: {self.note_sequence}")
             self.update_hit_sequence()
             return 'success'
             
@@ -279,13 +290,14 @@ class ActionDecider:
 
         # read notes on the whiteboard
         if command_msg.behavior == "read":
-            rospy.loginfo('reading notes')
+            rospy.logdebug('reading notes')
             # update the note_sequence variable with the latest note sequence from vision_node/recognized_notes to signal that notes have been read
             try:
                 # wait for the vision node to publish a recognized note sequence
                 self.note_sequence = rospy.wait_for_message('vision_node/recognized_notes', String, timeout=5).data 
                 rospy.loginfo(f"recognized notes: {self.note_sequence}")
-                self.response_pub.publish('Notess recognized.')
+                self.response_pub.publish('Notes recognized.')
+                self.check_for_repeat()
                 self.update_hit_sequence()
             except rospy.ROSException:
                 rospy.logwarn('No notes recognized.')
@@ -343,7 +355,7 @@ class ActionDecider:
                     self.response_pub.publish('The audio preview is already playing.')
 
             elif command_msg.behavior == "stop":
-                rospy.loginfo('Aborting play.')
+                rospy.logdebug('Aborting play.')
                 # stop any running threads by setting the event
                 self.event.set()
 
