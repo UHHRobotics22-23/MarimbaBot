@@ -1,8 +1,8 @@
-from precise_runner import PreciseEngine, PreciseRunner, ReadWriteStream
 import rospy
 import webrtcvad
-from playsound import playsound
 from audio_common_msgs.msg import AudioDataStamped, AudioData
+from playsound import playsound
+from precise_runner import PreciseEngine, PreciseRunner, ReadWriteStream
 
 
 class SpeechExtraction:

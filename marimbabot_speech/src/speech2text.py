@@ -1,8 +1,9 @@
+import numpy as np
 import rospy
 import whisper
-import numpy as np
-from marimbabot_msgs.msg import Speech as SpeechMsg
 from audio_common_msgs.msg import AudioData
+
+from marimbabot_msgs.msg import Speech as SpeechMsg
 
 
 # Speech to text recognition, it is a wrapper of whisper

@@ -3,6 +3,7 @@ marimbabot_msgs/HitSequenceElement[] hit_sequence_elements # HitSequenceElement 
 
 #result definition
 ---
+time first_note_hit_time  # the absolute time when the first note of the sequence was hit
 bool success # whether the goal was successfully achieved
 
 # Define the error codes
@@ -15,4 +16,3 @@ uint16 error_code # error code in case of failure (see above)
 #feedback
 ---
 bool playing # whether marimbabot is currently (still) playing, i.e. the goal is still active
-time first_note_hit_time  # the absolute time when the first note of the sequence was hit

@@ -304,9 +304,11 @@ std::pair<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> P
 void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalConstPtr &goal)
 {
 
-    // initialize feedback
+    // Initialize feedback
     marimbabot_msgs::HitSequenceFeedback feedback;
-    feedback.playing = true;
+    feedback.playing = false;
+    // Initialize result
+    marimbabot_msgs::HitSequenceResult result;
 
     try {
         // Set the max velocity and acceleration scaling factors
@@ -345,38 +347,35 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
         trajectory_publisher_.publish(display_trajectory);
 
 
-        // set the start time of execution
+        // Set the start time of execution
         ros::Time start_time = ros::Time::now();
         ros::Time first_note_hit_time = start_time + approach_time_to_first_note_hit;
+        result.first_note_hit_time = first_note_hit_time;
 
         // Publish the feedback
-        feedback.first_note_hit_time = first_note_hit_time;
+        feedback.playing = true;
         action_server_.publishFeedback(feedback);
 
         // Execute the plan
         auto status = move_group_interface_.execute(hit_plan);
+
         // Set playing to false
         feedback.playing = false;
         action_server_.publishFeedback(feedback);
 
-        ros::Duration plan_execution_time = ros::Time::now() - start_time;
-
         // Set the result of the action server
         if (status != moveit::planning_interface::MoveItErrorCode::SUCCESS) {
             ROS_ERROR_STREAM("Hit sequence execution failed: " << status);
-            marimbabot_msgs::HitSequenceResult result;
             result.success = false;
             result.error_code = marimbabot_msgs::HitSequenceResult::EXECUTION_FAILED;
             action_server_.setAborted(result);
         } else {
-            marimbabot_msgs::HitSequenceResult result;
             result.success = true;
             action_server_.setSucceeded(result);
         }
 
     } catch (PlanFailedException& e) {
         ROS_ERROR_STREAM("Hit sequence planning failed: " << e.what());
-        marimbabot_msgs::HitSequenceResult result;
         result.success = false;
         result.error_code = marimbabot_msgs::HitSequenceResult::PLANNING_FAILED;
         action_server_.setAborted(result);
