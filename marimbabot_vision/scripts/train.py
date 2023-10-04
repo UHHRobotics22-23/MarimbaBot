@@ -9,6 +9,7 @@ import pytorch_lightning as pl
 import torch
 from nltk import edit_distance
 from PIL import Image
+from pytorch_lightning.callbacks import Callback
 from tokenizers import Tokenizer
 from torch.utils.data import ConcatDataset, DataLoader, Dataset
 from tqdm import tqdm
@@ -124,7 +125,16 @@ class NoteDataset(Dataset):
             "4=40 ",
             "4=60 ",
             "4=96 ",
-            "4=120 "])
+            "4=120 ",
+            "- \\marcato "
+            '\\ppp ',
+            '\\pp ',
+            '\\p ',
+            '\\mp ',
+            '\\mf ',
+            '\\f ',
+            '\\ff ',
+            '\\fff '])
 
     def add_tokens(self, list_of_tokens: List[str]):
         newly_added_num = pre_processor.tokenizer.add_tokens(list_of_tokens)
@@ -261,6 +271,13 @@ class DonutModelPLModule(pl.LightningModule):
 # Instantiate pytorch lightning module
 model_module = DonutModelPLModule(config, pre_processor, model, train_dataloader, val_dataloader)
 
+# Create callback to save the model after each epoch
+class SaveCallback(Callback):
+    def on_train_epoch_end(self, trainer, pl_module):
+        pl_module.model.save_pretrained(pl_module.config['output_model'])
+        pl_module.pre_processor.save_pretrained(pl_module.config['output_model'])
+        ved_config.save_pretrained(pl_module.config['output_model'])
+
 # Instantiate pytorch lightning trainer
 trainer = pl.Trainer(
         accelerator="gpu",
@@ -270,12 +287,8 @@ trainer = pl.Trainer(
         gradient_clip_val=config.get("gradient_clip_val"),
         precision=16, # we'll use mixed precision
         num_sanity_val_steps=0,
+        callbacks=[SaveCallback()],
 )
 
 # Train the model
 trainer.fit(model_module)
-
-# Save the model and tokenizer
-model.save_pretrained(config['output_model'])
-pre_processor.save_pretrained(config['output_model'])
-ved_config.save_pretrained(config['output_model'])
