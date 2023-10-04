@@ -358,10 +358,7 @@ def draw_piece(string, sample_name, args):
 
             # draw dot
             if dot >= 1:
-                if is_flipped:
-                    y_pos = y_head_poses[0] if y_head_poses[0] % 10 else y_head_poses[0] - 5
-                else:
-                    y_pos = y_head_poses[0] - 5 if y_head_poses[0] % 10 else y_head_poses[0]
+                y_pos = y_head_poses[0] - 5 if y_head_poses[0] % 10 else y_head_poses[0]
                 x_pos += 25 if duration > 4 and not is_flipped else 20
                 draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos, y_pos))
              
