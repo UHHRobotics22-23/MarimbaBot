@@ -166,7 +166,7 @@ def draw_piece(string, sample_name, args):
         piece = piece[:tempo_index] + piece[tempo_index + 2:]
 
     repeat = False
-    if 'repeat' in piece:
+    if '\\repeat' in piece or 'repeat' in piece:
         repeat_index = piece.index('\\repeat') if '\\repeat' in piece else piece.index('repeat')
         repeat = True
         piece = piece[:repeat_index] + piece[repeat_index + 3:]
