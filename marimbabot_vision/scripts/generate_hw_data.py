@@ -172,7 +172,7 @@ def draw_piece(string, sample_name, args):
     if 'repeat' in piece:
         repeat_index = piece.index('repeat')
         repeat = True
-        piece = piece[:repeat_index] + piece[repeat_index + 1:]
+        piece = piece[:repeat_index] + piece[repeat_index + 3:]
 
     # initialize variables
     x_pos = 70 + (key_flats_num[key] if key in key_flats_num.keys() else key_sharps_num[key])*20 + (30 if tempo else 0) + randint(args.min_symbol_dist, args.max_symbol_dist)
@@ -196,17 +196,17 @@ def draw_piece(string, sample_name, args):
             draw_symbol(sample_im, f'{args.hw_symbols_dir}/rest/{duration}', (x_pos, 50 + y_offset))
             index += 1
 
-            # check for accents
-            # (necessary here, because accents are written behind the rest in the piece string but should appear directly above/underneath)
-            if index < len(piece) -1 and piece[index] + piece[index+1] == '-\marcato':
-                draw_symbol(sample_im, f'{args.hw_symbols_dir}/accents/marcato', (x_pos + 5, 40 + y_offset), True)
-                index += 2
-
             # check for dynamics
             # (necessary here, because dynamics are written behind the rest in the piece string but should appear directly underneath)
             if index < len(piece) and piece[index][:2] in ['\\f', '\\p', '\\m']:
                 draw_dynamics(sample_im, piece[index], x_pos-10, 90 + y_offset, args)
                 index += 1
+
+            # check for accents
+            # (necessary here, because accents are written behind the rest in the piece string but should appear directly above/underneath)
+            if index < len(piece) -1 and piece[index] + piece[index+1] == '-\marcato':
+                draw_symbol(sample_im, f'{args.hw_symbols_dir}/accents/marcato', (x_pos + 5, 40 + y_offset), True)
+                index += 2
 
             # draw dot
             if dot >= 1:
@@ -294,9 +294,20 @@ def draw_piece(string, sample_name, args):
                 draw_symbol(sample_im, f'{args.hw_symbols_dir}/accents/marcato', (x_pos+5, accent_y_pos), is_flipped)
                 index += 2
 
+            # Special case: Both dynamic and accent are written behind the note
+            # (necessary here, because dynamics are written behind accents but should appear directly underneath)
+            elif index < len(piece) - 2 and piece[index][:2] in ['\\f', '\\p', '\\m'] and piece[index+1] + piece[index+2] == '-\marcato':
+                accent_y_pos = y_head_poses[0] + 15 if not is_flipped else (y_head_poses[0] - 15 if len(tones) == 1 else y_head_poses[-1] + 15)
+                draw_symbol(sample_im, f'{args.hw_symbols_dir}/accents/marcato', (x_pos+5, accent_y_pos), is_flipped)
+                dynamic_y_pos = 90 + y_offset if y_head_poses[0] - y_offset < 80 else y_head_poses[0] + 10
+                if accent_y_pos != 0 and accent_y_pos - dynamic_y_pos < 10:
+                    dynamic_y_pos += 15
+                draw_dynamics(sample_im, piece[index], x_pos-10, dynamic_y_pos, args)
+                index += 3
+
             # check for dynamics
             # (necessary here, because dynamics are written behind the note in the piece string but should appear directly underneath)
-            if index < len(piece) and piece[index][:2] in ['\\f', '\\p', '\\m']:
+            elif index < len(piece) and piece[index][:2] in ['\\f', '\\p', '\\m']:
                 dynamic_y_pos = 90 + y_offset if y_head_poses[0] - y_offset < 80 else y_head_poses[0] + 10
                 if accent_y_pos != 0 and accent_y_pos - dynamic_y_pos < 10:
                     dynamic_y_pos += 15
@@ -351,7 +362,7 @@ def draw_piece(string, sample_name, args):
 
             # draw dot
             if dot >= 1:
-                y_pos = y_head_poses[0] - 5 if y_head_poses[0] % 10 else y_head_poses[0]
+                y_pos = y_head_poses[0] if y_head_poses[0] % 10 else y_head_poses[0] - 5
                 x_pos += 25 if duration > 4 and not is_flipped and not len(tones) > 1 else 20
                 draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos, y_pos))
                 if len(tones) > 1:

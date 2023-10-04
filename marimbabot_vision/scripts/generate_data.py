@@ -203,14 +203,14 @@ class LilypondGenerator():
             self.add_tempo(voice_1)
         if self.slurs:
             self.add_slurs(voice_1)
+        if self.include_dynamics:
+            self.add_dynamics(voice_1)
         if self.include_articulations:
             self.add_articulation(voice_1)
         if self.repeat:
             self.add_repeat(voice_1)
         if self.scale:
             self.add_major_minor_scales(voice_1)
-        if self.include_dynamics:
-            self.add_dynamics(voice_1)
 
         staff_1 = Staff([voice_1], name="Staff_1")
 
