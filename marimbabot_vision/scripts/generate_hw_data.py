@@ -287,7 +287,7 @@ def draw_piece(string, sample_name, args):
             # (necessary here, because accents are written behind the note in the piece string but should appear directly above/underneath)
             accent_y_pos = 0
             if index < len(piece) -1 and piece[index] + piece[index+1] == '-\marcato':
-                accent_y_pos = y_head_poses[0] + 15 if not is_flipped else (y_head_poses[0] - 15 if len(tones) == 1 else y_head_poses[-1] + 15)
+                accent_y_pos = y_head_poses[0] + 15 if not is_flipped else (y_head_poses[0] - 15 if len(tones) == 1 else y_head_poses[-1] - 15)
                 draw_symbol(sample_im, f'{args.hw_symbols_dir}/accents/marcato', (x_pos+5, accent_y_pos), is_flipped)
                 index += 2
 
@@ -359,12 +359,15 @@ def draw_piece(string, sample_name, args):
 
             # draw dot
             if dot >= 1:
-                y_pos = y_head_poses[0] if y_head_poses[0] % 10 else y_head_poses[0] - 5
-                x_pos += 25 if duration > 4 and not is_flipped and not len(tones) > 1 else 20
+                y_pos = y_head_poses[0] - 5 if y_head_poses[0] % 10 else y_head_poses[0]
+                if len(tones) > 1 and y_head_poses[0] - y_head_poses[1] <= 5:
+                    y_pos = y_head_poses[0] +5 if y_head_poses[0] % 10 else y_head_poses[0]
+                x_pos += 25 if duration > 4 and not is_flipped else 20
                 draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos, y_pos))
+
                 if len(tones) > 1:
-                    x_pos += 5 if duration > 4 and not is_flipped else 0
                     y_pos = y_head_poses[1] - 5 if y_head_poses[1] % 10 else y_head_poses[1]
+                    x_pos += 5 if duration > 4 and not is_flipped else 0
                     draw_symbol(sample_im, f'{args.hw_symbols_dir}/dot', (x_pos, y_pos))
 
             duration_counter += 1/duration + dot * (0.5/duration)
