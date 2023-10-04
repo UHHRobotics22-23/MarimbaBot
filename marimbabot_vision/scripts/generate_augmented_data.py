@@ -49,7 +49,8 @@ def augment_sample(i, args):
 
     cv2.imwrite(os.path.join(augmented_path, f"staff_1.png"), new_img)
     shutil.copy(orig_txt_path, os.path.join(augmented_path, f"staff_1.txt"))
-    shutil.copy(orig_ly_path, os.path.join(augmented_path, f"staff_1.ly"))
+    if os.path.exists(orig_ly_path):
+        shutil.copy(orig_ly_path, os.path.join(augmented_path, f"staff_1.ly"))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Augmented data generation of input data.")
@@ -62,4 +63,3 @@ if __name__ == "__main__":
     # Call augment_sample on ids with tqdm and multiprocessing
     with Pool(args.num_worker) as pool:
         list(tqdm.tqdm(pool.imap(partial(augment_sample, args=args), os.listdir(args.input_dir)), total=len(os.listdir(args.input_dir))))
-    
