@@ -180,7 +180,7 @@ Now you can [create a pull request](https://docs.github.com/en/pull-requests/col
 
 ## Project Overview
 
-### Block Diagram
+### ROS Node Diagram
 ```mermaid
 %%{init: {"flowchart": {"defaultRenderer": "elk"}} }%%
 flowchart TD;
