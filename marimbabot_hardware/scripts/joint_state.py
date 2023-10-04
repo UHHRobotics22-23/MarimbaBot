@@ -12,6 +12,7 @@ def JointStatePublisher():
     rate = rospy.Rate(100)  # 100hz
 
     while not rospy.is_shutdown():
+        # TODO: get the start position of the mallet_finger joint instead of goal position
         goal_msg: MoveGroupActionGoal = rospy.wait_for_message("/move_group/goal", MoveGroupActionGoal)
 
         constraints = goal_msg.goal.request.goal_constraints
