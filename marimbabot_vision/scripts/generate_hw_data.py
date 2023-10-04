@@ -148,9 +148,6 @@ def generate_sample_image(key, tempo, args):
     return image
 
 def draw_piece(string, sample_name, args):
-    # Preprocessing to make the string compatible with the draw_piece function
-    string = string.replace('\\repeat volta 2', 'repeat').replace('\\repeat', 'repeat')
-
     # split string into list of enteties
     piece = string.split()
 
@@ -170,7 +167,7 @@ def draw_piece(string, sample_name, args):
 
     repeat = False
     if 'repeat' in piece:
-        repeat_index = piece.index('repeat')
+        repeat_index = piece.index('\\repeat') if '\\repeat' in piece else piece.index('repeat')
         repeat = True
         piece = piece[:repeat_index] + piece[repeat_index + 3:]
 
