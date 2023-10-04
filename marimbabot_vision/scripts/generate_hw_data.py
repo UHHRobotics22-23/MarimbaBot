@@ -168,7 +168,7 @@ def draw_piece(string, sample_name, args):
     if '\\repeat' in piece or 'repeat' in piece:
         repeat_index = piece.index('\\repeat') if '\\repeat' in piece else piece.index('repeat')
         repeat = True
-        piece = piece[:repeat_index] + piece[repeat_index + 1:]
+        piece = piece[:repeat_index] + piece[repeat_index + 3:]
 
     # initialize variables   
     x_pos = 70 + (key_flats_num[key] if key in key_flats_num.keys() else key_sharps_num[key])*20 + (30 if tempo else 0) + randint(args.min_symbol_dist, args.max_symbol_dist)
