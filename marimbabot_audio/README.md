@@ -1,12 +1,31 @@
-# TAMS Master Project 2022/2023 - Music Information Retrieval(Audio)
+# TAMS Master Project 2022/2023 - Audio Processing
 
 ## 1. Motivation
 
-The robot's performance of playing the marimba need to be evaluated. Therefore, this submodule is designed to can evaluate the music produced by robot through the audio feedback. It can detect the western music note by the raw audio input, and visualize it in form of midi figure and  Constant-Q transform spectrum, also there is a final score for evaluate the final motion.
+The robot's performance of playing the marimba need to be evaluated. Therefore, this submodule is designed to can evaluate the music produced by robot through the audio feedback. It can detect the western music note by the raw audio input, and visualize it in form of midi figure and  Constant-Q transform spectrum, also there is a final score for evaluate the final motion.  Moreover, it can synthesis the music from lilypond.
 
-## 2. Overview
+## 2. Dependencies
 
-### 2.1 Folder overview
+### 2.1 python packages
+
+```
+abjad==3.4
+crepe==0.0.13
+librosa==0.9.2
+midi2audio==0.1.1
+numpy==1.23.3
+opencv-python==4.7.0.68
+pretty-midi==0.2.10
+tensorflow==2.13
+```
+
+### 2.2 Ros official packages
+
+-   [audio_common](http://wiki.ros.org/audio_common)
+
+## 3. Overview
+
+### 3.1 Folder overview
 
 The following folder tree structure show some important files, unimportant files are ignored.
 
@@ -23,17 +42,18 @@ The following folder tree structure show some important files, unimportant files
     └── sequence_evaluation.py  # music evaluation, compare the groundtruth with the robot performance.
 ```
 
-### 2.2 Nodes overview
+### 3.2 Nodes overview
 
-<img src="./README.assets/image-20231004133827966.png" alt="image-20231004133827966" />
+<img src="./README.assets/image-20231004154604276.png" alt="image-20231004154604276" />
 
 -   **/audio_node/node_audio_capture**: capture the music to raw data.
 -   **/audio_node/onset_detector**: detect the music notes by raw data input.
 -   **/audio_node/seq_eval**: compare the music notes sequence between the ground-truth and robot performance.
 -   **/audio_node/onsetviz**: visualization of onset notes in format of live midi. 
 -   **/audio_node/evalviz**: visualization of evaluation result in format of a midi figure. 
+-   **/audio_from_lilypond**: synthesize the audio from lilypond, and play it.
 
-## 3. Pipeline of subsystem 
+## 4. Pipeline of music note detection 
 
 1.  **Audio capture**:
     The audio raw data will be captured to `/audio_node/audio_stamped`.
@@ -50,7 +70,7 @@ The following folder tree structure show some important files, unimportant files
     3.  Then compare two sequence and get the matched result. And publish the matched results to `/audio_node/match_result`.
     4.  Visualization of evaluation results: `src/eval_visualization.py`
 
-## 4. Node list
+## 5. Node list
 
 *Only the primary topic and node will be covered here.*
 
@@ -75,14 +95,40 @@ The following folder tree structure show some important files, unimportant files
 
 -   #### /audio_node/seq_eval
 
-    -   **Description**: Compare the music sequence from the ground-truth and the robot-played music, calculate the score and  visualize the match result.
+    -   **Description**: Compare the music sequence from the ground-truth and the robot-played music, calculate the score and visualize the match result.
     -   **Input_1**: ground-truth music sequence
-        -   Topic: `/audio/hit_sequence`
+        -   Topic: `/audio_node/hit_sequence`
         -   Message type: [`HitSequence.msg`](../marimbabot_msgs/msg/HitSequence.msg)
     -   **Input_2:** robot-played music note
-        -   Topic: `/audio/hit_sequence`
-        -   Message type: [`HitSequence.msg`](../marimbabot_msgs/msg/HitSequence.msg)
+        -   Topic: `/audio_node/onset_notes`
+        -   Message type:[`NoteOnset.msg`](../marimbabot_msgs/msg/NoteOnset.msg)
+    -   **output**: match results
+        -   Topic: `/audio_node/match_result`
+        -   Message type: [SequenceMatchResult.msg](../marimbabot_msgs/msg/SequenceMatchResult.msg)
 
 -   #### /audio_node/onsetviz
 
+    -   **Description**: visualize the music note in live midi
+    -   **Input**: music notes
+        -   Topic: `/audio_node/onset_notes`
+        -   Message type:[`NoteOnset.msg`](../marimbabot_msgs/msg/NoteOnset.msg)
+    -   **Output:** midi image
+        -   Topic: `/audio_node/live_midi_img`
+        -   Message type: [`sensor_msgs/Image.msg`](http://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/Image.html)
+
 -   #### /audio_node/evalviz
+
+    -   **Description**: visualize the match result in live midi
+    -   **Input**: match result
+        -   Topic:  `/audio_node/match_result`
+        -   Message type: [SequenceMatchResult.msg](../marimbabot_msgs/msg/SequenceMatchResult.msg)
+    -   **Output:** midi image
+        -   Topic: `/audio_node/feedback_img`
+        -   Message type: [`sensor_msgs/Image.msg`](http://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/Image.html)
+
+-   #### /audio_from_lilypond
+
+    -   **Description**: Synthesize the music from lilypond
+    -   **Input**:  lilypond
+        -   Action name: `audio_from_lilypond`
+        -   Action type: [`LilypondAudio.action`](../marimbabot_msgs/action/LilypondAudio.action)
