@@ -202,7 +202,7 @@ def draw_piece(string, sample_name, args):
             # (necessary here, because accents are written behind the rest in the piece string but should appear directly above/underneath)
             if index < len(piece) -1 and piece[index] + piece[index+1] == '-\marcato':
                 draw_symbol(sample_im, f'{args.hw_symbols_dir}/accents/marcato', (x_pos + 5, 40 + y_offset), True)
-                index += 2 
+                index += 2
 
             # draw dot
             if dot >= 1:
@@ -298,7 +298,7 @@ def draw_piece(string, sample_name, args):
                     dynamic_y_pos += 15
                 draw_dynamics(sample_im, piece[index], x_pos-10, dynamic_y_pos, args)
                 index += 1
-
+                
             # draw note head(s)
             for i in range(len(tones)):
                 # prevent overlapping note heads if notes are too close
