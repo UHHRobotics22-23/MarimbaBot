@@ -12,15 +12,12 @@ from marimbabot_msgs.msg import Command
 
 from cv_bridge import CvBridge, CvBridgeError
 
-def clear_entry():
-    entry.delete(0, END)
-
 def set_song(*args):
-    library = {'Frère Jacques': "c''4 d''4 e''4 c''4 c''4 d''4 e''4 c''4 e''4 f''4 g''2 e''4 f''4 g''2 g''8 a''8 g''8 f''8 e''2 c''2 g''8 a''8 g''8 f''8 e''2 c''2 c''4 g'4 c''2 c''4 g'4 c''2",
+    library = {'Frère Jacques': "c''4 d''4 e''4 c''4 c''4 d''4 e''4 c''4 e''4 f''4 g''2 e''4 f''4 g''2 g''8 a''8 g''8 f''8 e''4 c''4 g''8 a''8 g''8 f''8 e''4 c''4 c''4 g'4 c''2 c''4 g'4 c''2",
                'All my ducklings': "c''4 d''4 e''4 f''4 g''2 g''2 a''4 a''4 a''4 a''4 g''1 a''4 a''4 a''4 a''4 g''1 f''4 f''4 f''4 f''4 e''2 e''2 g''4 g''4 g''4 g''4 c''4",
                'Scale': "c''4 d''4 e''4 f''4 g''4 a''4 b''4 c''4 b''4 a''4 g''4 f''4 e''4 d''4 c''4"}
     
-    clear_entry()
+    entry.delete(0, END)
     song = library[selected_song.get()]
     entry.insert(0, song)
     
@@ -29,11 +26,8 @@ def read_notes():
         notes = rospy.wait_for_message('vision_node/recognized_notes', String, timeout=5).data
     except rospy.ROSException:
         notes = "No notes detected"
-    clear_entry()
+    entry.delete(0, END)
     entry.insert(0, notes)
-    # command = Command()
-    # command.behavior = "read"
-    # command_pub.publish(command)
 
 def confirm_notes():
     notes = entry.get()
@@ -53,13 +47,16 @@ def set_paramerter_options(*args):
     action = selected_action.get()
     if action == 'increase volume' or action == 'decrease volume':
         parameter.config(state=NORMAL)
+        by.config(text="by")
         metric.config(text="steps")
     elif action == 'increase speed' or action == 'decrease speed':
         parameter.config(state=NORMAL)
+        by.config(text="by")
         metric.config(text="bpm")
     else:
         parameter.delete(0, END)
         parameter.config(state=DISABLED)
+        by.config(text="")
         metric.config(text="")
 
 def command_pub():
@@ -80,12 +77,11 @@ camera.grid(row=1, column=0, columnspan=3, rowspan=3, pady=10)
 Button(root, text='Read', command=read_notes).grid(row=4, column=1, pady=4)
 
 # Input Note Sequence
-Label(root, text="Input Note Sequence").grid(row=5, column=1)
+Label(root, text="Input Note Sequence").grid(row=5, column=1, pady=4)   
 defaultText = StringVar()
 defaultText.set("Please read from the camera feed, select from the song library, or enter a custom note sequence.")
 entry = Entry(root, width=80, textvariable=defaultText)
 entry.grid(row=6, column=0, columnspan=3, pady=10)
-# Button(root, text='Clear', command=clear_entry).grid(row=1, column=6, sticky=W, pady=4)
 
 # Song Library
 selected_song = StringVar()
@@ -98,7 +94,7 @@ selected_song.trace("w", set_song)
 Button(root, text='Confirm', command=confirm_notes).grid(row=7, column=1, pady=4)
 
 # Active Note Sequence
-Label(root, text="Active Note Sequence").grid(row=9, column=1)
+Label(root, text="Active Note Sequence").grid(row=9, column=1, pady=4)
 current_sequence = Label(root, text="", bg="white", width=80, wraplength=650, anchor="w", justify=LEFT)
 current_sequence.grid(row=10, column=0, columnspan=3, pady=10)
 
@@ -123,11 +119,15 @@ action.grid(row=12, column=1, pady=4)
 action.config(state=DISABLED)
 
 # Parameter Selection
-Label(root, text="by").grid(row=12, column=2, sticky=W, pady=4)
 parameter = Entry(root, width=10)
 parameter.grid(row=12, column=2,  pady=4)
-metric = Label(root, text="").grid(row=12, column=3, sticky=W, pady=4)
 parameter.config(state=DISABLED)
+
+by = Label(root, text="")
+by.grid(row=12, column=2, sticky=W, pady=4)
+
+metric = Label(root, text="")
+metric.grid(row=12, column=2, sticky=E, pady=4)
 
 # Trace Selections
 selected_behavior.trace("w", set_action_options)
@@ -135,12 +135,6 @@ selected_action.trace("w", set_paramerter_options)
 
 # GO
 Button(root, text='GO', command=command_pub).grid(row=12, column=4, pady=4)
-
-
-
-
-
-# Button(root, text='Quit', command=root.quit).grid(row=4, column=0, sticky=W, pady=4)
 
 bridge = CvBridge()
 
