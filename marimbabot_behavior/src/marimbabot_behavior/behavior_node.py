@@ -311,7 +311,7 @@ class ActionDecider:
             # update the note_sequence variable with the latest note sequence from vision_node/recognized_notes to signal that notes have been read
             try:
                 # wait for the vision node to publish a recognized note sequence
-                self.note_sequence = rospy.wait_for_message('vision_node/recognized_notes', String, time
+                self.note_sequence = rospy.wait_for_message('vision_node/recognized_notes', String, timeout=5).data 
                 rospy.loginfo(f"recognized notes: {self.note_sequence}")
                 self.response_pub.publish('Notes recognized.')
                 self.check_for_repeat()
