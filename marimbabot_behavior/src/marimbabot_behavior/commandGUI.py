@@ -25,46 +25,118 @@ def set_song(*args):
     entry.insert(0, song)
     
 def read_notes():
-    command = Command()
-    command.behavior = "read"
-    command_pub.publish(command)
+    try:
+        notes = rospy.wait_for_message('vision_node/recognized_notes', String, timeout=5).data
+    except rospy.ROSException:
+        notes = "No notes detected"
+    clear_entry()
+    entry.insert(0, notes)
+    # command = Command()
+    # command.behavior = "read"
+    # command_pub.publish(command)
 
 def confirm_notes():
     notes = entry.get()
     note_sequence_pub.publish(notes)
 
+def set_action_options(*args):
+    behavior = selected_behavior.get()
+    if behavior == 'play' or behavior == 'preview':
+        action.config(state=NORMAL)
+    else:
+        action.config(state=DISABLED)
+
+def set_paramerter_options(*args):
+    action = selected_action.get()
+    if action == 'increase volume' or action == 'decrease volume':
+        parameter.config(state=NORMAL)
+        metric.config(text="steps")
+    elif action == 'increase speed' or action == 'decrease speed':
+        parameter.config(state=NORMAL)
+        metric.config(text="bpm")
+    else:
+        parameter.config(state=DISABLED)
+        metric.config(text="")
+
+def command_pub():
+    command = Command()
+    command.behavior = selected_behavior.get()
+    command.action = selected_action.get()
+    command.parameter = parameter.get()
+    command_pub.publish(command)
+
 # create GUI
 root = Tk()
 root.title("Marimbabot Command GUI")
 
-# Initial Note Sequence
-Label(root, text="Initial Note Sequence").grid(row=0, column=0)
+# Camera Feed
+Label(root, text="Camera Feed").grid(row=0, column=1)
+camera = Canvas(root, bg = 'white', height=100, width=100)
+camera.grid(row=1, column=0, columnspan=3, rowspan=3, pady=10)
+Button(root, text='Read', command=read_notes).grid(row=4, column=1, pady=4)
 
+# Input Note Sequence
+Label(root, text="Input Note Sequence").grid(row=5, column=1)
 defaultText = StringVar()
-defaultText.set("Please enter a note sequence or choose one of the options below.")
-entry = Entry(root, width=100, textvariable=defaultText)
-entry.grid(row=0, column=1, columnspan=3, pady=10)
+defaultText.set("Please read from the camera feed, select from the song library, or enter a custom note sequence.")
+entry = Entry(root, width=80, textvariable=defaultText)
+entry.grid(row=6, column=0, columnspan=3, pady=10)
+# Button(root, text='Clear', command=clear_entry).grid(row=1, column=6, sticky=W, pady=4)
 
-Button(root, text='Read', command=read_notes).grid(row=1, column=5, sticky=W, pady=4)
-
+# Song Library
 selected_song = StringVar()
 selected_song.set("Song Library")
 drop = OptionMenu(root, selected_song, *['Frère Jacques', 'All my ducklings', 'Scale'])
-drop.grid(row=1, column=2, sticky=W, pady=4)
+drop.grid(row=6, column=4, pady=4)
 selected_song.trace("w", set_song)
 
-Button(root, text='Clear', command=clear_entry).grid(row=0, column=4, sticky=W, pady=4)
+# Confirm Button
+Button(root, text='Confirm', command=confirm_notes).grid(row=7, column=1, pady=4)
 
-Label(root, text="Current Note Sequence").grid(row=2, column=0)
-current_sequence = Label(root, text="No data", bg="white", width=100)
-current_sequence.grid(row=2, column=1, columnspan=3, pady=10)
+# Active Note Sequence
+Label(root, text="Active Note Sequence").grid(row=9, column=1)
+current_sequence = Label(root, text="", bg="white", width=80)
+current_sequence.grid(row=10, column=0, columnspan=3, pady=10)
 
-Button(root, text='Confirm', command=confirm_notes).grid(row=3, column=2, sticky=W, pady=4)
+# Command Builder
+Label(root, text="Command Builder").grid(row=11, column=1)
 
-camera = Canvas(root, bg = 'white')
-camera.grid(row=0, column=5)
+action_options = ['no action', 'louder', 'softer', 'faster', 'Slower', 'loop']
+active_action_options = StringVar()
 
-Button(root, text='Quit', command=root.quit).grid(row=4, column=0, sticky=W, pady=4)
+# Behavior Selection
+selected_behavior = StringVar()
+selected_behavior.set("Command Selection")
+behavior = OptionMenu(root, selected_behavior, *['play', 'preview', 'read', 'stop'])
+behavior.grid(row=12, column=0, pady=4)
+behavior.config(state=DISABLED)
+
+# Action Selection
+selected_action = StringVar()
+selected_action.set("Action Selection")
+action = OptionMenu(root, selected_action, *['', 'increase volume', 'decrease volume', 'increase speed', 'decrease speed', 'loop'])
+action.grid(row=12, column=1, pady=4)
+action.config(state=DISABLED)
+
+# Parameter Selection
+Label(root, text="by").grid(row=12, column=2, sticky=W, pady=4)
+parameter = Entry(root, width=10)
+parameter.grid(row=12, column=2,  pady=4)
+metric = Label(root, text="").grid(row=12, column=3, sticky=W, pady=4)
+parameter.config(state=DISABLED)
+
+# Trace Selections
+selected_behavior.trace("w", set_action_options)
+selected_action.trace("w", set_paramerter_options)
+
+# GO
+Button(root, text='GO', command=command_pub).grid(row=12, column=4, pady=4)
+
+
+
+
+
+# Button(root, text='Quit', command=root.quit).grid(row=4, column=0, sticky=W, pady=4)
 
 bridge = CvBridge()
 
@@ -79,11 +151,19 @@ def camera_callback(data):
 def show_entry_fields():
    print("First Name: %s\nLast Name: %s" % (entry.cget('text'), current_sequence.get()))
 
+def response_callback(msg):
+    if msg.data == "Notes recognized.":
+        behavior.config(state=NORMAL)
+    elif msg.data == "No notes recognized.":
+        action.config(state=DISABLED)
+
 rospy.init_node('command_gui')
 
 note_sequence_sub = rospy.Subscriber('behavior_node/note_sequence', String, note_sequence_callback)
 
-camera_sub = rospy.Subscriber("cv_camera_node/image_raw", ROSImage, camera_callback, queue_size=1)
+response_sub = rospy.Subscriber('behavior_node/response', String, response_callback)
+
+# camera_sub = rospy.Subscriber("cv_camera_node/image_raw", ROSImage, camera_callback, queue_size=1)
 
 note_sequence_pub = rospy.Publisher('command_gui/note_sequence', String, queue_size=10)
 
