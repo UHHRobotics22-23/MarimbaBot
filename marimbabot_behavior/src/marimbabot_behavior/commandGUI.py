@@ -44,7 +44,10 @@ def set_action_options(*args):
     if behavior == 'play' or behavior == 'preview':
         action.config(state=NORMAL)
     else:
+        selected_action.set("Action Selection")
+        parameter.delete(0, END)
         action.config(state=DISABLED)
+        parameter.config(state=DISABLED)
 
 def set_paramerter_options(*args):
     action = selected_action.get()
@@ -55,6 +58,7 @@ def set_paramerter_options(*args):
         parameter.config(state=NORMAL)
         metric.config(text="bpm")
     else:
+        parameter.delete(0, END)
         parameter.config(state=DISABLED)
         metric.config(text="")
 
