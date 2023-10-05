@@ -181,7 +181,7 @@ class DonutModelPLModule(pl.LightningModule):
 
         outputs = self.model.generate(pixel_values,
                                    decoder_input_ids=decoder_input_ids,
-                                   max_length=config['max_length'],
+                                   max_length=self.model.decoder.config.max_position_embeddings
                                    early_stopping=True,
                                    pad_token_id=self.pre_processor.tokenizer.pad_token_id,
                                    eos_token_id=self.pre_processor.tokenizer.eos_token_id,
