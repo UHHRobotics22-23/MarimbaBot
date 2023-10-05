@@ -79,7 +79,7 @@ moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
     double original_length = input_plan.trajectory_.joint_trajectory.points.back().time_from_start.toSec();
     // Assert that the input plan is shorter than the desired length
     assert(original_length <= length && "Input plan must be shorter than the desired length");
-    
+
     // Calculate the scaling factor
     double scaling_factor = length / original_length;
 
@@ -95,7 +95,7 @@ moveit::planning_interface::MoveGroupInterface::Plan slow_down_plan(
     // Interpolate trajectory
     output_plan = interpolate_plan(output_plan, 100);
 
-    return output_plan;   
+    return output_plan;
 }
 
 
@@ -170,8 +170,8 @@ moveit::planning_interface::MoveGroupInterface::Plan interpolate_plan(
 
 
 /**
- * @brief Convert a hit sequence elements to a vector of HitSequenceElement structs containing the points 
- * 
+ * @brief Convert a hit sequence elements to a vector of HitSequenceElement structs containing the points
+ *
  * @param hit_sequence
  * @param tf_buffer
  * @param planning_frame
@@ -191,6 +191,19 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
         // Map the note letter and octave to the corresponding tf frame
         std::string note_frame = "bar_" + point.tone_name + std::to_string(point.octave);
 
+        // Use the lower frames so we have less travel time for black keys
+        bool use_lower_frames = true;
+        if (use_lower_frames)
+        {
+            // Check if we have a flat or sharp note
+            if (point.tone_name.ends_with("is") || point.tone_name.ends_with("es"))
+            {
+                // Use the lower frame instead of the normal one
+                note_frame += "_low";
+            }
+        }
+
+
         // Get the cartesian point of the note
         geometry_msgs::PointStamped note_point;
         note_point.header.frame_id = note_frame;  // The frame of the note
@@ -207,11 +220,11 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
             planning_frame,
             ros::Duration(1.0)
             );
-            
+
             // Insert the cartesian point and original message into the struct
             hit_sequence_element.left_mallet_point = note_point;
             hit_sequence_element.msg = point;
-            
+
             // Add the struct to the vector
             cartesian_hit_sequence.push_back(hit_sequence_element);
         }
@@ -221,7 +234,7 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
             ROS_WARN("Skipping note %s", point.tone_name.c_str());
             continue;
         }
-        
+
     }
     return cartesian_hit_sequence;
 }
@@ -229,7 +242,7 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
 
 /**
  * @brief Convert the timing information of a hit sequence from absolute to relative timings
- * 
+ *
  * @param hit_sequence
  * @return std::vector<CartesianHitSequenceElement>
  **/
@@ -266,7 +279,7 @@ std::vector<CartesianHitSequenceElement> hit_sequence_absolute_to_relative(
 
 /**
  * @brief Finds all chords in a sequence of notes and assigns the second malllet if one is detected
- * 
+ *
  * @param hits_relative Vector of notes with relative timing
  * @return std::vector<CartesianHitSequenceElement> Vector of notes with relative timing, both mallets are assigned if a chord is detected. This may be shorter than the input vector.
 */
@@ -274,7 +287,7 @@ std::vector<CartesianHitSequenceElement> apply_chords(std::vector<CartesianHitSe
 {
     // Create a copy of the input vector
     auto hits_relative_with_chords{hits_relative};
-    // Check if there are any hits with a (near) zero relative timing. 
+    // Check if there are any hits with a (near) zero relative timing.
     // These are chords and should be played at the same time using the second (right) mallet
     // Iterate over all hits
     for (auto hit_iter = hits_relative_with_chords.begin(); hit_iter != hits_relative_with_chords.end(); ++hit_iter) {
