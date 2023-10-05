@@ -78,6 +78,7 @@ class ActionDecider:
         else:
             self.note_sequence = '\\tempo 4={} '.format(value) + self.note_sequence
         rospy.loginfo(f"updated notes: {self.note_sequence}")
+        self.note_sequence_pub.publish(self.note_sequence)
         self.update_hit_sequence()
         return 'success'
 
@@ -131,11 +132,15 @@ class ActionDecider:
         self.note_sequence = ' '.join(sequence_list)
 
         rospy.loginfo(f"updated notes: {self.note_sequence}")
+        self.note_sequence_pub.publish(self.note_sequence)
         self.update_hit_sequence()
         return 'success'
 
     # changes the volume of the current sequence and updates the hit sequence
     def change_volume(self, louder=True, value=1):
+        # assign the default volume if there is no volume symbol in the sequence
+        self.assign_volume('\\mf', override=False)
+        
         dynamics = ['\\ppp', '\\pp', '\\p', '\\mp', '\\mf', '\\f', '\\ff', '\\fff']
         sequence_list = self.note_sequence.split(' ')
         sequence_dynamics = [(i,x) for i, x in enumerate(sequence_list) if x in dynamics]
@@ -171,6 +176,7 @@ class ActionDecider:
             self.note_sequence = ' '.join(sequence_list)
             
             rospy.loginfo(f"updated notes: {self.note_sequence}")
+            self.note_sequence_pub.publish(self.note_sequence)
             self.update_hit_sequence()
             return 'success'
             
@@ -300,6 +306,7 @@ class ActionDecider:
                 self.note_sequence = rospy.wait_for_message('vision_node/recognized_notes', String, timeout=5).data 
                 rospy.loginfo(f"Recognized notes: {self.note_sequence}")
                 self.response_pub.publish('Notes recognized.')
+                self.note_sequence_pub.publish(self.note_sequence)
                 self.update_hit_sequence()
             except rospy.ROSException:
                 rospy.logwarn('No notes recognized.')
