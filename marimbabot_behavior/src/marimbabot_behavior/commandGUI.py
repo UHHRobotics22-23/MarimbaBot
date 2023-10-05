@@ -65,6 +65,7 @@ def command_pub():
     command.action = '' if selected_action.get() == 'no action' else selected_action.get()
     command.parameter = parameter.get()
     command_pub.publish(command)
+    parameter.delete(0, END)
 
 # create GUI
 root = Tk()
@@ -77,7 +78,7 @@ camera.grid(row=1, column=0, columnspan=3, rowspan=3, pady=10)
 Button(root, text='Read', command=read_notes).grid(row=4, column=1, pady=4)
 
 # Input Note Sequence
-Label(root, text="Input Note Sequence").grid(row=5, column=1, pady=4)   
+Label(root, text="Input Note Sequence").grid(row=5, column=1, pady=4)
 defaultText = StringVar()
 defaultText.set("Please read from the camera feed, select from the song library, or enter a custom note sequence.")
 entry = Entry(root, width=80, textvariable=defaultText)
@@ -107,7 +108,7 @@ active_action_options = StringVar()
 # Behavior Selection
 selected_behavior = StringVar()
 selected_behavior.set("Command Selection")
-behavior = OptionMenu(root, selected_behavior, *['play', 'preview', 'read', 'stop'])
+behavior = OptionMenu(root, selected_behavior, *['play', 'preview', 'stop'])
 behavior.grid(row=12, column=0, pady=4)
 behavior.config(state=DISABLED)
 
