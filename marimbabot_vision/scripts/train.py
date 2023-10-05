@@ -18,7 +18,7 @@ from transformers import (DonutProcessor, VisionEncoderDecoderConfig,
 
 # Config
 config = {
-    "max_epochs": 40,
+    "max_epochs": 10,
     "check_val_every_n_epoch": 1,
     "gradient_clip_val":1.0,
     "lr":1e-5,
@@ -28,8 +28,8 @@ config = {
     "warmup_steps": 1000,
     "result_path": "./result",
     "verbose": True,
-    "train_data_paths": ["data_hw/", "data_augmented/", "data_wb/", "data_wb_extended", "data_extended_augmented", "data_negative"],
-    "val_data_paths": ["test_data/", "test_data_wb"],
+    "train_data_paths": ["data_accord", "data_keys", "data_lilypond_dynamics", "data_negative", "data_wb_basic", "data_wb_extended", "data_lilypond_augmented", "data_hw_dynamics_augmented"],
+    "val_data_paths": ["test_data_hw_extended", "test_data_extended", "test_data_wb"],
     "max_length": 60,
     "image_size": [583, 409],
     "start_token": "<s>",
