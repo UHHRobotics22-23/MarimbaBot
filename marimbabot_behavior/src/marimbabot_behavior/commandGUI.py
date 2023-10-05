@@ -65,7 +65,7 @@ def set_paramerter_options(*args):
 def command_pub():
     command = Command()
     command.behavior = selected_behavior.get()
-    command.action = selected_action.get()
+    command.action = '' if selected_action.get() == 'no action' else selected_action.get()
     command.parameter = parameter.get()
     command_pub.publish(command)
 
@@ -99,7 +99,7 @@ Button(root, text='Confirm', command=confirm_notes).grid(row=7, column=1, pady=4
 
 # Active Note Sequence
 Label(root, text="Active Note Sequence").grid(row=9, column=1)
-current_sequence = Label(root, text="", bg="white", width=80)
+current_sequence = Label(root, text="", bg="white", width=80, wraplength=650, anchor="w", justify=LEFT)
 current_sequence.grid(row=10, column=0, columnspan=3, pady=10)
 
 # Command Builder
@@ -118,7 +118,7 @@ behavior.config(state=DISABLED)
 # Action Selection
 selected_action = StringVar()
 selected_action.set("Action Selection")
-action = OptionMenu(root, selected_action, *['', 'increase volume', 'decrease volume', 'increase speed', 'decrease speed', 'loop'])
+action = OptionMenu(root, selected_action, *['no action', 'increase volume', 'decrease volume', 'increase speed', 'decrease speed', 'loop'])
 action.grid(row=12, column=1, pady=4)
 action.config(state=DISABLED)
 
