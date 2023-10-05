@@ -15,14 +15,14 @@ from generate_data import NUM_WORKER, OUTPUT_DIR as INPUT_DIR
 
 AUGMENT_OUTPUT_DIR = "data_augmented"
 TRANSFORMATIONS = [
-    A.Affine(translate_px={"y":10, "x":10}, scale=[0.5, 1.0], rotate=[-3,3], mode=1, always_apply=True),
+    A.Affine(translate_px={"y":7, "x":7}, scale=[0.7, 0.9], rotate=[-3,3], mode=1, always_apply=True),
     A.Perspective(always_apply=True),
     A.RandomBrightnessContrast(),
     A.RandomShadow(shadow_roi=(0, 0, 1, 1), num_shadows_upper=4, shadow_dimension=8),
     A.RandomSunFlare(flare_roi=(0, 0, 1, 1), src_radius=100),
     A.PixelDropout(),
     A.RGBShift(),
-    A.MedianBlur(blur_limit=3,),
+    #A.MedianBlur(blur_limit=3,),
     A.ZoomBlur(max_factor=1.03)
 ]
 
