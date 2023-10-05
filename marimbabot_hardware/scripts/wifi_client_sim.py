@@ -1,3 +1,6 @@
+# A simple script to simulate the wifi client on the marimbabot
+# Used mainly for debugging
+
 import socket
 
 UDP_IP = "127.0.0.1"

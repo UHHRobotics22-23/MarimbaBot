@@ -1,3 +1,4 @@
+<!-- A dummy URDF with a mallet_finger joint -->
 <?xml version="1.0"?>
 <robot name="two_mallet_holder">
     <link name="mallet_top">
