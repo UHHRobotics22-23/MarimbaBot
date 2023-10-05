@@ -84,6 +84,7 @@ if config['tokenizer_path'] is not None:
 
 # Set the special tokens of the model
 model.config.pad_token_id = pre_processor.tokenizer.pad_token_id
+model.config.decoder.pad_token_id = pre_processor.tokenizer.pad_token_id
 model.config.decoder_start_token_id = pre_processor.tokenizer.bos_token_id
 
 # Create dataset
