@@ -9,32 +9,34 @@ import pytorch_lightning as pl
 import torch
 from nltk import edit_distance
 from PIL import Image
+from pytorch_lightning.callbacks import Callback
+from tokenizers import Tokenizer
 from torch.utils.data import ConcatDataset, DataLoader, Dataset
 from tqdm import tqdm
 from transformers import (DonutProcessor, VisionEncoderDecoderConfig,
-                          VisionEncoderDecoderModel)
+                          VisionEncoderDecoderModel, PreTrainedTokenizerFast)
 
 # Config
 config = {
-    "max_epochs": 20,
+    "max_epochs": 10,
     "check_val_every_n_epoch": 1,
     "gradient_clip_val":1.0,
     "lr":1e-5,
-    "train_batch_sizes": [6],
-    "val_batch_sizes": [6],
+    "train_batch_sizes": [12],
+    "val_batch_sizes": [12],
     "num_nodes": 1,
-    "warmup_steps": 300,
+    "warmup_steps": 1000,
     "result_path": "./result",
     "verbose": True,
-    "train_data_paths": ["data_hw/", "data_augmented/", "data_wb/"],
-    "val_data_paths": ["test_data/", ],
-    "max_length": 40,
+    "train_data_paths": ["data_accord", "data_keys", "data_lilypond_dynamics", "data_negative", "data_wb_basic", "data_wb_extended", "data_lilypond_augmented", "data_hw_dynamics_augmented"],
+    "val_data_paths": ["test_data_hw_extended", "test_data_extended", "test_data_wb"],
+    "max_length": 60,
     "image_size": [583, 409],
     "start_token": "<s>",
     "num_workers": 24,
+    "tokenizer_path": "./tokenizer.json", # Or None if the tokenizer should not be changed
     "base_model": "nielsr/donut-base",
-    "output_model": "./model_1",
-    "add_note_vocab": True
+    "output_model": "./model_extended_2"
 }
 
 # Load base model
@@ -54,27 +56,38 @@ model = VisionEncoderDecoderModel.from_pretrained(
     ignore_mismatched_sizes=True,
     config=ved_config)
 
-if config['add_note_vocab']:
-    note_vocab = []
-    notes = "cdefgab"
-    octaves = ["'", "''"]
-    durations = [1, 2, 4, 8, 16]
-    # Add note tokens
-    for note in notes:
-        for octave in octaves:
-            for duration in durations:
-                note_vocab.append(f"{note}{octave}{duration} ")
-    # Add rest tokens
-    for duration in durations:
-        note_vocab.append(f"r{duration} ")
-else:
-    note_vocab = []
 
+# Swap tokenizer with our own character-level tokenizer if a path is provided
+if config['tokenizer_path'] is not None:
+    # Save the special tokens of the original tokenizer
+    eos_token = pre_processor.tokenizer.eos_token
+    pad_token = pre_processor.tokenizer.pad_token
+    # Create a new tokenizers tokenizer based on the provided tokenizer config
+    pre_processor.tokenizer = PreTrainedTokenizerFast(
+        tokenizer_object=Tokenizer.from_file(config['tokenizer_path']))
+    # Add the special tokens back
+    pre_processor.tokenizer.add_special_tokens({
+        "eos_token": eos_token,
+        "pad_token": pad_token,
+        "unk_token": "<unk>",
+        "bos_token": config['start_token']
+    })
+    # Update the special token properties
+    pre_processor.tokenizer.eos_token = eos_token
+    pre_processor.tokenizer.pad_token = pad_token
+    # Update the special token ids
+    pre_processor.tokenizer.unk_token_id = pre_processor.tokenizer.convert_tokens_to_ids(['<unk>'])[0]
+    pre_processor.tokenizer.pad_token_id = pre_processor.tokenizer.convert_tokens_to_ids(['<pad>'])[0]
+    pre_processor.tokenizer.bos_token_id = pre_processor.tokenizer.convert_tokens_to_ids([config['start_token']])[0]
+    # Resize the model embedding layer
+    model.decoder.resize_token_embeddings(len(pre_processor.tokenizer))
+
+# Set the special tokens of the model
 model.config.pad_token_id = pre_processor.tokenizer.pad_token_id
-model.config.decoder_start_token_id = pre_processor.tokenizer.convert_tokens_to_ids([config['start_token']])[0]
+model.config.decoder.pad_token_id = pre_processor.tokenizer.pad_token_id
+model.config.decoder_start_token_id = pre_processor.tokenizer.bos_token_id
 
 # Create dataset
-
 class NoteDataset(Dataset):
     def __init__(
         self,
@@ -102,7 +115,27 @@ class NoteDataset(Dataset):
                     ground_truth + " " + pre_processor.tokenizer.eos_token
             )
 
-        self.add_tokens(note_vocab + [self.start_token])
+        self.add_tokens([
+            self.start_token,
+            "\\repeat ",
+            "volta ",
+            "\\key ",
+            "\\minor ",
+            "\\major ",
+            "\\tempo ",
+            "4=40 ",
+            "4=60 ",
+            "4=96 ",
+            "4=120 ",
+            "- \\marcato "
+            '\\ppp ',
+            '\\pp ',
+            '\\p ',
+            '\\mp ',
+            '\\mf ',
+            '\\f ',
+            '\\ff ',
+            '\\fff '])
 
     def add_tokens(self, list_of_tokens: List[str]):
         newly_added_num = pre_processor.tokenizer.add_tokens(list_of_tokens)
@@ -197,7 +230,7 @@ class DonutModelPLModule(pl.LightningModule):
 
         scores = list()
         for pred, answer in zip(predictions, answers):
-            pred = pred.replace(self.pre_processor.tokenizer.eos_token, "")[3:]
+            pred = pred.replace(self.pre_processor.tokenizer.eos_token, "").replace(self.pre_processor.tokenizer.bos_token, "")
             answer = answer.replace(self.pre_processor.tokenizer.eos_token, "")[:len(pred)]
             score = edit_distance(pred, answer)
             scores.append(score)
@@ -239,6 +272,13 @@ class DonutModelPLModule(pl.LightningModule):
 # Instantiate pytorch lightning module
 model_module = DonutModelPLModule(config, pre_processor, model, train_dataloader, val_dataloader)
 
+# Create callback to save the model after each epoch
+class SaveCallback(Callback):
+    def on_train_epoch_end(self, trainer, pl_module):
+        pl_module.model.save_pretrained(pl_module.config['output_model'])
+        pl_module.pre_processor.save_pretrained(pl_module.config['output_model'])
+        ved_config.save_pretrained(pl_module.config['output_model'])
+
 # Instantiate pytorch lightning trainer
 trainer = pl.Trainer(
         accelerator="gpu",
@@ -248,12 +288,8 @@ trainer = pl.Trainer(
         gradient_clip_val=config.get("gradient_clip_val"),
         precision=16, # we'll use mixed precision
         num_sanity_val_steps=0,
+        callbacks=[SaveCallback()],
 )
 
 # Train the model
 trainer.fit(model_module)
-
-# Save the model and tokenizer
-model.save_pretrained(config['output_model'])
-pre_processor.save_pretrained(config['output_model'])
-ved_config.save_pretrained(config['output_model'])
