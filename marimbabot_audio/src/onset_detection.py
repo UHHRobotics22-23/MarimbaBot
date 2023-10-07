@@ -127,7 +127,7 @@ class OnsetDetection:
 			confidence threshold for note classification(crepe)
 		"""
 		# For onset detection
-		self.confidence_threshold = rospy.get_param("~confidence_threshold", 0.7)
+		self.confidence_threshold = rospy.get_param("~confidence_threshold")
 		self.amplitude_ref = rospy.get_param("~amplitude_ref", 10.0)
 		self.windows_for_classification = 0.1  # using 0.1 sec data after onset time for note classification
 		# preload model to not block the callback on first message
