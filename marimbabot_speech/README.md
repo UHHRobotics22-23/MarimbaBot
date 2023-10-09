@@ -116,7 +116,7 @@ The following folder tree structure show some important files, unimportant files
     2.  "read": read the music note from white board.
         `{"behavior": "read", "action": "", "parameter": ""}`.
 
-## 5. Topic list
+## 6. Topic list
 
 | Topic name                 | Description                                      | Message type                                                 |
 | -------------------------- | ------------------------------------------------ | ------------------------------------------------------------ |
@@ -127,5 +127,6 @@ The following folder tree structure show some important files, unimportant files
 | /speech_node/command       | publish command for robot                        | [Command.msg](../marimbabot_msgs/msg/Command.msg)            |
 | /speech_node/speech        | publish result of speech transcription           | [Speech.msg](../marimbabot_msgs/msg/Speech.msg)              |
 
+## 7. Training and using of keyword spotting model
 
-
+please refer to this branch: [kws_training](https://github.com/UHHRobotics22-23/marimbabot/tree/kws_training).

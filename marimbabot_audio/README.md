@@ -134,3 +134,21 @@ The following folder tree structure show some important files, unimportant files
     -   **Input**:  lilypond
         -   Action name: `audio_from_lilypond`
         -   Action type: [`LilypondAudio.action`](../marimbabot_msgs/action/LilypondAudio.action)
+
+## 6. Topic list
+
+| Topic                       | Description                                                  | Message Type                                                 |
+| --------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| /audio_node/audio           | publish audio data                                           | [AudioData.msg](https://github.com/ros-drivers/audio_common/blob/master/audio_common_msgs/msg/AudioData.msg) |
+| /audio_node/audio_info      | description data of audio                                    | [AudioInfo.msg](http://docs.ros.org/en/noetic/api/audio_common_msgs/html/msg/AudioInfo.html) |
+| /audio_node/audio_stamped   | publish audio data with time stamp                           | [AudioDataStamped.msg](https://github.com/ros-drivers/audio_common/blob/master/audio_common_msgs/msg/AudioDataStamped.msg) |
+| /audio_node/compute_time    | the computing time for music note detection of 1 sec data chunk | Float32                                                      |
+| /audio_node/cqt             | spectrum of constant-Q transform from raw data input         | [CQTStamped](../marimbabot_msgs/msg/CQTStamped.msg)          |
+| /audio_node/feedback_img    | the MIDI figure of final evaluation                          | [Image.msg](http://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/Image.html) |
+| /audio_node/live_midi_img   | live MIDI figure to show the detection of music note         | [Image.msg](http://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/Image.html) |
+| /audio_node/match_result    | the evaluation result between ground-truth and perceived music notes. | [SequenceMatchResult.msg](../marimbabot_msgs/msg/SequenceMatchResult.msg) |
+| /audio_node/onset_notes     | the detected music note                                      | [NoteOnset.msg](../marimbabot_msgs/msg/NoteOnset.msg)        |
+| /audio_node/spectrogram_img | normalized constant-Q transform spectrum figure              | [Image.msg](http://docs.ros.org/en/noetic/api/sensor_msgs/html/msg/Image.html) |
+| /sound_play                 | play the music                                               | [SoundRequest.msg](http://docs.ros.org/en/jade/api/sound_play/html/msg/SoundRequest.html) |
+| /audio_from_lilypond        | music synthesis from  lilypond input                         | [LilypondAudio.action](../marimbabot_msgs/action/LilypondAudio.action) |
+
