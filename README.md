@@ -34,7 +34,7 @@ More details about dataset collection and training are [here](https://github.com
 
      -   `hey-computer`: is the file name of recorded `.wav` file, better let it to be the same of you speaking. The file will be save to the local path.
 
-# 3. Wake words setup
+# 3. Dataset setup
 
 The number inside of `dataset/wake_words` or `dataset/not_wake_words` means:
 
