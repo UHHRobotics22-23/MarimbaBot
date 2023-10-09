@@ -182,5 +182,4 @@ class CommandExtraction():
 if __name__ == '__main__':
 	rospy.init_node('command_extractor',log_level=rospy.DEBUG)
 	command_extractor = CommandExtraction()
-	examples_test(command_extractor)
 	rospy.spin()

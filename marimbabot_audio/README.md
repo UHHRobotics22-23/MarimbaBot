@@ -21,7 +21,9 @@ tensorflow==2.13
 
 ### 2.2 Ros official packages
 
--   [audio_common](http://wiki.ros.org/audio_common)
+-   fluidsynth
+-   audio_capture
+-   sound_play
 
 ## 3. Overview
 
