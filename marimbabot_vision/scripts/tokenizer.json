@@ -1,0 +1,97 @@
+{
+  "version": "1.0",
+  "truncation": null,
+  "padding": null,
+  "added_tokens": [
+    {
+      "id": 0,
+      "content": "<unk>",
+      "single_word": false,
+      "lstrip": false,
+      "rstrip": false,
+      "normalized": false,
+      "special": true
+    }
+  ],
+  "normalizer": {
+    "type": "BertNormalizer",
+    "clean_text": true,
+    "handle_chinese_chars": true,
+    "strip_accents": null,
+    "lowercase": false
+  },
+  "pre_tokenizer": {
+    "type": "WhitespaceSplit"
+  },
+  "post_processor": null,
+  "decoder": {
+    "type": "BPEDecoder",
+    "suffix": "</w>"
+  },
+  "model": {
+    "type": "BPE",
+    "dropout": null,
+    "unk_token": null,
+    "continuing_subword_prefix": null,
+    "end_of_word_suffix": "</w>",
+    "fuse_unk": false,
+    "vocab": {
+      "<unk>": 0,
+      "'": 1,
+      ".": 2,
+      "0": 3,
+      "1": 4,
+      "2": 5,
+      "4": 6,
+      "6": 7,
+      "8": 8,
+      "9": 9,
+      "<": 10,
+      "=": 11,
+      ">": 12,
+      "\\": 13,
+      "a": 14,
+      "b": 15,
+      "c": 16,
+      "d": 17,
+      "e": 18,
+      "f": 19,
+      "g": 20,
+      "i": 21,
+      "j": 22,
+      "k": 23,
+      "l": 24,
+      "m": 25,
+      "n": 26,
+      "o": 27,
+      "p": 28,
+      "r": 29,
+      "s": 30,
+      "t": 31,
+      "v": 32,
+      "y": 33,
+      ".</w>": 34,
+      "2</w>": 35,
+      "8</w>": 36,
+      "'</w>": 37,
+      "4</w>": 38,
+      "6</w>": 39,
+      "1</w>": 40,
+      "c</w>": 41,
+      "f</w>": 42,
+      "b</w>": 43,
+      "g</w>": 44,
+      "r</w>": 45,
+      "0</w>": 46,
+      "a</w>": 47,
+      "e</w>": 48,
+      "p</w>": 49,
+      "t</w>": 50,
+      "d</w>": 51,
+      "o</w>": 52,
+      "y</w>": 53
+    },
+    "merges": [
+    ]
+  }
+}
