@@ -24,14 +24,21 @@ class ActionDecider:
         # will be updated together with note_sequence after the 'read' command was issued
         self.hit_sequence = None
 
-        # publishes a response for the synthesized speech
-        self.response_pub = rospy.Publisher('~response', String, queue_size=10)
-
         # listens to the recognized commands from speech node
         self.command_sub = rospy.Subscriber('speech_node/command', Command, self.callback_command)
 
+        # listens to the note sequence defined by the user via the command GUI
+        self.note_sequence_sub = rospy.Subscriber('command_gui/note_sequence', String, self.callback_note_sequence)
+
+        # publishes a response for the synthesized speech
+        self.response_pub = rospy.Publisher('~response', String, queue_size=10)
+
+        # publishes the current note sequence for the command GUI
+        self.note_sequence_pub = rospy.Publisher('~note_sequence', String, queue_size=10)
+
         # publisher for audio/hit_sequence
         self.hit_sequence_pub = rospy.Publisher('audio/hit_sequence', HitSequence, queue_size=10)
+
         # sequence_id counter
         self.sequence_id_counter = 0
 
@@ -66,6 +73,7 @@ class ActionDecider:
     def update_hit_sequence(self):
         try:
             self.hit_sequence = read_notes(self.note_sequence)
+            self.note_sequence_pub.publish(self.note_sequence)
         except LilyPondParserError:
             rospy.logwarn('Lilypond string not valid.')
             self.response_pub.publish('Lilypond string not valid.')
@@ -284,6 +292,12 @@ class ActionDecider:
         else:
             rospy.logwarn('The audio preview is already playing.')
             self.response_pub.publish('The audio preview is already playing.')
+
+    def callback_note_sequence(self, note_sequence_msg):
+        self.note_sequence = note_sequence_msg.data
+        rospy.loginfo(f"received note sequence: {self.note_sequence}")
+        self.response_pub.publish('Notes recognized.')
+        self.update_hit_sequence()
 
     def callback_command(self, command_msg):
         # command = command_msg.command.lower()
