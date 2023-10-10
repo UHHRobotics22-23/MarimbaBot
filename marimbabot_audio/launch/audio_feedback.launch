@@ -12,7 +12,10 @@
           <param name="sample_rate" value="44100" />
       </node>
       
-      <node name="onset_detector" pkg="marimbabot_audio" type="onset_detection.py" output="screen" />
+      <node name="onset_detector" pkg="marimbabot_audio" type="onset_detection.py" output="screen">    
+        <param name="~confidence_threshold" value="0.7"/>
+        <param name="~amplitude_ref" value="25"/>
+      </node>
       <node name="seq_eval" pkg="marimbabot_audio" type="sequence_evaluation.py" output="screen" />
 
       <node name="onsetviz" pkg="marimbabot_audio" type="onsets_visualization.py" output="screen" >

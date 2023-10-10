@@ -42,10 +42,13 @@ This script is used when collection real world data, e.g. from a webcam that is 
 
 1. Run the generate_dataset_full.sh
 2. Copy some samples into the folder `data_real`
-3. Run this script and use 'whitespace' and 'c' for starting the camera and collecting images. 
+3. Run this script and use 'whitespace' and 'c' for starting the camera and collecting images.
 
 ### `train.py`
 Trains a model on the a set of given `train_data_paths`.
+
+### `train_tokenizer.py`
+Trains the tokenizer on all text files defined by a glob expression.
 
 ### `detect.py`
 This script is used for live detection of notes. A trained model can be used to initialize. The current model is stored at HuggingFace and its path/name is set by the `MODEL_PATH` parameter inside `config/vision_node.yaml` The detected notes are shown in a window.
