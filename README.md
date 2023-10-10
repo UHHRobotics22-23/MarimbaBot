@@ -61,9 +61,9 @@ pip3 install wheel  # firstly install the wheel for further package building if 
 pip3 install -r src/marimbabot/requirements.txt
 
 #install the precise engine
-wget https://github.com/MycroftAI/mycroft-precise/releases/download/v0.3.0/precise-all_0.3.0_x86_64.tar.gz
-tar -zxvf precise-all_0.3.0_x86_64.tar.gz -C src/marimbabot/marimbabot_speech/utils/kws/
-rm precise-all_0.3.0_x86_64.tar.gz
+wget https://github.com/MycroftAI/mycroft-precise/releases/download/v0.3.0/precise-engine_0.3.0_x86_64.tar.gz
+tar -zxvf precise-engine_0.3.0_x86_64.tar.gz -C src/marimbabot/marimbabot_speech/utils/kws/
+rm precise-engine_0.3.0_x86_64.tar.gz
 ```
 
 Now you are ready to go.
