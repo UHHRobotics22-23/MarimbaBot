@@ -27,3 +27,4 @@ fluidsynth /usr/share/sounds/sf2/FluidR3_GM.sf2 catkin_ws/src/marimbabot/marimba
 # TODO
 - [ ] Add joints in mallets for compliance
 - [ ] Try tilting the mallet holder to make sure the second mallet hits the bar
+- [ ] detect_bar_contact: fix 2 notes hits at the same time
