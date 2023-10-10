@@ -17,6 +17,11 @@
                 <box size="0.077 ${(68.4+6+6)/1000} 0.11"/>
             </geometry>
         </collision>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.01"/>
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
     </link>
 
     <link name="mallet_battery_collision">
@@ -44,6 +49,11 @@
                 <mesh filename="package://marimbabot_description/mesh/two_mallet_servo_element.stl" scale="0.001 0.001 0.001"/>
             </geometry>
         </collision>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.01"/>
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
     </link>
 
     <link name="mallet_base_box_1">
@@ -62,6 +72,11 @@
                 <box size="0.033 0.09 0.09"/>
             </geometry>
         </collision>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.01"/>
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
     </link>
 
     <link name="mallet_base_box_2">
@@ -80,6 +95,11 @@
                 <box size="0.033 0.09 0.09"/>
             </geometry>
         </collision>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.01"/>
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
     </link>
 
     <link name="mallet_neck_1">
@@ -89,6 +109,11 @@
                 <cylinder radius="0.0042" length="0.375"/> 
             </geometry>
         </collision>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.01"/>
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
     </link>
 
     <link name="mallet_neck_2">
@@ -98,16 +123,25 @@
                 <cylinder radius="0.0042" length="0.375"/> 
             </geometry>
         </collision>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.01"/>
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
     </link>
 
     <link name="mallet_head_1">
         <collision>
             <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
-            
             <geometry>
                 <sphere radius="0.018375"/>
             </geometry>
         </collision>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.01"/>
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
     </link>
 
     <link name="mallet_head_2">
@@ -117,6 +151,11 @@
                 <sphere radius="0.018375"/>
             </geometry>
         </collision>
+        <inertial>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <mass value="0.01"/>
+            <inertia ixx="0.001" ixy="0" ixz="0" iyy="0.001" iyz="0" izz="0.001"/>
+        </inertial>
     </link>
 
     <joint name="mallet_base_link_battery" type="fixed">
@@ -138,6 +177,16 @@
         <limit lower="0.0" upper="1.22" effort="1.0" velocity="7.0"/>
         <axis xyz="0.0 -1.0 0.0"/>
     </joint>
+
+    <transmission name="mallet_finger_transmission">
+      <type>transmission_interface/SimpleTransmission</type>
+      <actuator name="mallet_finger_motor">
+        <mechanicalReduction>1.0</mechanicalReduction>
+      </actuator>
+      <joint name="mallet_finger">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+      </joint>
+    </transmission>
 
     <joint name="mallet_group_1_start_link" type="fixed">
         <parent link="mallet_base_box_1"/>
