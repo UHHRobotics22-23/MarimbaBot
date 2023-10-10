@@ -1,4 +1,4 @@
-# TAMS Master Project 2022/2023 - Speech
+# TAMS Master Project 2022/2023 - Command recognition
 
 ## 1. Motivation
 

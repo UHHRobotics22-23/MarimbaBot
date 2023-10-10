@@ -1,4 +1,4 @@
-# TAMS Master Project 2022/2023 - Audio Processing
+# TAMS Master Project 2022/2023 - Music note detection
 
 ## 1. Motivation
 
