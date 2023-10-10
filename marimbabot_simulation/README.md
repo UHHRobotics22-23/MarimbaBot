@@ -23,3 +23,7 @@ The MIDI file can be played as follows:
 ```bash
 fluidsynth /usr/share/sounds/sf2/FluidR3_GM.sf2 catkin_ws/src/marimbabot/marimbabot_simulation/midi/<FILENAME>.midi -a alsa
 ```
+
+# TODO
+- [ ] Add joints in mallets for compliance
+- [ ] Try tilting the mallet holder to make sure the second mallet hits the bar
