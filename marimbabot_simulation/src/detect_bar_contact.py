@@ -28,10 +28,10 @@ def find_file_directory(filename):
 
 
 # velocity threshold to count as a bar hit
-VEL_THRESHOLD = 0.01
+VEL_THRESHOLD = 0.005
 
 # time between contacts to register as a separate one
-TIME_THRESHOLD = 1.0  # s
+TIME_THRESHOLD = 0.1  # s
 
 # duration of a note (assume fixed for now)
 NOTE_DURATION = 0.5  # s

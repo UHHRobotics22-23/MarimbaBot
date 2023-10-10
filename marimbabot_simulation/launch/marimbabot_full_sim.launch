@@ -11,7 +11,7 @@
     <node name="detect_bar_contact" pkg="marimbabot_simulation" type="detect_bar_contact.py" output="screen"/>
 
     <!-- Plotjuggler -->
-    <group if="false">
+    <group if="true">
         <node name="plotjuggler_with_layout" 
             pkg="plotjuggler"
             type="plotjuggler"

@@ -49,7 +49,13 @@
         args="gripper_controller" respawn="false" output="screen" />
 
   <!-- we want to remap the gripper controller topics, but that is not so easy with gazebo plugins... -->
-  <remap from="/gripper_action" to="/gripper_controller/follow_joint_trajectory" /> -->
+  <remap from="/gripper_action" to="/gripper_controller/follow_joint_trajectory" />
+
+  <!-- Mallet finger controller -->
+  <rosparam file="$(find marimbabot_ur5_flex_double_moveit_config)/config/mallet_finger_controller.yaml" command="load"/>
+
+  <node name="mallet_finger_controller_spawner" pkg="controller_manager" type="spawner" 
+        args="MalletHolder/trajectory_controller" respawn="false" output="screen" />
 
   <!-- fake UR5 calibration -->
   <node pkg="rostopic" type="rostopic" name="fake_joint_calibration"
@@ -59,8 +65,8 @@
   <include file="$(find marimbabot_ur5_flex_double_moveit_config)/launch/move_group.launch"/>
 
   <!-- Launch finger mallet faker -->
-  <node name="joint_state_mallet_finger" pkg="marimbabot_hardware" type="joint_state.py" output="screen"/>
-  <include file="$(find marimbabot_hardware)/launch/mallet_servo_control_debug_dummy.launch"/>
+  <!-- <node name="joint_state_mallet_finger" pkg="marimbabot_hardware" type="joint_state.py" output="screen"/> -->
+  <!-- <include file="$(find marimbabot_hardware)/launch/mallet_servo_control_debug_dummy.launch"/> -->
 
   <group if="$(arg launch_rviz)">
    <node name="rviz" pkg="rviz" type="rviz" respawn="false"

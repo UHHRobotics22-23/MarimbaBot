@@ -1,0 +1,13 @@
+MalletHolder/trajectory_controller:
+  type: effort_controllers/JointTrajectoryController
+  joints:
+    - mallet_finger
+  gains:
+    mallet_finger:      { p: 100.0, d:  0.0, i: 10.0, i_clamp: 20.0 }
+  constraints:
+    goal_time: 0.6
+    stopped_velocity_tolerance: 0.05
+    mallet_finger: {trajectory: 0.1, goal: 0.01}
+  stop_trajectory_duration: 0.5
+  state_publish_rate: 100
+  action_monitor_rate: 20
