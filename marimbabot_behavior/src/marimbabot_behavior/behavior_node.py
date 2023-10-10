@@ -149,44 +149,42 @@ class ActionDecider:
 
     # changes the volume of the current sequence and updates the hit sequence
     def change_volume(self, louder=True, value=1):
-        # assign the default volume if there is no volume symbol in the sequence
-        self.assign_volume('\\mf', override=False)
+        # assign a default volume if there is no volume symbol in the sequence
+        self.assign_volume('\\mf')
 
         dynamics = ['\\ppp', '\\pp', '\\p', '\\mp', '\\mf', '\\f', '\\ff', '\\fff']
         sequence_list = self.note_sequence.split(' ')
         sequence_dynamics = [(i,x) for i, x in enumerate(sequence_list) if x in dynamics]
 
-        # if there are already dynamic symbols in the sequence, swap them with the next louder/softer dynamic symbol
-        if len(sequence_dynamics) > 0:
-            # check if the volume can be increased/decreased by the specified value for all dynamic symbols
-            if (louder and any(dynamics.index(x[1])+value > 7 for x in sequence_dynamics)) or (not louder and any(dynamics.index(x[1])-value < 0 for x in sequence_dynamics)):
-                if louder:
-                    max_steps = min(7-dynamics.index(x[1]) for x in sequence_dynamics)
-                    if max_steps == 0:
-                        rospy.logwarn('Volume can not be increased any further.')
-                        self.response_pub.publish('Volume can not be increased any further.')
-                    else:
-                        rospy.logwarn('Volume can only be increased by {}.'.format(min(7-dynamics.index(x[1]) for x in sequence_dynamics)))
-                        self.response_pub.publish('Volume can only be increased by {}.'.format(min(7-dynamics.index(x[1]) for x in sequence_dynamics)))
+        # check if the volume can be increased/decreased by the specified value for all dynamic symbols
+        if (louder and any(dynamics.index(x[1])+value > 7 for x in sequence_dynamics)) or (not louder and any(dynamics.index(x[1])-value < 0 for x in sequence_dynamics)):
+            if louder:
+                max_steps = min(7-dynamics.index(x[1]) for x in sequence_dynamics)
+                if max_steps == 0:
+                    rospy.logwarn('Volume can not be increased any further.')
+                    self.response_pub.publish('Volume can not be increased any further.')
                 else:
-                    max_steps = min(dynamics.index(x[1]) for x in sequence_dynamics)
-                    if max_steps == 0:
-                        rospy.logwarn('Volume can not be decreased any further.')
-                        self.response_pub.publish('Volume can not be decreased any further.')
-                    else:
-                        rospy.logwarn('Volume can only be decreased by {}.'.format(max(dynamics.index(x[1]) for x in sequence_dynamics)))
-                        self.response_pub.publish('Volume can only be decreased by {}.'.format(max(dynamics.index(x[1]) for x in sequence_dynamics)))
-                return 'fail'
-            
-            # change the volume of all dynamic symbols in the sequence
-            for i, x in sequence_dynamics:
-                new_dynamic = dynamics[min(dynamics.index(x)+value, 7)] if louder else dynamics[max(dynamics.index(x)-value, 0)]
-                sequence_list[i] = new_dynamic
-            self.note_sequence = ' '.join(sequence_list)
-            
-            rospy.logdebug(f"updated notes: {self.note_sequence}")
-            self.update_hit_sequence()
-            return 'success'
+                    rospy.logwarn('Volume can only be increased by {}.'.format(min(7-dynamics.index(x[1]) for x in sequence_dynamics)))
+                    self.response_pub.publish('Volume can only be increased by {}.'.format(min(7-dynamics.index(x[1]) for x in sequence_dynamics)))
+            else:
+                max_steps = min(dynamics.index(x[1]) for x in sequence_dynamics)
+                if max_steps == 0:
+                    rospy.logwarn('Volume can not be decreased any further.')
+                    self.response_pub.publish('Volume can not be decreased any further.')
+                else:
+                    rospy.logwarn('Volume can only be decreased by {}.'.format(max(dynamics.index(x[1]) for x in sequence_dynamics)))
+                    self.response_pub.publish('Volume can only be decreased by {}.'.format(max(dynamics.index(x[1]) for x in sequence_dynamics)))
+            return 'fail'
+        
+        # change the volume of all dynamic symbols in the sequence
+        for i, x in sequence_dynamics:
+            new_dynamic = dynamics[min(dynamics.index(x)+value, 7)] if louder else dynamics[max(dynamics.index(x)-value, 0)]
+            sequence_list[i] = new_dynamic
+        self.note_sequence = ' '.join(sequence_list)
+        
+        rospy.logdebug(f"updated notes: {self.note_sequence}")
+        self.update_hit_sequence()
+        return 'success'
             
     def send_ground_truth_hit_sequence_to_audio(self, absolute_start_time: rospy.Time):
         """

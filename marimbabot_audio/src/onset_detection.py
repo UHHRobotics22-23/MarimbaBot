@@ -127,7 +127,8 @@ class OnsetDetection:
 			confidence threshold for note classification(crepe)
 		"""
 		# For onset detection
-		self.confidence_threshold = 0.7  # the threshold for note classification
+		self.confidence_threshold = rospy.get_param("~confidence_threshold")
+		self.amplitude_ref = rospy.get_param("~amplitude_ref", 10.0)
 		self.windows_for_classification = 0.1  # using 0.1 sec data after onset time for note classification
 		# preload model to not block the callback on first message
 		# capacities: 'tiny', 'small', 'medium', 'large', 'full'
@@ -262,7 +263,7 @@ class OnsetDetection:
 		cqt = self.cqt()  # cqt ndarrary  (60,173)
 		self.publish_cqt(cqt)
 
-		onset_env_cqt = librosa.onset.onset_strength(sr=self.sr, S=librosa.amplitude_to_db(cqt, ref=np.max)        )
+		onset_env_cqt = librosa.onset.onset_strength(sr=self.sr, S=librosa.amplitude_to_db(cqt, ref=self.amplitude_ref))
 		# detect when the onset(peak) happened within 2 sec cqt with shape (60,173)
 		'''
 		A sample n is selected as an peak if the corresponding x[n] fulfills the following three conditions:

@@ -5,7 +5,7 @@
       <!-- Commandline: "arecord -l" will show available input devices, use the card number as
         the first number and the subdevice number as the second in a string
         like plughw:1,0 -->
-      <param name="device" value="plughw:2,0" />
+      <param name="device" value="plughw:3,0" />
       <param name="format" value="wave" />
       <param name="channels" value="1" />
       <param name="depth" value="16" />
@@ -13,15 +13,17 @@
     </node>
         <node name="speech_extraction_node" pkg="marimbabot_speech" type="speech_extraction.py" output="screen">
         <param name="model_path"  value="$(find marimbabot_speech)/utils/kws/hi-marimbabot.pb"/>
-        <param name="precise_engine_path"  value="$(find marimbabot_speech)utils/kws/precise/precise-engine"/>
+        <param name="precise_engine_path"  value="$(find marimbabot_speech)utils/kws/precise-engine/precise-engine"/>
         <param name="remind_sound_path"  value="$(find marimbabot_speech)/utils/kws/reminder.wav"/>
         <param name="trigger_level"  value="3"/>
         <param name="sensitivity"  value="0.5"/>
         <param name="wad_silence_t"  value="1"/>
-        <param name="wad_max_t"  value="20"/>
+        <param name="wad_max_t"  value="5"/>
     </node>
     <node name="speech2text_node" pkg="marimbabot_speech" type="speech2text.py" output="screen"/>
-    <node name="text2command_node" pkg="marimbabot_speech" type="text2command.py" output="screen"/>
+    <node name="text2command_node" pkg="marimbabot_speech" type="text2command.py" output="screen">
+        <param name="no_speech_prob_threshold"  value="0.25"/>
+    </node>
   </group>
 </launch>
 
