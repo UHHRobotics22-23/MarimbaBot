@@ -140,7 +140,14 @@ cd catkin_ws
 source devel/setup.bash
 ```
 
-In order to run the whole project on the real robot, launch the bringup package that brings up the launch file for each package:
+In order to run the whole project on the real robot, one has to run two launch files. First, the launch file that sets up the robot and its hardware:
+
+```bash
+roslaunch marimbabot_bringup marimbabot_ur5_bringup.launch
+```
+
+Second, the launch file that brings up the launch file for each package:
+
 
 ```bash
 roslaunch marimbabot_bringup marimbabot.launch
@@ -149,10 +156,10 @@ roslaunch marimbabot_bringup marimbabot.launch
 
 #### Note for development: Add the main launch files to the bringup if they are created.
 
-To run the UR5 setup with the MoveIt Demo Mode run
+To run the UR5 setup with the MoveIt Demo Mode and two mallets run
 
 ```bash
-roslaunch marimbabot_ur5_moveit_config demo.launch
+roslaunch marimbabot_ur5_flex_double_moveit_config demo.launch
 ```
 
 you should be able to test simple planning things with it.
