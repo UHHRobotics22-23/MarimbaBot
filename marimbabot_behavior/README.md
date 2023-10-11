@@ -30,7 +30,6 @@ flowchart TD
     B --> |hit sequence| C(fa:fa-robot Motion Planning)
     D(fa:fa-eye Vision) --> |note sequence| B
     B --> |note sequence| E(fa:fa-volume-uo Audio)
-    B --> |hit sequence| E
 ```
 
 ### 3.1 Subscriber Topics
