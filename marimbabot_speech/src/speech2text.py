@@ -60,7 +60,7 @@ class STT:
 
 	def generate_prompt(self):
 		prompt = "Marimbabot is a instrument playing robot arm. You are able to give it several common robot's commands," \
-		         "for example, play in 60 BPM, play louder by 2 step, play in a loop, review faster by 30 bpm ..."
+		         "for example, play in 60 BPM, play louder by 2 step, play in a loop, preview in by 30 bpm and so on. So the detected text is:"
 		return prompt
 
 	def run(self):

@@ -70,7 +70,7 @@ class CommandExtraction():
 		]
 		self.command_pub = rospy.Publisher('/speech_node/command', CommandMsg, queue_size=100, tcp_nodelay=True)
 		self.speech_sub = rospy.Subscriber('/speech_node/speech', SpeechMsg, self.speech_callback, queue_size=10, tcp_nodelay=True)
-
+		self.no_speech_prob_threshold = rospy.get_param('~no_speech_prob_threshold', 0.5)
 	def fill_into_command(self, behavior="", action="", parameters=""):
 		if behavior != "":
 			self.template["behavior"] = behavior
@@ -81,8 +81,8 @@ class CommandExtraction():
 
 	def speech_callback(self, req):
 		text = req.text
-		if req.no_speech_prob > 0.5:
-			rospy.logwarn("even no_speech_prob > 0.5, but is passed the wad, something weird happened, ignore this speech")
+		if req.no_speech_prob > self.no_speech_prob_threshold:
+			rospy.logwarn(f"whisper's no_speech_prob > {self.no_speech_prob_threshold}, even is passed the wad tool, so abandon this text: {text}")
 			return
 		command = self.extract(text)
 		rospy.logdebug(f"command extracted: {command}")
@@ -182,5 +182,4 @@ class CommandExtraction():
 if __name__ == '__main__':
 	rospy.init_node('command_extractor',log_level=rospy.DEBUG)
 	command_extractor = CommandExtraction()
-	examples_test(command_extractor)
 	rospy.spin()
