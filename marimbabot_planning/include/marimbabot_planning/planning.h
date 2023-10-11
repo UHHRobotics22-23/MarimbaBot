@@ -41,6 +41,9 @@ class Planning
         // Last action time
         ros::Time last_action_time_;
 
+        // Flag that indicates that the robot is currently playing
+        bool is_playing_ = false;
+
         /**
          * @brief Move the robot to its idle/home position
          * 
@@ -94,9 +97,13 @@ class Planning
          * @brief Callback for the action server
          * 
          * @param goal
-         * @param action_server
          */
         void action_server_callback(const marimbabot_msgs::HitSequenceGoalConstPtr &goal);
+
+        /**
+         * Callback for the action server preemtion (cancel)
+         */
+        void Planning::preempt_action();
 
     public:
         Planning(const std::string planning_group);
