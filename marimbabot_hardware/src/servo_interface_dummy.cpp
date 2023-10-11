@@ -1,14 +1,21 @@
+/*
+ * The implementation of the servo interface for the dummy servo.
+ */
 #include "marimbabot_hardware/servo_interface_dummy.hpp"
 
 ServoInterface::ServoState::ServoState(const std::string &servo_name) {
     name = servo_name;
 }
 
-// Initializing the serial connection and servo_state object
+// Initializing the servo_state object
 ServoInterface::ServoInterface(ros::NodeHandle& node_handle) : 
     servo_state("mallet_finger") {
     
     ROS_INFO("Initializing dummy servo interface");
+
+    // The following registration to the interfaces connects the servo_state object to the 
+    // controller manager and as such subsequently to the ros_controllers to enable the 
+    // usage through ros_control
     
     // Creating the joint state interface + handle
     hardware_interface::JointStateHandle servo_state_handle(
@@ -33,6 +40,7 @@ ServoInterface::ServoInterface(ros::NodeHandle& node_handle) :
     registerInterface(&position_joint_saturation_interface);
 }
 
+// Initializing with realistic values
 void ServoInterface::initialize() {
     // Keeping the current position of the servo
     read();
@@ -58,6 +66,7 @@ void ServoInterface::read() {
 }
 
 void ServoInterface::write() {
+    // Enforcing limits on the servo command as specified in the joint_limits.yaml
     position_joint_saturation_interface.enforceLimits(last_run_period);
 
     // Not sending commands which already where before

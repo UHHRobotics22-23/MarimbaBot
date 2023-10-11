@@ -1,3 +1,6 @@
+/*
+ * The implementation of the servo interface for the serial based servo controller.
+ */
 #include "marimbabot_hardware/servo_interface_serial.hpp"
 
 ServoInterface::ServoState::ServoState(const std::string &servo_name) {
@@ -24,6 +27,10 @@ ServoInterface::ServoInterface(ros::NodeHandle& node_handle, std::string &device
 
     try_open_serial_port();
     
+    // The following registration to the interfaces connects the servo_state object to the 
+    // controller manager and as such subsequently to the ros_controllers to enable the 
+    // usage through ros_control
+
     // Creating the joint state interface + handle
     hardware_interface::JointStateHandle servo_state_handle(
         servo_state.name, &servo_state.position, &servo_state.velocity, &servo_state.effort);
@@ -47,6 +54,7 @@ ServoInterface::ServoInterface(ros::NodeHandle& node_handle, std::string &device
     registerInterface(&position_joint_saturation_interface);
 }
 
+// Initializing the servo state object with current values
 void ServoInterface::initialize() {
     // Keeping the current position of the servo
     read();
@@ -54,6 +62,7 @@ void ServoInterface::initialize() {
     previous_command = servo_state.command;
 }
 
+// Trying to open the serial port and load the servo limits on success
 bool ServoInterface::try_open_serial_port() {
     try {
         arduino_serial.open();
@@ -110,6 +119,7 @@ bool ServoInterface::try_open_serial_port() {
         }
 
     } catch (serial::IOException &e) {
+        // Only print error if it is a new error
         if(e.getErrorNumber() != last_arduino_error) {
             ROS_ERROR_STREAM("Servo controller error: Unable to open port " << arduino_serial.getPort());
             ROS_ERROR_STREAM("Servo controller error: Error: " << e.what());
@@ -120,7 +130,7 @@ bool ServoInterface::try_open_serial_port() {
 }
 
 void ServoInterface::read() {
-    // Calculating time since last update
+    // Calculating time since last update this is needed for the controller manager
     ros::Time current_time = ros::Time::now();
     last_run_period = current_time - last_run_time;
     last_run_time = current_time;
@@ -133,7 +143,7 @@ void ServoInterface::read() {
         }
     }
 
-    // Sending command to arduino
+    // Sending get position (p) command to arduino
     try {
         arduino_serial.write("p\n");
         arduino_serial.flush();
@@ -187,6 +197,7 @@ void ServoInterface::read() {
 }
 
 void ServoInterface::write() {
+    // Enforcing limits on the servo command as specified in the joint_limits.yaml
     position_joint_saturation_interface.enforceLimits(last_run_period);
 
     // Checking if the arduino is connected

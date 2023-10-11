@@ -15,17 +15,19 @@ int main(int argc, char **argv) {
     node_handle.param("port", port, 8888);
 
     ROS_INFO("Starting hardware control node for device %s", address.c_str());
-
+ // Initialize the servo interface and controller manager
     ServoInterface servo_interface(node_handle, address, port);
     controller_manager::ControllerManager controller_manager(&servo_interface);
 
     ros::AsyncSpinner spinner(1);
     spinner.start();
     ros::Rate loop_rate(100);
-
+// Initialize the servo interface
     servo_interface.initialize();
 
     // Controller loop
+    // This is the main functionality of the node.
+    // It reads the state of the servo motor, updates the controller manager, and writes the command to the servo motor.
     while(ros::ok()) {
         
         servo_interface.read();

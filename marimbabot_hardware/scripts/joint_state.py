@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# This is a simple joint state publisher for the mallet_finger joint. Always publishes 0.0 radian.
+
 import rospy
 from sensor_msgs.msg import JointState
 

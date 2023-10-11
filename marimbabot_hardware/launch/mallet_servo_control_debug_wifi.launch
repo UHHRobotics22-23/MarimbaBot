@@ -1,19 +1,25 @@
+<!-- This launch file is for debugging the mallet servo control over wifi -->
 <launch>
+    <!-- Using a group to prevent collisions -->
     <group ns="MalletHolder">
+        <!-- Loading the controllers and joint limits from the config files -->
         <rosparam file="$(find marimbabot_hardware)/config/controllers.yaml" command="load"/>
         <rosparam file="$(find marimbabot_hardware)/config/joint_limits.yaml" command="load"/>
         
         <!-- ! This is only for demo setups START -->
+        <!-- Uses a dummy URDF to make the mallet_finger joint known to the system -->
         <param name="robot_description" command="cat $(find marimbabot_hardware)/urdf/two_mallet_holder.urdf"/>
         <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
         <!-- ! This is only for demo setups END -->
 
+        <!-- Starting the hardware control node -->
         <node name="mallet_hardware_control_node" pkg="marimbabot_hardware" type="mallet_hardware_control_node_wifi" output="screen">
             <!-- Setting device parameter -->
             <param name="address" value="192.168.42.1"/>
             <param name="port" value="8888"/>
         </node>
         
+        <!-- Spawning the controllers according to the config -->
         <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
             args="
                 joint_state_controller
