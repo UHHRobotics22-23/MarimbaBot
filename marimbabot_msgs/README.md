@@ -57,6 +57,8 @@ This message contains an array of HitSequenceElement messages.
 This message contains the information single element of a HitSequence message. It includes tone information, the start time of the note, the duration of the note and the loudness of the note.
 
 ### [NoteOnset.msg](msg/NoteOnset.msg)
-
+Used for publish the detect music note.
 ### [SequenceMatchResult.msg](msg/SequenceMatchResult.msg)
+For published the final evaluation of the robot performance
 ### [Speech.msg](msg/Speech.msg)
+For published the transcribed test
