@@ -196,7 +196,7 @@ std::vector<CartesianHitSequenceElement> hit_sequence_to_points(
         if (use_lower_frames)
         {
             // Check if we have a flat or sharp note
-            if (point.tone_name.ends_with("is") || point.tone_name.ends_with("es"))
+            if (boost::algorithm::ends_with(point.tone_name, "is") || boost::algorithm::ends_with(point.tone_name, "es"))
             {
                 // Use the lower frame instead of the normal one
                 note_frame += "_low";
