@@ -10,6 +10,25 @@ It is currently still "work in progress".
   <img width="30%" src="https://github.com/UHHRobotics22-23/marimbabot/assets/15075613/277ce391-edd8-4c7a-8142-e50c12e855a2" alt="marimba playing robot" />
 </p>
 
+## Project Overview
+
+The project is separated into multiple different modules.
+Each module contains localized documentation.
+
+| Module                                                                                | Brief Description                                                                                   |
+|---------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| [marimbabot_audio](marimbabot_audio/)                                                 | Contains the audio analysis related code pieces                                                     |
+| [marimbabot_behavior](marimbabot_behavior/)                                           | Implements the behaviour of the robot which interfaces with most other systems                      |
+| [marimbabot_bringup](marimbabot_bringup/)                                             | The main bringup of the system used to for starting the project                                     |
+| [marimbabot_description](marimbabot_description/)                                     | Contains the descriptions of the physical compontents of the robot for control and simulation       |
+| [marimbabot_hardware](marimbabot_hardware/)                                           | The ros_control driver for the servo based hardware.                                                |
+| [marimbabot_msgs](marimbabot_msgs/)                                                   | The shared ros message and action definitions                                                       |
+| [marimbabot_planning](marimbabot_planning/)                                           | Contains the code for taking a input of notes and generate a trajectory for the robot               |
+| [marimbabot_simulation](marimbabot_simulation/)                                       | Facilitates the simulation of the robot and marimba                                                 |
+| [marimbabot_speech](marimbabot_speech/)                                               | Text to speech and speech to text and eventual command                                              |
+| [marimbabot_ur5_flex_double_moveit_config](marimbabot_ur5_flex_double_moveit_config/) | MoveIT config for the UR5 with the marimba and the two mallet holder.                               |
+| [marimbabot_ur5_moveit_config](marimbabot_ur5_moveit_config/)                         | MoveIT config for the UR5 and the marimba                                                           |
+| [marimbabot_vision](marimbabot_vision/)                                               | Implements the vision model for the note recognition and facilitates the related dataset generation |
 ## Setup
 
 The robot uses Ubuntu 20.04 and ROS noetic.
@@ -178,7 +197,15 @@ git push
 
 Now you can [create a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request#creating-the-pull-request) for your branch and merge it (after it is approved) into the `main` branch using the GitHub website.
 
-## Project Overview
+## Additional Resources
+
+### MoveIT config
+The project contains two MoveIT configuration definitions ([marimbabot_ur5_moveit_config](marimbabot_ur5_moveit_config/) and [marimbabot_ur5_flex_double_moveit_config](marimbabot_ur5_flex_double_moveit_config/)).
+
+The MoveIT configs were generated using the [MoveIT Setup Assistant](http://docs.ros.org/en/kinetic/api/moveit_tutorials/html/doc/setup_assistant/setup_assistant_tutorial.html).
+When the description of the robot is changed and contains new controlable joints.
+
+Generally the main additional work required for the MoveIT config setup is the collision matrix setup, where non-colliding elements have to be removed from the collision checks.
 
 ### ROS Node Diagram
 ```mermaid
