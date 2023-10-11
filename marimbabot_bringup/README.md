@@ -1,4 +1,4 @@
-# TAMS Master Project 2022/2023 - Music note detection
+# TAMS Master Project 2022/2023 - Bring up the system
 
 This is main entrance of the whole project, so you need two steps to bringup the whole system.
 
