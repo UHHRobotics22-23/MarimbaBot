@@ -103,7 +103,7 @@ class Planning
         /**
          * Callback for the action server preemtion (cancel)
          */
-        void Planning::preempt_action();
+        void preempt_action();
 
     public:
         Planning(const std::string planning_group);

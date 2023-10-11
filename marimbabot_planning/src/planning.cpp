@@ -35,7 +35,7 @@ Planning::Planning(const std::string planning_group) :
     // Create timer that checks if an action is active and moves back to the home position if not
     auto timer = nh_.createTimer(ros::Duration(0.5), timer_callback);
     // Set preempt callback that is executed when the action is canceled
-    action_server_.registerPreemptCallback(boost::bind(&Planning::preempt_action);
+    action_server_.registerPreemptCallback(boost::bind(&Planning::preempt_action, this));
     // Start action server
     action_server_.start();
     // Wait for shutdown
