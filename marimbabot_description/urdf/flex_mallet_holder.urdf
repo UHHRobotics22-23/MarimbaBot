@@ -1,7 +1,13 @@
 <?xml version="1.0"?>
+
+<!-- URDF definition for the flexible mallet holder -->
+
 <robot name="double_flex_mallet">
 
-      <link name="mallet_head">
+    <!-- Link definitions -->
+
+    <!-- Mallet Top Part --> 
+    <link name="mallet_head">
         <collision>
             <origin xyz="0.0 0.0 0" rpy="0.0 0.0 0.0"/>
             <!-- 0.018375 -->
@@ -11,6 +17,7 @@
         </collision>
     </link>
 
+    <!-- Rod Part of the Mallet -->
     <link name="mallet_neck">
         <collision>
             <origin xyz="0.0 0.0 0.2095" rpy="0.0 0.0 0.0"/>
@@ -20,6 +27,7 @@
         </collision>
     </link>
 
+    <!-- Connector Plate for the connector system of the two mallet holder -->
     <link name="mallet_connector_plate">
         <collision> 
            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
@@ -29,6 +37,8 @@
        </collision>
     </link>
 
+    <!-- Base Link of the Mallet Assembly -->
+    <!-- Shows the model -->
     <link name="mallet_base_link">
         <visual>
             <origin xyz="0.0 0.0 0.057" rpy="0.0 -1.570796326 0.0"/>
@@ -48,6 +58,8 @@
         </collision>
     </link>
 
+    <!-- Joint Definitions -->
+    <!-- All Fixed Joints and only offsets -->
     <joint name="group_1_start_link" type="fixed">
         <parent link="mallet_base_link"/>
         <child link="mallet_neck"/>
