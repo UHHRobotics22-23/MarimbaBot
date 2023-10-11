@@ -140,6 +140,33 @@ cd catkin_ws
 source devel/setup.bash
 ```
 
+#### Prerequisites and Configuration
+Additionally to the UR5, the following devices have to be connected and configured before launching the project:
+1. Logitech StreamCam (packages marimbabot_vision and marimbabot_speech)
+2. Scarlett 2i2 USB Audio Interface (package marimbabot_audio)
+
+#### Logitech StreamCam (required for packages marimbabot_vision and marimbabot_speech):
+Change the parameter <i>device</i> of the node <i>audio_capture</i> in the launch file 
+
+```bash
+marimbabot_speech/launch/command_recognition.launch
+```
+
+and modify the <i>device_id</i> parameter in the configuration file:
+
+```bash
+marimbabot_vision/config/cv_camera.yaml
+```
+
+#### Scarlett 2i2 USB Audio Interface (required for package marimbabot_audio):
+
+Adjust the <i>device</i> parameter for the <i>note_audio_capture</i> node in the launch file:
+
+```bash
+marimbabot_audio/launch/audio_feedback.launch
+```
+
+#### Launch the whole project
 In order to run the whole project on the real robot, one has to run two launch files. First, the launch file that sets up the robot and its hardware:
 
 ```bash
@@ -152,7 +179,6 @@ Second, the launch file that brings up the launch file for each package:
 ```bash
 roslaunch marimbabot_bringup marimbabot.launch
 ```
-
 
 #### Note for development: Add the main launch files to the bringup if they are created.
 
