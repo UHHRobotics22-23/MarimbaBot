@@ -7,7 +7,7 @@ The launch process is described in the top level [README](../README.md).
 
 ### marimbabot_ur5_bringup.launch
 This file is already configured to work with our setup.
-However, the following parameters and code parts may be of interest. 
+However, the following parameters and code parts may be of interest. Also, for further information you may want to visit [hardware_design](https://github.com/UHHRobotics22-23/hardware_design).
 
 When using a wifi connection to the mallet, one can set the ip address and port here:
 
