@@ -7,7 +7,6 @@ int32 number_of_semitones
 string min_note
 
 # time between two consecutive windows (rows)
-# TODO: in samples of the signal to avoid severe float artifacts
 duration hop_length
 
 # 2d vector with rows over time and step width specified by number_of_semitones
