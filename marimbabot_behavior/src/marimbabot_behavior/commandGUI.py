@@ -17,6 +17,7 @@ library = {'Frère Jacques': "c''4 d''4 e''4 c''4 c''4 d''4 e''4 c''4 e''4 f''4 
             'All my ducklings': "c''4 d''4 e''4 f''4 g''2 g''2 a''4 a''4 a''4 a''4 g''1 a''4 a''4 a''4 a''4 g''1 f''4 f''4 f''4 f''4 e''2 e''2 g''4 g''4 g''4 g''4 c''4",
             'Scale': "c'4 d'4 e'4 f'4 g'4 a'4 b'4 c''4 b'4 a'4 g'4 f'4 e'4 d'4 c'4",
             'Double Scale': "c'4 d'4 e'4 f'4 g'4 a'4 b'4 c''4 d''4 e''4 f''4 g''4 a''4 b''4 c'''4 b''4 a''4 g''4 f''4 e''4 d''4 c''4 b'4 a'4 g'4 f'4 e'4 d'4 c'4",
+            'Full Scale': "c'4 cs'4 d'4 ds'4 e'4 f'4 fs'4 g'4 gs'4 a'4 as'4 b'4 c''4 cs''4 d''4 ds''4 e''4 f''4 fs''4 g''4 gs''4 a''4 as''4 b''4 c'''4",
             'Chord Testing': "c'4 <c' d'>4 <c' e'>4 <c' f'>4 <c' g'>4 <c' a'>4 <c' b'>4 <c' c''>4 d'4 <d' e'>4 <d' f'>4 <d' g'>4 <d' a'>4 <d' b'>4 <d' c''>4 <d' d''>4 e'4 <e' f'>4 <e' g'>4 <e' a'>4 <e' b'>4 <e' c''>4 <e' d''>4 <e' e''>4 f'4 <f' g'>4 <f' a'>4 <f' b'>4 <f' c''>4 <f' d''>4 <f' e''>4 <f' f''>4 g'4 <g' a'>4 <g' b'>4 <g' c''>4 <g' d''>4 <g' e''>4 <g' f''>4 <g' g''>4 a'4 <a' b'>4 <a' c''>4 <a' d''>4 <a' e''>4 <a' f''>4 <a' g''>4 <a' a''>4 b'4 <b' c''>4 <b' d''>4 <b' e''>4 <b' f''>4 <b' g''>4 <b' a''>4 <b' b''>4 c''4 <c'' d''>4 <c'' e''>4 <c'' f''>4 <c'' g''>4 <c'' a''>4 <c'' b''>4 <c'' c'''>4"}
 
 # sets the input note sequence to the selected song from the song library
