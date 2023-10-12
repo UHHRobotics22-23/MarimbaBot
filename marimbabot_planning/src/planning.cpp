@@ -34,6 +34,8 @@ Planning::Planning(const std::string planning_group) :
     };
     // Create timer that checks if an action is active and moves back to the home position if not
     auto timer = nh_.createTimer(ros::Duration(0.5), timer_callback);
+    // Set preempt callback that is executed when the action is canceled
+    action_server_.registerPreemptCallback(boost::bind(&Planning::preempt_action, this));
     // Start action server
     action_server_.start();
     // Wait for shutdown
@@ -299,7 +301,6 @@ std::pair<moveit::planning_interface::MoveGroupInterface::Plan, ros::Duration> P
 /**
  * Callback for the action server
  * @param goal
- * @param action_server
  */
 void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalConstPtr &goal)
 {
@@ -311,6 +312,9 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
     marimbabot_msgs::HitSequenceResult result;
 
     try {
+        // Cancel all current moveit plans
+        move_group_interface_.stop();
+
         // Set the max velocity and acceleration scaling factors
         move_group_interface_.setMaxVelocityScalingFactor(0.95);
         move_group_interface_.setMaxAccelerationScalingFactor(0.95);
@@ -352,27 +356,28 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
         ros::Time first_note_hit_time = start_time + approach_time_to_first_note_hit;
         result.first_note_hit_time = first_note_hit_time;
 
+        // Check if the action has been preempted in the meantime
+        if (action_server_.isPreemptRequested()) {
+            action_server_.setPreempted();
+            return;
+        }
+
         // Publish the feedback
         feedback.playing = true;
         action_server_.publishFeedback(feedback);
 
         // Execute the plan
-        auto status = move_group_interface_.execute(hit_plan);
+        is_playing_ = true;
+        move_group_interface_.execute(hit_plan);
+        is_playing_ = false;
 
         // Set playing to false
         feedback.playing = false;
         action_server_.publishFeedback(feedback);
 
         // Set the result of the action server
-        if (status != moveit::planning_interface::MoveItErrorCode::SUCCESS) {
-            ROS_ERROR_STREAM("Hit sequence execution failed: " << status);
-            result.success = false;
-            result.error_code = marimbabot_msgs::HitSequenceResult::EXECUTION_FAILED;
-            action_server_.setAborted(result);
-        } else {
-            result.success = true;
-            action_server_.setSucceeded(result);
-        }
+        result.success = true;
+        action_server_.setSucceeded(result);
 
     } catch (PlanFailedException& e) {
         ROS_ERROR_STREAM("Hit sequence planning failed: " << e.what());
@@ -383,6 +388,79 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
 
     // Reset last action time so we move back to the home position after a while
     last_action_time_ = ros::Time::now();
+}
+
+/**
+ * Callback for the action server preemtion (cancel)
+ */
+void Planning::preempt_action()
+{
+    // Log to terminal
+    ROS_INFO("Preempting current plan");
+
+    if(is_playing_)
+    {
+        // Cancel current plan
+        move_group_interface_.stop();
+        is_playing_ = false;
+
+        // Set start state
+        moveit_msgs::RobotState start_state;
+        auto current_state = move_group_interface_.getCurrentState();
+        moveit::core::robotStateToRobotStateMsg(*current_state, start_state);
+        move_group_interface_.setStartState(start_state);
+
+        // Create robot state
+        moveit::core::RobotState robot_state(move_group_interface_.getRobotModel());
+        robot_state.setToDefaultValues();
+        robot_state.setVariablePositions(start_state.joint_state.name, start_state.joint_state.position);
+
+        // Use bio_ik to solve the inverse kinematics at the goal point
+        bio_ik::BioIKKinematicsQueryOptions ik_options;
+        ik_options.replace = true;
+        ik_options.return_approximate_solution = false; // Activate for debugging if you get an error 
+
+        // Get the current wrist height using tf
+        geometry_msgs::Transform wrist_location;
+        try
+        {
+            wrist_location = tf_buffer_->lookupTransform(
+                move_group_interface_.getPlanningFrame(),
+                "ur5_wrist_1_link",
+                ros::Time(0)).transform;
+        }
+        catch (tf2::TransformException &ex)
+        {
+            ROS_WARN("%s", ex.what());
+            return;
+        }
+
+        // Add link on plane constraint to ik_options that holds the wrist at the same height
+        ik_options.goals.emplace_back(new bio_ik::PlaneGoal(
+            "ur5_wrist_1_link", 
+            tf2::Vector3(0.0, 0.0, wrist_location.translation.z + 0.05),
+            tf2::Vector3(0.0, 0.0, 1.0)));
+
+        // Create minimal displacement goal, so that the robot does not move too much and stays close to the start state
+        ik_options.goals.emplace_back(new bio_ik::MinimalDisplacementGoal());
+
+        // Create dummy goal pose
+        geometry_msgs::Pose dummy_goal_pose;
+
+        robot_state.setFromIK(
+            move_group_interface_.getRobotModel()->getJointModelGroup(move_group_interface_.getName()),
+            dummy_goal_pose /* this is ignored with replace = true */,
+            0.0,
+            moveit::core::GroupStateValidityCallbackFn(),
+            ik_options);
+
+        // Plan to the goal state (but in joint space)
+        move_group_interface_.setJointValueTarget(robot_state);
+
+        // Execute plan
+        move_group_interface_.move();
+    }
+    action_server_.setPreempted();
 }
 
 } // namespace marimbabot_planning
