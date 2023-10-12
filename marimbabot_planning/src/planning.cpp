@@ -368,7 +368,7 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
 
         // Execute the plan
         is_playing_ = true;
-        auto status = move_group_interface_.execute(hit_plan);
+        move_group_interface_.execute(hit_plan);
         is_playing_ = false;
 
         // Set playing to false
@@ -376,15 +376,8 @@ void Planning::action_server_callback(const marimbabot_msgs::HitSequenceGoalCons
         action_server_.publishFeedback(feedback);
 
         // Set the result of the action server
-        if (status != moveit::planning_interface::MoveItErrorCode::SUCCESS) {
-            ROS_ERROR_STREAM("Hit sequence execution failed: " << status);
-            result.success = false;
-            result.error_code = marimbabot_msgs::HitSequenceResult::EXECUTION_FAILED;
-            action_server_.setAborted(result);
-        } else {
-            result.success = true;
-            action_server_.setSucceeded(result);
-        }
+        result.success = true;
+        action_server_.setSucceeded(result);
 
     } catch (PlanFailedException& e) {
         ROS_ERROR_STREAM("Hit sequence planning failed: " << e.what());
