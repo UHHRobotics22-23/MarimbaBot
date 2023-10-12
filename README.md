@@ -151,7 +151,7 @@ Change the parameter <i>device</i> of the node <i>audio_capture</i> in the [laun
 marimbabot_speech/launch/command_recognition.launch
 ```
 
-and modify the <i>device_id</i> parameter in the configuration file:
+and modify the <i>device_id</i> parameter in the [configuration file](marimbabot_vision/config/cv_camera.yaml) of the package marimbabot_vision:
 
 ```bash
 marimbabot_vision/config/cv_camera.yaml
