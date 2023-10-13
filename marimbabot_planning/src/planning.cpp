@@ -25,7 +25,7 @@ Planning::Planning(const std::string planning_group) :
     go_to_home_position();
     // Timer callback that moves back to the home position if no action is active
     auto timer_callback = [this](const ros::TimerEvent& event) {
-        // Check if an action in not active and if the last action was more than 5 seconds ago
+        // Check if an action in not active and if the last action was more than 1 seconds ago
         if (!action_server_.isActive() && ros::Time::now() - last_action_time_ > ros::Duration(1.0))
         {
             // Check if we are currently close to the home position
