@@ -11,7 +11,7 @@ This script generates a separate dataset including one sample folder for each ca
 Executes all data generating scripts (generate_data.py, generate_hw_data.py, generate_augmented_data.py) in order to generate a full dataset. The dataset is saved in the `data`, `data_augmented`, `data_hw` and `data_hw_augmented` folders.
 
 ### `generate_data.py`
-Generates a dataset of images of the random note sheets withing given a note-specific duration restriction (e.g. use a 1/16th note as a minimum duration). The dataset is saved in the `data` folder.
+Generates a dataset of images of the random note sheets withing given a note-specific duration restriction (e.g. use a 1/16th note as a minimum duration). The dataset is saved in the `data` folder. In the current configuration, also because of limited computational resources while training, the dataset is generated with 3 bars of music. 
 
 Arguments:
   -  num_samples: Amount of data to be generated.
