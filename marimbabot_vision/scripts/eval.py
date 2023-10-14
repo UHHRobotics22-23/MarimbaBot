@@ -22,7 +22,7 @@ config = {
     "eval_data_paths": ["test_data_wb",], # "model_artificial_char_2" ],
     "start_token": "<s>",
     "num_workers": 24,
-    "model": "model_artificial_char_2"#"model_9"#"model_artificial_char_2"#"./model_extended_2" #"model_char_1",
+    "model": "Flova/omr_transformer"#"model_9"#"model_artificial_char_2"#"./model_extended_2" #"model_char_1",
 }
 
 # Load base model
