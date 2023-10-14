@@ -157,7 +157,7 @@ class Comparison():
 
 
 if __name__ == '__main__':
-	rospy.init_node('score_calculator', log_level=rospy.DEBUG)
+	rospy.init_node('score_calculator')
 	window_size = rospy.get_param("~window_size", 1)  # sec
 	compare = Comparison(windows_t_for_compare=1)
 	compare.run()

@@ -4,12 +4,30 @@
 [![ROS Version Noetic](https://img.shields.io/badge/ROS%20Version-Noetic-%2388b55a)](http://wiki.ros.org/noetic)
 
 This repository contains the codebase for a [Marimba](https://en.wikipedia.org/wiki/Marimba) playing robot developed during the TAMS Master Project 2022/2023.
-It is currently still "work in progress".
 
 <p align="center">
   <img width="30%" src="https://github.com/UHHRobotics22-23/marimbabot/assets/15075613/277ce391-edd8-4c7a-8142-e50c12e855a2" alt="marimba playing robot" />
 </p>
 
+## Project Overview
+
+The project is separated into multiple different modules.
+Each module contains localized documentation.
+
+| Module                                                                                | Brief Description                                                                                   |
+|---------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| [marimbabot_audio](marimbabot_audio/)                                                 | Contains the audio analysis related code pieces                                                     |
+| [marimbabot_behavior](marimbabot_behavior/)                                           | Implements the behaviour of the robot which interfaces with most other systems                      |
+| [marimbabot_bringup](marimbabot_bringup/)                                             | The main bringup of the system used to for starting the project                                     |
+| [marimbabot_description](marimbabot_description/)                                     | Contains the descriptions of the physical compontents of the robot for control and simulation       |
+| [marimbabot_hardware](marimbabot_hardware/)                                           | The ros_control driver for the servo based hardware.                                                |
+| [marimbabot_msgs](marimbabot_msgs/)                                                   | The shared ros message and action definitions                                                       |
+| [marimbabot_planning](marimbabot_planning/)                                           | Contains the code for taking a input of notes and generate a trajectory for the robot               |
+| [marimbabot_simulation](marimbabot_simulation/)                                       | Facilitates the simulation of the robot and marimba                                                 |
+| [marimbabot_speech](marimbabot_speech/)                                               | Text to speech and speech to text and eventual command                                              |
+| [marimbabot_ur5_flex_double_moveit_config](marimbabot_ur5_flex_double_moveit_config/) | MoveIT config for the UR5 with the marimba and the two mallet holder.                               |
+| [marimbabot_ur5_moveit_config](marimbabot_ur5_moveit_config/)                         | MoveIT config for the UR5 and the marimba                                                           |
+| [marimbabot_vision](marimbabot_vision/)                                               | Implements the vision model for the note recognition and facilitates the related dataset generation |
 ## Setup
 
 The robot uses Ubuntu 20.04 and ROS noetic.
@@ -121,19 +139,52 @@ cd catkin_ws
 source devel/setup.bash
 ```
 
-In order to run the whole project on the real robot, launch the bringup package that brings up the launch file for each package:
+#### Prerequisites and Configuration
+Additionally to the UR5, the following devices have to be connected and configured before launching the project:
+1. Logitech StreamCam (packages marimbabot_vision and marimbabot_speech)
+2. Scarlett 2i2 USB Audio Interface (package marimbabot_audio)
+
+#### Logitech StreamCam (required for packages marimbabot_vision and marimbabot_speech):
+Change the parameter <i>device</i> of the node <i>audio_capture</i> in the launch file 
+
+```bash
+marimbabot_speech/launch/command_recognition.launch
+```
+
+and modify the <i>device_id</i> parameter in the configuration file:
+
+```bash
+marimbabot_vision/config/cv_camera.yaml
+```
+
+#### Scarlett 2i2 USB Audio Interface (required for package marimbabot_audio):
+
+Adjust the <i>device</i> parameter for the <i>note_audio_capture</i> node in the launch file:
+
+```bash
+marimbabot_audio/launch/audio_feedback.launch
+```
+
+#### Launch the whole project
+In order to run the whole project on the real robot, one has to run two launch files. First, the launch file that sets up the robot and its hardware:
+
+```bash
+roslaunch marimbabot_bringup marimbabot_ur5_bringup.launch
+```
+
+Second, the launch file that brings up the launch file for each package:
+
 
 ```bash
 roslaunch marimbabot_bringup marimbabot.launch
 ```
 
-
 #### Note for development: Add the main launch files to the bringup if they are created.
 
-To run the UR5 setup with the MoveIt Demo Mode run
+To run the UR5 setup with the MoveIt Demo Mode and two mallets run
 
 ```bash
-roslaunch marimbabot_ur5_moveit_config demo.launch
+roslaunch marimbabot_ur5_flex_double_moveit_config demo.launch
 ```
 
 you should be able to test simple planning things with it.
@@ -178,7 +229,15 @@ git push
 
 Now you can [create a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request#creating-the-pull-request) for your branch and merge it (after it is approved) into the `main` branch using the GitHub website.
 
-## Project Overview
+## Additional Resources
+
+### MoveIT config
+The project contains two MoveIT configuration definitions ([marimbabot_ur5_moveit_config](marimbabot_ur5_moveit_config/) and [marimbabot_ur5_flex_double_moveit_config](marimbabot_ur5_flex_double_moveit_config/)).
+
+The MoveIT configs were generated using the [MoveIT Setup Assistant](http://docs.ros.org/en/kinetic/api/moveit_tutorials/html/doc/setup_assistant/setup_assistant_tutorial.html).
+When the description of the robot is changed and contains new controlable joints.
+
+Generally the main additional work required for the MoveIT config setup is the collision matrix setup, where non-colliding elements have to be removed from the collision checks.
 
 ### ROS Node Diagram
 ```mermaid

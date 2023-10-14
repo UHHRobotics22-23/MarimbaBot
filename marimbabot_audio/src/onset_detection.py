@@ -310,6 +310,9 @@ class OnsetDetection:
 				winner_onsets.append(onset)  # xs
 				durations.append(default_duration)
 
+				# measure loudness with power db
+				power_db = self.measure_loudness(onset)
+
 				# publish the onset note to topic
 				t = self.buffer_time + rospy.Duration(onset)
 				no = NoteOnset()
@@ -488,7 +491,13 @@ class OnsetDetection:
 		msg.data = cqt[:, self.overlap_hops:-self.overlap_hops].flatten(order="F")
 		self.pub_cqt.publish(msg)
 
+	def measure_loudness(self, onset):
+		excerpt = self.buffer[
+		          int(onset * self.sr):int(onset * self.sr + self.windows_for_classification * self.sr)]
+		power_db = librosa.power_to_db(excerpt**2)
+		return np.max(power_db)
+	
 if __name__ == '__main__':
-	rospy.init_node("detect_onset",log_level=rospy.DEBUG)
+	rospy.init_node("detect_onset")
 	detector = OnsetDetection()
 	detector.start()

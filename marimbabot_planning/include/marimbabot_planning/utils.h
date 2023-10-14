@@ -1,3 +1,4 @@
+#include <boost/algorithm/string.hpp>
 #include <boost/optional.hpp>
 #include <geometry_msgs/PointStamped.h>
 #include <marimbabot_msgs/HitSequenceAction.h>

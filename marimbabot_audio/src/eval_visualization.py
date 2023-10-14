@@ -85,7 +85,7 @@ class Visualization():
 				ax.bar(x=relative_time, height=1, width=note_width, bottom=relative_pitch - 0.5, align="edge", color='red')
 			#ax.text(relative_time, relative_pitch - 0.5, pitch_name, fontsize=10, color='black',fontweight='bold')
 		
-
+		ax.text(.01, .99, f'Recall:{msg.score:.2f} TimeOffsetAvg:{msg.avg_time_offset:.2f}', ha='left', va='top', transform=ax.transAxes)
 		fig.savefig('/tmp/tmp_vis2.png')  # save the figure, to update the canvas.
 		data = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
 		fig = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
