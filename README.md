@@ -143,15 +143,16 @@ source devel/setup.bash
 Additionally to the UR5, the following devices have to be connected and configured before launching the project:
 1. Logitech StreamCam (packages marimbabot_vision and marimbabot_speech)
 2. Scarlett 2i2 USB Audio Interface (package marimbabot_audio)
+3. Wifi connection to the MalletHolder (package marimbabot_hardware)
 
 #### Logitech StreamCam (required for packages marimbabot_vision and marimbabot_speech):
-Change the parameter <i>device</i> of the node <i>audio_capture</i> in the launch file 
+Change the parameter <i>device</i> of the node <i>audio_capture</i> in the [launch file](marimbabot_speech/launch/command_recognition.launch) of the package marimbabot_speech:
 
 ```bash
 marimbabot_speech/launch/command_recognition.launch
 ```
 
-and modify the <i>device_id</i> parameter in the configuration file:
+and modify the <i>device_id</i> parameter in the [configuration file](marimbabot_vision/config/cv_camera.yaml) of the package marimbabot_vision:
 
 ```bash
 marimbabot_vision/config/cv_camera.yaml
@@ -159,11 +160,15 @@ marimbabot_vision/config/cv_camera.yaml
 
 #### Scarlett 2i2 USB Audio Interface (required for package marimbabot_audio):
 
-Adjust the <i>device</i> parameter for the <i>note_audio_capture</i> node in the launch file:
+Adjust the <i>device</i> parameter for the <i>note_audio_capture</i> node in the [launch file](marimbabot_audio/launch/audio_feedback.launch) of the package marimbabot_audio:
 
 ```bash
 marimbabot_audio/launch/audio_feedback.launch
 ```
+
+#### Wifi connection to the MalletHolder
+You should be connected to its Wifi. Please see the [README](marimbabot_hardware/README.md) of the package marimbabot_hardware and [README](marimbabot_bringup/README.md) of the package marimbabot_bringup for further information.
+
 
 #### Launch the whole project
 In order to run the whole project on the real robot, one has to run two launch files. First, the launch file that sets up the robot and its hardware:
