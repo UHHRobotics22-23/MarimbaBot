@@ -33,7 +33,7 @@ Planning::Planning(const std::string planning_group) :
         }
     };
     // Create timer that checks if an action is active and moves back to the home position if not
-    auto timer = nh_.createTimer(ros::Duration(1000.0), timer_callback);
+    auto timer = nh_.createTimer(ros::Duration(0.5), timer_callback);
     // Start action server
     action_server_.start();
     // Wait for shutdown
