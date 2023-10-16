@@ -2,29 +2,14 @@
 
 #!/usr/bin/env python
 
-import os
-import subprocess
 import datetime
+import subprocess
 from pathlib import Path
 
 import rospy
 import pretty_midi
 from sensor_msgs.msg import JointState
 from std_msgs.msg import String
-
-
-def find_file_directory(filename):
-    home_directory = os.path.expanduser("~")
-    command = f"find {home_directory} -type f -xtype f -name {filename} -exec dirname {{}} \\; -quit 2>/dev/null"
-    try:
-        output = subprocess.check_output(command, shell=True, universal_newlines=True)
-        directory = output.strip()
-        if directory:
-            return directory
-        else:
-            return None
-    except subprocess.CalledProcessError:
-        return None
 
 
 # velocity threshold to count as a bar hit
@@ -35,6 +20,15 @@ TIME_THRESHOLD = 0.1  # s
 
 # duration of a note (assume fixed for now)
 NOTE_DURATION = 0.5  # s
+
+
+# where to write MIDI files
+try:
+    MIDI_DIR = subprocess.check_output(["rospack", "find", "marimbabot_simulation"]).decode("utf-8").strip()
+    rospy.loginfo(f"MIDI dir set to {MIDI_DIR}")
+except subprocess.CalledProcessError:
+    rospy.logerr("Could not find MIDI directory. Writing to current directory instead.")
+    MIDI_DIR = "./"
 
 # names of bars we are interested in
 # corresponding joints are bar_<note>/joint
@@ -91,8 +85,7 @@ played_notes = []
 def save_midi(notes):
     """Save notes to a MIDI file using pretty_midi."""
 
-    src_dir = find_file_directory("detect_bar_contact.py")
-    midi_dir = Path(src_dir).parent / "midi"
+    midi_dir = Path(MIDI_DIR) / "midi"
     midi_dir.mkdir(exist_ok=True)
     midi_path = midi_dir / f"{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.midi"
 
