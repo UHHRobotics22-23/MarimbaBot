@@ -16,7 +16,7 @@ from std_msgs.msg import String
 VEL_THRESHOLD = 0.005
 
 # time between contacts to register as a separate one
-TIME_THRESHOLD = 0.1  # s
+TIME_THRESHOLD = 0.0  # s
 
 # duration of a note (assume fixed for now)
 NOTE_DURATION = 0.5  # s
