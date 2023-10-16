@@ -1,5 +1,5 @@
 # Marimababot Hardware
-This package defines the ROS driver for the two mallet hardware.
+This package defines the ROS driver for the [two mallet hardware](https://github.com/UHHRobotics22-23/hardware_design).
 Three central versions of the driver exist
 - Wifi - The current version using Wifi and UDP to communicate with the holder
 - Serial - First version using a serial (USB) connection to communicate with the device
