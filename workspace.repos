@@ -1,7 +1,7 @@
 repositories:
-  marimbabot:
+  MarimbaBot:
     type: git
-    url: git@github.com:UHHRobotics22-23/marimbabot.git
+    url: git@github.com:UHHRobotics22-23/MarimbaBot.git
     version: main
   tams/camera_positioner:
     type: git
