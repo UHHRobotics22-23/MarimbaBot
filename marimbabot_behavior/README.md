@@ -36,7 +36,7 @@ flowchart TD
 
 | Topic name                     | Message Description                              | Message type                                                 |
 | ------------------------------ | ------------------------------------------------ | ------------------------------------------------------------ |
-| /speech_node/command           | recognized command from Speech node              | [Command.msg](marimbabot_msgs/msg/Command.msg)            |
+| /speech_node/command           | recognized command from Speech node              | [Command.msg](../marimbabot_msgs/msg/Command.msg)            |
 | /vision_node/recognized_notes  | recognized lilypond sequence from Vision node    | [String.msg](http://docs.ros.org/en/melodic/api/std_msgs/html/msg/String.html) |
 | /command_gui/note_sequence     | input lilypond sequence from the Command GUI     | [String.msg](http://docs.ros.org/en/melodic/api/std_msgs/html/msg/String.html) |
 
@@ -51,7 +51,7 @@ flowchart TD
 
 | Action name                                                      | Goal Description                                 | Goal Message type                                            |
 | ---------------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------ |
-| [HitSequenceAction](marimbabot_msgs/action/HitSequence.action)    | Hit sequence for the UR5 Motion Planning         | [HitSequence.msg](marimbabot_msgs/msg/HitSequence.msg)    |
+| [HitSequenceAction](marimbabot_msgs/action/HitSequence.action)    | Hit sequence for the UR5 Motion Planning         | [HitSequence.msg](../marimbabot_msgs/msg/HitSequence.msg)    |
 | [LilypondAudioAction](marimbabot_msgs/action/LilypondAudio.action)| Lilypond string for the Audio Preview            | [String.msg](http://docs.ros.org/en/melodic/api/std_msgs/html/msg/String.html) |
 
 ## 4. Full Decision Tree
