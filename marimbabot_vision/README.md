@@ -3,6 +3,10 @@
 ## Scripts
 For more information on the usage of the scripts, please refer [README](../marimbabot_vision/scripts/README.md).
 
+### Data Generation
+In order to generate training data for the model, the script [generate_dataset_full.sh](scripts/generate_dataset_full.sh) with a parameter N can be used. 
+This will create a dataset of N samples. The dataset is saved in the `data`, `data_augmented`, `data_hw` and `data_hw_augmented` folders. Please look here [README](../marimbabot_vision/scripts/README.md#generate_dataset_fullsh) for more information on the usage of the script.
+
 ## Src
 ### [vision_node.py](src/vision_node.py)
 
