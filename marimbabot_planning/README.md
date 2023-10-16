@@ -1,10 +1,14 @@
 # TAMS Master Project 2022/2023 - Planning
 
 ### Test the motion in RViz / simulation environment
-Launch the Demo Mode as described in the main README.md, please run: 
+Launch the Demo Mode as described in the main README.md, for single mallet please run: 
 
 ```bash
 roslaunch marimbabot_ur5_moveit_config demo.launch
+```
+for double mallet please run:
+```bash
+roslaunch marimbabot_ur5_flex_double_moveit_config demo.launch
 ```
 
 And desired planning scripts can be called from marimbabot/scripts directory and run with several rosrun commands:
