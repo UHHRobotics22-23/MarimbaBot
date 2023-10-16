@@ -16,11 +16,11 @@ From the point of view of the marimbist:
     z: points towards the ceiling, according to right hand rule
 
 Changelog:
+    2023.01.04 First version created
+    2023.01.19 Row of keys working
+    2023.01.26 Complete model v1
     2023.03.02 Named and correctly positioned bar frames
                Added side boxes
-    2023.01.26 Complete model v1
-    2023.01.19 Row of keys working
-    2023.01.04 First version created
     2023.06.14 Made side boxed width and height smaller
 -->
 
@@ -101,7 +101,7 @@ Changelog:
 
 
 <!-- The bar -->
-<xacro:macro name="bar" params="note parent id pos length" >
+<xacro:macro name="bar" params="note parent id pos length add_low_frame:=0" >
     <gazebo reference="bar_${note}" >
         <turnGravityOff>false</turnGravityOff>
         <selfCollide>true</selfCollide>
@@ -152,18 +152,36 @@ Changelog:
         <mechanicalReduction>1</mechanicalReduction>
         </actuator>
     </transmission>
+
+    <!-- Optionally add a frame for lower part of the bar (closer to the player) -->
+    <xacro:if value="${add_low_frame}">
+        <link name="bar_${note}_low">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <geometry>
+                <box size=" 0 0 0"/>
+            </geometry>
+        </visual>
+        </link>
+        <xacro:tams_fixedjoint name="bar_${note}_low/joint" parent="bar_${note}" child="bar_${note}_low" >
+            <origin xyz="${length / 2 - 0.02} 0 0" rpy="0 0 0" />
+        </xacro:tams_fixedjoint>
+    </xacro:if>
 </xacro:macro>
 
 
 <!-- Wrapper for a row of bars, computes the position and length based on fixed measurements -->
 <xacro:macro name="bar_in_row" params="note parent id left_x left_y left_z length_diff bar_length_left n_bars slope:=0 mirror:=1" >
     <!-- mirror controls alignment of bars in row: -1 (right align) or 1 (left align) -->
+    <!-- mirror is set to -1 on the top row (sharp notes), and therefore is also used to control the low frame -->
+    <!-- if mirror is -1, add_low_frame becomes 1, if it's 1 then add_low_frame is 0 -->
     <xacro:bar
         note="${note}"
         parent="${parent}"
         id="${id}"
         pos="${left_x + mirror * (id / n_bars) * (1 + slope) * length_diff/2} ${left_y + id * (bar_width + bar_gap)} ${left_z}"
         length="${bar_length_left + (id / n_bars) * length_diff}"
+        add_low_frame="${(1 - mirror) / 2}"
     />
 </xacro:macro>
 
@@ -377,21 +395,21 @@ Changelog:
 
     <xacro:bar_in_row note="cis4" parent="body_top" id="0" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
     <xacro:bar_in_row note="dis4" parent="body_top" id="1" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
-    <!-- <xacro:bar_in_row note="" parent="body_top" id="2" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" /> -->
+
     <xacro:bar_in_row note="fis4" parent="body_top" id="3" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
     <xacro:bar_in_row note="gis4" parent="body_top" id="4" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
     <xacro:bar_in_row note="ais4" parent="body_top" id="5" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
-    <!-- <xacro:bar_in_row note="" parent="body_top" id="6" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" /> -->
+
     <xacro:bar_in_row note="cis5" parent="body_top" id="7" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
     <xacro:bar_in_row note="dis5" parent="body_top" id="8" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
-    <!-- <xacro:bar_in_row note="" parent="body_top" id="9" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" /> -->
+
     <xacro:bar_in_row note="fis5" parent="body_top" id="10" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
     <xacro:bar_in_row note="gis5" parent="body_top" id="11" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
     <xacro:bar_in_row note="ais5" parent="body_top" id="12" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
-    <!-- <xacro:bar_in_row note="" parent="body_top" id="13" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" /> -->
+
     <xacro:bar_in_row note="cis6" parent="body_top" id="14" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
     <xacro:bar_in_row note="dis6" parent="body_top" id="15" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
-    <!-- <xacro:bar_in_row note="" parent="body_top" id="16" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" /> -->
+
     <xacro:bar_in_row note="fis6" parent="body_top" id="17" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
     <xacro:bar_in_row note="gis6" parent="body_top" id="18" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />
     <xacro:bar_in_row note="ais6" parent="body_top" id="19" left_x="${top_left_center_x}" left_y="${top_left_center_y}" left_z="${top_left_center_z}" length_diff="${body_top_length_diff}" bar_length_left="${bar_length_top_left}" n_bars="${n_bars_top}" slope="${body_top_slope}" mirror="-1" />

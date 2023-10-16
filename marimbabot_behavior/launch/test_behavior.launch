@@ -1,5 +1,6 @@
 <launch>
 <node name="behavior_node" pkg="marimbabot_behavior" type="behavior_node.py" output="screen"/>
+<node name="commandGUI" pkg="marimbabot_behavior" type="commandGUI.py" output="screen"/>
 <node name="audio_from_lilypond" pkg="marimbabot_audio" type="audio_from_lilypond.py"/>
 <include file="$(find marimbabot_vision)/launch/marimbabot.launch"/>
 <include file="$(find marimbabot_speech)/launch/test_speech_syntesis.launch"/>

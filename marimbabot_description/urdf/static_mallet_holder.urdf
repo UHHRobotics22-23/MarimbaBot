@@ -1,6 +1,9 @@
 <?xml version="1.0"?>
+<!-- Xacro definition of the static mallet holder with one mallet -->
 <robot name="static_mallet_holder">
 
+    <!-- Link definitions -->
+    <!-- Mallet Top Part -->
     <link name="mallet_head">
         <inertial>
             <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -25,6 +28,7 @@
         </collision>
     </link>
 
+    <!-- Rod Part of the Mallet -->
     <link name="mallet_neck">
         <inertial>
             <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -47,7 +51,8 @@
             </geometry>
         </collision>
     </link>
-
+    
+    <!-- Base Link of the Mallet Assembly -->
     <link name="mallet_base_link">
         <inertial>
             <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -70,6 +75,9 @@
             </geometry>
         </collision>
     </link>
+
+    <!-- Joint definitions -->
+    <!-- All joints are fixed and only offsets -->
 
     <joint name="group_1_start_link" type="fixed">
         <parent link="mallet_base_link"/>
