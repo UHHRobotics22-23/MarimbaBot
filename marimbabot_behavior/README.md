@@ -56,6 +56,8 @@ flowchart TD
 
 ## 4. Full Decision Tree
 
+Following tree diagram showcases the different decision steps the behavior considers when processing a command.
+
 ```mermaid
 flowchart TD
     B1[Is the Behavior field value 'read'?] -->|Yes| V[Receive LilyPond String from the vision module. Success?]
