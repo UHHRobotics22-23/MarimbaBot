@@ -83,7 +83,7 @@ flowchart TD
     A1 --> |No| B3
     B3 --> |Yes| PA[Is the Planning action ready?]
     PA --> |Yes| PG1[Send the active Hit sequence to the Planning action as a Goal. Success?]
-    B3 --> |No| F4[Generate response: 'Robot is already playing.']
+    PA --> |No| F4[Generate response: 'Robot is already playing.']
     style F4 fill:#f305,stroke:#333,stroke-width:4px
     PG1 --> |Yes| A2[Is the Action field value 'loop'?]
     PG1 --> |No| F5[Send response: 'The sequence could not be played.']
@@ -104,4 +104,7 @@ flowchart TD
     style LG2 fill:#0f03,stroke:#333,stroke-width:4px
     A3 --> |No| S3[Done]
     style S3 fill:#0f03,stroke:#333,stroke-width:4px
+
+    B4 --> |No| F8[Send response: 'Command not recognized']
+    style F8 fill:#f305,stroke:#333,stroke-width:4px
 ```
