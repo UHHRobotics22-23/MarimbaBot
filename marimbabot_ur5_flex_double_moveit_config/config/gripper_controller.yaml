@@ -50,7 +50,7 @@ gripper_controller:
     s_model_finger_middle_joint_1: {trajectory: 0.1, goal: 0.01}
     s_model_finger_middle_joint_2: {trajectory: 0.1, goal: 0.01}
     s_model_finger_middle_joint_3: {trajectory: 0.1, goal: 0.01}
-  stop_trajctory_duration: 0.5
+  stop_trajectory_duration: 0.5
   state_publish_rate: 100
   action_monitor_rate: 20
 

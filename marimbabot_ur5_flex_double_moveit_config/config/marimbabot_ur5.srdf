@@ -2033,4 +2033,5 @@
     <disable_collisions link1="bar_gis4" link2="mallet_head_2" reason="User"/>
     <disable_collisions link1="bar_gis5" link2="mallet_head_2" reason="User"/>
     <disable_collisions link1="bar_gis6" link2="mallet_head_2" reason="User"/>
+    <disable_collisions link1="mallet_base_link" link2="mallet_servo_box" reason="User"/>
 </robot>
