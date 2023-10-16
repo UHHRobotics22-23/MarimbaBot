@@ -13,7 +13,7 @@ jobs:
         env:
           ROS_DISTRO: noetic
           ROS_REPO: main
-          AFTER_SETUP_TARGET_WORKSPACE: /root/target_ws/src/marimbabot/load_vcs_workspace.sh
+          AFTER_SETUP_TARGET_WORKSPACE: /root/target_ws/src/MarimbaBot/load_vcs_workspace.sh
   build_python_requirements:
     runs-on: ubuntu-20.04
     steps:
