@@ -102,6 +102,7 @@ flowchart TD
     style F6 fill:#f305,stroke:#333,stroke-width:4px
     LG1 --> |Yes| A3[Is the Action field value 'loop'?]
     LG1 --> |No| F7[Send response: 'The audio preview could not be played.']
+    style F7 fill:#f305,stroke:#333,stroke-width:4px
     A3 --> |Yes| LG2[Keep sending the active LilyPond Sequence as a Goal unil stopped.]
     style LG2 fill:#0f03,stroke:#333,stroke-width:4px
     A3 --> |No| S3[Done]
