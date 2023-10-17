@@ -1,34 +1,59 @@
 # TAMS Master Project 2022/2023 - Planning
 
-### Test the motion in RViz / simulation environment
-Launch the Demo Mode as described in the main README.md, for single mallet please run: 
+This part of the project contains all the code used for the trajectory generation.
 
-```bash
-roslaunch marimbabot_ur5_moveit_config demo.launch
-```
-for double mallet please run:
+## Testing
+
+### Launch the robot
+Launch the RViz only demo mode as described in the main README.md run
+
 ```bash
 roslaunch marimbabot_ur5_flex_double_moveit_config demo.launch
 ```
 
-And desired planning scripts can be called from marimbabot/scripts directory and run with several rosrun commands:
+otherwise, launch the full robot driver as described in the main README.md.
 
-To perform custom motion planning passing arguments of octave and note sequence with maximum loudness:
+
+### Launch the planning
+Launch the motion planning via
+
+```bash
+roslaunch marimbabot_planning marimbabot.launch
+```
+
+You can now send commands to the motion.
+
+### Motion test scripts
+
+For testing purposes, several scripts from the `marimbabot/scripts` directory can be called with the `rosrun` command.
+
+#### Dummy Client
+
+Use the following script to manually send a sequence of notes
+
 ```bash
 rosrun marimbabot_planning dummy_client.py
 ```
-example -> ( Octave : 4 , Sequence : C4, D2, A4, D4)
 
+example -> ( Octave : 4 , Sequence : C, <C#, D>, C#, A)
 
-To perform timing and loudness of hitting motion. You can pass timing, note sequence, duration and loudness parameters as arguments into the terminal:
+#### Timing
+
+Use the following script to test the timing and loudness. You can pass timing, note sequence, duration, and loudness parameters
+
 ```bash
 rosrun marimbabot_planning timing.py
 ```
+
+```
 sequence format -> Sequence : Note-duration[0,1]-loudness[0,1]
 example -> (Octave : 5 , Sequence : C-0.5-0.8, D-0.8-0.2)
+```
 
+#### Sound pad
 
-To perform pre-defined melodies or notes such as: 
+Run the following script to perform pre-defined note sequences such as
+```
 Chromatic_scale
 Brother_john
 All_my_little_ducklings
@@ -37,48 +62,43 @@ Repeat_high_end
 Feather_pattern
 All_white_keys
 All_black_keys
-Oh_my_chord
 Black_and_white_chords
+```
+
+You can specify the melody index with numbers and the desired octave offset as well.
+
+Note that these sequences do **not** include any timing information, and are therefore not the melodies you would expect.
+This was never implemented. Use the predefined melodies in the behavior GUI instead.
+
 ```bash
 rosrun marimbabot_planning sound_pad.py
 ```
-user can specify the melody index with numbers and desired Octave offest as well.
-example of 2 Octave offest with Chromatic_scale -> 0 + 2
 
+#### Keyboard
 
-To perform custom motions and play some notes using keyboard buttons 
-
-
- Then start the planning package with:
+Run this script to use your PC keyboard as a musical one. Note that the keyboard layout needs to be German for proper mapping.
 
 ```bash
  rosrun marimbabot_planning keyboard_player.py
 ```
 
+### Experimental motion calibration
 
-To give motion commands to the robot with one of these commands:
+The `self_calibration_optimization_example.ipynb` notebook in the `scripts/` folder contains some preliminary code for an audio feedback-based self-calibration. 
+The robot hits random points on the marimba and optimizes the pose of the instrument based on that information.
 
-```bash
-roslaunch marimbabot_planning marimbabot.launch
-```
-enabled keyboard buttons are (q2w3er5t6z7u -  ysxdcvgbhnjm). Each keyboard button corresponds to a specific note on the marimba.
+## Code structure
 
-### Perform motion on real robot
+The `planning.cpp` file contains the main logic that handles the trajectory generation. It contains an action server that receives new hit sequences. They are converted into a joint space trajectory and executed. The robot is moved into an idle position if no action is performed. 
+All utilities like the concatenation of two or more motion plans are part of the `utils.cpp` file.
 
-In order to run the motion planning on the real robot, launch the bringup package that brings up the specifically motion_planning launch file:
+Basic steps of the trajectory generation:
 
-```bash
-roslaunch marimbabot_planning marimbabot.launch
-```
-and then same rosrun commands that were shown above can be performed as follows:
-
-```bash
-
-rosrun marimbabot_planning timing.py
-rosrun marimbabot_planning sound_pad.py
-rosrun marimbabot_planning dummy_client.py
-rosrun marimbabot_planning keyboard_player.py
-
-```
-
-For further information, please look at the README.md in the scripts folder.
+* The goals are received as a hit sequence by the action server. 
+* The hitpoint for each note is estimated using the marimba model and tf.
+* After we check for chords the hitpoints are assigned to a mallet (the left one is preferred).
+* For each note inverse kinematics of the robot are solved so the mallet head(s) are at hitpoint, approach point, and retreat point while satisfying a number of additional contraints.
+* The different key points are interpolated in the joint space resulting in the different subtrajectories.
+* The sub-trajectories are timed to match the timing and loudness goals.
+* All sub-trajectories are concatenated.
+* The resulting trajectory is executed.
