@@ -59,13 +59,14 @@ class ActionDecider:
     # checks if the read note sequence includes a repeat symbol and updates the note sequence accordingly
     def check_for_repeat(self):
         if '\\repeat volta 2' in self.note_sequence:
-            # get the index of the first note
+            # get the index of the first note or rest
             note_sequence_list = self.note_sequence.split(' ')
             first_note_index = None
             for i, x in enumerate(note_sequence_list):
-                if re.match(r'[a-g]\'*[0-9]+(\>)?(\.)?', x):
+                if re.match(r'[a-r][s,f]?\'*[0-9]+\.?', x) or re.match(r'\<[a-g][s,f]?\'*', x):
                     first_note_index = i
                     break
+                
             self.note_sequence = ' '.join(note_sequence_list[3:] + note_sequence_list[first_note_index:])
             rospy.logdebug(f"updated notes: {self.note_sequence}")
 
@@ -117,10 +118,10 @@ class ActionDecider:
 
         sequence_list = self.note_sequence.split(' ')
 
-        # get the index of the first note
+        # get the index of the first dynamic symbol behind the first note (or the second note if the first rule is a chord)
         dynamic_index = None
         for i, x in enumerate(sequence_list):
-            if re.match(r'[a-g]\'*[0-9]+(\>)?(\.)?', x):
+            if re.match(r'[a-g][s,f]?\'*[0-9]+\.?', x) or re.match(r'[a-g][s,f]?\'*\>[0-9]+\.?', x):
                 dynamic_index = i+1
                 break
         
@@ -296,6 +297,7 @@ class ActionDecider:
     def callback_note_sequence(self, note_sequence_msg):
         self.note_sequence = note_sequence_msg.data
         rospy.loginfo(f"received note sequence: {self.note_sequence}")
+        self.check_for_repeat()
         self.response_pub.publish('Notes recognized.')
         self.update_hit_sequence()
 
