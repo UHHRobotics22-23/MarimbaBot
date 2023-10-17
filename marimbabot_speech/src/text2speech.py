@@ -10,7 +10,7 @@ class SpeechSynthesis:
     def __init__(self):
         # initialize voice and speed
         self.voice = "en_UK/apope_low"
-        self.speed = "1.5"
+        self.speed = "0.9"
 
         # listens to the defined text responses from behavior node
         self.response_sub = rospy.Subscriber("behavior_node/response", String, self.callback_response)
