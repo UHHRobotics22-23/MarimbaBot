@@ -48,10 +48,10 @@ class AudioFromLilypond(object):
             durations_seconds = self.get_audio_length(audio_filename)
             # wait for audio to finish playing
             time.sleep(durations_seconds)
-        except:
+        except Exception as e:
             # if an error happens during audio generation, set success to false
             success = False
-            rospy.logerr("Error during audio generation inside audio_from_lilypond action server")
+            rospy.logerr(f"Error during audio generation inside audio_from_lilypond action server: {e}")
 
         # set feedback and result
         self._feedback.in_progress = False

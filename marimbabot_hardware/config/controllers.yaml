@@ -9,8 +9,8 @@ trajectory_controller:
     - mallet_finger
   constraints:
     mallet_finger:
-      trajectory: 0.5
-      goal: 0.5
+      trajectory: 2.0
+      goal: 2.0
 
 position_controller:
   type: "position_controllers/JointPositionController"
