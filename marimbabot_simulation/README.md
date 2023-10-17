@@ -34,6 +34,10 @@ The simulation can play any piece, and therefore needs to be fed a note string e
 rosrun marimbabot_planning sound_pad.py
 ```
 
+## Contact detection
+
+The [main simulation launchfile](launch/marimbabot_full_sim.launch) also launches a node ([`detect_bar_contact.py`](src/detect_bar_contact.py)) to detect bar hits by applying a threshold to the bar joint velocities, and then write the detected notes to a MIDI file at the end of the simulation.
+
 
 ## MIDI generation
 
@@ -52,8 +56,3 @@ To convert a MIDI file to MP3, use the following command template:
 ```bash
 fluidsynth -l -T raw -F - /usr/share/sounds/sf2/FluidR3_GM.sf2 <PATH/TO/MIDI_FILE>.midi | twolame -b 256 -r - <NAME>.mp3 
 ```
-
-
-# TODO
-- [ ] Try tilting the mallet holder to make sure the second mallet hits the bar
-- [ ] detect_bar_contact: fix 2 notes hits at the same time
