@@ -63,7 +63,7 @@ class ActionDecider:
             note_sequence_list = self.note_sequence.split(' ')
             first_note_index = None
             for i, x in enumerate(note_sequence_list):
-                if re.match(r'[a-r](\'*)?[0-9]+\.?', x) or re.match(r'\<[a-g]\'*', x):
+                if re.match(r'[a-r][s,f]?\'*[0-9]+\.?', x) or re.match(r'\<[a-g][s,f]?\'*', x):
                     first_note_index = i
                     break
                 
@@ -121,7 +121,7 @@ class ActionDecider:
         # get the index of the first dynamic symbol behind the first note (or the second note if the first rule is a chord)
         dynamic_index = None
         for i, x in enumerate(sequence_list):
-            if re.match(r'[a-g]\'*[0-9]+\.?', x) or re.match(r'[a-g]\'*\>[0-9]+\.?', x):
+            if re.match(r'[a-g][s,f]?\'*[0-9]+\.?', x) or re.match(r'[a-g][s,f]?\'*\>[0-9]+\.?', x):
                 dynamic_index = i+1
                 break
         
