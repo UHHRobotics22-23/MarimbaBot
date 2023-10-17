@@ -318,6 +318,22 @@ class ActionDecider:
                 rospy.logwarn('No notes recognized.')
                 self.response_pub.publish('No notes recognized.')
 
+        elif command_msg.behavior == "stop":
+            rospy.logdebug('Aborting play.')
+            # stop any running threads by setting the event
+            self.event.set()
+            # check if the planning action server is currently active
+            if self.planning_client.simple_state == actionlib.SimpleGoalState.ACTIVE:
+                # cancel the goal of the planning action server
+                self.planning_client.cancel_goal()
+            # check if the lilypond_audio action server is currently active
+            if self.lilypond_audio_client.simple_state == actionlib.SimpleGoalState.ACTIVE:
+                # cancel the goal of the lilypond_audio action server
+                self.lilypond_audio_client.cancel_goal()
+
+            # send an empty message to the soundplay node to stop any audio preview (or TTS)
+            self.response_pub.publish('')
+      
         else:
             # check if a note sequence has been read via the 'read' command
             if not self.note_sequence:
@@ -368,24 +384,6 @@ class ActionDecider:
                 else:
                     rospy.logwarn('The audio preview is already playing.')
                     self.response_pub.publish('The audio preview is already playing.')
-
-            elif command_msg.behavior == "stop":
-                rospy.logdebug('Aborting play.')
-                # stop any running threads by setting the event
-                self.event.set()
-
-                # check if the planning action server is currently active
-                if self.planning_client.simple_state == actionlib.SimpleGoalState.ACTIVE:
-                    # cancel the goal of the planning action server
-                    self.planning_client.cancel_goal()
-
-                # check if the lilypond_audio action server is currently active
-                if self.lilypond_audio_client.simple_state == actionlib.SimpleGoalState.ACTIVE:
-                    # cancel the goal of the lilypond_audio action server
-                    self.lilypond_audio_client.cancel_goal()
-
-                # send an empty message to the soundplay node to stop any audio preview (or TTS)
-                self.response_pub.publish('')
 
             else:
                 rospy.logwarn('Command not handled: {}'.format(command_msg))
