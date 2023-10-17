@@ -12,12 +12,16 @@ from marimbabot_msgs.msg import Command
 
 from cv_bridge import CvBridge, CvBridgeError
 
+# Song Library
+library = {'Frère Jacques': "c''4 d''4 e''4 c''4 c''4 d''4 e''4 c''4 e''4 f''4 g''2 e''4 f''4 g''2 g''8 a''8 g''8 f''8 e''4 c''4 g''8 a''8 g''8 f''8 e''4 c''4 c''4 g'4 c''2 c''4 g'4 c''2",
+            'All my ducklings': "c''4 d''4 e''4 f''4 g''2 g''2 a''4 a''4 a''4 a''4 g''1 a''4 a''4 a''4 a''4 g''1 f''4 f''4 f''4 f''4 e''2 e''2 g''4 g''4 g''4 g''4 c''4",
+            'Scale': "c'4 d'4 e'4 f'4 g'4 a'4 b'4 c''4 b'4 a'4 g'4 f'4 e'4 d'4 c'4",
+            'Double Scale': "c'4 d'4 e'4 f'4 g'4 a'4 b'4 c''4 d''4 e''4 f''4 g''4 a''4 b''4 c'''4 b''4 a''4 g''4 f''4 e''4 d''4 c''4 b'4 a'4 g'4 f'4 e'4 d'4 c'4",
+            'Full Scale': "c'4 cs'4 d'4 ds'4 e'4 f'4 fs'4 g'4 gs'4 a'4 as'4 b'4 c''4 cs''4 d''4 ds''4 e''4 f''4 fs''4 g''4 gs''4 a''4 as''4 b''4 c'''4",
+            'Chord Testing': "c'4 <c' d'>4 <c' e'>4 <c' f'>4 <c' g'>4 <c' a'>4 <c' b'>4 <c' c''>4 d'4 <d' e'>4 <d' f'>4 <d' g'>4 <d' a'>4 <d' b'>4 <d' c''>4 <d' d''>4 e'4 <e' f'>4 <e' g'>4 <e' a'>4 <e' b'>4 <e' c''>4 <e' d''>4 <e' e''>4 f'4 <f' g'>4 <f' a'>4 <f' b'>4 <f' c''>4 <f' d''>4 <f' e''>4 <f' f''>4 g'4 <g' a'>4 <g' b'>4 <g' c''>4 <g' d''>4 <g' e''>4 <g' f''>4 <g' g''>4 a'4 <a' b'>4 <a' c''>4 <a' d''>4 <a' e''>4 <a' f''>4 <a' g''>4 <a' a''>4 b'4 <b' c''>4 <b' d''>4 <b' e''>4 <b' f''>4 <b' g''>4 <b' a''>4 <b' b''>4 c''4 <c'' d''>4 <c'' e''>4 <c'' f''>4 <c'' g''>4 <c'' a''>4 <c'' b''>4 <c'' c'''>4"}
+
 # sets the input note sequence to the selected song from the song library
 def set_song(*args):
-    library = {'Frère Jacques': "c''4 d''4 e''4 c''4 c''4 d''4 e''4 c''4 e''4 f''4 g''2 e''4 f''4 g''2 g''8 a''8 g''8 f''8 e''4 c''4 g''8 a''8 g''8 f''8 e''4 c''4 c''4 g'4 c''2 c''4 g'4 c''2",
-               'All my ducklings': "c''4 d''4 e''4 f''4 g''2 g''2 a''4 a''4 a''4 a''4 g''1 a''4 a''4 a''4 a''4 g''1 f''4 f''4 f''4 f''4 e''2 e''2 g''4 g''4 g''4 g''4 c''4",
-               'Scale': "c'4 d'4 e'4 f'4 g'4 a'4 b'4 c''4 b'4 a'4 g'4 f'4 e'4 d'4 c'4"}
-    
     entry.delete(0, END)
     song = library[selected_song.get()]
     entry.insert(0, song)
@@ -93,13 +97,13 @@ Button(root, text='Read from camera', command=read_notes).grid(row=2, column=0, 
 # Song Library
 selected_song = StringVar()
 selected_song.set("Song Library")
-drop = OptionMenu(root, selected_song, *['Frère Jacques', 'All my ducklings', 'Scale'])
+drop = OptionMenu(root, selected_song, *library.keys())
 drop.grid(row=2, column=1, pady=4)
 selected_song.trace("w", set_song)
 
 # Active Note Sequence
 Label(root, text="Active Note Sequence").grid(row=4, column=1, pady=4)
-current_sequence = Label(root, text="", bg="white", width=80, wraplength=650, anchor="w", justify=LEFT)
+current_sequence = Label(root, text="", bg="white", width=80, wraplength=630, anchor="w", justify=LEFT)
 current_sequence.grid(row=5, column=0, columnspan=3, pady=10)
 
 # Command Builder
