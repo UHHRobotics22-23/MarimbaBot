@@ -51,4 +51,10 @@ Trains a model on the a set of given `train_data_paths`.
 Trains the tokenizer on all text files defined by a glob expression.
 
 ### `detect.py`
-This script is used for live detection of notes. A trained model can be used to initialize. The current model is stored at HuggingFace and its path/name is set by the `MODEL_PATH` parameter inside `config/vision_node.yaml` The detected notes are shown in a window.
+This script is used for detection of notes in given image file. The current model stored at HuggingFace will be downloaded/used by default. The detected notes are printed to the terminal.
+
+### `attention_viz.py`
+The script is similar to the `detect.py` script, but shows the cross-attention to the image encoder as a heatmap.
+
+### `eval.py`
+This script can be used to evaluate a given model on a given dataset.
