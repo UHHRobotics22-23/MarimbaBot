@@ -1,5 +1,8 @@
 # TAMS Master Project 2022/2023 - Vision
 
+This part of the repository stores all the code to run and train the transformer based end-to-end vision pipeline. 
+The latest trained model can be found on [Huggingface](https://huggingface.co/Flova/omr_transformer), which also allows a simple browser based demo.
+
 ## Scripts
 For more information on the usage of the scripts, please refer [README](../marimbabot_vision/scripts/README.md).
 
@@ -10,7 +13,7 @@ This will create a dataset of N samples. The dataset is saved in the `data`, `da
 ## Src
 ### [vision_node.py](src/vision_node.py)
 
-This ROS node is responsible for processing images from a camera source and recognizing notes in the images using a pre-trained model. It converts the image data into a textual representation of recognized musical notes and publishes them as ROS messages.
+This ROS node is responsible for processing images from a camera source and recognizing notes in the images using a pre-trained model. It converts the image data into a textual LilyPond representation and publishes them as ROS messages.
 
 
 ### [visualization_node.py](src/visualization_node.py)
