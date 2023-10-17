@@ -51,12 +51,6 @@
                 <color rgba="1.0 1.0 1.0 1.0"/>
             </material>
         </visual>
-        <collision>
-            <origin xyz="${-(10)/1000} ${(6-(68.4+6+6)/2)/1000} ${(13.3+10)/1000}" rpy="${-pi / 2} 0.0 0.0"/>
-            <geometry>
-                <mesh filename="package://marimbabot_description/mesh/two_mallet_servo_element.stl" scale="0.001 0.001 0.001"/>
-            </geometry>
-        </collision>
         <inertial>
             <origin xyz="0 0 0" rpy="0 0 0"/>
             <mass value="0.01"/>
@@ -192,7 +186,7 @@
         <parent link="mallet_base_link"/>
         <child link="mallet_servo_box"/>
         <origin xyz="${(-77/2+10+7)/1000} 0.0 ${0.0368+(110-60)/1000}"/>
-        <limit lower="0.05" upper="1.22" effort="2.0" velocity="7.0"/>
+        <limit lower="0.0" upper="1.22" effort="2.0" velocity="7.0"/>
         <axis xyz="0.0 -1.0 0.0"/>
     </joint>
 
