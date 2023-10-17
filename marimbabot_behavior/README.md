@@ -25,11 +25,12 @@ Following files contain the important code that determines the functionality of 
 
 ```mermaid
 flowchart TD
-    A(fa:fa-microphone Speech) --> |Command| B{fa:fa-brain Behavior}
-    B --> |Hit Sequence| C(fa:fa-robot Motion Planning)
-    D(fa:fa-eye Vision) --> |LilyPond Sequence| B
-    B --> |LilyPond Sequence| E(fa:fa-volume-uo Audio)
-    B --> |Response| A
+    A(fa:fa-microphone Speech) --> |command| B{fa:fa-brain Behavior}
+    B --> |hit sequence| C(fa:fa-robot Motion Planning)
+    C --> B
+    D(fa:fa-eye Vision) --> |note sequence| B
+    B --> |note sequence| E(fa:fa-volume-uo Audio)
+    B --> |response| A
 ```
 
 ### 3.1 Subscriber Topics
