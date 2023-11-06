@@ -96,3 +96,13 @@ The both outermost notes are **c'4** and **c'''4**. For hitting them repeatedly,
 
 The full scale is available as a present for testing all notes.
 Using the chord testing program, the 2nd mallet can also be tested and further adjustments to the position be made.
+
+### 5. Audio Feedback Microphone
+*I don't know the specific steps here - Tom*
+
+### 6. Note Reading Camera
+The Logitech StreamCam is used for the detection of notes on the whiteboard.
+Mount the camera on a tripod and point it to the whiteboard. Connect to the computer using USB.
+
+Magnetic notes and note lines are provided in the hardware box.
+Attach the note lines to the whiteboard before adding notes.
