@@ -77,3 +77,22 @@ First use the gripper position *basic_open*.
 Then hold the holder in to gripper and change it to *basic_closed*.
 
 Note: When restarting the robot / ros the gripper sometimes opens and closes, be ready to catch it if necessary.
+
+### 4. Calibration of the Marimba Position
+The marimba in our environment is expected to be in a specific orientation for each run.
+The debug sequences are used to hit the outermost keys at the center.
+Through 2-3 iterations of adjusting the marimba such that the center of these keys is hit, the calibration of the marimba is possible.
+
+For the system to be ready run (skip if already started in previous step)
+
+    roslaunch marimbabot_bringup marimbabot_ur5_bringup.launch
+
+Further the command gui has to be started to run the testing sequences.
+
+    rosrun marimbabot_behavior commandGUI.py
+
+A gui window will appear with the option to input play sequences.
+The both outermost notes are **c'4** and **c'''4**. For hitting them repeatedly, input the notes separated by a space, confirm, read and finally play them.
+
+The full scale is available as a present for testing all notes.
+Using the chord testing program, the 2nd mallet can also be tested and further adjustments to the position be made.
