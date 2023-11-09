@@ -45,8 +45,13 @@ Second, the launch file that brings up the launch file for each package:
 roslaunch marimbabot_bringup marimbabot.launch
 ```
 
-### 4. (Optional) rqt visualizations
-*Honestly, I don't know how to do this - Tom*
+### 4. (Optional) rqt/rviz visualizations
+There are several visualization windows, basically, it just publishes the image to ros topic, you can observe the visualization at the rviz or rqt by opening a image windows. Following is the list of topics:
+- **/audio_node/spectrogram_img**: show the spectrum of music notes detection
+- **/audio_node/live_midi_img**: show the live midi image of music notes detection
+- **/audio_node/feedback_img**: the final evaluation image of ground-truth and robot playing
+- **cv_camera_node/image_raw**: the image capture by camera, which come from the whiteboard
+- **detection_visualization**: show the recognized music note
 
 ## Hardware
 
@@ -98,7 +103,7 @@ The full scale is available as a present for testing all notes.
 Using the chord testing program, the 2nd mallet can also be tested and further adjustments to the position be made.
 
 ### 5. Audio Feedback Microphone
-*I don't know the specific steps here - Tom*
+For setting up the microphone regarding the audio feedback, we used a microphone and a soundcard. **There is one thing to be careful of, you need to open the signal amplification at the soundcard, something even the red light is on, but it doesn't mean it really works, so better to reopen it, or check it by observing the system volume at the configuration of ubuntu system.**
 
 ### 6. Note Reading Camera
 The Logitech StreamCam is used for the detection of notes on the whiteboard.
