@@ -98,7 +98,8 @@ There are several visualizations, basically, it just publishes the image to the 
 
 Now that everything is set up we are able to use the MarimbaBot.
 
-The robot's wakeword is `Hi Marimbabot!`.
+The robot's wakeword is `Hi Marimbabot!`. 
+The webcam mic is used for the speech detection, so don't move too far away from the whiteboard and microphone. Also don't stand in front of the whiteboard while the robot is reading the notes.
 
 To play some notes of the whiteboard follow these steps:
 
