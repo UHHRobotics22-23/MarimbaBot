@@ -13,7 +13,9 @@ This repository contains the codebase for a [Marimba](https://en.wikipedia.org/w
 ## Video Demonstration
 
 <p align="center">
-  <img width="60%" src="http://i.ytimg.com/vi/73nEBY3L2v0/hqdefault.jpg" alt="marimba playing robot" href="https://www.youtube.com/watch?v=73nEBY3L2v0" />
+  <a href="https://www.youtube.com/watch?v=73nEBY3L2v0">
+    <img width="60%" src="http://i.ytimg.com/vi/73nEBY3L2v0/hqdefault.jpg" alt="marimba playing robot" href="https://www.youtube.com/watch?v=73nEBY3L2v0" />
+  </a>
 </p>
 
 ## Project Overview
