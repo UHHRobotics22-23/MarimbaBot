@@ -9,6 +9,13 @@ This repository contains the codebase for a [Marimba](https://en.wikipedia.org/w
   <img width="30%" src="https://github.com/UHHRobotics22-23/marimbabot/assets/15075613/277ce391-edd8-4c7a-8142-e50c12e855a2" alt="marimba playing robot" />
 </p>
 
+
+## Video Demonstration
+
+<p align="center">
+  <img width="60%" src="http://i.ytimg.com/vi/73nEBY3L2v0/hqdefault.jpg" alt="marimba playing robot" href="https://www.youtube.com/watch?v=73nEBY3L2v0" />
+</p>
+
 ## Project Overview
 
 The project is separated into multiple different modules.
