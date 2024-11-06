@@ -11,7 +11,7 @@ numpy==1.23.3
 opencv-python==4.7.0.68
 Pillow==9.4.0
 pretty-midi==0.2.10
-pytorch_lightning==1.8.1
+pytorch_lightning==1.8.6
 rospkg==1.5.0
 tensorflow
 torch==1.13.1
